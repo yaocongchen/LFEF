@@ -228,3 +228,5 @@ if __name__=="__main__":
     
     train(args)
     print("你好")
+    print("newo")
+    print("dsfjskdf")
