@@ -227,3 +227,4 @@ if __name__=="__main__":
     args = vars(ap.parse_args())  #使用vars()是為了能像字典一樣訪問ap.parse_args()的值
     
     train(args)
+    ddfsdf
