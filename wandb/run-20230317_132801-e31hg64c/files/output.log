@@ -1,0 +1,1353 @@
+
+  0%|                                                                                                                                              | 0/150 [00:00<?, ?it/s]
+----- Training - Epoch 01 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[1/150] train_iter: (10/64) 	 loss: 1.027444 acc:0.388004
+=====> epoch[1/150] train_iter: (20/64) 	 loss: 1.122456 acc:0.257012
+=====> epoch[1/150] train_iter: (30/64) 	 loss: 1.009387 acc:0.393801
+=====> epoch[1/150] train_iter: (40/64) 	 loss: 0.946635 acc:0.514725
+
+  1%|▉                                                                                                                                     | 1/150 [00:04<11:44,  4.73s/it]
+=====> epoch[1/150] train_iter: (60/64) 	 loss: 0.929923 acc:0.498174
+----- Training - Epoch 02 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[2/150] train_iter: (10/64) 	 loss: 0.992426 acc:0.398969
+=====> epoch[2/150] train_iter: (20/64) 	 loss: 0.913451 acc:0.477803
+=====> epoch[2/150] train_iter: (30/64) 	 loss: 0.996300 acc:0.532314
+=====> epoch[2/150] train_iter: (40/64) 	 loss: 1.055759 acc:0.289921
+=====> epoch[2/150] train_iter: (50/64) 	 loss: 0.991200 acc:0.334188
+=====> epoch[2/150] train_iter: (60/64) 	 loss: 0.914661 acc:0.576229
+----- Training - Epoch 03 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[3/150] train_iter: (10/64) 	 loss: 0.981170 acc:0.348906
+
+  1%|█▊                                                                                                                                    | 2/150 [00:08<10:20,  4.19s/it]
+=====> epoch[3/150] train_iter: (30/64) 	 loss: 1.020101 acc:0.338927
+=====> epoch[3/150] train_iter: (40/64) 	 loss: 0.977340 acc:0.405170
+
+  2%|██▋                                                                                                                                   | 3/150 [00:12<09:50,  4.02s/it]
+=====> epoch[3/150] train_iter: (60/64) 	 loss: 1.069727 acc:0.206763
+----- Training - Epoch 04 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[4/150] train_iter: (10/64) 	 loss: 0.848244 acc:0.468498
+=====> epoch[4/150] train_iter: (20/64) 	 loss: 1.184890 acc:0.187397
+=====> epoch[4/150] train_iter: (30/64) 	 loss: 0.839378 acc:0.483612
+=====> epoch[4/150] train_iter: (40/64) 	 loss: 0.969325 acc:0.574318
+=====> epoch[4/150] train_iter: (50/64) 	 loss: 0.746019 acc:0.577984
+
+  3%|███▌                                                                                                                                  | 4/150 [00:16<09:31,  3.91s/it]
+----- Training - Epoch 05 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[5/150] train_iter: (10/64) 	 loss: 0.994116 acc:0.285277
+=====> epoch[5/150] train_iter: (20/64) 	 loss: 0.881435 acc:0.440431
+=====> epoch[5/150] train_iter: (30/64) 	 loss: 0.686530 acc:0.590358
+=====> epoch[5/150] train_iter: (40/64) 	 loss: 1.049741 acc:0.206402
+=====> epoch[5/150] train_iter: (50/64) 	 loss: 1.020005 acc:0.345557
+=====> epoch[5/150] train_iter: (60/64) 	 loss: 0.892491 acc:0.514826
+----- Training - Epoch 06 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[6/150] train_iter: (10/64) 	 loss: 0.716597 acc:0.524615
+=====> epoch[6/150] train_iter: (20/64) 	 loss: 0.803639 acc:0.452226
+
+  3%|████▍                                                                                                                                 | 5/150 [00:19<09:20,  3.86s/it]
+=====> epoch[6/150] train_iter: (40/64) 	 loss: 0.859674 acc:0.449385
+=====> epoch[6/150] train_iter: (50/64) 	 loss: 0.939362 acc:0.325956
+=====> epoch[6/150] train_iter: (60/64) 	 loss: 0.872290 acc:0.389157
+----- Training - Epoch 07 - batch_size 2,------
+
+  4%|█████▎                                                                                                                                | 6/150 [00:23<09:09,  3.81s/it]
+=====> epoch[7/150] train_iter: (10/64) 	 loss: 0.946271 acc:0.318672
+=====> epoch[7/150] train_iter: (20/64) 	 loss: 0.880509 acc:0.382529
+=====> epoch[7/150] train_iter: (30/64) 	 loss: 1.064779 acc:0.328589
+=====> epoch[7/150] train_iter: (40/64) 	 loss: 0.903466 acc:0.383446
+=====> epoch[7/150] train_iter: (50/64) 	 loss: 0.840936 acc:0.430597
+=====> epoch[7/150] train_iter: (60/64) 	 loss: 0.968506 acc:0.313093
+----- Training - Epoch 08 - batch_size 2,------
+
+  5%|██████▎                                                                                                                               | 7/150 [00:27<09:01,  3.79s/it]
+=====> epoch[8/150] train_iter: (10/64) 	 loss: 0.708625 acc:0.510972
+=====> epoch[8/150] train_iter: (20/64) 	 loss: 0.806970 acc:0.460349
+=====> epoch[8/150] train_iter: (30/64) 	 loss: 0.983081 acc:0.257948
+=====> epoch[8/150] train_iter: (40/64) 	 loss: 0.692817 acc:0.568290
+=====> epoch[8/150] train_iter: (50/64) 	 loss: 0.822801 acc:0.423872
+=====> epoch[8/150] train_iter: (60/64) 	 loss: 0.767446 acc:0.504478
+----- Training - Epoch 09 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+  5%|███████▏                                                                                                                              | 8/150 [00:31<08:54,  3.77s/it]
+=====> epoch[9/150] train_iter: (20/64) 	 loss: 0.982710 acc:0.334689
+=====> epoch[9/150] train_iter: (30/64) 	 loss: 0.859321 acc:0.353285
+=====> epoch[9/150] train_iter: (40/64) 	 loss: 0.993374 acc:0.343297
+=====> epoch[9/150] train_iter: (50/64) 	 loss: 0.879465 acc:0.417436
+=====> epoch[9/150] train_iter: (60/64) 	 loss: 0.693237 acc:0.589019
+----- Training - Epoch 10 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+  6%|████████                                                                                                                              | 9/150 [00:34<08:48,  3.75s/it]
+=====> epoch[10/150] train_iter: (20/64) 	 loss: 0.715513 acc:0.475208
+=====> epoch[10/150] train_iter: (30/64) 	 loss: 0.854484 acc:0.432595
+=====> epoch[10/150] train_iter: (40/64) 	 loss: 0.995341 acc:0.224279
+=====> epoch[10/150] train_iter: (50/64) 	 loss: 0.726603 acc:0.571883
+=====> epoch[10/150] train_iter: (60/64) 	 loss: 0.874186 acc:0.321931
+----- Training - Epoch 11 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[11/150] train_iter: (10/64) 	 loss: 0.824628 acc:0.512722
+
+  7%|████████▊                                                                                                                            | 10/150 [00:38<08:44,  3.74s/it]
+=====> epoch[11/150] train_iter: (30/64) 	 loss: 0.770395 acc:0.446525
+=====> epoch[11/150] train_iter: (40/64) 	 loss: 0.708411 acc:0.493261
+=====> epoch[11/150] train_iter: (50/64) 	 loss: 0.707795 acc:0.489412
+=====> epoch[11/150] train_iter: (60/64) 	 loss: 0.806695 acc:0.486671
+----- Training - Epoch 12 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[12/150] train_iter: (10/64) 	 loss: 0.725264 acc:0.527659
+
+  7%|█████████▊                                                                                                                           | 11/150 [00:42<08:40,  3.74s/it]
+=====> epoch[12/150] train_iter: (30/64) 	 loss: 0.829828 acc:0.403108
+=====> epoch[12/150] train_iter: (40/64) 	 loss: 0.693828 acc:0.593934
+=====> epoch[12/150] train_iter: (50/64) 	 loss: 0.850986 acc:0.500374
+=====> epoch[12/150] train_iter: (60/64) 	 loss: 0.716866 acc:0.469728
+----- Training - Epoch 13 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[13/150] train_iter: (10/64) 	 loss: 0.961916 acc:0.260090
+=====> epoch[13/150] train_iter: (20/64) 	 loss: 1.027121 acc:0.156368
+
+  8%|██████████▋                                                                                                                          | 12/150 [00:45<08:36,  3.74s/it]
+=====> epoch[13/150] train_iter: (40/64) 	 loss: 0.818374 acc:0.569842
+=====> epoch[13/150] train_iter: (50/64) 	 loss: 0.903989 acc:0.460885
+=====> epoch[13/150] train_iter: (60/64) 	 loss: 0.681909 acc:0.529810
+----- Training - Epoch 14 - batch_size 2,------
+
+  9%|███████████▌                                                                                                                         | 13/150 [00:49<08:31,  3.74s/it]
+=====> epoch[14/150] train_iter: (10/64) 	 loss: 0.914479 acc:0.418932
+=====> epoch[14/150] train_iter: (20/64) 	 loss: 0.695336 acc:0.536548
+=====> epoch[14/150] train_iter: (30/64) 	 loss: 0.720590 acc:0.517417
+=====> epoch[14/150] train_iter: (40/64) 	 loss: 0.725891 acc:0.450397
+=====> epoch[14/150] train_iter: (50/64) 	 loss: 0.687965 acc:0.466168
+=====> epoch[14/150] train_iter: (60/64) 	 loss: 0.784107 acc:0.380964
+----- Training - Epoch 15 - batch_size 2,------
+
+  9%|████████████▍                                                                                                                        | 14/150 [00:53<08:27,  3.73s/it]
+=====> epoch[15/150] train_iter: (10/64) 	 loss: 0.840988 acc:0.368206
+=====> epoch[15/150] train_iter: (20/64) 	 loss: 0.644665 acc:0.576122
+=====> epoch[15/150] train_iter: (30/64) 	 loss: 0.808954 acc:0.379743
+
+ 10%|█████████████▎                                                                                                                       | 15/150 [00:57<08:23,  3.73s/it]
+=====> epoch[15/150] train_iter: (50/64) 	 loss: 0.865837 acc:0.382536
+=====> epoch[15/150] train_iter: (60/64) 	 loss: 1.102744 acc:0.137022
+----- Training - Epoch 16 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[16/150] train_iter: (10/64) 	 loss: 0.820252 acc:0.396408
+=====> epoch[16/150] train_iter: (20/64) 	 loss: 0.846109 acc:0.378446
+=====> epoch[16/150] train_iter: (30/64) 	 loss: 0.618467 acc:0.557747
+=====> epoch[16/150] train_iter: (40/64) 	 loss: 0.791548 acc:0.386429
+=====> epoch[16/150] train_iter: (50/64) 	 loss: 0.696738 acc:0.546152
+=====> epoch[16/150] train_iter: (60/64) 	 loss: 0.788032 acc:0.535626
+----- Training - Epoch 17 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+ 11%|██████████████▏                                                                                                                      | 16/150 [01:00<08:19,  3.73s/it]
+=====> epoch[17/150] train_iter: (20/64) 	 loss: 0.751620 acc:0.456182
+=====> epoch[17/150] train_iter: (30/64) 	 loss: 0.851609 acc:0.372805
+=====> epoch[17/150] train_iter: (40/64) 	 loss: 0.663504 acc:0.529908
+=====> epoch[17/150] train_iter: (50/64) 	 loss: 0.922906 acc:0.306867
+=====> epoch[17/150] train_iter: (60/64) 	 loss: 0.682985 acc:0.513420
+----- Training - Epoch 18 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[18/150] train_iter: (10/64) 	 loss: 0.678926 acc:0.595230
+
+ 11%|███████████████                                                                                                                      | 17/150 [01:04<08:15,  3.73s/it]
+=====> epoch[18/150] train_iter: (30/64) 	 loss: 0.906301 acc:0.333864
+=====> epoch[18/150] train_iter: (40/64) 	 loss: 0.687720 acc:0.650691
+=====> epoch[18/150] train_iter: (50/64) 	 loss: 0.712662 acc:0.468135
+=====> epoch[18/150] train_iter: (60/64) 	 loss: 0.675554 acc:0.546547
+----- Training - Epoch 19 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[19/150] train_iter: (10/64) 	 loss: 0.700590 acc:0.544452
+
+ 12%|███████████████▉                                                                                                                     | 18/150 [01:08<08:12,  3.73s/it]
+=====> epoch[19/150] train_iter: (30/64) 	 loss: 0.779442 acc:0.367261
+=====> epoch[19/150] train_iter: (40/64) 	 loss: 0.667262 acc:0.487430
+=====> epoch[19/150] train_iter: (50/64) 	 loss: 0.755383 acc:0.422929
+
+ 13%|████████████████▊                                                                                                                    | 19/150 [01:12<08:08,  3.73s/it]
+----- Training - Epoch 20 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[20/150] train_iter: (10/64) 	 loss: 0.653418 acc:0.568265
+=====> epoch[20/150] train_iter: (20/64) 	 loss: 0.763293 acc:0.392815
+=====> epoch[20/150] train_iter: (30/64) 	 loss: 0.791360 acc:0.512945
+=====> epoch[20/150] train_iter: (40/64) 	 loss: 0.822559 acc:0.316664
+=====> epoch[20/150] train_iter: (50/64) 	 loss: 0.696264 acc:0.565122
+=====> epoch[20/150] train_iter: (60/64) 	 loss: 0.720558 acc:0.528185
+----- Training - Epoch 21 - batch_size 2,------
+
+ 13%|█████████████████▋                                                                                                                   | 20/150 [01:15<08:05,  3.73s/it]
+=====> epoch[21/150] train_iter: (10/64) 	 loss: 0.742829 acc:0.385128
+=====> epoch[21/150] train_iter: (20/64) 	 loss: 0.586812 acc:0.645603
+=====> epoch[21/150] train_iter: (30/64) 	 loss: 0.754539 acc:0.427804
+=====> epoch[21/150] train_iter: (40/64) 	 loss: 0.708355 acc:0.582723
+=====> epoch[21/150] train_iter: (50/64) 	 loss: 0.817734 acc:0.559964
+=====> epoch[21/150] train_iter: (60/64) 	 loss: 0.953966 acc:0.217326
+----- Training - Epoch 22 - batch_size 2,------
+
+ 14%|██████████████████▌                                                                                                                  | 21/150 [01:19<08:01,  3.73s/it]
+=====> epoch[22/150] train_iter: (10/64) 	 loss: 0.865746 acc:0.374560
+=====> epoch[22/150] train_iter: (20/64) 	 loss: 0.881052 acc:0.291711
+=====> epoch[22/150] train_iter: (30/64) 	 loss: 0.797747 acc:0.456060
+=====> epoch[22/150] train_iter: (40/64) 	 loss: 0.653031 acc:0.552275
+=====> epoch[22/150] train_iter: (50/64) 	 loss: 0.730097 acc:0.424572
+=====> epoch[22/150] train_iter: (60/64) 	 loss: 0.599284 acc:0.574656
+----- Training - Epoch 23 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+ 15%|███████████████████▌                                                                                                                 | 22/150 [01:23<07:57,  3.73s/it]
+=====> epoch[23/150] train_iter: (20/64) 	 loss: 0.608307 acc:0.594916
+=====> epoch[23/150] train_iter: (30/64) 	 loss: 0.651556 acc:0.453449
+=====> epoch[23/150] train_iter: (40/64) 	 loss: 0.716887 acc:0.474763
+=====> epoch[23/150] train_iter: (50/64) 	 loss: 0.695652 acc:0.543369
+=====> epoch[23/150] train_iter: (60/64) 	 loss: 0.634301 acc:0.552593
+----- Training - Epoch 24 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+ 15%|████████████████████▍                                                                                                                | 23/150 [01:26<07:53,  3.73s/it]
+=====> epoch[24/150] train_iter: (20/64) 	 loss: 0.632365 acc:0.475753
+=====> epoch[24/150] train_iter: (30/64) 	 loss: 0.711612 acc:0.412615
+=====> epoch[24/150] train_iter: (40/64) 	 loss: 0.611985 acc:0.560594
+=====> epoch[24/150] train_iter: (50/64) 	 loss: 0.713264 acc:0.492651
+=====> epoch[24/150] train_iter: (60/64) 	 loss: 0.595388 acc:0.539031
+----- Training - Epoch 25 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[25/150] train_iter: (10/64) 	 loss: 0.803780 acc:0.361355
+
+ 16%|█████████████████████▎                                                                                                               | 24/150 [01:30<07:49,  3.73s/it]
+=====> epoch[25/150] train_iter: (30/64) 	 loss: 0.657343 acc:0.494033
+=====> epoch[25/150] train_iter: (40/64) 	 loss: 0.772437 acc:0.371685
+=====> epoch[25/150] train_iter: (50/64) 	 loss: 0.692035 acc:0.414913
+=====> epoch[25/150] train_iter: (60/64) 	 loss: 0.628323 acc:0.487746
+----- Training - Epoch 26 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[26/150] train_iter: (10/64) 	 loss: 0.705784 acc:0.471208
+
+ 17%|██████████████████████▏                                                                                                              | 25/150 [01:34<07:45,  3.72s/it]
+=====> epoch[26/150] train_iter: (30/64) 	 loss: 0.633170 acc:0.511446
+=====> epoch[26/150] train_iter: (40/64) 	 loss: 0.682857 acc:0.419844
+=====> epoch[26/150] train_iter: (50/64) 	 loss: 0.602643 acc:0.575243
+
+ 17%|███████████████████████                                                                                                              | 26/150 [01:38<07:41,  3.73s/it]
+----- Training - Epoch 27 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[27/150] train_iter: (10/64) 	 loss: 0.626940 acc:0.515082
+=====> epoch[27/150] train_iter: (20/64) 	 loss: 0.785791 acc:0.338684
+=====> epoch[27/150] train_iter: (30/64) 	 loss: 0.618651 acc:0.520844
+=====> epoch[27/150] train_iter: (40/64) 	 loss: 0.686484 acc:0.478020
+=====> epoch[27/150] train_iter: (50/64) 	 loss: 0.566148 acc:0.556875
+
+ 18%|███████████████████████▉                                                                                                             | 27/150 [01:41<07:38,  3.72s/it]
+----- Training - Epoch 28 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[28/150] train_iter: (10/64) 	 loss: 0.874806 acc:0.336745
+=====> epoch[28/150] train_iter: (20/64) 	 loss: 0.916119 acc:0.240594
+=====> epoch[28/150] train_iter: (30/64) 	 loss: 0.808041 acc:0.445503
+=====> epoch[28/150] train_iter: (40/64) 	 loss: 0.708352 acc:0.456258
+=====> epoch[28/150] train_iter: (50/64) 	 loss: 0.640021 acc:0.501445
+=====> epoch[28/150] train_iter: (60/64) 	 loss: 0.632748 acc:0.660765
+----- Training - Epoch 29 - batch_size 2,------
+
+ 19%|████████████████████████▊                                                                                                            | 28/150 [01:45<07:34,  3.73s/it]
+=====> epoch[29/150] train_iter: (10/64) 	 loss: 0.749525 acc:0.364960
+=====> epoch[29/150] train_iter: (20/64) 	 loss: 0.637960 acc:0.510643
+=====> epoch[29/150] train_iter: (30/64) 	 loss: 0.706961 acc:0.412949
+=====> epoch[29/150] train_iter: (40/64) 	 loss: 0.670350 acc:0.463065
+=====> epoch[29/150] train_iter: (50/64) 	 loss: 0.718364 acc:0.453404
+=====> epoch[29/150] train_iter: (60/64) 	 loss: 0.628521 acc:0.508519
+----- Training - Epoch 30 - batch_size 2,------
+
+ 19%|█████████████████████████▋                                                                                                           | 29/150 [01:49<07:30,  3.73s/it]
+=====> epoch[30/150] train_iter: (10/64) 	 loss: 0.739585 acc:0.628360
+=====> epoch[30/150] train_iter: (20/64) 	 loss: 0.635886 acc:0.462573
+=====> epoch[30/150] train_iter: (30/64) 	 loss: 0.658178 acc:0.443490
+=====> epoch[30/150] train_iter: (40/64) 	 loss: 0.587887 acc:0.565969
+=====> epoch[30/150] train_iter: (50/64) 	 loss: 0.710961 acc:0.448007
+=====> epoch[30/150] train_iter: (60/64) 	 loss: 0.674072 acc:0.603262
+----- Training - Epoch 31 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+ 20%|██████████████████████████▌                                                                                                          | 30/150 [01:53<07:27,  3.73s/it]
+=====> epoch[31/150] train_iter: (20/64) 	 loss: 0.599113 acc:0.541083
+=====> epoch[31/150] train_iter: (30/64) 	 loss: 0.573489 acc:0.556706
+=====> epoch[31/150] train_iter: (40/64) 	 loss: 0.711567 acc:0.537762
+=====> epoch[31/150] train_iter: (50/64) 	 loss: 0.655348 acc:0.431641
+=====> epoch[31/150] train_iter: (60/64) 	 loss: 0.564077 acc:0.554769
+----- Training - Epoch 32 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+ 21%|███████████████████████████▍                                                                                                         | 31/150 [01:56<07:23,  3.73s/it]
+=====> epoch[32/150] train_iter: (20/64) 	 loss: 0.611091 acc:0.501408
+=====> epoch[32/150] train_iter: (30/64) 	 loss: 0.577445 acc:0.585068
+=====> epoch[32/150] train_iter: (40/64) 	 loss: 0.573398 acc:0.584935
+=====> epoch[32/150] train_iter: (50/64) 	 loss: 0.681068 acc:0.351762
+=====> epoch[32/150] train_iter: (60/64) 	 loss: 0.746204 acc:0.564535
+----- Training - Epoch 33 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[33/150] train_iter: (10/64) 	 loss: 0.642894 acc:0.433642
+
+ 21%|████████████████████████████▎                                                                                                        | 32/150 [02:00<07:19,  3.73s/it]
+=====> epoch[33/150] train_iter: (30/64) 	 loss: 0.624716 acc:0.516885
+=====> epoch[33/150] train_iter: (40/64) 	 loss: 0.547655 acc:0.587048
+=====> epoch[33/150] train_iter: (50/64) 	 loss: 0.536830 acc:0.614049
+=====> epoch[33/150] train_iter: (60/64) 	 loss: 0.605226 acc:0.540095
+----- Training - Epoch 34 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[34/150] train_iter: (10/64) 	 loss: 0.784438 acc:0.308829
+
+ 22%|█████████████████████████████▎                                                                                                       | 33/150 [02:04<07:16,  3.73s/it]
+=====> epoch[34/150] train_iter: (30/64) 	 loss: 0.612807 acc:0.597497
+=====> epoch[34/150] train_iter: (40/64) 	 loss: 0.651540 acc:0.419128
+=====> epoch[34/150] train_iter: (50/64) 	 loss: 0.722282 acc:0.389703
+
+ 23%|██████████████████████████████▏                                                                                                      | 34/150 [02:07<07:12,  3.73s/it]
+----- Training - Epoch 35 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[35/150] train_iter: (10/64) 	 loss: 0.548048 acc:0.578412
+=====> epoch[35/150] train_iter: (20/64) 	 loss: 0.549707 acc:0.576231
+
+ 23%|███████████████████████████████                                                                                                      | 35/150 [02:11<07:09,  3.73s/it]
+=====> epoch[35/150] train_iter: (40/64) 	 loss: 1.049924 acc:0.116617
+=====> epoch[35/150] train_iter: (50/64) 	 loss: 0.544328 acc:0.588060
+=====> epoch[35/150] train_iter: (60/64) 	 loss: 0.574592 acc:0.557394
+----- Training - Epoch 36 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[36/150] train_iter: (10/64) 	 loss: 0.534318 acc:0.649949
+=====> epoch[36/150] train_iter: (20/64) 	 loss: 0.625393 acc:0.458351
+
+ 24%|███████████████████████████████▉                                                                                                     | 36/150 [02:15<07:05,  3.73s/it]
+=====> epoch[36/150] train_iter: (40/64) 	 loss: 0.618700 acc:0.463830
+=====> epoch[36/150] train_iter: (50/64) 	 loss: 0.556980 acc:0.566731
+=====> epoch[36/150] train_iter: (60/64) 	 loss: 0.591862 acc:0.498832
+----- Training - Epoch 37 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[37/150] train_iter: (10/64) 	 loss: 0.575805 acc:0.663411
+=====> epoch[37/150] train_iter: (20/64) 	 loss: 0.587604 acc:0.499747
+=====> epoch[37/150] train_iter: (30/64) 	 loss: 0.829901 acc:0.401246
+
+ 25%|████████████████████████████████▊                                                                                                    | 37/150 [02:19<07:01,  3.73s/it]
+=====> epoch[37/150] train_iter: (50/64) 	 loss: 0.697747 acc:0.414507
+=====> epoch[37/150] train_iter: (60/64) 	 loss: 0.582807 acc:0.531899
+----- Training - Epoch 38 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[38/150] train_iter: (10/64) 	 loss: 0.547358 acc:0.631641
+=====> epoch[38/150] train_iter: (20/64) 	 loss: 0.487532 acc:0.635333
+=====> epoch[38/150] train_iter: (30/64) 	 loss: 0.614975 acc:0.475360
+
+ 25%|█████████████████████████████████▋                                                                                                   | 38/150 [02:23<07:01,  3.76s/it]
+=====> epoch[38/150] train_iter: (50/64) 	 loss: 0.501667 acc:0.620441
+=====> epoch[38/150] train_iter: (60/64) 	 loss: 0.571464 acc:0.516518
+----- Training - Epoch 39 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[39/150] train_iter: (10/64) 	 loss: 0.509934 acc:0.611964
+=====> epoch[39/150] train_iter: (20/64) 	 loss: 0.503426 acc:0.640955
+=====> epoch[39/150] train_iter: (30/64) 	 loss: 0.548081 acc:0.589114
+=====> epoch[39/150] train_iter: (40/64) 	 loss: 0.594324 acc:0.607110
+
+ 26%|██████████████████████████████████▌                                                                                                  | 39/150 [02:26<06:59,  3.78s/it]
+=====> epoch[39/150] train_iter: (60/64) 	 loss: 0.610333 acc:0.497184
+----- Training - Epoch 40 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[40/150] train_iter: (10/64) 	 loss: 0.603920 acc:0.609684
+=====> epoch[40/150] train_iter: (20/64) 	 loss: 0.679262 acc:0.366700
+=====> epoch[40/150] train_iter: (30/64) 	 loss: 0.496886 acc:0.606848
+=====> epoch[40/150] train_iter: (40/64) 	 loss: 0.501146 acc:0.657106
+
+ 27%|███████████████████████████████████▍                                                                                                 | 40/150 [02:30<06:55,  3.77s/it]
+=====> epoch[40/150] train_iter: (60/64) 	 loss: 0.529058 acc:0.607697
+----- Training - Epoch 41 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[41/150] train_iter: (10/64) 	 loss: 0.507381 acc:0.591874
+=====> epoch[41/150] train_iter: (20/64) 	 loss: 0.543491 acc:0.556517
+=====> epoch[41/150] train_iter: (30/64) 	 loss: 0.531031 acc:0.658544
+=====> epoch[41/150] train_iter: (40/64) 	 loss: 0.511595 acc:0.588723
+
+ 27%|████████████████████████████████████▎                                                                                                | 41/150 [02:34<06:55,  3.81s/it]
+=====> epoch[41/150] train_iter: (60/64) 	 loss: 0.565250 acc:0.576434
+----- Training - Epoch 42 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[42/150] train_iter: (10/64) 	 loss: 0.549450 acc:0.582689
+=====> epoch[42/150] train_iter: (20/64) 	 loss: 0.610185 acc:0.455372
+=====> epoch[42/150] train_iter: (30/64) 	 loss: 0.519447 acc:0.639808
+=====> epoch[42/150] train_iter: (40/64) 	 loss: 0.623322 acc:0.430631
+=====> epoch[42/150] train_iter: (50/64) 	 loss: 0.689977 acc:0.353163
+
+ 28%|█████████████████████████████████████▏                                                                                               | 42/150 [02:38<06:52,  3.82s/it]
+----- Training - Epoch 43 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[43/150] train_iter: (10/64) 	 loss: 0.521981 acc:0.566406
+=====> epoch[43/150] train_iter: (20/64) 	 loss: 0.488679 acc:0.631719
+=====> epoch[43/150] train_iter: (30/64) 	 loss: 0.958099 acc:0.147399
+=====> epoch[43/150] train_iter: (40/64) 	 loss: 0.480752 acc:0.682307
+=====> epoch[43/150] train_iter: (50/64) 	 loss: 0.555212 acc:0.526876
+
+ 29%|██████████████████████████████████████▏                                                                                              | 43/150 [02:42<06:47,  3.81s/it]
+----- Training - Epoch 44 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[44/150] train_iter: (10/64) 	 loss: 0.491954 acc:0.616222
+=====> epoch[44/150] train_iter: (20/64) 	 loss: 0.490279 acc:0.670489
+=====> epoch[44/150] train_iter: (30/64) 	 loss: 0.591080 acc:0.478757
+=====> epoch[44/150] train_iter: (40/64) 	 loss: 0.705962 acc:0.331756
+=====> epoch[44/150] train_iter: (50/64) 	 loss: 0.514881 acc:0.619097
+
+ 29%|███████████████████████████████████████                                                                                              | 44/150 [02:45<06:43,  3.81s/it]
+----- Training - Epoch 45 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[45/150] train_iter: (10/64) 	 loss: 0.546472 acc:0.500481
+=====> epoch[45/150] train_iter: (20/64) 	 loss: 0.530858 acc:0.601760
+
+ 30%|███████████████████████████████████████▉                                                                                             | 45/150 [02:49<06:38,  3.79s/it]
+=====> epoch[45/150] train_iter: (40/64) 	 loss: 0.595244 acc:0.487118
+=====> epoch[45/150] train_iter: (50/64) 	 loss: 0.470140 acc:0.691581
+=====> epoch[45/150] train_iter: (60/64) 	 loss: 0.541988 acc:0.523301
+----- Training - Epoch 46 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[46/150] train_iter: (10/64) 	 loss: 0.488350 acc:0.681877
+=====> epoch[46/150] train_iter: (20/64) 	 loss: 0.534480 acc:0.533940
+=====> epoch[46/150] train_iter: (30/64) 	 loss: 0.602673 acc:0.463222
+
+ 31%|████████████████████████████████████████▊                                                                                            | 46/150 [02:53<06:33,  3.78s/it]
+=====> epoch[46/150] train_iter: (50/64) 	 loss: 0.519328 acc:0.570285
+=====> epoch[46/150] train_iter: (60/64) 	 loss: 0.498141 acc:0.590117
+----- Training - Epoch 47 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[47/150] train_iter: (10/64) 	 loss: 0.564492 acc:0.496071
+=====> epoch[47/150] train_iter: (20/64) 	 loss: 0.518920 acc:0.586864
+=====> epoch[47/150] train_iter: (30/64) 	 loss: 0.535040 acc:0.644183
+
+ 31%|█████████████████████████████████████████▋                                                                                           | 47/150 [02:57<06:27,  3.77s/it]
+=====> epoch[47/150] train_iter: (50/64) 	 loss: 0.534019 acc:0.656662
+=====> epoch[47/150] train_iter: (60/64) 	 loss: 0.542360 acc:0.512970
+----- Training - Epoch 48 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[48/150] train_iter: (10/64) 	 loss: 0.479838 acc:0.606864
+=====> epoch[48/150] train_iter: (20/64) 	 loss: 0.611110 acc:0.475749
+=====> epoch[48/150] train_iter: (30/64) 	 loss: 0.579593 acc:0.592626
+=====> epoch[48/150] train_iter: (40/64) 	 loss: 0.491570 acc:0.596191
+=====> epoch[48/150] train_iter: (50/64) 	 loss: 0.482405 acc:0.684305
+=====> epoch[48/150] train_iter: (60/64) 	 loss: 0.545193 acc:0.510050
+----- Training - Epoch 49 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+ 32%|██████████████████████████████████████████▌                                                                                          | 48/150 [03:00<06:23,  3.76s/it]
+=====> epoch[49/150] train_iter: (20/64) 	 loss: 0.490189 acc:0.612954
+=====> epoch[49/150] train_iter: (30/64) 	 loss: 0.899517 acc:0.179217
+=====> epoch[49/150] train_iter: (40/64) 	 loss: 0.519162 acc:0.567338
+
+ 33%|███████████████████████████████████████████▍                                                                                         | 49/150 [03:04<06:23,  3.80s/it]
+=====> epoch[49/150] train_iter: (60/64) 	 loss: 0.504045 acc:0.590170
+----- Training - Epoch 50 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[50/150] train_iter: (10/64) 	 loss: 0.500093 acc:0.690099
+=====> epoch[50/150] train_iter: (20/64) 	 loss: 0.667828 acc:0.337501
+=====> epoch[50/150] train_iter: (30/64) 	 loss: 0.560463 acc:0.502944
+=====> epoch[50/150] train_iter: (40/64) 	 loss: 0.468151 acc:0.707372
+
+ 33%|████████████████████████████████████████████▎                                                                                        | 50/150 [03:08<06:20,  3.80s/it]
+=====> epoch[50/150] train_iter: (60/64) 	 loss: 0.554486 acc:0.487031
+----- Training - Epoch 51 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[51/150] train_iter: (10/64) 	 loss: 0.496566 acc:0.608175
+=====> epoch[51/150] train_iter: (20/64) 	 loss: 0.492287 acc:0.599607
+=====> epoch[51/150] train_iter: (30/64) 	 loss: 0.481048 acc:0.664754
+=====> epoch[51/150] train_iter: (40/64) 	 loss: 0.494893 acc:0.579335
+
+ 34%|█████████████████████████████████████████████▏                                                                                       | 51/150 [03:12<06:15,  3.79s/it]
+=====> epoch[51/150] train_iter: (60/64) 	 loss: 0.423581 acc:0.686452
+----- Training - Epoch 52 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[52/150] train_iter: (10/64) 	 loss: 0.531384 acc:0.509741
+=====> epoch[52/150] train_iter: (20/64) 	 loss: 0.485209 acc:0.618814
+=====> epoch[52/150] train_iter: (30/64) 	 loss: 0.586489 acc:0.437559
+=====> epoch[52/150] train_iter: (40/64) 	 loss: 0.506566 acc:0.552450
+=====> epoch[52/150] train_iter: (50/64) 	 loss: 0.589731 acc:0.404492
+
+ 35%|██████████████████████████████████████████████                                                                                       | 52/150 [03:16<06:11,  3.79s/it]
+----- Training - Epoch 53 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[53/150] train_iter: (10/64) 	 loss: 0.493507 acc:0.570319
+=====> epoch[53/150] train_iter: (20/64) 	 loss: 0.590656 acc:0.409447
+=====> epoch[53/150] train_iter: (30/64) 	 loss: 0.603325 acc:0.399878
+=====> epoch[53/150] train_iter: (40/64) 	 loss: 0.779737 acc:0.237253
+=====> epoch[53/150] train_iter: (50/64) 	 loss: 0.505041 acc:0.550157
+
+ 35%|██████████████████████████████████████████████▉                                                                                      | 53/150 [03:20<06:08,  3.80s/it]
+----- Training - Epoch 54 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[54/150] train_iter: (10/64) 	 loss: 0.420850 acc:0.689357
+=====> epoch[54/150] train_iter: (20/64) 	 loss: 0.466860 acc:0.644662
+
+ 36%|███████████████████████████████████████████████▉                                                                                     | 54/150 [03:23<06:06,  3.82s/it]
+=====> epoch[54/150] train_iter: (40/64) 	 loss: 0.496354 acc:0.552623
+=====> epoch[54/150] train_iter: (50/64) 	 loss: 0.452047 acc:0.697025
+=====> epoch[54/150] train_iter: (60/64) 	 loss: 0.500005 acc:0.566749
+----- Training - Epoch 55 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[55/150] train_iter: (10/64) 	 loss: 0.439348 acc:0.666491
+=====> epoch[55/150] train_iter: (20/64) 	 loss: 0.515690 acc:0.539486
+
+ 37%|████████████████████████████████████████████████▊                                                                                    | 55/150 [03:27<06:02,  3.82s/it]
+=====> epoch[55/150] train_iter: (40/64) 	 loss: 0.430295 acc:0.659276
+=====> epoch[55/150] train_iter: (50/64) 	 loss: 0.482451 acc:0.586513
+=====> epoch[55/150] train_iter: (60/64) 	 loss: 0.465746 acc:0.638439
+----- Training - Epoch 56 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[56/150] train_iter: (10/64) 	 loss: 0.595956 acc:0.406821
+=====> epoch[56/150] train_iter: (20/64) 	 loss: 0.544708 acc:0.549745
+=====> epoch[56/150] train_iter: (30/64) 	 loss: 0.443916 acc:0.651328
+
+ 37%|█████████████████████████████████████████████████▋                                                                                   | 56/150 [03:31<05:57,  3.80s/it]
+=====> epoch[56/150] train_iter: (50/64) 	 loss: 0.461400 acc:0.637429
+=====> epoch[56/150] train_iter: (60/64) 	 loss: 0.633961 acc:0.519234
+----- Training - Epoch 57 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[57/150] train_iter: (10/64) 	 loss: 0.468055 acc:0.610933
+=====> epoch[57/150] train_iter: (20/64) 	 loss: 0.450083 acc:0.642570
+=====> epoch[57/150] train_iter: (30/64) 	 loss: 0.500389 acc:0.600396
+
+ 38%|██████████████████████████████████████████████████▌                                                                                  | 57/150 [03:35<05:53,  3.81s/it]
+=====> epoch[57/150] train_iter: (50/64) 	 loss: 0.465845 acc:0.605940
+=====> epoch[57/150] train_iter: (60/64) 	 loss: 0.484783 acc:0.588686
+----- Training - Epoch 58 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[58/150] train_iter: (10/64) 	 loss: 0.631477 acc:0.315992
+=====> epoch[58/150] train_iter: (20/64) 	 loss: 0.507891 acc:0.595275
+=====> epoch[58/150] train_iter: (30/64) 	 loss: 0.574318 acc:0.388903
+
+ 39%|███████████████████████████████████████████████████▍                                                                                 | 58/150 [03:38<05:48,  3.78s/it]
+=====> epoch[58/150] train_iter: (50/64) 	 loss: 0.454543 acc:0.633996
+=====> epoch[58/150] train_iter: (60/64) 	 loss: 0.623240 acc:0.320903
+----- Training - Epoch 59 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[59/150] train_iter: (10/64) 	 loss: 0.462506 acc:0.604091
+=====> epoch[59/150] train_iter: (20/64) 	 loss: 0.525070 acc:0.494356
+=====> epoch[59/150] train_iter: (30/64) 	 loss: 0.504625 acc:0.544114
+=====> epoch[59/150] train_iter: (40/64) 	 loss: 0.467116 acc:0.665083
+
+ 39%|████████████████████████████████████████████████████▎                                                                                | 59/150 [03:42<05:43,  3.77s/it]
+=====> epoch[59/150] train_iter: (60/64) 	 loss: 0.442991 acc:0.633675
+----- Training - Epoch 60 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[60/150] train_iter: (10/64) 	 loss: 0.418935 acc:0.712107
+=====> epoch[60/150] train_iter: (20/64) 	 loss: 0.430009 acc:0.708735
+=====> epoch[60/150] train_iter: (30/64) 	 loss: 0.735127 acc:0.258546
+=====> epoch[60/150] train_iter: (40/64) 	 loss: 0.442649 acc:0.709188
+
+ 40%|█████████████████████████████████████████████████████▏                                                                               | 60/150 [03:46<05:40,  3.78s/it]
+=====> epoch[60/150] train_iter: (60/64) 	 loss: 0.421313 acc:0.652334
+----- Training - Epoch 61 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[61/150] train_iter: (10/64) 	 loss: 0.969637 acc:0.099009
+=====> epoch[61/150] train_iter: (20/64) 	 loss: 0.435362 acc:0.632591
+=====> epoch[61/150] train_iter: (30/64) 	 loss: 0.438844 acc:0.632496
+=====> epoch[61/150] train_iter: (40/64) 	 loss: 0.472973 acc:0.588584
+=====> epoch[61/150] train_iter: (50/64) 	 loss: 0.503518 acc:0.523836
+
+ 41%|██████████████████████████████████████████████████████                                                                               | 61/150 [03:50<05:35,  3.77s/it]
+----- Training - Epoch 62 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[62/150] train_iter: (10/64) 	 loss: 0.566810 acc:0.382925
+=====> epoch[62/150] train_iter: (20/64) 	 loss: 0.430586 acc:0.631874
+=====> epoch[62/150] train_iter: (30/64) 	 loss: 0.492569 acc:0.537590
+=====> epoch[62/150] train_iter: (40/64) 	 loss: 0.480364 acc:0.532303
+=====> epoch[62/150] train_iter: (50/64) 	 loss: 0.474844 acc:0.563630
+
+ 41%|██████████████████████████████████████████████████████▉                                                                              | 62/150 [03:54<05:32,  3.78s/it]
+----- Training - Epoch 63 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[63/150] train_iter: (10/64) 	 loss: 0.404931 acc:0.719892
+=====> epoch[63/150] train_iter: (20/64) 	 loss: 0.459123 acc:0.572003
+
+ 42%|███████████████████████████████████████████████████████▊                                                                             | 63/150 [03:57<05:28,  3.77s/it]
+=====> epoch[63/150] train_iter: (40/64) 	 loss: 0.563250 acc:0.398710
+=====> epoch[63/150] train_iter: (50/64) 	 loss: 0.530535 acc:0.713153
+=====> epoch[63/150] train_iter: (60/64) 	 loss: 0.456032 acc:0.592339
+----- Training - Epoch 64 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[64/150] train_iter: (10/64) 	 loss: 0.461781 acc:0.578478
+=====> epoch[64/150] train_iter: (20/64) 	 loss: 0.490105 acc:0.530661
+
+ 43%|████████████████████████████████████████████████████████▋                                                                            | 64/150 [04:01<05:23,  3.76s/it]
+=====> epoch[64/150] train_iter: (40/64) 	 loss: 0.609134 acc:0.387425
+=====> epoch[64/150] train_iter: (50/64) 	 loss: 0.441172 acc:0.641686
+=====> epoch[64/150] train_iter: (60/64) 	 loss: 0.474165 acc:0.561781
+----- Training - Epoch 65 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[65/150] train_iter: (10/64) 	 loss: 0.656757 acc:0.271990
+=====> epoch[65/150] train_iter: (20/64) 	 loss: 0.467768 acc:0.580532
+=====> epoch[65/150] train_iter: (30/64) 	 loss: 0.487755 acc:0.649159
+
+ 43%|█████████████████████████████████████████████████████████▋                                                                           | 65/150 [04:05<05:18,  3.75s/it]
+=====> epoch[65/150] train_iter: (50/64) 	 loss: 0.421664 acc:0.649164
+=====> epoch[65/150] train_iter: (60/64) 	 loss: 0.440185 acc:0.601881
+----- Training - Epoch 66 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[66/150] train_iter: (10/64) 	 loss: 0.432643 acc:0.654997
+=====> epoch[66/150] train_iter: (20/64) 	 loss: 0.518293 acc:0.488195
+=====> epoch[66/150] train_iter: (30/64) 	 loss: 0.454861 acc:0.603663
+=====> epoch[66/150] train_iter: (40/64) 	 loss: 0.549864 acc:0.437858
+=====> epoch[66/150] train_iter: (50/64) 	 loss: 0.424084 acc:0.678377
+=====> epoch[66/150] train_iter: (60/64) 	 loss: 0.446536 acc:0.586340
+----- Training - Epoch 67 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+ 44%|██████████████████████████████████████████████████████████▌                                                                          | 66/150 [04:09<05:14,  3.74s/it]
+=====> epoch[67/150] train_iter: (20/64) 	 loss: 0.407762 acc:0.673480
+=====> epoch[67/150] train_iter: (30/64) 	 loss: 0.425244 acc:0.662030
+=====> epoch[67/150] train_iter: (40/64) 	 loss: 0.461587 acc:0.564558
+=====> epoch[67/150] train_iter: (50/64) 	 loss: 0.468379 acc:0.594853
+=====> epoch[67/150] train_iter: (60/64) 	 loss: 0.480894 acc:0.521490
+----- Training - Epoch 68 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[68/150] train_iter: (10/64) 	 loss: 0.484741 acc:0.512865
+
+ 45%|███████████████████████████████████████████████████████████▍                                                                         | 67/150 [04:12<05:12,  3.77s/it]
+=====> epoch[68/150] train_iter: (30/64) 	 loss: 0.426744 acc:0.695346
+=====> epoch[68/150] train_iter: (40/64) 	 loss: 0.438378 acc:0.625055
+=====> epoch[68/150] train_iter: (50/64) 	 loss: 0.709108 acc:0.274013
+=====> epoch[68/150] train_iter: (60/64) 	 loss: 0.416380 acc:0.723165
+----- Training - Epoch 69 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[69/150] train_iter: (10/64) 	 loss: 0.489642 acc:0.518277
+
+ 45%|████████████████████████████████████████████████████████████▎                                                                        | 68/150 [04:16<05:08,  3.77s/it]
+=====> epoch[69/150] train_iter: (30/64) 	 loss: 0.455195 acc:0.552875
+=====> epoch[69/150] train_iter: (40/64) 	 loss: 0.482607 acc:0.511668
+=====> epoch[69/150] train_iter: (50/64) 	 loss: 0.500482 acc:0.474246
+=====> epoch[69/150] train_iter: (60/64) 	 loss: 0.496497 acc:0.592047
+----- Training - Epoch 70 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[70/150] train_iter: (10/64) 	 loss: 0.467844 acc:0.551032
+
+ 46%|█████████████████████████████████████████████████████████████▏                                                                       | 69/150 [04:20<05:05,  3.77s/it]
+=====> epoch[70/150] train_iter: (30/64) 	 loss: 0.430498 acc:0.587279
+=====> epoch[70/150] train_iter: (40/64) 	 loss: 0.447255 acc:0.575081
+=====> epoch[70/150] train_iter: (50/64) 	 loss: 0.460718 acc:0.564425
+=====> epoch[70/150] train_iter: (60/64) 	 loss: 0.424884 acc:0.602990
+----- Training - Epoch 71 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[71/150] train_iter: (10/64) 	 loss: 0.383268 acc:0.722279
+=====> epoch[71/150] train_iter: (20/64) 	 loss: 0.426818 acc:0.654654
+
+ 47%|██████████████████████████████████████████████████████████████                                                                       | 70/150 [04:24<05:02,  3.78s/it]
+=====> epoch[71/150] train_iter: (40/64) 	 loss: 0.619733 acc:0.388870
+=====> epoch[71/150] train_iter: (50/64) 	 loss: 0.445868 acc:0.585359
+=====> epoch[71/150] train_iter: (60/64) 	 loss: 0.492356 acc:0.518126
+----- Training - Epoch 72 - batch_size 2,------
+
+ 47%|██████████████████████████████████████████████████████████████▉                                                                      | 71/150 [04:28<04:59,  3.80s/it]
+=====> epoch[72/150] train_iter: (10/64) 	 loss: 0.577973 acc:0.341567
+=====> epoch[72/150] train_iter: (20/64) 	 loss: 0.450032 acc:0.561456
+=====> epoch[72/150] train_iter: (30/64) 	 loss: 0.384329 acc:0.731781
+=====> epoch[72/150] train_iter: (40/64) 	 loss: 0.473050 acc:0.526614
+=====> epoch[72/150] train_iter: (50/64) 	 loss: 0.426239 acc:0.603714
+=====> epoch[72/150] train_iter: (60/64) 	 loss: 0.414445 acc:0.698985
+----- Training - Epoch 73 - batch_size 2,------
+
+ 48%|███████████████████████████████████████████████████████████████▊                                                                     | 72/150 [04:31<04:54,  3.78s/it]
+=====> epoch[73/150] train_iter: (10/64) 	 loss: 0.463568 acc:0.585990
+=====> epoch[73/150] train_iter: (20/64) 	 loss: 0.401500 acc:0.738132
+=====> epoch[73/150] train_iter: (30/64) 	 loss: 0.913157 acc:0.132639
+=====> epoch[73/150] train_iter: (40/64) 	 loss: 0.488004 acc:0.514647
+=====> epoch[73/150] train_iter: (50/64) 	 loss: 0.470503 acc:0.531067
+=====> epoch[73/150] train_iter: (60/64) 	 loss: 0.401074 acc:0.655343
+----- Training - Epoch 74 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+ 49%|████████████████████████████████████████████████████████████████▋                                                                    | 73/150 [04:35<04:49,  3.77s/it]
+=====> epoch[74/150] train_iter: (20/64) 	 loss: 0.395145 acc:0.650136
+=====> epoch[74/150] train_iter: (30/64) 	 loss: 0.468926 acc:0.502136
+=====> epoch[74/150] train_iter: (40/64) 	 loss: 0.422716 acc:0.606536
+=====> epoch[74/150] train_iter: (50/64) 	 loss: 0.415628 acc:0.599555
+=====> epoch[74/150] train_iter: (60/64) 	 loss: 0.394586 acc:0.703920
+----- Training - Epoch 75 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+ 49%|█████████████████████████████████████████████████████████████████▌                                                                   | 74/150 [04:39<04:46,  3.77s/it]
+=====> epoch[75/150] train_iter: (20/64) 	 loss: 0.384320 acc:0.678383
+=====> epoch[75/150] train_iter: (30/64) 	 loss: 0.513002 acc:0.433187
+=====> epoch[75/150] train_iter: (40/64) 	 loss: 0.467280 acc:0.496853
+=====> epoch[75/150] train_iter: (50/64) 	 loss: 0.468201 acc:0.491316
+=====> epoch[75/150] train_iter: (60/64) 	 loss: 0.404274 acc:0.686217
+----- Training - Epoch 76 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+ 50%|██████████████████████████████████████████████████████████████████▌                                                                  | 75/150 [04:43<04:43,  3.78s/it]
+=====> epoch[76/150] train_iter: (20/64) 	 loss: 0.434607 acc:0.583689
+=====> epoch[76/150] train_iter: (30/64) 	 loss: 0.403345 acc:0.669780
+=====> epoch[76/150] train_iter: (40/64) 	 loss: 0.412842 acc:0.702275
+=====> epoch[76/150] train_iter: (50/64) 	 loss: 0.463661 acc:0.499239
+=====> epoch[76/150] train_iter: (60/64) 	 loss: 0.437026 acc:0.617249
+----- Training - Epoch 77 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[77/150] train_iter: (10/64) 	 loss: 0.460326 acc:0.506783
+
+ 51%|███████████████████████████████████████████████████████████████████▍                                                                 | 76/150 [04:46<04:39,  3.77s/it]
+=====> epoch[77/150] train_iter: (30/64) 	 loss: 0.491081 acc:0.469819
+=====> epoch[77/150] train_iter: (40/64) 	 loss: 0.431174 acc:0.595660
+=====> epoch[77/150] train_iter: (50/64) 	 loss: 0.406350 acc:0.635930
+=====> epoch[77/150] train_iter: (60/64) 	 loss: 0.381920 acc:0.669983
+----- Training - Epoch 78 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[78/150] train_iter: (10/64) 	 loss: 0.442092 acc:0.569699
+
+ 51%|████████████████████████████████████████████████████████████████████▎                                                                | 77/150 [04:50<04:35,  3.77s/it]
+=====> epoch[78/150] train_iter: (30/64) 	 loss: 0.409758 acc:0.594274
+=====> epoch[78/150] train_iter: (40/64) 	 loss: 0.381561 acc:0.670988
+=====> epoch[78/150] train_iter: (50/64) 	 loss: 0.547565 acc:0.632001
+=====> epoch[78/150] train_iter: (60/64) 	 loss: 0.459640 acc:0.561692
+----- Training - Epoch 79 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[79/150] train_iter: (10/64) 	 loss: 0.388374 acc:0.710248
+
+ 52%|█████████████████████████████████████████████████████████████████████▏                                                               | 78/150 [04:54<04:33,  3.79s/it]
+=====> epoch[79/150] train_iter: (30/64) 	 loss: 0.487578 acc:0.497062
+=====> epoch[79/150] train_iter: (40/64) 	 loss: 0.493302 acc:0.518497
+=====> epoch[79/150] train_iter: (50/64) 	 loss: 0.404625 acc:0.623973
+=====> epoch[79/150] train_iter: (60/64) 	 loss: 0.373461 acc:0.717496
+----- Training - Epoch 80 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[80/150] train_iter: (10/64) 	 loss: 0.363841 acc:0.704615
+
+ 53%|██████████████████████████████████████████████████████████████████████                                                               | 79/150 [04:58<04:30,  3.81s/it]
+=====> epoch[80/150] train_iter: (30/64) 	 loss: 0.431843 acc:0.551558
+=====> epoch[80/150] train_iter: (40/64) 	 loss: 0.418664 acc:0.602027
+=====> epoch[80/150] train_iter: (50/64) 	 loss: 0.405884 acc:0.609871
+=====> epoch[80/150] train_iter: (60/64) 	 loss: 0.390875 acc:0.646000
+----- Training - Epoch 81 - batch_size 2,------
+
+ 53%|██████████████████████████████████████████████████████████████████████▉                                                              | 80/150 [05:02<04:27,  3.82s/it]
+=====> epoch[81/150] train_iter: (10/64) 	 loss: 0.405817 acc:0.600436
+=====> epoch[81/150] train_iter: (20/64) 	 loss: 0.413037 acc:0.610653
+
+ 54%|███████████████████████████████████████████████████████████████████████▊                                                             | 81/150 [05:05<04:24,  3.83s/it]
+=====> epoch[81/150] train_iter: (40/64) 	 loss: 0.427042 acc:0.559163
+=====> epoch[81/150] train_iter: (50/64) 	 loss: 0.518833 acc:0.472062
+=====> epoch[81/150] train_iter: (60/64) 	 loss: 0.383874 acc:0.648618
+----- Training - Epoch 82 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[82/150] train_iter: (10/64) 	 loss: 0.392164 acc:0.640390
+=====> epoch[82/150] train_iter: (20/64) 	 loss: 0.452012 acc:0.504507
+
+ 55%|████████████████████████████████████████████████████████████████████████▋                                                            | 82/150 [05:09<04:20,  3.84s/it]
+=====> epoch[82/150] train_iter: (40/64) 	 loss: 0.407682 acc:0.629050
+=====> epoch[82/150] train_iter: (50/64) 	 loss: 0.373715 acc:0.744893
+=====> epoch[82/150] train_iter: (60/64) 	 loss: 0.357400 acc:0.742395
+----- Training - Epoch 83 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[83/150] train_iter: (10/64) 	 loss: 0.338763 acc:0.733634
+=====> epoch[83/150] train_iter: (20/64) 	 loss: 0.522550 acc:0.364931
+=====> epoch[83/150] train_iter: (30/64) 	 loss: 0.523943 acc:0.432938
+=====> epoch[83/150] train_iter: (40/64) 	 loss: 0.375816 acc:0.666363
+=====> epoch[83/150] train_iter: (50/64) 	 loss: 0.404333 acc:0.630391
+=====> epoch[83/150] train_iter: (60/64) 	 loss: 0.374467 acc:0.671591
+----- Training - Epoch 84 - batch_size 2,------
+
+ 55%|█████████████████████████████████████████████████████████████████████████▌                                                           | 83/150 [05:13<04:15,  3.82s/it]
+=====> epoch[84/150] train_iter: (10/64) 	 loss: 0.358196 acc:0.712545
+=====> epoch[84/150] train_iter: (20/64) 	 loss: 0.403753 acc:0.596386
+=====> epoch[84/150] train_iter: (30/64) 	 loss: 0.408301 acc:0.624213
+
+ 56%|██████████████████████████████████████████████████████████████████████████▍                                                          | 84/150 [05:17<04:10,  3.79s/it]
+=====> epoch[84/150] train_iter: (50/64) 	 loss: 0.406407 acc:0.632970
+=====> epoch[84/150] train_iter: (60/64) 	 loss: 0.457047 acc:0.479570
+----- Training - Epoch 85 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[85/150] train_iter: (10/64) 	 loss: 0.569455 acc:0.326820
+=====> epoch[85/150] train_iter: (20/64) 	 loss: 0.378319 acc:0.759748
+=====> epoch[85/150] train_iter: (30/64) 	 loss: 0.358056 acc:0.675104
+=====> epoch[85/150] train_iter: (40/64) 	 loss: 0.336542 acc:0.732907
+
+ 57%|███████████████████████████████████████████████████████████████████████████▎                                                         | 85/150 [05:21<04:05,  3.77s/it]
+=====> epoch[85/150] train_iter: (60/64) 	 loss: 0.379954 acc:0.755366
+----- Training - Epoch 86 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[86/150] train_iter: (10/64) 	 loss: 0.491326 acc:0.428186
+=====> epoch[86/150] train_iter: (20/64) 	 loss: 0.378209 acc:0.645755
+=====> epoch[86/150] train_iter: (30/64) 	 loss: 0.384308 acc:0.754532
+=====> epoch[86/150] train_iter: (40/64) 	 loss: 0.417861 acc:0.595204
+
+ 57%|████████████████████████████████████████████████████████████████████████████▎                                                        | 86/150 [05:24<04:00,  3.76s/it]
+=====> epoch[86/150] train_iter: (60/64) 	 loss: 0.361701 acc:0.694264
+----- Training - Epoch 87 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[87/150] train_iter: (10/64) 	 loss: 0.418555 acc:0.534658
+=====> epoch[87/150] train_iter: (20/64) 	 loss: 0.505617 acc:0.362865
+=====> epoch[87/150] train_iter: (30/64) 	 loss: 0.376999 acc:0.733810
+=====> epoch[87/150] train_iter: (40/64) 	 loss: 0.471011 acc:0.465102
+=====> epoch[87/150] train_iter: (50/64) 	 loss: 0.423760 acc:0.548076
+
+ 58%|█████████████████████████████████████████████████████████████████████████████▏                                                       | 87/150 [05:28<03:56,  3.75s/it]
+----- Training - Epoch 88 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[88/150] train_iter: (10/64) 	 loss: 0.515448 acc:0.393333
+=====> epoch[88/150] train_iter: (20/64) 	 loss: 0.386452 acc:0.655522
+=====> epoch[88/150] train_iter: (30/64) 	 loss: 0.515475 acc:0.388908
+=====> epoch[88/150] train_iter: (40/64) 	 loss: 0.358572 acc:0.743563
+=====> epoch[88/150] train_iter: (50/64) 	 loss: 0.423963 acc:0.539946
+
+ 59%|██████████████████████████████████████████████████████████████████████████████                                                       | 88/150 [05:32<03:52,  3.75s/it]
+----- Training - Epoch 89 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[89/150] train_iter: (10/64) 	 loss: 0.540693 acc:0.390370
+=====> epoch[89/150] train_iter: (20/64) 	 loss: 0.445495 acc:0.519321
+
+ 59%|██████████████████████████████████████████████████████████████████████████████▉                                                      | 89/150 [05:35<03:48,  3.74s/it]
+=====> epoch[89/150] train_iter: (40/64) 	 loss: 0.383671 acc:0.656585
+=====> epoch[89/150] train_iter: (50/64) 	 loss: 0.355816 acc:0.702583
+=====> epoch[89/150] train_iter: (60/64) 	 loss: 0.394754 acc:0.594234
+----- Training - Epoch 90 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[90/150] train_iter: (10/64) 	 loss: 0.452228 acc:0.490629
+=====> epoch[90/150] train_iter: (20/64) 	 loss: 0.369518 acc:0.648531
+
+ 60%|███████████████████████████████████████████████████████████████████████████████▊                                                     | 90/150 [05:39<03:44,  3.74s/it]
+=====> epoch[90/150] train_iter: (40/64) 	 loss: 0.418252 acc:0.543791
+=====> epoch[90/150] train_iter: (50/64) 	 loss: 0.357688 acc:0.716806
+=====> epoch[90/150] train_iter: (60/64) 	 loss: 0.389843 acc:0.626877
+----- Training - Epoch 91 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[91/150] train_iter: (10/64) 	 loss: 0.439107 acc:0.501129
+=====> epoch[91/150] train_iter: (20/64) 	 loss: 0.364186 acc:0.742877
+=====> epoch[91/150] train_iter: (30/64) 	 loss: 0.400580 acc:0.579248
+
+ 61%|████████████████████████████████████████████████████████████████████████████████▋                                                    | 91/150 [05:43<03:40,  3.74s/it]
+=====> epoch[91/150] train_iter: (50/64) 	 loss: 0.353465 acc:0.696763
+=====> epoch[91/150] train_iter: (60/64) 	 loss: 0.408844 acc:0.558877
+----- Training - Epoch 92 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[92/150] train_iter: (10/64) 	 loss: 0.396278 acc:0.581665
+=====> epoch[92/150] train_iter: (20/64) 	 loss: 0.367530 acc:0.662385
+=====> epoch[92/150] train_iter: (30/64) 	 loss: 0.339231 acc:0.737191
+
+ 61%|█████████████████████████████████████████████████████████████████████████████████▌                                                   | 92/150 [05:47<03:36,  3.74s/it]
+=====> epoch[92/150] train_iter: (50/64) 	 loss: 0.358617 acc:0.754162
+=====> epoch[92/150] train_iter: (60/64) 	 loss: 0.428954 acc:0.575326
+----- Training - Epoch 93 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[93/150] train_iter: (10/64) 	 loss: 0.428067 acc:0.513957
+=====> epoch[93/150] train_iter: (20/64) 	 loss: 0.425466 acc:0.503062
+=====> epoch[93/150] train_iter: (30/64) 	 loss: 0.404220 acc:0.540708
+=====> epoch[93/150] train_iter: (40/64) 	 loss: 0.362301 acc:0.732687
+
+ 62%|██████████████████████████████████████████████████████████████████████████████████▍                                                  | 93/150 [05:50<03:32,  3.73s/it]
+=====> epoch[93/150] train_iter: (60/64) 	 loss: 0.402082 acc:0.555738
+----- Training - Epoch 94 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[94/150] train_iter: (10/64) 	 loss: 0.354372 acc:0.663652
+=====> epoch[94/150] train_iter: (20/64) 	 loss: 0.348135 acc:0.718435
+=====> epoch[94/150] train_iter: (30/64) 	 loss: 0.374946 acc:0.669645
+=====> epoch[94/150] train_iter: (40/64) 	 loss: 0.406001 acc:0.577477
+
+ 63%|███████████████████████████████████████████████████████████████████████████████████▎                                                 | 94/150 [05:54<03:29,  3.74s/it]
+=====> epoch[94/150] train_iter: (60/64) 	 loss: 0.449627 acc:0.450185
+----- Training - Epoch 95 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[95/150] train_iter: (10/64) 	 loss: 0.356163 acc:0.647294
+=====> epoch[95/150] train_iter: (20/64) 	 loss: 0.383385 acc:0.591445
+=====> epoch[95/150] train_iter: (30/64) 	 loss: 0.367134 acc:0.633980
+=====> epoch[95/150] train_iter: (40/64) 	 loss: 0.373713 acc:0.620765
+=====> epoch[95/150] train_iter: (50/64) 	 loss: 0.366777 acc:0.741889
+
+ 63%|████████████████████████████████████████████████████████████████████████████████████▏                                                | 95/150 [05:58<03:25,  3.74s/it]
+----- Training - Epoch 96 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[96/150] train_iter: (10/64) 	 loss: 0.398187 acc:0.581679
+
+ 64%|█████████████████████████████████████████████████████████████████████████████████████                                                | 96/150 [06:02<03:21,  3.74s/it]
+=====> epoch[96/150] train_iter: (30/64) 	 loss: 0.382219 acc:0.608718
+=====> epoch[96/150] train_iter: (40/64) 	 loss: 0.370126 acc:0.642999
+=====> epoch[96/150] train_iter: (50/64) 	 loss: 0.378489 acc:0.635458
+=====> epoch[96/150] train_iter: (60/64) 	 loss: 0.337611 acc:0.693743
+----- Training - Epoch 97 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[97/150] train_iter: (10/64) 	 loss: 0.373128 acc:0.594892
+=====> epoch[97/150] train_iter: (20/64) 	 loss: 0.387727 acc:0.630890
+
+ 65%|██████████████████████████████████████████████████████████████████████████████████████                                               | 97/150 [06:05<03:17,  3.73s/it]
+=====> epoch[97/150] train_iter: (40/64) 	 loss: 0.378429 acc:0.637251
+=====> epoch[97/150] train_iter: (50/64) 	 loss: 0.362923 acc:0.627010
+=====> epoch[97/150] train_iter: (60/64) 	 loss: 0.311000 acc:0.754410
+----- Training - Epoch 98 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[98/150] train_iter: (10/64) 	 loss: 0.410806 acc:0.546568
+=====> epoch[98/150] train_iter: (20/64) 	 loss: 0.383972 acc:0.632128
+=====> epoch[98/150] train_iter: (30/64) 	 loss: 0.317729 acc:0.743280
+
+ 65%|██████████████████████████████████████████████████████████████████████████████████████▉                                              | 98/150 [06:09<03:14,  3.73s/it]
+=====> epoch[98/150] train_iter: (50/64) 	 loss: 0.325376 acc:0.764341
+=====> epoch[98/150] train_iter: (60/64) 	 loss: 0.331660 acc:0.756473
+----- Training - Epoch 99 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[99/150] train_iter: (10/64) 	 loss: 0.399367 acc:0.552149
+=====> epoch[99/150] train_iter: (20/64) 	 loss: 0.416376 acc:0.498667
+=====> epoch[99/150] train_iter: (30/64) 	 loss: 0.399210 acc:0.560547
+
+ 66%|███████████████████████████████████████████████████████████████████████████████████████▊                                             | 99/150 [06:13<03:10,  3.73s/it]
+=====> epoch[99/150] train_iter: (50/64) 	 loss: 0.479953 acc:0.755125
+=====> epoch[99/150] train_iter: (60/64) 	 loss: 0.348479 acc:0.703400
+----- Training - Epoch 100 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[100/150] train_iter: (10/64) 	 loss: 0.372162 acc:0.595000
+=====> epoch[100/150] train_iter: (20/64) 	 loss: 0.337328 acc:0.745168
+=====> epoch[100/150] train_iter: (30/64) 	 loss: 0.390419 acc:0.580288
+=====> epoch[100/150] train_iter: (40/64) 	 loss: 0.358599 acc:0.624103
+
+ 67%|████████████████████████████████████████████████████████████████████████████████████████                                            | 100/150 [06:17<03:06,  3.73s/it]
+=====> epoch[100/150] train_iter: (60/64) 	 loss: 0.340150 acc:0.757280
+----- Training - Epoch 101 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[101/150] train_iter: (10/64) 	 loss: 0.333386 acc:0.687711
+=====> epoch[101/150] train_iter: (20/64) 	 loss: 0.350351 acc:0.685898
+=====> epoch[101/150] train_iter: (30/64) 	 loss: 0.361585 acc:0.607116
+=====> epoch[101/150] train_iter: (40/64) 	 loss: 0.325895 acc:0.767236
+
+ 67%|████████████████████████████████████████████████████████████████████████████████████████▉                                           | 101/150 [06:20<03:02,  3.73s/it]
+=====> epoch[101/150] train_iter: (60/64) 	 loss: 0.400963 acc:0.543296
+----- Training - Epoch 102 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[102/150] train_iter: (10/64) 	 loss: 0.383480 acc:0.583514
+=====> epoch[102/150] train_iter: (20/64) 	 loss: 0.334559 acc:0.701525
+=====> epoch[102/150] train_iter: (30/64) 	 loss: 0.488257 acc:0.353289
+=====> epoch[102/150] train_iter: (40/64) 	 loss: 0.314664 acc:0.764094
+=====> epoch[102/150] train_iter: (50/64) 	 loss: 0.371562 acc:0.588053
+
+ 68%|█████████████████████████████████████████████████████████████████████████████████████████▊                                          | 102/150 [06:24<02:59,  3.74s/it]
+----- Training - Epoch 103 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[103/150] train_iter: (10/64) 	 loss: 0.415029 acc:0.509715
+=====> epoch[103/150] train_iter: (20/64) 	 loss: 0.325358 acc:0.770508
+=====> epoch[103/150] train_iter: (30/64) 	 loss: 0.337198 acc:0.657900
+=====> epoch[103/150] train_iter: (40/64) 	 loss: 0.360650 acc:0.665696
+=====> epoch[103/150] train_iter: (50/64) 	 loss: 0.467994 acc:0.435527
+
+ 69%|██████████████████████████████████████████████████████████████████████████████████████████▋                                         | 103/150 [06:28<02:55,  3.73s/it]
+----- Training - Epoch 104 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[104/150] train_iter: (10/64) 	 loss: 0.337992 acc:0.752592
+=====> epoch[104/150] train_iter: (20/64) 	 loss: 0.353820 acc:0.627137
+
+ 69%|███████████████████████████████████████████████████████████████████████████████████████████▌                                        | 104/150 [06:31<02:51,  3.73s/it]
+=====> epoch[104/150] train_iter: (40/64) 	 loss: 0.349103 acc:0.627449
+=====> epoch[104/150] train_iter: (50/64) 	 loss: 0.375099 acc:0.627744
+=====> epoch[104/150] train_iter: (60/64) 	 loss: 0.405328 acc:0.578792
+----- Training - Epoch 105 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[105/150] train_iter: (10/64) 	 loss: 0.338692 acc:0.663625
+=====> epoch[105/150] train_iter: (20/64) 	 loss: 0.335311 acc:0.676966
+=====> epoch[105/150] train_iter: (30/64) 	 loss: 0.345498 acc:0.640658
+
+ 70%|████████████████████████████████████████████████████████████████████████████████████████████▍                                       | 105/150 [06:35<02:48,  3.74s/it]
+=====> epoch[105/150] train_iter: (50/64) 	 loss: 0.395037 acc:0.516711
+=====> epoch[105/150] train_iter: (60/64) 	 loss: 0.337523 acc:0.668209
+----- Training - Epoch 106 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[106/150] train_iter: (10/64) 	 loss: 0.382539 acc:0.567909
+=====> epoch[106/150] train_iter: (20/64) 	 loss: 0.314859 acc:0.743417
+=====> epoch[106/150] train_iter: (30/64) 	 loss: 0.331968 acc:0.755435
+
+ 71%|█████████████████████████████████████████████████████████████████████████████████████████████▎                                      | 106/150 [06:39<02:44,  3.73s/it]
+=====> epoch[106/150] train_iter: (50/64) 	 loss: 0.343198 acc:0.649917
+=====> epoch[106/150] train_iter: (60/64) 	 loss: 0.332292 acc:0.688515
+----- Training - Epoch 107 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[107/150] train_iter: (10/64) 	 loss: 0.379512 acc:0.574115
+=====> epoch[107/150] train_iter: (20/64) 	 loss: 0.330766 acc:0.670192
+=====> epoch[107/150] train_iter: (30/64) 	 loss: 0.326597 acc:0.772098
+=====> epoch[107/150] train_iter: (40/64) 	 loss: 0.335975 acc:0.666081
+
+ 71%|██████████████████████████████████████████████████████████████████████████████████████████████▏                                     | 107/150 [06:43<02:40,  3.74s/it]
+=====> epoch[107/150] train_iter: (60/64) 	 loss: 0.412842 acc:0.515629
+----- Training - Epoch 108 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[108/150] train_iter: (10/64) 	 loss: 0.347550 acc:0.678870
+=====> epoch[108/150] train_iter: (20/64) 	 loss: 0.367139 acc:0.580153
+=====> epoch[108/150] train_iter: (30/64) 	 loss: 0.382962 acc:0.550146
+=====> epoch[108/150] train_iter: (40/64) 	 loss: 0.428035 acc:0.447859
+
+ 72%|███████████████████████████████████████████████████████████████████████████████████████████████                                     | 108/150 [06:46<02:36,  3.73s/it]
+=====> epoch[108/150] train_iter: (60/64) 	 loss: 0.311506 acc:0.723713
+----- Training - Epoch 109 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[109/150] train_iter: (10/64) 	 loss: 0.395631 acc:0.538583
+=====> epoch[109/150] train_iter: (20/64) 	 loss: 0.330764 acc:0.708686
+=====> epoch[109/150] train_iter: (30/64) 	 loss: 0.367248 acc:0.705710
+=====> epoch[109/150] train_iter: (40/64) 	 loss: 0.382395 acc:0.543145
+=====> epoch[109/150] train_iter: (50/64) 	 loss: 0.301787 acc:0.751747
+
+ 73%|███████████████████████████████████████████████████████████████████████████████████████████████▉                                    | 109/150 [06:50<02:33,  3.73s/it]
+----- Training - Epoch 110 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[110/150] train_iter: (10/64) 	 loss: 0.345873 acc:0.639785
+=====> epoch[110/150] train_iter: (20/64) 	 loss: 0.308371 acc:0.749685
+=====> epoch[110/150] train_iter: (30/64) 	 loss: 0.320899 acc:0.702355
+=====> epoch[110/150] train_iter: (40/64) 	 loss: 0.337422 acc:0.729261
+=====> epoch[110/150] train_iter: (50/64) 	 loss: 0.365999 acc:0.569068
+
+ 73%|████████████████████████████████████████████████████████████████████████████████████████████████▊                                   | 110/150 [06:54<02:29,  3.74s/it]
+----- Training - Epoch 111 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[111/150] train_iter: (10/64) 	 loss: 0.337185 acc:0.633433
+=====> epoch[111/150] train_iter: (20/64) 	 loss: 0.323316 acc:0.690625
+
+ 74%|█████████████████████████████████████████████████████████████████████████████████████████████████▋                                  | 111/150 [06:58<02:25,  3.74s/it]
+=====> epoch[111/150] train_iter: (40/64) 	 loss: 0.386406 acc:0.494155
+=====> epoch[111/150] train_iter: (50/64) 	 loss: 0.390781 acc:0.532711
+=====> epoch[111/150] train_iter: (60/64) 	 loss: 0.398973 acc:0.524944
+----- Training - Epoch 112 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[112/150] train_iter: (10/64) 	 loss: 0.322649 acc:0.781284
+=====> epoch[112/150] train_iter: (20/64) 	 loss: 0.394862 acc:0.494089
+
+ 75%|██████████████████████████████████████████████████████████████████████████████████████████████████▌                                 | 112/150 [07:01<02:21,  3.73s/it]
+=====> epoch[112/150] train_iter: (40/64) 	 loss: 0.399273 acc:0.494861
+=====> epoch[112/150] train_iter: (50/64) 	 loss: 0.309057 acc:0.768739
+=====> epoch[112/150] train_iter: (60/64) 	 loss: 0.376755 acc:0.558484
+----- Training - Epoch 113 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[113/150] train_iter: (10/64) 	 loss: 0.349733 acc:0.617004
+=====> epoch[113/150] train_iter: (20/64) 	 loss: 0.398805 acc:0.496030
+=====> epoch[113/150] train_iter: (30/64) 	 loss: 0.298887 acc:0.732568
+
+ 75%|███████████████████████████████████████████████████████████████████████████████████████████████████▍                                | 113/150 [07:05<02:18,  3.73s/it]
+=====> epoch[113/150] train_iter: (50/64) 	 loss: 0.489959 acc:0.270589
+=====> epoch[113/150] train_iter: (60/64) 	 loss: 0.367146 acc:0.557166
+----- Training - Epoch 114 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[114/150] train_iter: (10/64) 	 loss: 0.303697 acc:0.731354
+=====> epoch[114/150] train_iter: (20/64) 	 loss: 0.292826 acc:0.730591
+=====> epoch[114/150] train_iter: (30/64) 	 loss: 0.314630 acc:0.714358
+
+ 76%|████████████████████████████████████████████████████████████████████████████████████████████████████▎                               | 114/150 [07:09<02:14,  3.73s/it]
+=====> epoch[114/150] train_iter: (50/64) 	 loss: 0.335079 acc:0.617775
+=====> epoch[114/150] train_iter: (60/64) 	 loss: 0.329482 acc:0.634922
+----- Training - Epoch 115 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[115/150] train_iter: (10/64) 	 loss: 0.305176 acc:0.760313
+=====> epoch[115/150] train_iter: (20/64) 	 loss: 0.323875 acc:0.659620
+=====> epoch[115/150] train_iter: (30/64) 	 loss: 0.306175 acc:0.690299
+=====> epoch[115/150] train_iter: (40/64) 	 loss: 0.290158 acc:0.751124
+
+ 77%|█████████████████████████████████████████████████████████████████████████████████████████████████████▏                              | 115/150 [07:13<02:10,  3.73s/it]
+=====> epoch[115/150] train_iter: (60/64) 	 loss: 0.306460 acc:0.706730
+----- Training - Epoch 116 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[116/150] train_iter: (10/64) 	 loss: 0.306796 acc:0.755055
+=====> epoch[116/150] train_iter: (20/64) 	 loss: 0.435231 acc:0.416831
+=====> epoch[116/150] train_iter: (30/64) 	 loss: 0.347801 acc:0.588848
+=====> epoch[116/150] train_iter: (40/64) 	 loss: 0.306901 acc:0.726469
+
+ 77%|██████████████████████████████████████████████████████████████████████████████████████████████████████                              | 116/150 [07:16<02:06,  3.73s/it]
+=====> epoch[116/150] train_iter: (60/64) 	 loss: 0.295715 acc:0.714609
+----- Training - Epoch 117 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[117/150] train_iter: (10/64) 	 loss: 0.302444 acc:0.728177
+=====> epoch[117/150] train_iter: (20/64) 	 loss: 0.362428 acc:0.573678
+=====> epoch[117/150] train_iter: (30/64) 	 loss: 0.406209 acc:0.473833
+=====> epoch[117/150] train_iter: (40/64) 	 loss: 0.406037 acc:0.441401
+=====> epoch[117/150] train_iter: (50/64) 	 loss: 0.584248 acc:0.190194
+
+ 78%|██████████████████████████████████████████████████████████████████████████████████████████████████████▉                             | 117/150 [07:20<02:03,  3.73s/it]
+----- Training - Epoch 118 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[118/150] train_iter: (10/64) 	 loss: 0.314196 acc:0.681758
+=====> epoch[118/150] train_iter: (20/64) 	 loss: 0.298721 acc:0.711378
+=====> epoch[118/150] train_iter: (30/64) 	 loss: 0.334300 acc:0.669169
+=====> epoch[118/150] train_iter: (40/64) 	 loss: 0.343915 acc:0.589439
+=====> epoch[118/150] train_iter: (50/64) 	 loss: 0.290247 acc:0.722015
+=====> epoch[118/150] train_iter: (60/64) 	 loss: 0.392615 acc:0.485799
+----- Training - Epoch 119 - batch_size 2,------
+
+ 79%|███████████████████████████████████████████████████████████████████████████████████████████████████████▊                            | 118/150 [07:24<01:59,  3.73s/it]
+=====> epoch[119/150] train_iter: (10/64) 	 loss: 0.309456 acc:0.704064
+=====> epoch[119/150] train_iter: (20/64) 	 loss: 0.308854 acc:0.685786
+
+ 79%|████████████████████████████████████████████████████████████████████████████████████████████████████████▋                           | 119/150 [07:27<01:55,  3.73s/it]
+=====> epoch[119/150] train_iter: (40/64) 	 loss: 0.264052 acc:0.769967
+=====> epoch[119/150] train_iter: (50/64) 	 loss: 0.420798 acc:0.424814
+=====> epoch[119/150] train_iter: (60/64) 	 loss: 0.304456 acc:0.740045
+----- Training - Epoch 120 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[120/150] train_iter: (10/64) 	 loss: 0.308165 acc:0.720768
+=====> epoch[120/150] train_iter: (20/64) 	 loss: 0.333033 acc:0.601395
+=====> epoch[120/150] train_iter: (30/64) 	 loss: 0.353153 acc:0.578898
+
+ 80%|█████████████████████████████████████████████████████████████████████████████████████████████████████████▌                          | 120/150 [07:31<01:52,  3.73s/it]
+=====> epoch[120/150] train_iter: (50/64) 	 loss: 0.357475 acc:0.604037
+=====> epoch[120/150] train_iter: (60/64) 	 loss: 0.296999 acc:0.752476
+----- Training - Epoch 121 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[121/150] train_iter: (10/64) 	 loss: 0.309170 acc:0.749342
+=====> epoch[121/150] train_iter: (20/64) 	 loss: 0.312568 acc:0.681842
+=====> epoch[121/150] train_iter: (30/64) 	 loss: 0.283179 acc:0.728530
+
+ 81%|██████████████████████████████████████████████████████████████████████████████████████████████████████████▍                         | 121/150 [07:35<01:48,  3.74s/it]
+=====> epoch[121/150] train_iter: (50/64) 	 loss: 0.385358 acc:0.516228
+=====> epoch[121/150] train_iter: (60/64) 	 loss: 0.336364 acc:0.584935
+----- Training - Epoch 122 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[122/150] train_iter: (10/64) 	 loss: 0.302856 acc:0.762071
+=====> epoch[122/150] train_iter: (20/64) 	 loss: 0.340342 acc:0.604443
+=====> epoch[122/150] train_iter: (30/64) 	 loss: 0.391266 acc:0.480071
+=====> epoch[122/150] train_iter: (40/64) 	 loss: 0.297178 acc:0.689070
+
+ 81%|███████████████████████████████████████████████████████████████████████████████████████████████████████████▎                        | 122/150 [07:39<01:44,  3.74s/it]
+=====> epoch[122/150] train_iter: (60/64) 	 loss: 0.420004 acc:0.452818
+----- Training - Epoch 123 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[123/150] train_iter: (10/64) 	 loss: 0.292128 acc:0.697489
+=====> epoch[123/150] train_iter: (20/64) 	 loss: 0.371850 acc:0.510005
+=====> epoch[123/150] train_iter: (30/64) 	 loss: 0.341066 acc:0.586554
+=====> epoch[123/150] train_iter: (40/64) 	 loss: 0.310171 acc:0.681237
+
+ 82%|████████████████████████████████████████████████████████████████████████████████████████████████████████████▏                       | 123/150 [07:42<01:40,  3.73s/it]
+=====> epoch[123/150] train_iter: (60/64) 	 loss: 0.330192 acc:0.606755
+----- Training - Epoch 124 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[124/150] train_iter: (10/64) 	 loss: 0.308996 acc:0.679461
+=====> epoch[124/150] train_iter: (20/64) 	 loss: 0.277644 acc:0.783058
+=====> epoch[124/150] train_iter: (30/64) 	 loss: 0.415780 acc:0.397000
+=====> epoch[124/150] train_iter: (40/64) 	 loss: 0.338546 acc:0.583882
+=====> epoch[124/150] train_iter: (50/64) 	 loss: 0.287499 acc:0.764205
+
+ 83%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████                       | 124/150 [07:46<01:37,  3.73s/it]
+----- Training - Epoch 125 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[125/150] train_iter: (10/64) 	 loss: 0.273323 acc:0.768402
+=====> epoch[125/150] train_iter: (20/64) 	 loss: 0.280638 acc:0.760722
+=====> epoch[125/150] train_iter: (30/64) 	 loss: 0.308723 acc:0.645618
+=====> epoch[125/150] train_iter: (40/64) 	 loss: 0.387481 acc:0.479218
+=====> epoch[125/150] train_iter: (50/64) 	 loss: 0.300142 acc:0.704555
+
+ 83%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████                      | 125/150 [07:50<01:33,  3.73s/it]
+----- Training - Epoch 126 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[126/150] train_iter: (10/64) 	 loss: 0.367484 acc:0.554000
+=====> epoch[126/150] train_iter: (20/64) 	 loss: 0.275545 acc:0.793063
+
+ 84%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████▉                     | 126/150 [07:54<01:29,  3.73s/it]
+=====> epoch[126/150] train_iter: (40/64) 	 loss: 0.280002 acc:0.704520
+=====> epoch[126/150] train_iter: (50/64) 	 loss: 0.322712 acc:0.649936
+=====> epoch[126/150] train_iter: (60/64) 	 loss: 0.300627 acc:0.677607
+----- Training - Epoch 127 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[127/150] train_iter: (10/64) 	 loss: 0.283720 acc:0.718928
+=====> epoch[127/150] train_iter: (20/64) 	 loss: 0.417271 acc:0.377342
+=====> epoch[127/150] train_iter: (30/64) 	 loss: 0.332976 acc:0.577640
+
+ 85%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████▊                    | 127/150 [07:57<01:25,  3.73s/it]
+=====> epoch[127/150] train_iter: (50/64) 	 loss: 0.299193 acc:0.779076
+=====> epoch[127/150] train_iter: (60/64) 	 loss: 0.417435 acc:0.776782
+----- Training - Epoch 128 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[128/150] train_iter: (10/64) 	 loss: 0.304985 acc:0.687381
+=====> epoch[128/150] train_iter: (20/64) 	 loss: 0.313293 acc:0.780147
+=====> epoch[128/150] train_iter: (30/64) 	 loss: 0.274963 acc:0.730669
+
+ 85%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████▋                   | 128/150 [08:01<01:22,  3.73s/it]
+=====> epoch[128/150] train_iter: (50/64) 	 loss: 0.277331 acc:0.716229
+=====> epoch[128/150] train_iter: (60/64) 	 loss: 0.289745 acc:0.714121
+----- Training - Epoch 129 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[129/150] train_iter: (10/64) 	 loss: 0.313808 acc:0.604746
+=====> epoch[129/150] train_iter: (20/64) 	 loss: 0.277075 acc:0.748504
+=====> epoch[129/150] train_iter: (30/64) 	 loss: 0.313406 acc:0.626631
+=====> epoch[129/150] train_iter: (40/64) 	 loss: 0.387663 acc:0.474069
+
+ 86%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌                  | 129/150 [08:05<01:18,  3.73s/it]
+=====> epoch[129/150] train_iter: (60/64) 	 loss: 0.317691 acc:0.617164
+----- Training - Epoch 130 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[130/150] train_iter: (10/64) 	 loss: 0.286447 acc:0.700068
+=====> epoch[130/150] train_iter: (20/64) 	 loss: 0.408879 acc:0.358749
+=====> epoch[130/150] train_iter: (30/64) 	 loss: 0.269572 acc:0.764678
+=====> epoch[130/150] train_iter: (40/64) 	 loss: 0.274572 acc:0.773788
+
+ 87%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████▍                 | 130/150 [08:09<01:14,  3.73s/it]
+=====> epoch[130/150] train_iter: (60/64) 	 loss: 0.329806 acc:0.623160
+----- Training - Epoch 131 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[131/150] train_iter: (10/64) 	 loss: 0.516860 acc:0.217796
+=====> epoch[131/150] train_iter: (20/64) 	 loss: 0.277950 acc:0.754464
+=====> epoch[131/150] train_iter: (30/64) 	 loss: 0.313192 acc:0.634481
+=====> epoch[131/150] train_iter: (40/64) 	 loss: 0.303761 acc:0.662257
+=====> epoch[131/150] train_iter: (50/64) 	 loss: 0.269925 acc:0.789786
+
+ 87%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎                | 131/150 [08:12<01:10,  3.73s/it]
+----- Training - Epoch 132 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[132/150] train_iter: (10/64) 	 loss: 0.265067 acc:0.748294
+=====> epoch[132/150] train_iter: (20/64) 	 loss: 0.387501 acc:0.449482
+=====> epoch[132/150] train_iter: (30/64) 	 loss: 0.276438 acc:0.733581
+=====> epoch[132/150] train_iter: (40/64) 	 loss: 0.303257 acc:0.678435
+=====> epoch[132/150] train_iter: (50/64) 	 loss: 0.283752 acc:0.680992
+
+ 88%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▏               | 132/150 [08:16<01:07,  3.73s/it]
+----- Training - Epoch 133 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[133/150] train_iter: (10/64) 	 loss: 0.312853 acc:0.603184
+=====> epoch[133/150] train_iter: (20/64) 	 loss: 0.347668 acc:0.786808
+
+ 89%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████               | 133/150 [08:20<01:03,  3.73s/it]
+=====> epoch[133/150] train_iter: (40/64) 	 loss: 0.252795 acc:0.754834
+=====> epoch[133/150] train_iter: (50/64) 	 loss: 0.275651 acc:0.743634
+=====> epoch[133/150] train_iter: (60/64) 	 loss: 0.355671 acc:0.569936
+----- Training - Epoch 134 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[134/150] train_iter: (10/64) 	 loss: 0.287120 acc:0.673196
+=====> epoch[134/150] train_iter: (20/64) 	 loss: 0.388757 acc:0.426885
+
+ 89%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▉              | 134/150 [08:23<00:59,  3.73s/it]
+=====> epoch[134/150] train_iter: (40/64) 	 loss: 0.300800 acc:0.639078
+=====> epoch[134/150] train_iter: (50/64) 	 loss: 0.264823 acc:0.771455
+=====> epoch[134/150] train_iter: (60/64) 	 loss: 0.296296 acc:0.792095
+----- Training - Epoch 135 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[135/150] train_iter: (10/64) 	 loss: 0.309686 acc:0.628950
+=====> epoch[135/150] train_iter: (20/64) 	 loss: 0.349934 acc:0.534464
+=====> epoch[135/150] train_iter: (30/64) 	 loss: 0.303906 acc:0.626848
+
+ 90%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▊             | 135/150 [08:27<00:56,  3.74s/it]
+=====> epoch[135/150] train_iter: (50/64) 	 loss: 0.282301 acc:0.794503
+=====> epoch[135/150] train_iter: (60/64) 	 loss: 0.287750 acc:0.692738
+----- Training - Epoch 136 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[136/150] train_iter: (10/64) 	 loss: 0.291037 acc:0.685947
+=====> epoch[136/150] train_iter: (20/64) 	 loss: 0.291265 acc:0.761275
+=====> epoch[136/150] train_iter: (30/64) 	 loss: 0.263088 acc:0.763096
+
+ 91%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▋            | 136/150 [08:31<00:52,  3.73s/it]
+=====> epoch[136/150] train_iter: (50/64) 	 loss: 0.284111 acc:0.743143
+=====> epoch[136/150] train_iter: (60/64) 	 loss: 0.285077 acc:0.705296
+----- Training - Epoch 137 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[137/150] train_iter: (10/64) 	 loss: 0.299607 acc:0.674267
+=====> epoch[137/150] train_iter: (20/64) 	 loss: 0.288614 acc:0.682870
+=====> epoch[137/150] train_iter: (30/64) 	 loss: 0.277531 acc:0.757468
+=====> epoch[137/150] train_iter: (40/64) 	 loss: 0.270588 acc:0.716698
+
+ 91%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌           | 137/150 [08:35<00:48,  3.73s/it]
+=====> epoch[137/150] train_iter: (60/64) 	 loss: 0.306189 acc:0.623159
+----- Training - Epoch 138 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[138/150] train_iter: (10/64) 	 loss: 0.273692 acc:0.699222
+=====> epoch[138/150] train_iter: (20/64) 	 loss: 0.257793 acc:0.754000
+=====> epoch[138/150] train_iter: (30/64) 	 loss: 0.267805 acc:0.720731
+=====> epoch[138/150] train_iter: (40/64) 	 loss: 0.370908 acc:0.434474
+
+ 92%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▍          | 138/150 [08:38<00:44,  3.73s/it]
+=====> epoch[138/150] train_iter: (60/64) 	 loss: 0.307293 acc:0.790685
+----- Training - Epoch 139 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[139/150] train_iter: (10/64) 	 loss: 0.269450 acc:0.745798
+=====> epoch[139/150] train_iter: (20/64) 	 loss: 0.290605 acc:0.780792
+=====> epoch[139/150] train_iter: (30/64) 	 loss: 0.311910 acc:0.588401
+=====> epoch[139/150] train_iter: (40/64) 	 loss: 0.259431 acc:0.746200
+=====> epoch[139/150] train_iter: (50/64) 	 loss: 0.277167 acc:0.694578
+
+ 93%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎         | 139/150 [08:42<00:41,  3.73s/it]
+----- Training - Epoch 140 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[140/150] train_iter: (10/64) 	 loss: 0.311533 acc:0.609400
+=====> epoch[140/150] train_iter: (20/64) 	 loss: 0.284035 acc:0.662575
+=====> epoch[140/150] train_iter: (30/64) 	 loss: 0.270020 acc:0.700142
+=====> epoch[140/150] train_iter: (40/64) 	 loss: 0.293943 acc:0.656898
+=====> epoch[140/150] train_iter: (50/64) 	 loss: 0.267243 acc:0.707236
+=====> epoch[140/150] train_iter: (60/64) 	 loss: 0.260599 acc:0.718989
+----- Training - Epoch 141 - batch_size 2,------
+
+ 93%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▏        | 140/150 [08:46<00:37,  3.73s/it]
+=====> epoch[141/150] train_iter: (10/64) 	 loss: 0.246234 acc:0.790585
+=====> epoch[141/150] train_iter: (20/64) 	 loss: 0.296069 acc:0.611046
+
+ 94%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████        | 141/150 [08:50<00:33,  3.74s/it]
+=====> epoch[141/150] train_iter: (40/64) 	 loss: 0.269657 acc:0.748708
+=====> epoch[141/150] train_iter: (50/64) 	 loss: 0.276780 acc:0.685681
+=====> epoch[141/150] train_iter: (60/64) 	 loss: 0.242323 acc:0.784185
+----- Training - Epoch 142 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[142/150] train_iter: (10/64) 	 loss: 0.259147 acc:0.756213
+=====> epoch[142/150] train_iter: (20/64) 	 loss: 0.256950 acc:0.760998
+=====> epoch[142/150] train_iter: (30/64) 	 loss: 0.302468 acc:0.777884
+
+ 95%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▉       | 142/150 [08:53<00:29,  3.74s/it]
+=====> epoch[142/150] train_iter: (50/64) 	 loss: 0.269752 acc:0.744742
+=====> epoch[142/150] train_iter: (60/64) 	 loss: 0.259908 acc:0.721595
+----- Training - Epoch 143 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[143/150] train_iter: (10/64) 	 loss: 0.292868 acc:0.796591
+=====> epoch[143/150] train_iter: (20/64) 	 loss: 0.261333 acc:0.777860
+=====> epoch[143/150] train_iter: (30/64) 	 loss: 0.271917 acc:0.710193
+
+ 95%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▊      | 143/150 [08:57<00:26,  3.74s/it]
+=====> epoch[143/150] train_iter: (50/64) 	 loss: 0.357633 acc:0.479240
+=====> epoch[143/150] train_iter: (60/64) 	 loss: 0.331798 acc:0.576117
+----- Training - Epoch 144 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[144/150] train_iter: (10/64) 	 loss: 0.266149 acc:0.716276
+=====> epoch[144/150] train_iter: (20/64) 	 loss: 0.259176 acc:0.762128
+=====> epoch[144/150] train_iter: (30/64) 	 loss: 0.250632 acc:0.753255
+
+ 96%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▋     | 144/150 [09:01<00:22,  3.78s/it]
+=====> epoch[144/150] train_iter: (50/64) 	 loss: 0.250024 acc:0.783350
+=====> epoch[144/150] train_iter: (60/64) 	 loss: 0.357107 acc:0.471560
+----- Training - Epoch 145 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[145/150] train_iter: (10/64) 	 loss: 0.265588 acc:0.800147
+=====> epoch[145/150] train_iter: (20/64) 	 loss: 0.317258 acc:0.576012
+=====> epoch[145/150] train_iter: (30/64) 	 loss: 0.238798 acc:0.773423
+=====> epoch[145/150] train_iter: (40/64) 	 loss: 0.254848 acc:0.746364
+
+ 97%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌    | 145/150 [09:05<00:18,  3.79s/it]
+=====> epoch[145/150] train_iter: (60/64) 	 loss: 0.272626 acc:0.669146
+----- Training - Epoch 146 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[146/150] train_iter: (10/64) 	 loss: 0.292321 acc:0.656165
+=====> epoch[146/150] train_iter: (20/64) 	 loss: 0.285175 acc:0.636668
+=====> epoch[146/150] train_iter: (30/64) 	 loss: 0.275638 acc:0.683100
+=====> epoch[146/150] train_iter: (40/64) 	 loss: 0.288825 acc:0.633637
+
+ 97%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▍   | 146/150 [09:09<00:15,  3.79s/it]
+=====> epoch[146/150] train_iter: (60/64) 	 loss: 0.315898 acc:0.589612
+----- Training - Epoch 147 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[147/150] train_iter: (10/64) 	 loss: 0.269873 acc:0.793119
+=====> epoch[147/150] train_iter: (20/64) 	 loss: 0.253763 acc:0.730049
+=====> epoch[147/150] train_iter: (30/64) 	 loss: 0.280037 acc:0.721661
+=====> epoch[147/150] train_iter: (40/64) 	 loss: 0.354065 acc:0.447466
+=====> epoch[147/150] train_iter: (50/64) 	 loss: 0.256636 acc:0.728518
+
+ 98%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎  | 147/150 [09:12<00:11,  3.79s/it]
+----- Training - Epoch 148 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[148/150] train_iter: (10/64) 	 loss: 0.273967 acc:0.692869
+=====> epoch[148/150] train_iter: (20/64) 	 loss: 0.566939 acc:0.177141
+=====> epoch[148/150] train_iter: (30/64) 	 loss: 0.271502 acc:0.722688
+=====> epoch[148/150] train_iter: (40/64) 	 loss: 0.264828 acc:0.685573
+=====> epoch[148/150] train_iter: (50/64) 	 loss: 0.244961 acc:0.751430
+
+ 99%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▏ | 148/150 [09:16<00:07,  3.78s/it]
+----- Training - Epoch 149 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[149/150] train_iter: (10/64) 	 loss: 0.362494 acc:0.416292
+=====> epoch[149/150] train_iter: (20/64) 	 loss: 0.268850 acc:0.772885
+=====> epoch[149/150] train_iter: (30/64) 	 loss: 0.245540 acc:0.741623
+=====> epoch[149/150] train_iter: (40/64) 	 loss: 0.320460 acc:0.676565
+=====> epoch[149/150] train_iter: (50/64) 	 loss: 0.236045 acc:0.779547
+=====> epoch[149/150] train_iter: (60/64) 	 loss: 0.251163 acc:0.752515
+----- Training - Epoch 150 - batch_size 2,------
+
+ 99%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████ | 149/150 [09:20<00:03,  3.79s/it]
+=====> epoch[150/150] train_iter: (10/64) 	 loss: 0.256377 acc:0.700490
+=====> epoch[150/150] train_iter: (20/64) 	 loss: 0.244923 acc:0.723609
+=====> epoch[150/150] train_iter: (30/64) 	 loss: 0.282360 acc:0.643914
+=====> epoch[150/150] train_iter: (40/64) 	 loss: 0.271660 acc:0.688558
+=====> epoch[150/150] train_iter: (50/64) 	 loss: 0.243647 acc:0.772136
+=====> epoch[150/150] train_iter: (60/64) 	 loss: 0.266181 acc:0.702920
+
+100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 150/150 [09:24<00:00,  3.76s/it]

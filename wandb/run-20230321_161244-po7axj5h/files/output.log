@@ -1,0 +1,74 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+trian_epoch [1/150]: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1354/1354 [01:19<00:00, 17.06it/s, train_acc=0.569, train_loss=0.597]
+
+val_epoch [1/150]: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 150/150 [00:03<00:00, 40.19it/s, val_acc=0.517, val_loss=0.611]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+trian_epoch [2/150]:  57%|███████████████████████████████████████████████████████████████                                                | 770/1354 [00:44<00:34, 17.13it/s, train_acc=0.651, train_loss=0.539]
+Traceback (most recent call last):
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 267, in <module>
+    train(args)
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 158, in train
+    loss.backward()
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/_tensor.py", line 487, in backward
+    torch.autograd.backward(
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/autograd/__init__.py", line 197, in backward
+    Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+KeyboardInterrupt

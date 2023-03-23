@@ -1,0 +1,145 @@
+
+  0%|                                                                                                                                                                                  | 0/150 [00:00<?, ?it/s]
+----- Training - Epoch 01 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[1/150] train_iter: (10/64) 	 loss: 1.150065 acc:0.240901
+=====> epoch[1/150] train_iter: (20/64) 	 loss: 1.207584 acc:0.350407
+=====> epoch[1/150] train_iter: (30/64) 	 loss: 0.892001 acc:0.388042
+=====> epoch[1/150] train_iter: (40/64) 	 loss: 0.949437 acc:0.366716
+=====> epoch[1/150] train_iter: (50/64) 	 loss: 0.878176 acc:0.552069
+=====> epoch[1/150] train_iter: (60/64) 	 loss: 0.891856 acc:0.489168
+----- Training - Epoch 02 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+  1%|█▏                                                                                                                                                                        | 1/150 [00:05<12:32,  5.05s/it]
+=====> epoch[2/150] train_iter: (20/64) 	 loss: 0.824279 acc:0.354230
+=====> epoch[2/150] train_iter: (30/64) 	 loss: 0.825966 acc:0.438043
+=====> epoch[2/150] train_iter: (40/64) 	 loss: 0.949545 acc:0.291357
+=====> epoch[2/150] train_iter: (50/64) 	 loss: 0.984990 acc:0.482208
+=====> epoch[2/150] train_iter: (60/64) 	 loss: 0.929816 acc:0.503743
+----- Training - Epoch 03 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+
+  1%|██▎                                                                                                                                                                       | 2/150 [00:08<10:30,  4.26s/it]
+=====> epoch[3/150] train_iter: (20/64) 	 loss: 0.857453 acc:0.424383
+=====> epoch[3/150] train_iter: (30/64) 	 loss: 0.927778 acc:0.459391
+=====> epoch[3/150] train_iter: (40/64) 	 loss: 0.752658 acc:0.590906
+
+  2%|███▍                                                                                                                                                                      | 3/150 [00:12<09:50,  4.02s/it]
+=====> epoch[3/150] train_iter: (60/64) 	 loss: 1.105951 acc:0.096463
+----- Training - Epoch 04 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[4/150] train_iter: (10/64) 	 loss: 0.815861 acc:0.454129
+=====> epoch[4/150] train_iter: (20/64) 	 loss: 0.783283 acc:0.445859
+=====> epoch[4/150] train_iter: (30/64) 	 loss: 0.844427 acc:0.356704
+=====> epoch[4/150] train_iter: (40/64) 	 loss: 0.725459 acc:0.482253
+
+  3%|████▌                                                                                                                                                                     | 4/150 [00:16<09:31,  3.91s/it]
+=====> epoch[4/150] train_iter: (60/64) 	 loss: 1.074572 acc:0.400773
+----- Training - Epoch 05 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[5/150] train_iter: (10/64) 	 loss: 1.010903 acc:0.282014
+=====> epoch[5/150] train_iter: (20/64) 	 loss: 0.915939 acc:0.380662
+=====> epoch[5/150] train_iter: (30/64) 	 loss: 0.930879 acc:0.294995
+=====> epoch[5/150] train_iter: (40/64) 	 loss: 0.862794 acc:0.493546
+=====> epoch[5/150] train_iter: (50/64) 	 loss: 0.765988 acc:0.566280
+
+  3%|█████▋                                                                                                                                                                    | 5/150 [00:19<09:18,  3.85s/it]
+----- Training - Epoch 06 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[6/150] train_iter: (10/64) 	 loss: 0.861336 acc:0.283991
+=====> epoch[6/150] train_iter: (20/64) 	 loss: 0.734967 acc:0.480992
+
+  4%|██████▊                                                                                                                                                                   | 6/150 [00:23<09:08,  3.81s/it]
+=====> epoch[6/150] train_iter: (40/64) 	 loss: 0.772096 acc:0.418016
+=====> epoch[6/150] train_iter: (50/64) 	 loss: 0.724419 acc:0.487161
+=====> epoch[6/150] train_iter: (60/64) 	 loss: 0.904061 acc:0.349167
+----- Training - Epoch 07 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[7/150] train_iter: (10/64) 	 loss: 0.719561 acc:0.527663
+=====> epoch[7/150] train_iter: (20/64) 	 loss: 0.784000 acc:0.430344
+
+  5%|███████▉                                                                                                                                                                  | 7/150 [00:27<09:01,  3.79s/it]
+=====> epoch[7/150] train_iter: (40/64) 	 loss: 0.784669 acc:0.402243
+=====> epoch[7/150] train_iter: (50/64) 	 loss: 0.621693 acc:0.544707
+=====> epoch[7/150] train_iter: (60/64) 	 loss: 0.799936 acc:0.362717
+----- Training - Epoch 08 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[8/150] train_iter: (10/64) 	 loss: 0.714219 acc:0.519661
+=====> epoch[8/150] train_iter: (20/64) 	 loss: 1.123864 acc:0.194872
+=====> epoch[8/150] train_iter: (30/64) 	 loss: 0.710888 acc:0.463373
+
+  5%|█████████                                                                                                                                                                 | 8/150 [00:31<08:55,  3.77s/it]
+=====> epoch[8/150] train_iter: (50/64) 	 loss: 0.811154 acc:0.612468
+=====> epoch[8/150] train_iter: (60/64) 	 loss: 0.826483 acc:0.328906
+----- Training - Epoch 09 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[9/150] train_iter: (10/64) 	 loss: 0.779408 acc:0.420748
+=====> epoch[9/150] train_iter: (20/64) 	 loss: 0.914371 acc:0.371707
+=====> epoch[9/150] train_iter: (30/64) 	 loss: 0.907748 acc:0.481107
+
+  6%|██████████▏                                                                                                                                                               | 9/150 [00:34<08:51,  3.77s/it]
+=====> epoch[9/150] train_iter: (50/64) 	 loss: 0.776046 acc:0.369140
+=====> epoch[9/150] train_iter: (60/64) 	 loss: 0.848178 acc:0.379556
+----- Training - Epoch 10 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[10/150] train_iter: (10/64) 	 loss: 0.964295 acc:0.542195
+=====> epoch[10/150] train_iter: (20/64) 	 loss: 0.721856 acc:0.463880
+=====> epoch[10/150] train_iter: (30/64) 	 loss: 0.780967 acc:0.483275
+=====> epoch[10/150] train_iter: (40/64) 	 loss: 0.682250 acc:0.532137
+
+  7%|███████████▎                                                                                                                                                             | 10/150 [00:38<08:46,  3.76s/it]
+=====> epoch[10/150] train_iter: (60/64) 	 loss: 0.917405 acc:0.336067
+----- Training - Epoch 11 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[11/150] train_iter: (10/64) 	 loss: 0.735502 acc:0.512286
+=====> epoch[11/150] train_iter: (20/64) 	 loss: 0.814515 acc:0.368551
+=====> epoch[11/150] train_iter: (30/64) 	 loss: 0.733293 acc:0.459751
+=====> epoch[11/150] train_iter: (40/64) 	 loss: 0.747397 acc:0.558942
+
+  7%|████████████▍                                                                                                                                                            | 11/150 [00:42<08:43,  3.76s/it]
+=====> epoch[11/150] train_iter: (60/64) 	 loss: 0.733597 acc:0.497452
+----- Training - Epoch 12 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[12/150] train_iter: (10/64) 	 loss: 0.786201 acc:0.349277
+=====> epoch[12/150] train_iter: (20/64) 	 loss: 0.999807 acc:0.151794
+=====> epoch[12/150] train_iter: (30/64) 	 loss: 0.846268 acc:0.357427
+=====> epoch[12/150] train_iter: (40/64) 	 loss: 0.764087 acc:0.436953
+=====> epoch[12/150] train_iter: (50/64) 	 loss: 0.645633 acc:0.514119
+
+  8%|█████████████▌                                                                                                                                                           | 12/150 [00:46<08:37,  3.75s/it]
+----- Training - Epoch 13 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[13/150] train_iter: (10/64) 	 loss: 0.949081 acc:0.260317
+=====> epoch[13/150] train_iter: (20/64) 	 loss: 0.850314 acc:0.548518
+=====> epoch[13/150] train_iter: (30/64) 	 loss: 0.766154 acc:0.465565
+=====> epoch[13/150] train_iter: (40/64) 	 loss: 0.662598 acc:0.492266
+=====> epoch[13/150] train_iter: (50/64) 	 loss: 0.765906 acc:0.444772
+
+  9%|██████████████▋                                                                                                                                                          | 13/150 [00:49<08:33,  3.75s/it]
+----- Training - Epoch 14 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[14/150] train_iter: (10/64) 	 loss: 0.728633 acc:0.453815
+=====> epoch[14/150] train_iter: (20/64) 	 loss: 0.608852 acc:0.569513
+  9%|██████████████▋                                                                                                                                                          | 13/150 [00:53<09:24,  4.12s/it]
+Traceback (most recent call last):
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 263, in <module>
+    train(args)
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 203, in train
+    torchvision.utils.save_image(torch.cat((mask_image,output_f34),0), "./training_data_captures/" +str(iter_val+1)+".jpg")
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/autograd/grad_mode.py", line 27, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torchvision/utils.py", line 151, in save_image
+    im.save(fp, format=format)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/PIL/Image.py", line 2353, in save
+    save_handler(self, fp, filename)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/PIL/JpegImagePlugin.py", line 783, in _save
+    ImageFile._save(im, fp, [("jpeg", (0, 0) + im.size, 0, rawmode)], bufsize)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/PIL/ImageFile.py", line 505, in _save
+    _encode_tile(im, fp, tile, bufsize, fh)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/PIL/ImageFile.py", line 532, in _encode_tile
+    s = encoder.encode_to_file(fh, bufsize)
+KeyboardInterrupt
+=====> epoch[14/150] train_iter: (40/64) 	 loss: 0.723552 acc:0.436295
+=====> epoch[14/150] train_iter: (50/64) 	 loss: 0.714805 acc:0.515596
+=====> epoch[14/150] train_iter: (60/64) 	 loss: 0.698247 acc:0.475846

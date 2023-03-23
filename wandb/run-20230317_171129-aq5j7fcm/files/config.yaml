@@ -1,0 +1,62 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.14.0
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    python_version: 3.9.15
+    start_time: 1679044289.249997
+    t:
+      1:
+      - 1
+      - 5
+      - 41
+      - 53
+      - 55
+      2:
+      - 1
+      - 5
+      - 41
+      - 53
+      - 55
+      3:
+      - 13
+      - 16
+      - 23
+      4: 3.9.15
+      5: 0.14.0
+      8:
+      - 5
+batch_size:
+  desc: null
+  value: 2
+device:
+  desc: null
+  value: GPU
+epochs:
+  desc: null
+  value: 150
+gpus:
+  desc: null
+  value: '0'
+learning_rate:
+  desc: null
+  value: 0.0001
+num_workers:
+  desc: null
+  value: 1
+resume:
+  desc: null
+  value: /home/yaocong/Experimental/My_pytorch_model/checkpoint/model_1.pth
+save_dir:
+  desc: null
+  value: ./checkpoint//bs2e150/
+train_images:
+  desc: null
+  value: /home/yaocong/Experimental/pytorch_model/dataset/train/images/
+train_masks:
+  desc: null
+  value: /home/yaocong/Experimental/pytorch_model/dataset/train/masks/

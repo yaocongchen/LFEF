@@ -1,0 +1,16 @@
+
+  0%|                                                                                                                                              | 0/150 [00:00<?, ?it/s]
+----- Training - Epoch 01 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+  0%|                                                                                                                                              | 0/150 [00:02<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 259, in <module>
+    train(args)
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 158, in train
+    torch.nn.utils.clip_grad_norm_(model.parameters(),0.1)     #torch.nn.utils.clip_grad_norm
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/utils/clip_grad.py", line 33, in clip_grad_norm_
+    grads = [p.grad for p in parameters if p.grad is not None]
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/utils/clip_grad.py", line 33, in <listcomp>
+    grads = [p.grad for p in parameters if p.grad is not None]
+KeyboardInterrupt
+=====> epoch[1/150] train_iter: (20/64) 	 loss: 0.992647 acc:0.444749

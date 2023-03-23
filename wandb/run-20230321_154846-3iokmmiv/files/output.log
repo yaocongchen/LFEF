@@ -1,0 +1,10 @@
+
+
+epoch [1/150]: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 64/64 [00:04<00:00, 13.76it/s, train_acc=0.405, train_loss=0.986]
+epoch [1/150]:   0%|                                                                                                                                     | 0/7 [00:00<?, ?it/s, test_acc=0.457, test_loss=1.05]
+Traceback (most recent call last):
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 265, in <module>
+    train(args)
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 205, in train
+    torchvision.utils.save_image(torch.cat((mask_image,output_f34),0), "./training_data_captures/" +str(iter_val+1)+".jpg")
+NameError: name 'iter_val' is not defined

@@ -1,0 +1,96 @@
+
+  0%|                                                                                                                                              | 0/150 [00:00<?, ?it/s]
+----- Training - Epoch 01 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[1/150] train_iter: (10/64) 	 loss: 0.935609 acc:0.459251
+=====> epoch[1/150] train_iter: (20/64) 	 loss: 1.058878 acc:0.309799
+=====> epoch[1/150] train_iter: (30/64) 	 loss: 0.974714 acc:0.356849
+=====> epoch[1/150] train_iter: (40/64) 	 loss: 0.958882 acc:0.355237
+
+  1%|▉                                                                                                                                     | 1/150 [00:04<11:19,  4.56s/it]
+=====> epoch[1/150] train_iter: (60/64) 	 loss: 0.838940 acc:0.451977
+----- Training - Epoch 02 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[2/150] train_iter: (10/64) 	 loss: 0.919878 acc:0.450282
+=====> epoch[2/150] train_iter: (20/64) 	 loss: 0.883501 acc:0.494222
+=====> epoch[2/150] train_iter: (30/64) 	 loss: 1.051304 acc:0.182384
+=====> epoch[2/150] train_iter: (40/64) 	 loss: 0.990278 acc:0.220382
+
+  1%|█▊                                                                                                                                    | 2/150 [00:08<10:02,  4.07s/it]
+=====> epoch[2/150] train_iter: (60/64) 	 loss: 0.839322 acc:0.428901
+----- Training - Epoch 03 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[3/150] train_iter: (10/64) 	 loss: 0.912979 acc:0.338966
+=====> epoch[3/150] train_iter: (20/64) 	 loss: 0.845053 acc:0.395876
+=====> epoch[3/150] train_iter: (30/64) 	 loss: 0.750931 acc:0.449615
+=====> epoch[3/150] train_iter: (40/64) 	 loss: 0.855469 acc:0.330676
+=====> epoch[3/150] train_iter: (50/64) 	 loss: 1.015071 acc:0.304923
+
+  2%|██▋                                                                                                                                   | 3/150 [00:12<09:37,  3.93s/it]
+----- Training - Epoch 04 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[4/150] train_iter: (10/64) 	 loss: 0.851906 acc:0.363343
+=====> epoch[4/150] train_iter: (20/64) 	 loss: 0.798298 acc:0.434493
+=====> epoch[4/150] train_iter: (30/64) 	 loss: 0.901022 acc:0.450982
+=====> epoch[4/150] train_iter: (40/64) 	 loss: 1.004791 acc:0.314311
+=====> epoch[4/150] train_iter: (50/64) 	 loss: 0.764058 acc:0.447567
+
+  3%|███▌                                                                                                                                  | 4/150 [00:15<09:27,  3.89s/it]
+----- Training - Epoch 05 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[5/150] train_iter: (10/64) 	 loss: 0.791651 acc:0.485985
+=====> epoch[5/150] train_iter: (20/64) 	 loss: 0.735434 acc:0.499408
+  3%|███▌                                                                                                                                  | 4/150 [00:15<09:27,  3.89s/it]Exception in thread Thread-13:
+Traceback (most recent call last):
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/threading.py", line 980, in _bootstrap_inner
+    self.run()
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/threading.py", line 917, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/utils/data/_utils/pin_memory.py", line 49, in _pin_memory_loop
+    do_one_step()
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/utils/data/_utils/pin_memory.py", line 26, in do_one_step
+    r = in_queue.get(timeout=MP_STATUS_CHECK_INTERVAL)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/multiprocessing/queues.py", line 122, in get
+    return _ForkingPickler.loads(res)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/multiprocessing/reductions.py", line 305, in rebuild_storage_fd
+    fd = df.detach()
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/multiprocessing/resource_sharer.py", line 57, in detach
+    with _resource_sharer.get_connection(self._id) as conn:
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/multiprocessing/resource_sharer.py", line 86, in get_connection
+    c = Client(address, authkey=process.current_process().authkey)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/multiprocessing/connection.py", line 513, in Client
+    answer_challenge(c, authkey)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/multiprocessing/connection.py", line 762, in answer_challenge
+    response = connection.recv_bytes(256)        # reject large message
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/multiprocessing/connection.py", line 221, in recv_bytes
+    buf = self._recv_bytes(maxlength)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/multiprocessing/connection.py", line 419, in _recv_bytes
+    buf = self._recv(4)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/multiprocessing/connection.py", line 388, in _recv
+    raise EOFError
+EOFError
+  3%|███▌                                                                                                                                  | 4/150 [00:18<11:00,  4.52s/it]
+Traceback (most recent call last):
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 271, in <module>
+    train(args)
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 160, in train
+    output_f19, output_f34 = model(img_image)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/yaocong/Experimental/light_ssd/lightssd.py", line 309, in forward
+    f2 ,f3 = self.aem(img)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/yaocong/Experimental/light_ssd/lightssd.py", line 130, in forward
+    out_3 = self.stage3_CSSAM_dt9(out_3)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/yaocong/Experimental/light_ssd/lightssd.py", line 75, in forward
+    out31norm = self.batch_norm_2(out31)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/batchnorm.py", line 171, in forward
+    return F.batch_norm(
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/functional.py", line 2450, in batch_norm
+    return torch.batch_norm(
+KeyboardInterrupt

@@ -1,0 +1,18 @@
+----- Training - Epoch 01 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+Traceback (most recent call last):
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 264, in <module>
+    train(args)
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 138, in train
+    pbar = tqdm((training_data_loader),total=(training_data_loader))
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/tqdm/std.py", line 1109, in __init__
+    self.refresh(lock_args=self.lock_args)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/tqdm/std.py", line 1361, in refresh
+    self.display()
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/tqdm/std.py", line 1509, in display
+    self.sp(self.__str__() if msg is None else msg)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/tqdm/std.py", line 1165, in __str__
+    return self.format_meter(**self.format_dict)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/tqdm/std.py", line 425, in format_meter
+    if total and n >= (total + 0.5):  # allow float imprecision (#849)
+TypeError: unsupported operand type(s) for +: 'DataLoader' and 'float'

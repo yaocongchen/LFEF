@@ -1,0 +1,139 @@
+{
+    "os": "Linux-5.19.0-35-generic-x86_64-with-glibc2.35",
+    "python": "3.9.15",
+    "heartbeatAt": "2023-03-21T08:06:25.446494",
+    "startedAt": "2023-03-21T08:06:24.620322",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/home/yaocong/Experimental/light_ssd/train.py",
+    "codePath": "train.py",
+    "host": "yaocong-lab",
+    "username": "yaocong",
+    "executable": "/home/yaocong/miniconda3/envs/torch/bin/python",
+    "cpu_count": 14,
+    "cpu_count_logical": 20,
+    "cpu_freq": {
+        "current": 2.3663499999999997,
+        "min": 800.0,
+        "max": 4620.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 4.264,
+            "min": 800.0,
+            "max": 5100.0
+        },
+        {
+            "current": 3.445,
+            "min": 800.0,
+            "max": 5100.0
+        },
+        {
+            "current": 4.263,
+            "min": 800.0,
+            "max": 5100.0
+        },
+        {
+            "current": 5.097,
+            "min": 800.0,
+            "max": 5100.0
+        },
+        {
+            "current": 3.85,
+            "min": 800.0,
+            "max": 5100.0
+        },
+        {
+            "current": 2.23,
+            "min": 800.0,
+            "max": 5100.0
+        },
+        {
+            "current": 4.263,
+            "min": 800.0,
+            "max": 5100.0
+        },
+        {
+            "current": 1.096,
+            "min": 800.0,
+            "max": 5100.0
+        },
+        {
+            "current": 2.385,
+            "min": 800.0,
+            "max": 5100.0
+        },
+        {
+            "current": 4.607,
+            "min": 800.0,
+            "max": 5100.0
+        },
+        {
+            "current": 4.275,
+            "min": 800.0,
+            "max": 5100.0
+        },
+        {
+            "current": 3.5,
+            "min": 800.0,
+            "max": 5100.0
+        },
+        {
+            "current": 1.95,
+            "min": 800.0,
+            "max": 3900.0
+        },
+        {
+            "current": 3.172,
+            "min": 800.0,
+            "max": 3900.0
+        },
+        {
+            "current": 1.671,
+            "min": 800.0,
+            "max": 3900.0
+        },
+        {
+            "current": 3.5,
+            "min": 800.0,
+            "max": 3900.0
+        },
+        {
+            "current": 3.5,
+            "min": 800.0,
+            "max": 3900.0
+        },
+        {
+            "current": 3.5,
+            "min": 800.0,
+            "max": 3900.0
+        },
+        {
+            "current": 0.799,
+            "min": 800.0,
+            "max": 3900.0
+        },
+        {
+            "current": 3.5,
+            "min": 800.0,
+            "max": 3900.0
+        }
+    ],
+    "disk": {
+        "total": 139.74505996704102,
+        "used": 18.541954040527344
+    },
+    "gpu": "NVIDIA GeForce GTX 1060 6GB",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce GTX 1060 6GB",
+            "memory_total": 6442450944
+        }
+    ],
+    "memory": {
+        "total": 31.12335968017578
+    }
+}

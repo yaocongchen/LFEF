@@ -1,0 +1,342 @@
+2023-03-21 15:40:19,948 INFO    StreamThr :48535 [internal.py:wandb_internal():87] W&B internal server running at pid: 48535, started at: 2023-03-21 15:40:19.947873
+2023-03-21 15:40:19,948 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status
+2023-03-21 15:40:19,952 INFO    WriterThread:48535 [datastore.py:open_for_write():85] open: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/run-hu00vigj.wandb
+2023-03-21 15:40:19,953 DEBUG   SenderThread:48535 [sender.py:send():336] send: header
+2023-03-21 15:40:19,953 DEBUG   SenderThread:48535 [sender.py:send():336] send: run
+2023-03-21 15:40:20,510 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: check_version
+2023-03-21 15:40:20,511 INFO    SenderThread:48535 [dir_watcher.py:__init__():219] watching files in: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files
+2023-03-21 15:40:20,511 INFO    SenderThread:48535 [sender.py:_start_run_threads():1078] run started: hu00vigj with start time 1679384419.94738
+2023-03-21 15:40:20,512 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: summary_record
+2023-03-21 15:40:20,512 INFO    SenderThread:48535 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-21 15:40:20,512 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: check_version
+2023-03-21 15:40:20,788 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: run_start
+2023-03-21 15:40:20,798 DEBUG   HandlerThread:48535 [system_info.py:__init__():31] System info init
+2023-03-21 15:40:20,798 DEBUG   HandlerThread:48535 [system_info.py:__init__():46] System info init done
+2023-03-21 15:40:20,798 INFO    HandlerThread:48535 [system_monitor.py:start():183] Starting system monitor
+2023-03-21 15:40:20,798 INFO    SystemMonitor:48535 [system_monitor.py:_start():147] Starting system asset monitoring threads
+2023-03-21 15:40:20,798 INFO    HandlerThread:48535 [system_monitor.py:probe():204] Collecting system info
+2023-03-21 15:40:20,799 INFO    SystemMonitor:48535 [interfaces.py:start():187] Started cpu monitoring
+2023-03-21 15:40:20,799 INFO    SystemMonitor:48535 [interfaces.py:start():187] Started disk monitoring
+2023-03-21 15:40:20,799 INFO    SystemMonitor:48535 [interfaces.py:start():187] Started gpu monitoring
+2023-03-21 15:40:20,800 INFO    SystemMonitor:48535 [interfaces.py:start():187] Started memory monitoring
+2023-03-21 15:40:20,800 INFO    SystemMonitor:48535 [interfaces.py:start():187] Started network monitoring
+2023-03-21 15:40:20,808 DEBUG   HandlerThread:48535 [system_info.py:probe():195] Probing system
+2023-03-21 15:40:20,811 DEBUG   HandlerThread:48535 [git.py:repo():40] git repository is invalid
+2023-03-21 15:40:20,811 DEBUG   HandlerThread:48535 [system_info.py:probe():240] Probing system done
+2023-03-21 15:40:20,811 DEBUG   HandlerThread:48535 [system_monitor.py:probe():213] {'os': 'Linux-5.19.0-35-generic-x86_64-with-glibc2.35', 'python': '3.9.15', 'heartbeatAt': '2023-03-21T07:40:20.808895', 'startedAt': '2023-03-21T07:40:19.941740', 'docker': None, 'cuda': None, 'args': (), 'state': 'running', 'program': '/home/yaocong/Experimental/light_ssd/train.py', 'codePath': 'train.py', 'host': 'yaocong-lab', 'username': 'yaocong', 'executable': '/home/yaocong/miniconda3/envs/torch/bin/python', 'cpu_count': 14, 'cpu_count_logical': 20, 'cpu_freq': {'current': 2.76905, 'min': 800.0, 'max': 4620.0}, 'cpu_freq_per_core': [{'current': 1.252, 'min': 800.0, 'max': 5100.0}, {'current': 4.671, 'min': 800.0, 'max': 5100.0}, {'current': 3.5, 'min': 800.0, 'max': 5100.0}, {'current': 2.546, 'min': 800.0, 'max': 5100.0}, {'current': 1.099, 'min': 800.0, 'max': 5100.0}, {'current': 5.083, 'min': 800.0, 'max': 5100.0}, {'current': 3.5, 'min': 800.0, 'max': 5100.0}, {'current': 4.466, 'min': 800.0, 'max': 5100.0}, {'current': 4.979, 'min': 800.0, 'max': 5100.0}, {'current': 3.5, 'min': 800.0, 'max': 5100.0}, {'current': 3.683, 'min': 800.0, 'max': 5100.0}, {'current': 3.5, 'min': 800.0, 'max': 5100.0}, {'current': 2.295, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 0.799, 'min': 800.0, 'max': 3900.0}], 'disk': {'total': 139.74505996704102, 'used': 18.53479766845703}, 'gpu': 'NVIDIA GeForce GTX 1060 6GB', 'gpu_count': 1, 'gpu_devices': [{'name': 'NVIDIA GeForce GTX 1060 6GB', 'memory_total': 6442450944}], 'memory': {'total': 31.12335968017578}}
+2023-03-21 15:40:20,811 INFO    HandlerThread:48535 [system_monitor.py:probe():214] Finished collecting system info
+2023-03-21 15:40:20,811 INFO    HandlerThread:48535 [system_monitor.py:probe():217] Publishing system info
+2023-03-21 15:40:20,811 DEBUG   HandlerThread:48535 [system_info.py:_save_pip():51] Saving list of pip packages installed into the current environment
+2023-03-21 15:40:20,811 DEBUG   HandlerThread:48535 [system_info.py:_save_pip():67] Saving pip packages done
+2023-03-21 15:40:20,811 DEBUG   HandlerThread:48535 [system_info.py:_save_conda():74] Saving list of conda packages installed into the current environment
+2023-03-21 15:40:21,511 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/requirements.txt
+2023-03-21 15:40:21,511 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/wandb-summary.json
+2023-03-21 15:40:21,511 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/conda-environment.yaml
+2023-03-21 15:40:21,850 DEBUG   HandlerThread:48535 [system_info.py:_save_conda():86] Saving conda packages done
+2023-03-21 15:40:21,850 INFO    HandlerThread:48535 [system_monitor.py:probe():219] Finished publishing system info
+2023-03-21 15:40:21,853 DEBUG   SenderThread:48535 [sender.py:send():336] send: files
+2023-03-21 15:40:21,853 INFO    SenderThread:48535 [sender.py:_save_file():1332] saving file wandb-metadata.json with policy now
+2023-03-21 15:40:21,856 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:40:21,856 DEBUG   SenderThread:48535 [sender.py:send():336] send: telemetry
+2023-03-21 15:40:21,856 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:40:22,495 INFO    wandb-upload_0:48535 [upload_job.py:push():138] Uploaded file /tmp/tmpq3jmusdiwandb/ojjlrzj6-wandb-metadata.json
+2023-03-21 15:40:22,510 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/conda-environment.yaml
+2023-03-21 15:40:22,510 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/wandb-metadata.json
+2023-03-21 15:40:22,510 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:24,511 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:25,001 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:40:26,511 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:28,512 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:30,025 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:40:30,512 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:32,513 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:34,513 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:35,027 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:40:36,514 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:36,855 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:40:36,855 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:40:38,514 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:40,064 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:40:40,515 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:42,515 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:44,516 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:45,076 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:40:46,516 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:48,517 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:50,092 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:40:50,517 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/config.yaml
+2023-03-21 15:40:50,517 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:51,855 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:40:51,855 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:40:52,518 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:54,518 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:55,393 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:40:56,519 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:40:58,519 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:00,403 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:41:00,520 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:02,520 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:04,520 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:05,404 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:41:06,521 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:06,855 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:41:06,855 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:41:08,521 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:10,436 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:41:10,522 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:12,522 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:14,523 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:15,460 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:41:16,523 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:18,524 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:20,474 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:41:20,524 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:20,800 DEBUG   SystemMonitor:48535 [system_monitor.py:_start():161] Starting system metrics aggregation loop
+2023-03-21 15:41:20,800 DEBUG   SenderThread:48535 [sender.py:send():336] send: stats
+2023-03-21 15:41:21,855 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:41:21,856 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:41:22,524 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:24,525 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:25,490 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:41:26,526 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:28,526 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:30,527 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:30,532 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:41:32,527 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:34,527 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:35,566 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:41:36,528 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:36,855 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:41:36,856 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:41:38,528 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:40,529 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:40,598 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:41:42,529 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:44,529 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:45,628 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:41:46,530 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:48,530 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:50,532 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:50,665 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:41:50,801 DEBUG   SenderThread:48535 [sender.py:send():336] send: stats
+2023-03-21 15:41:51,856 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:41:51,856 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:41:52,533 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:54,533 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:55,700 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:41:56,533 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:41:58,534 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:00,534 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:00,729 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:42:02,535 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:04,535 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:05,751 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:42:06,535 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:06,856 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:42:06,856 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:42:08,536 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:10,536 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:10,751 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:42:12,536 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:14,537 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:15,798 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:42:16,537 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:18,537 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:20,538 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:20,801 DEBUG   SenderThread:48535 [sender.py:send():336] send: stats
+2023-03-21 15:42:20,802 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:42:21,856 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:42:21,856 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:42:22,538 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:24,539 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:25,847 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:42:26,539 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:28,540 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:30,540 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:30,893 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:42:32,541 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:34,541 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:35,909 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:42:36,542 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:36,856 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:42:36,856 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:42:38,542 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:40,543 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:40,953 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:42:42,543 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:44,544 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:45,975 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:42:46,544 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:48,545 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:50,545 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:50,802 DEBUG   SenderThread:48535 [sender.py:send():336] send: stats
+2023-03-21 15:42:51,005 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:42:51,856 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:42:51,856 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:42:52,546 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:54,546 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:56,026 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:42:56,547 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:42:58,547 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:00,548 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:01,048 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:43:02,548 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:04,549 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:06,069 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:43:06,549 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:06,856 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:43:06,856 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:43:08,550 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:10,550 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:11,094 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:43:12,551 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:14,551 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:16,124 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:43:16,551 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:18,552 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:20,552 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:20,802 DEBUG   SenderThread:48535 [sender.py:send():336] send: stats
+2023-03-21 15:43:21,139 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:43:21,856 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:43:21,856 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:43:22,553 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:24,553 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:26,159 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:43:26,554 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:28,554 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:30,554 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:31,200 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:43:32,555 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:34,555 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:36,223 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:43:36,556 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:36,856 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:43:36,856 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:43:38,556 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:40,556 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:41,267 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:43:42,557 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:44,557 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:46,276 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:43:46,558 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:48,558 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:50,558 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:50,802 DEBUG   SenderThread:48535 [sender.py:send():336] send: stats
+2023-03-21 15:43:51,276 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:43:51,856 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:43:51,857 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:43:52,559 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:54,559 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:56,301 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:43:56,559 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:43:58,560 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:44:00,560 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:44:01,327 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:44:02,560 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:44:04,561 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:44:06,358 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:44:06,567 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:44:06,857 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-21 15:44:06,857 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: stop_status
+2023-03-21 15:44:08,567 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:44:10,568 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:44:11,370 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:44:12,568 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:44:14,569 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:44:16,403 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:44:16,569 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:44:18,570 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:44:18,849 DEBUG   SenderThread:48535 [sender.py:send():336] send: exit
+2023-03-21 15:44:18,849 INFO    SenderThread:48535 [sender.py:send_exit():559] handling exit code: 255
+2023-03-21 15:44:18,849 INFO    SenderThread:48535 [sender.py:send_exit():561] handling runtime: 238
+2023-03-21 15:44:18,849 INFO    SenderThread:48535 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-21 15:44:18,850 INFO    SenderThread:48535 [sender.py:send_exit():567] send defer
+2023-03-21 15:44:18,850 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: defer
+2023-03-21 15:44:18,850 INFO    HandlerThread:48535 [handler.py:handle_request_defer():170] handle defer: 0
+2023-03-21 15:44:18,850 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: defer
+2023-03-21 15:44:18,850 INFO    SenderThread:48535 [sender.py:send_request_defer():583] handle sender defer: 0
+2023-03-21 15:44:18,850 INFO    SenderThread:48535 [sender.py:transition_state():587] send defer: 1
+2023-03-21 15:44:18,850 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: defer
+2023-03-21 15:44:18,850 INFO    HandlerThread:48535 [handler.py:handle_request_defer():170] handle defer: 1
+2023-03-21 15:44:18,850 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: defer
+2023-03-21 15:44:18,850 INFO    SenderThread:48535 [sender.py:send_request_defer():583] handle sender defer: 1
+2023-03-21 15:44:18,850 INFO    SenderThread:48535 [sender.py:transition_state():587] send defer: 2
+2023-03-21 15:44:18,850 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: defer
+2023-03-21 15:44:18,850 INFO    HandlerThread:48535 [handler.py:handle_request_defer():170] handle defer: 2
+2023-03-21 15:44:18,850 INFO    HandlerThread:48535 [system_monitor.py:finish():193] Stopping system monitor
+2023-03-21 15:44:18,850 INFO    HandlerThread:48535 [interfaces.py:finish():199] Joined cpu monitor
+2023-03-21 15:44:18,850 DEBUG   SystemMonitor:48535 [system_monitor.py:_start():168] Finished system metrics aggregation loop
+2023-03-21 15:44:18,850 INFO    HandlerThread:48535 [interfaces.py:finish():199] Joined disk monitor
+2023-03-21 15:44:18,850 DEBUG   SystemMonitor:48535 [system_monitor.py:_start():172] Publishing last batch of metrics
+2023-03-21 15:44:18,869 INFO    HandlerThread:48535 [interfaces.py:finish():199] Joined gpu monitor
+2023-03-21 15:44:18,869 INFO    HandlerThread:48535 [interfaces.py:finish():199] Joined memory monitor
+2023-03-21 15:44:18,870 INFO    HandlerThread:48535 [interfaces.py:finish():199] Joined network monitor
+2023-03-21 15:44:18,870 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: defer
+2023-03-21 15:44:18,870 INFO    SenderThread:48535 [sender.py:send_request_defer():583] handle sender defer: 2
+2023-03-21 15:44:18,870 INFO    SenderThread:48535 [sender.py:transition_state():587] send defer: 3
+2023-03-21 15:44:18,870 DEBUG   SenderThread:48535 [sender.py:send():336] send: stats
+2023-03-21 15:44:18,870 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: defer
+2023-03-21 15:44:18,870 INFO    HandlerThread:48535 [handler.py:handle_request_defer():170] handle defer: 3
+2023-03-21 15:44:18,870 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: defer
+2023-03-21 15:44:18,870 INFO    SenderThread:48535 [sender.py:send_request_defer():583] handle sender defer: 3
+2023-03-21 15:44:18,870 INFO    SenderThread:48535 [sender.py:transition_state():587] send defer: 4
+2023-03-21 15:44:18,870 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: defer
+2023-03-21 15:44:18,870 INFO    HandlerThread:48535 [handler.py:handle_request_defer():170] handle defer: 4
+2023-03-21 15:44:18,870 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: defer
+2023-03-21 15:44:18,870 INFO    SenderThread:48535 [sender.py:send_request_defer():583] handle sender defer: 4
+2023-03-21 15:44:18,870 INFO    SenderThread:48535 [sender.py:transition_state():587] send defer: 5
+2023-03-21 15:44:18,870 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: defer
+2023-03-21 15:44:18,870 INFO    HandlerThread:48535 [handler.py:handle_request_defer():170] handle defer: 5
+2023-03-21 15:44:18,871 DEBUG   SenderThread:48535 [sender.py:send():336] send: summary
+2023-03-21 15:44:18,871 INFO    SenderThread:48535 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-21 15:44:18,871 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: defer
+2023-03-21 15:44:18,871 INFO    SenderThread:48535 [sender.py:send_request_defer():583] handle sender defer: 5
+2023-03-21 15:44:18,871 INFO    SenderThread:48535 [sender.py:transition_state():587] send defer: 6
+2023-03-21 15:44:18,871 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: defer
+2023-03-21 15:44:18,871 INFO    HandlerThread:48535 [handler.py:handle_request_defer():170] handle defer: 6
+2023-03-21 15:44:18,871 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: defer
+2023-03-21 15:44:18,871 INFO    SenderThread:48535 [sender.py:send_request_defer():583] handle sender defer: 6
+2023-03-21 15:44:18,871 INFO    SenderThread:48535 [sender.py:transition_state():587] send defer: 7
+2023-03-21 15:44:18,871 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: status_report
+2023-03-21 15:44:18,871 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: defer
+2023-03-21 15:44:18,871 INFO    HandlerThread:48535 [handler.py:handle_request_defer():170] handle defer: 7
+2023-03-21 15:44:18,871 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: defer
+2023-03-21 15:44:18,871 INFO    SenderThread:48535 [sender.py:send_request_defer():583] handle sender defer: 7
+2023-03-21 15:44:19,570 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/wandb-summary.json
+2023-03-21 15:44:19,835 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: poll_exit
+2023-03-21 15:44:20,706 INFO    SenderThread:48535 [sender.py:transition_state():587] send defer: 8
+2023-03-21 15:44:20,706 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: poll_exit
+2023-03-21 15:44:20,706 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: defer
+2023-03-21 15:44:20,706 INFO    HandlerThread:48535 [handler.py:handle_request_defer():170] handle defer: 8
+2023-03-21 15:44:20,706 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: defer
+2023-03-21 15:44:20,706 INFO    SenderThread:48535 [sender.py:send_request_defer():583] handle sender defer: 8
+2023-03-21 15:44:20,707 INFO    SenderThread:48535 [sender.py:transition_state():587] send defer: 9
+2023-03-21 15:44:20,707 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: defer
+2023-03-21 15:44:20,707 INFO    HandlerThread:48535 [handler.py:handle_request_defer():170] handle defer: 9
+2023-03-21 15:44:20,707 DEBUG   SenderThread:48535 [sender.py:send_request():363] send_request: defer
+2023-03-21 15:44:20,707 INFO    SenderThread:48535 [sender.py:send_request_defer():583] handle sender defer: 9
+2023-03-21 15:44:20,707 INFO    SenderThread:48535 [dir_watcher.py:finish():365] shutting down directory watcher
+2023-03-21 15:44:20,835 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: poll_exit
+2023-03-21 15:44:21,190 WARNING StreamThr :48535 [internal.py:is_dead():415] Internal process exiting, parent pid 48494 disappeared
+2023-03-21 15:44:21,190 ERROR   StreamThr :48535 [internal.py:wandb_internal():153] Internal process shutdown.
+2023-03-21 15:44:21,570 INFO    Thread-13 :48535 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log
+2023-03-21 15:44:21,570 INFO    SenderThread:48535 [dir_watcher.py:finish():395] scan: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files
+2023-03-21 15:44:21,571 INFO    SenderThread:48535 [dir_watcher.py:finish():409] scan save: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log output.log
+2023-03-21 15:44:21,571 INFO    SenderThread:48535 [dir_watcher.py:finish():409] scan save: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/conda-environment.yaml conda-environment.yaml
+2023-03-21 15:44:21,571 INFO    SenderThread:48535 [dir_watcher.py:finish():409] scan save: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/config.yaml config.yaml
+2023-03-21 15:44:21,573 INFO    SenderThread:48535 [dir_watcher.py:finish():409] scan save: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/wandb-summary.json wandb-summary.json
+2023-03-21 15:44:21,574 INFO    SenderThread:48535 [dir_watcher.py:finish():409] scan save: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/requirements.txt requirements.txt
+2023-03-21 15:44:21,574 INFO    SenderThread:48535 [dir_watcher.py:finish():409] scan save: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/wandb-metadata.json wandb-metadata.json
+2023-03-21 15:44:21,574 INFO    SenderThread:48535 [sender.py:transition_state():587] send defer: 10
+2023-03-21 15:44:21,574 INFO    SenderThread:48535 [sender.py:finish():1504] shutting down sender
+2023-03-21 15:44:21,574 INFO    SenderThread:48535 [file_pusher.py:finish():164] shutting down file pusher
+2023-03-21 15:44:21,574 INFO    SenderThread:48535 [file_pusher.py:join():169] waiting for file pusher
+2023-03-21 15:44:21,574 DEBUG   HandlerThread:48535 [handler.py:handle_request():144] handle_request: defer
+2023-03-21 15:44:21,575 INFO    HandlerThread:48535 [handler.py:handle_request_defer():170] handle defer: 10
+2023-03-21 15:44:21,575 INFO    HandlerThread:48535 [handler.py:finish():842] shutting down handler
+2023-03-21 15:44:21,577 INFO    WriterThread:48535 [datastore.py:close():298] close: /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/run-hu00vigj.wandb
+2023-03-21 15:44:22,191 INFO    wandb-upload_4:48535 [upload_job.py:push():138] Uploaded file /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/requirements.txt
+2023-03-21 15:44:22,218 INFO    wandb-upload_2:48535 [upload_job.py:push():138] Uploaded file /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/config.yaml
+2023-03-21 15:44:22,220 INFO    wandb-upload_3:48535 [upload_job.py:push():138] Uploaded file /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/wandb-summary.json
+2023-03-21 15:44:22,237 INFO    wandb-upload_1:48535 [upload_job.py:push():138] Uploaded file /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/conda-environment.yaml
+2023-03-21 15:44:22,239 INFO    wandb-upload_0:48535 [upload_job.py:push():138] Uploaded file /home/yaocong/Experimental/light_ssd/wandb/run-20230321_154019-hu00vigj/files/output.log

@@ -1,0 +1,45 @@
+
+  0%|                                                                                                                                              | 0/150 [00:00<?, ?it/s]
+----- Training - Epoch 01 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[1/150] train_iter: (10/64) 	 loss: 0.992032 acc:0.335724
+=====> epoch[1/150] train_iter: (20/64) 	 loss: 1.068526 acc:0.311013
+=====> epoch[1/150] train_iter: (30/64) 	 loss: 1.070965 acc:0.376312
+
+  1%|▉                                                                                                                                     | 1/150 [00:04<11:37,  4.68s/it]
+=====> epoch[1/150] train_iter: (50/64) 	 loss: 0.869244 acc:0.473054
+=====> epoch[1/150] train_iter: (60/64) 	 loss: 0.969433 acc:0.379371
+----- Training - Epoch 02 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[2/150] train_iter: (10/64) 	 loss: 0.903740 acc:0.413200
+=====> epoch[2/150] train_iter: (20/64) 	 loss: 0.826123 acc:0.460135
+=====> epoch[2/150] train_iter: (30/64) 	 loss: 0.889168 acc:0.388519
+=====> epoch[2/150] train_iter: (40/64) 	 loss: 0.888765 acc:0.356750
+
+  1%|█▊                                                                                                                                    | 2/150 [00:08<10:09,  4.12s/it]
+=====> epoch[2/150] train_iter: (60/64) 	 loss: 0.910296 acc:0.351457
+----- Training - Epoch 03 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[3/150] train_iter: (10/64) 	 loss: 0.911605 acc:0.313138
+=====> epoch[3/150] train_iter: (20/64) 	 loss: 0.834010 acc:0.327017
+=====> epoch[3/150] train_iter: (30/64) 	 loss: 0.970767 acc:0.282025
+=====> epoch[3/150] train_iter: (40/64) 	 loss: 1.002959 acc:0.183471
+=====> epoch[3/150] train_iter: (50/64) 	 loss: 1.068701 acc:0.320935
+
+  2%|██▋                                                                                                                                   | 3/150 [00:12<09:39,  3.94s/it]
+----- Training - Epoch 04 - batch_size 2,------
+=====> the number of iterations per epoch:  64
+=====> epoch[4/150] train_iter: (10/64) 	 loss: 0.702686 acc:0.495334
+  2%|██▋                                                                                                                                   | 3/150 [00:14<11:49,  4.83s/it]
+Traceback (most recent call last):
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 272, in <module>
+    train(args)
+  File "/home/yaocong/Experimental/light_ssd/train.py", line 170, in train
+    loss.backward()
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/_tensor.py", line 487, in backward
+    torch.autograd.backward(
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/autograd/__init__.py", line 197, in backward
+    Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+KeyboardInterrupt
+=====> epoch[4/150] train_iter: (30/64) 	 loss: 0.805978 acc:0.382474
+=====> epoch[4/150] train_iter: (40/64) 	 loss: 1.076869 acc:0.239861
