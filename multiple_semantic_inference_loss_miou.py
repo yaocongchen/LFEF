@@ -17,17 +17,17 @@ device = (torch.device('cuda') if torch.cuda.is_available()
         else torch.device('cpu'))
 #print(f"Training on device {device}.")
 
-#設定存檔資料夾與存檔名稱  
+# Set save folder and file name 設定存檔資料夾與存檔名稱  
 save_smoke_semantic_dir_name = "multiple_result"
 if os.path.exists("./" + save_smoke_semantic_dir_name):
-    shutil.rmtree("./" + save_smoke_semantic_dir_name)      #將原有的資料夾與內容刪除
-    os.makedirs("./" + save_smoke_semantic_dir_name)        #創建新的資料夾
+    shutil.rmtree("./" + save_smoke_semantic_dir_name)      # Delete the original folder and content 將原有的資料夾與內容刪除
+    os.makedirs("./" + save_smoke_semantic_dir_name)        # Create new folder 創建新的資料夾
 else:
 # if not os.path.exists("./" + save_smoke_semantic_dir_name):
     os.makedirs("./" + save_smoke_semantic_dir_name)
 save_smoke_semantic_image_name = "smoke_semantic_image_"
 
-#主函式 
+# Main function 主函式 
 def multiple_smoke_semantic_test(args):
     testing_data = dataset.DataLoaderSegmentation(args['test_images'],
                                                 args['test_masks'],mode = 'test')
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     ap.add_argument('-m','--model_path' ,required=True, help="load model path")
     args = vars(ap.parse_args())
 
-    #計算總執行時間
+    # Calculate the total implement time 計算總執行時間
     time_start = time.time()
     multiple_smoke_semantic_test(args)
     time_end = time.time()
@@ -72,8 +72,5 @@ if __name__ == "__main__":
     time_sec = spend_time % 60
     print('totally cost:',f"{time_min}m {time_sec}s")
 
-    #計算FPS
+    # Calculate FPS
     print("FPS:{:.1f}".format(total_image/(time_end-time_start)))
-
-
-

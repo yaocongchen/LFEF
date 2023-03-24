@@ -10,8 +10,8 @@ k=2
 def split(x):
     c = int(x.size()[1])
     c1 = round(c * 0.5)
-    x1 = x[:, :c1, :, :].contiguous()    #contiguous：記憶體位置不變
-    x2 = x[:, c1:, :, :].contiguous()    
+    x1 = x[:, :c1, :, :].contiguous()    #contiguous: the memory location remains unchanged
+    x2 = x[:, c1:, :, :].contiguous()    #contiguous：記憶體位置不變
 
     return x1, x2    
 
@@ -20,11 +20,11 @@ def channel_shuffle(x,groups):
     
     channels_per_group = num_channels // groups
     
-    # reshape (torch版的)
+    # reshape (torch)
     x = x.view(batchsize,groups,
         channels_per_group,height,width)
     
-    x = torch.transpose(x,1,2).contiguous()   #轉置
+    x = torch.transpose(x,1,2).contiguous()   #Transpose 轉置
     
     # flatten
     x = x.view(batchsize,-1,height,width)

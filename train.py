@@ -8,11 +8,11 @@ import os
 import argparse
 import time
 import dataset       
-import lightssd as lightssd                     #引入自行寫的模型
+import lightssd as lightssd                     # Introducing self-written models 引入自行寫的模型
 import utils
 import numpy as np
 from torch.utils.data import DataLoader
-from torchvision import transforms  #引入相關套件
+from torchvision import transforms  # Introducing related packages 引入相關套件
 from tqdm import tqdm
 from torch.autograd import Variable
 
@@ -22,26 +22,29 @@ import wandb
 
 def train(args):
 
-    #確認是否有GPU裝置 
+    # Check have GPU device 確認是否有GPU裝置 
     if args['device']=='GPU':
         print("====> Use gpu id:'{}'".format(args['gpus']))
         os.environ["CUDA_VISIBLE_DEVICES"] = args['gpus']
         if not torch.cuda.is_available():
             raise Exception("No GPU found or Wrong gpu id, please run without --device")    #例外事件跳出
         
-    #cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
+    # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
+    # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
     cudnn.enabled = True
 
-    #模型導入
+    # Model import 模型導入
     model = lightssd.Net()
 
-    #計算模型大小、參數量與計算量
+    # Calculation model size parameter amount and calculation amount
+    # 計算模型大小、參數量與計算量
     c = utils.Calculate(model)
     model_size = c.get_model_size()
     flops,params = c.get_params()
     
 
-    #設定用於訓練之裝置
+    # Set up the device for training 
+    # 設定用於訓練之裝置
     if args['device']=='GPU':
 
         #args.gpu_nums = 1
@@ -64,7 +67,7 @@ def train(args):
         os.makedirs(args['save_dir'])
 
     
-    #導入資料
+    # Import data導入資料
     training_data = dataset.DataLoaderSegmentation(args['train_images'],
                                                 args['train_masks'])
     validation_data = dataset.DataLoaderSegmentation(args['train_images'],
@@ -72,14 +75,14 @@ def train(args):
     training_data_loader = DataLoader(training_data ,batch_size= args['batch_size'], shuffle = True, num_workers = args['num_workers'], pin_memory = True, drop_last=True)
     validation_data_loader = DataLoader(validation_data, batch_size = args['batch_size'], shuffle = True, num_workers = args['num_workers'], pin_memory = True, drop_last=True)
 
-    #導入優化器   
+    # Import optimizer導入優化器   
     optimizer = torch.optim.Adam(model.parameters(), lr=float(args['learning_rate']), weight_decay=0.0001)
 
-    start_epoch = 1     #初始epoch值
+    start_epoch = 1     # Initial epoch 初始epoch值
 
-    #斷點訓練      
+    # Checkpoint training 斷點訓練      
     if args['resume']:
-        if os.path.isfile(args['resume']):    #路徑中有指定檔案
+        if os.path.isfile(args['resume']):    # There is a specified file in the path 路徑中有指定檔案
             checkpoint = torch.load(args['resume'])
             start_epoch = checkpoint['epoch']
             model.load_state_dict(checkpoint['model'])
@@ -110,14 +113,14 @@ def train(args):
             "resume":args["resume"],
             }
         )
-    time_start = time.time()      #訓練開始時間
+    time_start = time.time()      # Training start time 訓練開始時間
 
     for epoch in range(start_epoch, args['epochs']+1):
         model.train()
         #wandb.watch(model)
         cudnn.benchmark= True
         
-        #訓練迴圈 
+        # Training loop 訓練迴圈 
         pbar = tqdm((training_data_loader),total=len(training_data_loader))
         #for iteration,(img_image, mask_image) in enumerate(training_data_loader):
         for img_image, mask_image in pbar:
@@ -125,12 +128,12 @@ def train(args):
             mask_image = mask_image.to(device)
             onnx_img_image=img_image
 
-            img_image = Variable(img_image, requires_grad=True)    #variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
-            mask_image = Variable(mask_image, requires_grad=True)
+            img_image = Variable(img_image, requires_grad=True)    # Variable storage data supports almost all tensor operations, requires_grad=True: Derivatives can be obtained, and the backwards method can be used to calculate and accumulate gradients
+            mask_image = Variable(mask_image, requires_grad=True)  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
 
             output_f19, output_f34 = model(img_image)
             
-            optimizer.zero_grad()     #在loss.backward()前先清除，避免梯度殘留
+            optimizer.zero_grad()     # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
         
             loss = utils.CustomLoss(output_f19, output_f34, mask_image)
             acc = utils.acc_miou(output_f34,mask_image)
@@ -144,7 +147,7 @@ def train(args):
             if args["wandb_name"]!="no":
                 wandb.log({"train_loss": loss.item(),"train_acc": acc.item()})
 
-        #驗證迴圈
+        # Validation loop 驗證迴圈
         count=0
         pbar = tqdm((validation_data_loader),total=len(validation_data_loader))
         for img_image,mask_image in pbar:
@@ -164,13 +167,14 @@ def train(args):
             if args["wandb_name"]!="no":
                 wandb.log({"val_loss": loss.item(),"val_acc": acc.item()})
 
-            #epoch測試集中的圖示化存檔
+            # Graphical archive of the epoch test set 
+            # epoch 測試集中的圖示化存檔
             count +=1
             if not os.path.exists("./training_data_captures/"):
                 os.makedirs("./training_data_captures/")
             torchvision.utils.save_image(torch.cat((mask_image,output_f34),0), "./training_data_captures/" +str(count)+".jpg")
 
-        #模型存檔              
+        # Save model 模型存檔              
         model_file_name = args['save_dir'] + 'model_' + str(epoch) + '.pth'
         model_file_nameonnx = args['save_dir'] + 'onnxmodel_' + str(epoch) + '.onnx'
         state = model.state_dict()
@@ -184,7 +188,8 @@ def train(args):
     torch.save(state, args['save_dir'] + 'final' +  '.pth')
     #torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'final' +  '.onnx', verbose=False)
 
-    #計算結束時間與花費時間     
+    # Calculation of end time end elapsed time 
+    # 計算結束時間與花費時間     
     time_end = time.time()
     spend_time = int(time_end-time_start)
     time_day = spend_time // 86400
@@ -224,6 +229,6 @@ if __name__=="__main__":
                         help = "use this file to load last checkpoint for continuing training")    #Use this flag to load last checkpoint for training
     ap.add_argument('-wn','--wandb_name',type = str ,default = "no" ,help = "wandb test name,but 'no' is not use wandb")
 
-    args = vars(ap.parse_args())  #使用vars()是為了能像字典一樣訪問ap.parse_args()的值
+    args = vars(ap.parse_args())  #Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
     
     train(args)

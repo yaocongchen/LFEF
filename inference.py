@@ -22,7 +22,7 @@ def smoke_semantic(input_image,model_path):
 	model = lightssd.Net().to(device)
 	model.load_state_dict(torch.load(model_path))     
 	#model.eval()
-	output_f19, output_f34 = model(input_image)   #導進模型
+	output_f19, output_f34 = model(input_image)   # Import model 導進模型
 	return output_f19, output_f34
 
 if __name__ == "__main__":

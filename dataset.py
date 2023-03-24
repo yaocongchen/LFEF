@@ -12,24 +12,24 @@ import cv2
 import torch.utils.data as data
 from skimage.io import imread
 
-#亂數產生
+# Random number generation 亂數產生
 random.seed(1143)
 
-#初始參數
+# Initial parameters 初始參數
 IMG_SCALING = (1, 1)
 
-#資料預處理 
+# Data preprocessing 資料預處理 
 def preparing_training_data(images_dir, masks_dir):
 
     train_data = []
     validation_data = []
     test_data = []
     
-    image_data = os.listdir(images_dir)     #列出資料夾中檔案清單(不含路徑) ps.用glob會因無法讀取特殊字元，如：（）
-    mask_data = os.listdir(masks_dir)
+    image_data = os.listdir(images_dir)     # List the list of files in the folder (without path) ps. Using glob will not be able to read special characters, such as: () 
+    mask_data = os.listdir(masks_dir)       # 列出資料夾中檔案清單(不含路徑) ps.用glob會因無法讀取特殊字元，如：（）
 
-    image_data_first_one = image_data[0]                #取資料夾中的第一個檔案
-    extension = image_data_first_one.split(".")[1]            #取副檔名
+    image_data_first_one = image_data[0]                # Get the first file in the folder 取資料夾中的第一個檔案
+    extension = image_data_first_one.split(".")[1]            # take extension 取副檔名
 
     data_holder = {}
 
@@ -74,7 +74,7 @@ def preparing_training_data(images_dir, masks_dir):
 
 #%%
 
-#圖片亮度增強  
+# Picture brightness enhancement 圖片亮度增強  
 def cv2_brightness_augment(img):
     hsv = cv2.cvtColor(img,cv2.COLOR_RGB2HSV)
     v = hsv[:,:,2]
@@ -102,7 +102,7 @@ class DataLoaderSegmentation(data.Dataset):
             self.data_dict = self.test_data
             print("Number of test Images:", len(self.test_data))
 
-    #依index匯入資料
+    # Import data by index 依index匯入資料
     def __getitem__(self,index):
 
         images_path, masks_path = self.data_dict[index]
@@ -117,7 +117,7 @@ class DataLoaderSegmentation(data.Dataset):
             c_mask = np.reshape(c_mask,(c_mask.shape[0],c_mask.shape[1],-1))
         c_mask = c_mask > 0
 
-        c_img = c_img.astype('float32')      #歸一化
+        c_img = c_img.astype('float32')      # Normalized 歸一化
         c_img = c_img / 255.
 
         out_rgb = torch.from_numpy(c_img).float()
