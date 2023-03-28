@@ -113,13 +113,21 @@ def train(args):
             "resume":args["resume"],
             }
         )
+
+        wandb.config.epochs = args["epochs"]
+        wandb.config.batch_size = args["batch_size"]
+        wandb.config.learning_rate = args["learning_rate"]
+        #wandb.config.architecture = "resnet"
+
+        #Log gradients and model parameters
+        wandb.watch(model)
+        
     time_start = time.time()      # Training start time 訓練開始時間
 
     for epoch in range(start_epoch, args['epochs']+1):
         model.train()
-        #wandb.watch(model)
         cudnn.benchmark= True
-        
+        count=0
         # Training loop 訓練迴圈 
         pbar = tqdm((training_data_loader),total=len(training_data_loader))
         #for iteration,(img_image, mask_image) in enumerate(training_data_loader):
@@ -147,14 +155,22 @@ def train(args):
             if args["wandb_name"]!="no":
                 wandb.log({"train_loss": loss.item(),"train_acc": acc.item()})
 
+            # Graphical archive of the epoch test set 
+            # epoch 測試集中的圖示化存檔
+            count +=1
+            if not os.path.exists("./training_data_captures/"):
+                os.makedirs("./training_data_captures/")
+            torchvision.utils.save_image(torch.cat((mask_image,output_f34),0), "./training_data_captures/" +str(count)+".jpg")
+
         # Validation loop 驗證迴圈
         count=0
+
         pbar = tqdm((validation_data_loader),total=len(validation_data_loader))
         for img_image,mask_image in pbar:
             img_image = img_image.to(device)
             mask_image = mask_image.to(device)
 
-            #model.eval()
+            model.eval()
             
             output_f19, output_f34 = model(img_image)
 
@@ -170,9 +186,9 @@ def train(args):
             # Graphical archive of the epoch test set 
             # epoch 測試集中的圖示化存檔
             count +=1
-            if not os.path.exists("./training_data_captures/"):
-                os.makedirs("./training_data_captures/")
-            torchvision.utils.save_image(torch.cat((mask_image,output_f34),0), "./training_data_captures/" +str(count)+".jpg")
+            if not os.path.exists("./validation_data_captures/"):
+                os.makedirs("./validation_data_captures/")
+            torchvision.utils.save_image(torch.cat((mask_image,output_f34),0), "./validation_data_captures/" +str(count)+".jpg")
 
         # Save model 模型存檔              
         model_file_name = args['save_dir'] + 'model_' + str(epoch) + '.pth'
@@ -200,7 +216,7 @@ def train(args):
     time_sec = spend_time % 60
     print('totally cost:',f"{time_day}d {time_hour}h {time_min}m {time_sec}s")
 
-    wandb.finish()
+
 
 if __name__=="__main__":
 
@@ -232,3 +248,24 @@ if __name__=="__main__":
     args = vars(ap.parse_args())  #Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
     
     train(args)
+
+    # if args["wandb_name"]!="no":
+    #     # Define sweep config
+    #     sweep_configuration = {
+    #         'method': 'random',
+    #         'name' : 'sweep',
+    #         'metric' : {'goad': 'maximize' ,'name':'val_acc'},
+    #         'parameters':
+    #         {
+    #             'batch_size' : {'values' : [16,32,64]},
+    #             'epochs' : {'values' : [5,10,15,150]},
+    #             'lr' : {'max':0.1,'min':0.0001}
+    #         }
+    #     }
+        
+    #     #Initialize sweep by passing in config. (Optional) Provide a name of the project.
+    #     sweep_id = wandb.sweep(sweep= sweep_configuration,project='lightssd-project')
+    #     wandb.agent(sweep_id, function=train(args), count=10)
+    #     wandb.finish()
+    # else:
+    #     train(args)

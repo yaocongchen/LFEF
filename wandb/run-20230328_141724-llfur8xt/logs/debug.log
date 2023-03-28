@@ -1,0 +1,62 @@
+2023-03-28 14:17:24,747 INFO    MainThread:34063 [wandb_setup.py:_flush():76] Configure stats pid to 34063
+2023-03-28 14:17:24,747 INFO    MainThread:34063 [wandb_setup.py:_flush():76] Loading settings from /home/yaocong/.config/wandb/settings
+2023-03-28 14:17:24,747 INFO    MainThread:34063 [wandb_setup.py:_flush():76] Loading settings from /home/yaocong/Experimental/speed_smoke_segmentation/wandb/settings
+2023-03-28 14:17:24,747 INFO    MainThread:34063 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2023-03-28 14:17:24,747 INFO    MainThread:34063 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2023-03-28 14:17:24,747 INFO    MainThread:34063 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'train.py', 'program': '/home/yaocong/Experimental/speed_smoke_segmentation/train.py'}
+2023-03-28 14:17:24,747 INFO    MainThread:34063 [wandb_init.py:_log_setup():506] Logging user logs to /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230328_141724-llfur8xt/logs/debug.log
+2023-03-28 14:17:24,747 INFO    MainThread:34063 [wandb_init.py:_log_setup():507] Logging internal logs to /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230328_141724-llfur8xt/logs/debug-internal.log
+2023-03-28 14:17:24,747 INFO    MainThread:34063 [wandb_init.py:init():546] calling init triggers
+2023-03-28 14:17:24,748 INFO    MainThread:34063 [wandb_init.py:init():552] wandb.init called with sweep_config: {}
+config: {'Model_size': '3.05 MB', 'FLOPs': '1.85 GMac', 'Parameters': '795.28 k', 'train_images': '/home/yaocong/Experimental/pytorch_model/dataset/train/images/', 'train_masks': '/home/yaocong/Experimental/pytorch_model/dataset/train/masks/', 'device': 'GPU', 'gpus': '0', 'batch_size': 8, 'num_workers': 1, 'epochs': 20, 'learning_rate': 0.0001, 'save_dir': './checkpoint//bs8e20//bs8e20/', 'resume': '/home/yaocong/Experimental/My_pytorch_model/checkpoint/model_1.pth'}
+2023-03-28 14:17:24,748 INFO    MainThread:34063 [wandb_init.py:init():597] wandb.init() called when a run is still active
+2023-03-28 14:17:24,748 INFO    MainThread:34063 [wandb_config.py:__setitem__():152] config set epochs = 20 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x7f01ac1ccf10>>
+2023-03-28 14:17:24,748 INFO    MainThread:34063 [wandb_run.py:_config_callback():1251] config_cb epochs 20 None
+2023-03-28 14:17:24,748 INFO    MainThread:34063 [wandb_config.py:__setitem__():152] config set batch_size = 8 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x7f01ac1ccf10>>
+2023-03-28 14:17:24,748 INFO    MainThread:34063 [wandb_run.py:_config_callback():1251] config_cb batch_size 8 None
+2023-03-28 14:17:24,748 INFO    MainThread:34063 [wandb_config.py:__setitem__():152] config set learning_rate = 0.0001 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x7f01ac1ccf10>>
+2023-03-28 14:17:24,748 INFO    MainThread:34063 [wandb_run.py:_config_callback():1251] config_cb learning_rate 0.0001 None
+2023-03-28 14:17:24,748 INFO    MainThread:34063 [wandb_watch.py:watch():51] Watching
+2023-03-28 14:18:31,878 INFO    MainThread:34063 [wandb_agent.py:run():258] Running runs: []
+2023-03-28 14:18:32,422 INFO    MainThread:34063 [wandb_agent.py:_process_command():354] Agent received command: run
+2023-03-28 14:18:32,423 INFO    MainThread:34063 [wandb_agent.py:_command_run():404] Agent starting run with config:
+	batch_size: 16
+	epochs: 10
+	lr: 0.0842063610113202
+2023-03-28 14:18:32,425 INFO    MainThread:34063 [wandb_agent.py:_command_run():476] About to run command: /usr/bin/env python  --batch_size=16 --epochs=10 --lr=0.0842063610113202
+2023-03-28 14:18:37,457 INFO    MainThread:34063 [wandb_agent.py:run():258] Running runs: ['vi8id919']
+2023-03-28 14:18:37,458 INFO    MainThread:34063 [wandb_agent.py:run():293] Cleaning up finished run: vi8id919
+2023-03-28 14:18:44,199 WARNING MsgRouterThr:34063 [router.py:message_loop():77] message_loop has been closed
+2023-03-28 14:18:44,887 INFO    MainThread:34063 [wandb_agent.py:_process_command():354] Agent received command: run
+2023-03-28 14:18:44,888 INFO    MainThread:34063 [wandb_agent.py:_command_run():404] Agent starting run with config:
+	batch_size: 16
+	epochs: 15
+	lr: 0.07301317040309004
+2023-03-28 14:18:44,890 INFO    MainThread:34063 [wandb_agent.py:_command_run():476] About to run command: /usr/bin/env python  --batch_size=16 --epochs=15 --lr=0.07301317040309004
+2023-03-28 14:18:49,922 INFO    MainThread:34063 [wandb_agent.py:run():258] Running runs: ['y18vsl3u']
+2023-03-28 14:18:49,924 INFO    MainThread:34063 [wandb_agent.py:run():293] Cleaning up finished run: y18vsl3u
+2023-03-28 14:18:50,293 INFO    MainThread:34063 [wandb_agent.py:_process_command():354] Agent received command: run
+2023-03-28 14:18:50,294 INFO    MainThread:34063 [wandb_agent.py:_command_run():404] Agent starting run with config:
+	batch_size: 16
+	epochs: 10
+	lr: 0.0773145049598794
+2023-03-28 14:18:50,296 INFO    MainThread:34063 [wandb_agent.py:_command_run():476] About to run command: /usr/bin/env python  --batch_size=16 --epochs=10 --lr=0.0773145049598794
+2023-03-28 14:18:55,329 INFO    MainThread:34063 [wandb_agent.py:run():258] Running runs: ['4fvfzvem']
+2023-03-28 14:18:55,330 INFO    MainThread:34063 [wandb_agent.py:run():293] Cleaning up finished run: 4fvfzvem
+2023-03-28 14:18:55,755 INFO    MainThread:34063 [wandb_agent.py:_process_command():354] Agent received command: run
+2023-03-28 14:18:55,755 INFO    MainThread:34063 [wandb_agent.py:_command_run():404] Agent starting run with config:
+	batch_size: 16
+	epochs: 15
+	lr: 0.07224765462655562
+2023-03-28 14:18:55,755 INFO    MainThread:34063 [wandb_agent.py:_command_run():476] About to run command: /usr/bin/env python  --batch_size=16 --epochs=15 --lr=0.07224765462655562
+2023-03-28 14:19:00,785 INFO    MainThread:34063 [wandb_agent.py:run():258] Running runs: ['sdcq7ppz']
+2023-03-28 14:19:00,785 INFO    MainThread:34063 [wandb_agent.py:run():293] Cleaning up finished run: sdcq7ppz
+2023-03-28 14:19:01,174 INFO    MainThread:34063 [wandb_agent.py:_process_command():354] Agent received command: run
+2023-03-28 14:19:01,175 INFO    MainThread:34063 [wandb_agent.py:_command_run():404] Agent starting run with config:
+	batch_size: 16
+	epochs: 5
+	lr: 0.012922947212727664
+2023-03-28 14:19:01,177 INFO    MainThread:34063 [wandb_agent.py:_command_run():476] About to run command: /usr/bin/env python  --batch_size=16 --epochs=5 --lr=0.012922947212727664
+2023-03-28 14:19:06,216 INFO    MainThread:34063 [wandb_agent.py:run():258] Running runs: ['8ely0roa']
+2023-03-28 14:19:06,217 ERROR   MainThread:34063 [wandb_agent.py:run():284] Detected 5 failed runs in a row, shutting down.
+2023-03-28 14:19:06,217 INFO    MainThread:34063 [wandb_agent.py:run():288] To change this value set WANDB_AGENT_MAX_INITIAL_FAILURES=val

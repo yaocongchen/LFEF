@@ -1,0 +1,25 @@
+  0%|                                                                                                                                                                          | 0/16 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/yaocong/Experimental/speed_smoke_segmentation/train.py", line 242, in <module>
+    train(args)
+  File "/home/yaocong/Experimental/speed_smoke_segmentation/train.py", line 142, in train
+    output_f19, output_f34 = model(img_image)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/yaocong/Experimental/speed_smoke_segmentation/lightssd.py", line 308, in forward
+    f2 ,f3 = self.aem(img)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/yaocong/Experimental/speed_smoke_segmentation/lightssd.py", line 113, in forward
+    out = self.du1(x)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/yaocong/Experimental/speed_smoke_segmentation/lightssd.py", line 45, in forward
+    main = self.conv1(x)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/conv.py", line 463, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/conv.py", line 459, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+KeyboardInterrupt

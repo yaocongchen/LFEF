@@ -36,10 +36,10 @@ class DownUnit(nn.Module):
     def __init__(self, in_chs,out_chs):
         super().__init__()
 
-        self.conv1 = nn.Conv2d(in_chs,out_chs-in_chs,kernel_size = 3 ,stride=2, padding =1)
+        self.conv1 = nn.Conv2d(in_chs,out_chs-in_chs,kernel_size = 3 ,stride=2, padding =1, bias=True)
         self.maxpl = nn.MaxPool2d(kernel_size = 2, stride = 2, padding=0)
         self.prelu = nn.PReLU()
-        self.batch_norm = nn.BatchNorm2d(out_chs-in_chs)
+        self.batch_norm = nn.BatchNorm2d(out_chs-in_chs,eps=1e-3)
     
     def forward(self, x):
         main = self.conv1(x)
@@ -56,36 +56,48 @@ class DownUnit(nn.Module):
     
 class CSSAM(nn.Module):
 
-    def __init__(self, in_ch, out_ch, dilation):
+    def __init__(self, in_ch, out_ch, dilated):
         super().__init__()
         in_ch_2 =in_ch//2
-        self.conv31 = nn.Conv2d(in_ch_2, in_ch_2, kernel_size = (3,1) ,padding="same",dilation=dilation)
-        self.conv13 = nn.Conv2d(in_ch_2, in_ch_2, kernel_size = (1,3) ,padding="same",dilation=dilation)
-        self.batch_norm_2 = nn.BatchNorm2d(in_ch_2)
 
-        self.conv11 = nn.Conv2d(in_ch, out_ch,kernel_size = (1,1),padding="same")
+        self.conv3x1 = nn.Conv2d(in_ch_2, in_ch_2, kernel_size = (3,1) ,padding="same",dilation=dilated, bias=True)
+
+        self.conv1x3 = nn.Conv2d(in_ch_2, in_ch_2, kernel_size = (1,3) ,padding="same",dilation=dilated, bias=True)
+
+        self.bn1 = nn.BatchNorm2d(in_ch_2,eps=1e-3)
+
+        self.conv1x1 = nn.Conv2d(in_ch, out_ch,kernel_size = (1,1),padding="same", bias=True)
+
         self.maxpl = nn.MaxPool2d(kernel_size = 3, stride = 1,padding=1)
-        self.batch_norm = nn.BatchNorm2d(out_ch)
+
+        self.bn2 = nn.BatchNorm2d(out_ch,eps=1e-3)
+
         self.mysigmoid = nn.Sigmoid()
 
-    def forward(self,x):
-        x1,x2 = split(x)
-        out31 = self.conv31(x1)
-        out31norm = self.batch_norm_2(out31)
-        out13 = self.conv13(out31norm)
-        out13norm = self.batch_norm_2(out13)
-        out13normre = F.relu(out13norm)
 
-        out13 = self.conv13(x2)
-        out13norm = self.batch_norm_2(out13)
-        out31 = self.conv31(out13norm)
-        out31norm = self.batch_norm_2(out31)
-        out31normre = F.relu(out31norm)     
-        out11cat = self.conv11(torch.cat((out13normre,out31normre), dim=1))
+    def forward(self,input):
 
-        outmp = self.maxpl(x)
-        outmp11 = self.conv11(outmp)
-        outmp11norm = self.batch_norm(outmp11)
+        x1,x2 = split(input)
+
+        output = self.conv3x1(x1)
+        output = self.bn1(output)
+        output = F.relu(output)
+        output = self.conv1x3(output)
+        output = self.bn1(output)
+        out13normre = F.relu(output)
+
+        output = self.conv1x3(x2)
+        output = self.bn1(output)
+        output = F.relu(output)
+        output = self.conv3x1(output)
+        output = self.bn1(output)
+        out31normre = F.relu(output)
+
+        out11cat = self.conv1x1(torch.cat((out13normre,out31normre), dim=1))
+
+        outmp = self.maxpl(input)
+        outmp11 = self.conv1x1(outmp)
+        outmp11norm = self.bn2(outmp11)
         outmp11normsgm = self.mysigmoid(outmp11norm)
 
         Ewp = out11cat * outmp11normsgm
@@ -98,15 +110,15 @@ class AEM(nn.Module):
     def __init__(self):
         super().__init__()
         self.du1 = DownUnit(in_chs=3, out_chs=32)
-        self.stage1_CSSAM_dt1 = CSSAM(in_ch=32, out_ch=32, dilation=1)
+        self.stage1_CSSAM_dt1 = CSSAM(in_ch=32, out_ch=32, dilated=1)
         self.du2 = DownUnit(in_chs=32, out_chs=64)
-        self.stage2_CSSAM_dt1 = CSSAM(in_ch=64, out_ch=64, dilation=1)
+        self.stage2_CSSAM_dt1 = CSSAM(in_ch=64, out_ch=64, dilated=1)
         self.du3 = DownUnit(in_chs=64, out_chs=128)
-        self.stage3_CSSAM_dt1 = CSSAM(in_ch=128 , out_ch=128, dilation=1)
-        self.stage3_CSSAM_dt2 = CSSAM(in_ch=128 , out_ch=128, dilation=2)
-        self.stage3_CSSAM_dt5 = CSSAM(in_ch=128 , out_ch=128, dilation=5)
-        self.stage3_CSSAM_dt9 = CSSAM(in_ch=128 , out_ch=128, dilation=9)
-        self.stage3_CSSAM_dt17 = CSSAM(in_ch=128 , out_ch=128, dilation=17)
+        self.stage3_CSSAM_dt1 = CSSAM(in_ch=128 , out_ch=128, dilated=1)
+        self.stage3_CSSAM_dt2 = CSSAM(in_ch=128 , out_ch=128, dilated=2)
+        self.stage3_CSSAM_dt5 = CSSAM(in_ch=128 , out_ch=128, dilated=5)
+        self.stage3_CSSAM_dt9 = CSSAM(in_ch=128 , out_ch=128, dilated=9)
+        self.stage3_CSSAM_dt17 = CSSAM(in_ch=128 , out_ch=128, dilated=17)
 
     def forward(self, x):
         # stage1
@@ -137,22 +149,22 @@ class SEM(nn.Module):
         super().__init__()
 
         self.conv11_64out32 = nn.Sequential(
-            nn.Conv2d(in_ch, in_ch//2,kernel_size = (1,1),padding="same"),     #TODO:有自行除於2
-            nn.BatchNorm2d(in_ch//2)
+            nn.Conv2d(in_ch, in_ch//2,kernel_size = (1,1),padding="same", bias=True),     #TODO:有自行除於2
+            nn.BatchNorm2d(in_ch//2,eps=1e-3)
         )
         self.avgpl = nn.AvgPool2d(kernel_size = 3, stride = 1,padding=1)
         self.maxpl = nn.MaxPool2d(kernel_size = 3, stride = 1,padding=1)
 
         self.conv11_64out64 = nn.Sequential(
-            nn.Conv2d(in_ch, in_ch,kernel_size = (1,1),padding="same"),
-            nn.BatchNorm2d(in_ch)
+            nn.Conv2d(in_ch, in_ch,kernel_size = (1,1),padding="same", bias=True),
+            nn.BatchNorm2d(in_ch,eps=1e-3)
         )
 
         self.gavgpl = nn.AdaptiveAvgPool2d(1)
 
         self.conv11_64out128 = nn.Sequential(
-            nn.Conv2d(in_ch, out_ch,kernel_size = (1,1),padding="same"),
-            nn.BatchNorm2d(out_ch)
+            nn.Conv2d(in_ch, out_ch,kernel_size = (1,1),padding="same", bias=True),
+            nn.BatchNorm2d(out_ch,eps=1e-3)
         )
         self.mysigmoid = nn.Sigmoid()
 
@@ -180,16 +192,16 @@ class CAM(nn.Module):
         super().__init__()
         ck = in_ch//k
         self.conv33_cin_cout = nn.Sequential(
-            nn.Conv2d(in_ch,out_ch,kernel_size =(3,3),padding="same"),
-            nn.BatchNorm2d(out_ch)
+            nn.Conv2d(in_ch,out_ch,kernel_size =(3,3),padding="same", bias=True),
+            nn.BatchNorm2d(out_ch,eps=1e-3)
         )
         self.conv33_cin_ckout = nn.Sequential(
-            nn.Conv2d(in_ch,ck,kernel_size =(3,3),padding="same"),
-            nn.BatchNorm2d(ck)
+            nn.Conv2d(in_ch,ck,kernel_size =(3,3),padding="same", bias=True),
+            nn.BatchNorm2d(ck,eps=1e-3)
         )
 
-        self.conv11_cin_ckout = nn.Conv1d(in_ch,ck,kernel_size = 3,padding="same")
-        self.conv11_ckin_cout = nn.Conv1d(ck,in_ch,kernel_size = 3,padding="same")
+        self.conv11_cin_ckout = nn.Conv1d(in_ch,ck,kernel_size = 3,padding="same", bias=True)
+        self.conv11_ckin_cout = nn.Conv1d(ck,in_ch,kernel_size = 3,padding="same", bias=True)
         self.mysoftmax = nn.Softmax(dim = 1)
 
     def forward(self, x):
@@ -221,15 +233,15 @@ class FFM(nn.Module):
         super().__init__()
 
         self.conv11 = nn.Sequential(
-            nn.Conv2d(in_ch, out_ch,kernel_size = (1,1),padding="same"),
-            nn.BatchNorm2d(out_ch),
+            nn.Conv2d(in_ch, out_ch,kernel_size = (1,1),padding="same", bias=True),
+            nn.BatchNorm2d(out_ch,eps=1e-3),
             nn.ReLU()
         )
         self.upsamp = nn.Upsample(size = (64,64),mode ='bilinear',align_corners = True)
 
         self.conv11_in192_out128 = nn.Sequential(
-            nn.Conv2d(192, out_ch,kernel_size = (1,1),padding="same"),
-            nn.BatchNorm2d(out_ch),
+            nn.Conv2d(192, out_ch,kernel_size = (1,1),padding="same", bias=True),
+            nn.BatchNorm2d(out_ch,eps=1e-3),
             nn.ReLU()
         )
 
@@ -247,14 +259,14 @@ class GCP(nn.Module):
         super().__init__()
         self.gcp = DownUnit(in_ch, 256)     #16 x 16 x 256
         self.conv11_in256_out128 = nn.Sequential(
-            nn.Conv2d(256, out_ch,kernel_size = (1,1),padding="same"),
-            nn.BatchNorm2d(out_ch)
+            nn.Conv2d(256, out_ch,kernel_size = (1,1),padding="same", bias=True),
+            nn.BatchNorm2d(out_ch,eps=1e-3)
         )
         self.gavgpl = nn.AdaptiveAvgPool2d(1)
 
         self.conv11_in128_out128 = nn.Sequential(
-            nn.Conv2d(in_ch, out_ch,kernel_size = (1,1),padding="same"),
-            nn.BatchNorm2d(out_ch)
+            nn.Conv2d(in_ch, out_ch,kernel_size = (1,1),padding="same", bias=True),
+            nn.BatchNorm2d(out_ch,eps=1e-3)
         )
         self.mysoftmax = nn.Softmax(dim= 1)
 
@@ -272,13 +284,13 @@ class SegHead(nn.Module):
     def __init__(self,in_ch, out_ch):
         super().__init__()
         self.conv33 = nn.Sequential(
-            nn.Conv2d(in_ch, out_ch,kernel_size = (3,3),padding="same"),
-            nn.BatchNorm2d(out_ch),
+            nn.Conv2d(in_ch, out_ch,kernel_size = (3,3),padding="same", bias=True),
+            nn.BatchNorm2d(out_ch,eps=1e-3),
             nn.ReLU()
         )
         self.conv11 = nn.Sequential(
-            nn.Conv2d(out_ch, out_ch,kernel_size = (1,1),padding="same"),
-            nn.BatchNorm2d(out_ch)
+            nn.Conv2d(out_ch, out_ch,kernel_size = (1,1),padding="same", bias=True),
+            nn.BatchNorm2d(out_ch,eps=1e-3)
         )
         self.upsamp = nn.Upsample(size = (256,256),mode ='bilinear',align_corners = True)
         #self.mysigmoid = nn.Sigmoid()

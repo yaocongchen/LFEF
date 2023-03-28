@@ -163,7 +163,7 @@ def multiple_smoke_semantic_test(directory,model_input):
 if __name__ == "__main__":
     
     ap = argparse.ArgumentParser()
-    ap.add_argument("-td", "--test_directory",required=True, help="path to test images directory")
+    ap.add_argument("-td", "--test_directory",default = "/home/yaocong/Experimental/speed_smoke_segmentation/ttt/img/",required=True, help="path to test images directory")
     ap.add_argument('-m','--model_path' ,required=True, help="load model path")
     args = vars(ap.parse_args())
 
