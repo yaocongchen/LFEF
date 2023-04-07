@@ -1,0 +1,717 @@
+2023-03-29 14:04:44,161 INFO    StreamThr :143679 [internal.py:wandb_internal():87] W&B internal server running at pid: 143679, started at: 2023-03-29 14:04:44.161124
+2023-03-29 14:04:44,162 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: status
+2023-03-29 14:04:44,165 INFO    WriterThread:143679 [datastore.py:open_for_write():85] open: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/run-66vse2ib.wandb
+2023-03-29 14:04:44,166 DEBUG   SenderThread:143679 [sender.py:send():336] send: header
+2023-03-29 14:04:44,199 DEBUG   SenderThread:143679 [sender.py:send():336] send: run
+2023-03-29 14:04:44,687 INFO    SenderThread:143679 [dir_watcher.py:__init__():219] watching files in: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files
+2023-03-29 14:04:44,688 INFO    SenderThread:143679 [sender.py:_start_run_threads():1078] run started: 66vse2ib with start time 1680069884.160629
+2023-03-29 14:04:44,688 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:44,688 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:44,690 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: check_version
+2023-03-29 14:04:44,691 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: check_version
+2023-03-29 14:04:45,119 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: run_start
+2023-03-29 14:04:45,129 DEBUG   HandlerThread:143679 [system_info.py:__init__():31] System info init
+2023-03-29 14:04:45,130 DEBUG   HandlerThread:143679 [system_info.py:__init__():46] System info init done
+2023-03-29 14:04:45,130 INFO    HandlerThread:143679 [system_monitor.py:start():183] Starting system monitor
+2023-03-29 14:04:45,130 INFO    SystemMonitor:143679 [system_monitor.py:_start():147] Starting system asset monitoring threads
+2023-03-29 14:04:45,130 INFO    SystemMonitor:143679 [interfaces.py:start():187] Started cpu monitoring
+2023-03-29 14:04:45,130 INFO    HandlerThread:143679 [system_monitor.py:probe():204] Collecting system info
+2023-03-29 14:04:45,131 INFO    SystemMonitor:143679 [interfaces.py:start():187] Started disk monitoring
+2023-03-29 14:04:45,132 INFO    SystemMonitor:143679 [interfaces.py:start():187] Started gpu monitoring
+2023-03-29 14:04:45,132 INFO    SystemMonitor:143679 [interfaces.py:start():187] Started memory monitoring
+2023-03-29 14:04:45,133 INFO    SystemMonitor:143679 [interfaces.py:start():187] Started network monitoring
+2023-03-29 14:04:45,142 DEBUG   HandlerThread:143679 [system_info.py:probe():195] Probing system
+2023-03-29 14:04:45,153 DEBUG   HandlerThread:143679 [system_info.py:_probe_git():180] Probing git
+2023-03-29 14:04:45,169 DEBUG   HandlerThread:143679 [system_info.py:_probe_git():188] Probing git done
+2023-03-29 14:04:45,169 DEBUG   HandlerThread:143679 [system_info.py:probe():240] Probing system done
+2023-03-29 14:04:45,169 DEBUG   HandlerThread:143679 [system_monitor.py:probe():213] {'os': 'Linux-5.19.0-38-generic-x86_64-with-glibc2.35', 'python': '3.9.15', 'heartbeatAt': '2023-03-29T06:04:45.143037', 'startedAt': '2023-03-29T06:04:44.154486', 'docker': None, 'cuda': None, 'args': ('-wn', 'testsave', '-e', '20'), 'state': 'running', 'program': '/home/yaocong/Experimental/speed_smoke_segmentation/train.py', 'codePath': 'train.py', 'git': {'remote': 'https://github.com/yaocongchen/speed_smoke_segmentation.git', 'commit': '531479067cf37ca274e30b95c2589245e105354d'}, 'email': 'yaocongchen@outlook.com', 'root': '/home/yaocong/Experimental/speed_smoke_segmentation', 'host': 'yaocong-lab', 'username': 'yaocong', 'executable': '/home/yaocong/miniconda3/envs/torch/bin/python', 'cpu_count': 14, 'cpu_count_logical': 20, 'cpu_freq': {'current': 2.56, 'min': 800.0, 'max': 4620.0}, 'cpu_freq_per_core': [{'current': 1.221, 'min': 800.0, 'max': 5100.0}, {'current': 2.716, 'min': 800.0, 'max': 5100.0}, {'current': 1.336, 'min': 800.0, 'max': 5100.0}, {'current': 3.5, 'min': 800.0, 'max': 5100.0}, {'current': 2.462, 'min': 800.0, 'max': 5100.0}, {'current': 2.345, 'min': 800.0, 'max': 5100.0}, {'current': 1.57, 'min': 800.0, 'max': 5100.0}, {'current': 3.5, 'min': 800.0, 'max': 5100.0}, {'current': 2.628, 'min': 800.0, 'max': 5100.0}, {'current': 3.5, 'min': 800.0, 'max': 5100.0}, {'current': 2.754, 'min': 800.0, 'max': 5100.0}, {'current': 3.5, 'min': 800.0, 'max': 5100.0}, {'current': 0.8, 'min': 800.0, 'max': 3900.0}, {'current': 0.816, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 1.052, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}], 'disk': {'total': 139.74505996704102, 'used': 19.320701599121094}, 'gpu': 'NVIDIA GeForce GTX 1060 6GB', 'gpu_count': 1, 'gpu_devices': [{'name': 'NVIDIA GeForce GTX 1060 6GB', 'memory_total': 6442450944}], 'memory': {'total': 31.123355865478516}}
+2023-03-29 14:04:45,169 INFO    HandlerThread:143679 [system_monitor.py:probe():214] Finished collecting system info
+2023-03-29 14:04:45,169 INFO    HandlerThread:143679 [system_monitor.py:probe():217] Publishing system info
+2023-03-29 14:04:45,169 DEBUG   HandlerThread:143679 [system_info.py:_save_pip():51] Saving list of pip packages installed into the current environment
+2023-03-29 14:04:45,169 DEBUG   HandlerThread:143679 [system_info.py:_save_pip():67] Saving pip packages done
+2023-03-29 14:04:45,170 DEBUG   HandlerThread:143679 [system_info.py:_save_conda():74] Saving list of conda packages installed into the current environment
+2023-03-29 14:04:45,688 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:45,688 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/requirements.txt
+2023-03-29 14:04:45,688 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/conda-environment.yaml
+2023-03-29 14:04:46,238 DEBUG   HandlerThread:143679 [system_info.py:_save_conda():86] Saving conda packages done
+2023-03-29 14:04:46,239 INFO    HandlerThread:143679 [system_monitor.py:probe():219] Finished publishing system info
+2023-03-29 14:04:46,241 DEBUG   SenderThread:143679 [sender.py:send():336] send: files
+2023-03-29 14:04:46,241 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-metadata.json with policy now
+2023-03-29 14:04:46,243 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-29 14:04:46,244 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: stop_status
+2023-03-29 14:04:46,460 DEBUG   SenderThread:143679 [sender.py:send():336] send: telemetry
+2023-03-29 14:04:46,460 DEBUG   SenderThread:143679 [sender.py:send():336] send: telemetry
+2023-03-29 14:04:46,460 DEBUG   SenderThread:143679 [sender.py:send():336] send: config
+2023-03-29 14:04:46,460 DEBUG   SenderThread:143679 [sender.py:send():336] send: config
+2023-03-29 14:04:46,461 DEBUG   SenderThread:143679 [sender.py:send():336] send: config
+2023-03-29 14:04:46,461 DEBUG   SenderThread:143679 [sender.py:send():336] send: telemetry
+2023-03-29 14:04:46,688 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/conda-environment.yaml
+2023-03-29 14:04:46,688 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:04:46,688 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-metadata.json
+2023-03-29 14:04:46,861 INFO    wandb-upload_0:143679 [upload_job.py:push():138] Uploaded file /tmp/tmph5binz2dwandb/bhjn5kbe-wandb-metadata.json
+2023-03-29 14:04:46,897 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:46,898 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:46,898 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:46,898 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:47,418 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:47,418 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:47,418 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:47,419 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:47,688 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:47,947 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:47,948 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:47,948 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:47,948 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:48,400 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:48,401 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:48,401 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:48,401 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:48,688 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:04:48,688 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:48,862 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:48,862 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:48,862 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:48,863 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:49,384 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 14:04:49,384 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:49,384 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:49,384 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:49,385 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:49,688 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:49,858 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:49,859 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:49,859 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:49,859 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:50,297 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:50,298 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:50,298 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:50,298 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:50,688 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:04:50,689 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:50,730 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:50,731 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:50,731 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:50,731 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:51,169 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:51,170 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:51,170 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:51,171 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:51,620 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:51,621 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:51,621 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:51,621 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:51,689 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:52,068 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:52,068 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:52,068 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:52,068 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:52,500 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:52,500 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:52,500 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:52,500 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:52,689 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:04:52,689 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:52,960 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:52,960 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:52,960 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:52,960 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:53,388 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:53,388 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:53,388 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:53,389 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:53,689 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:53,821 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:53,822 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:53,822 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:53,822 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:54,149 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:54,150 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:54,150 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:54,150 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:54,689 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:04:54,690 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:54,731 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 14:04:54,731 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:54,731 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:54,732 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:54,732 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:55,258 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:55,259 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:55,259 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:55,259 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:55,690 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:55,774 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:55,775 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:55,775 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:55,776 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:56,195 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:56,195 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:56,195 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:56,196 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:56,690 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:04:56,690 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:56,719 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:56,719 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:56,719 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:56,720 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:57,216 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:57,216 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:57,216 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:57,216 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:57,637 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:57,652 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:57,652 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:57,652 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:57,690 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:58,073 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:58,074 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:58,074 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:58,075 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:58,499 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:58,500 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:58,500 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:58,500 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:58,690 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:04:58,690 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:58,962 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:58,963 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:58,963 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:58,963 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:59,391 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:59,392 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:59,392 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:59,392 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:04:59,690 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:04:59,884 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 14:04:59,884 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:04:59,885 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:04:59,885 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:04:59,885 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:00,407 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:00,407 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:00,407 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:00,408 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:00,690 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:05:00,691 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:00,834 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:00,835 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:00,835 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:00,836 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:01,243 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-29 14:05:01,244 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: stop_status
+2023-03-29 14:05:01,259 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:01,461 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:01,461 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:01,462 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:01,691 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:01,733 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:01,734 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:01,734 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:01,734 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:02,002 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:02,002 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:02,003 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:02,003 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:02,513 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:02,514 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:02,514 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:02,514 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:02,691 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:05:02,691 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:02,955 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:02,955 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:02,955 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:02,955 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:03,407 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:03,408 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:03,408 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:03,408 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:03,691 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:03,857 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:03,857 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:03,857 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:03,857 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:04,365 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:04,366 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:04,366 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:04,366 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:04,691 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:05:04,691 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:04,846 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:04,846 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:04,846 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:04,847 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:05,266 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 14:05:05,266 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:05,267 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:05,267 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:05,267 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:05,691 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:05,742 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:05,743 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:05,743 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:05,743 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:06,222 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:06,222 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:06,222 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:06,223 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:06,692 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:05:06,692 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:06,693 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:06,694 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:06,694 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:06,694 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:07,137 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:07,138 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:07,138 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:07,138 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:07,569 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:07,569 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:07,570 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:07,570 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:07,692 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:08,097 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:08,113 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:08,113 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:08,113 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:08,635 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:08,636 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:08,636 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:08,636 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:08,692 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:05:08,692 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:09,061 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:09,061 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:09,062 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:09,062 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:09,480 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:09,481 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:09,481 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:09,481 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:09,692 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:09,725 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:09,726 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:09,726 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:09,726 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:10,254 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:10,254 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:10,254 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:10,255 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:10,278 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 14:05:10,692 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:05:10,693 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:10,790 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:10,790 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:10,790 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:10,790 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:11,243 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:11,244 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:11,244 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:11,244 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:11,671 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:11,671 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:11,672 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:11,672 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:11,693 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:12,110 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:12,110 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:12,110 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:12,111 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:12,595 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:12,595 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:12,595 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:12,595 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:12,693 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:05:12,693 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:13,128 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:13,129 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:13,129 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:13,129 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:13,656 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:13,657 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:13,657 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:13,657 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:13,693 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:14,083 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:14,083 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:14,084 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:14,084 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:14,506 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:14,506 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:14,506 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:14,507 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:14,693 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:05:14,693 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:14,928 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:14,929 DEBUG   SenderThread:143679 [sender.py:send():336] send: history
+2023-03-29 14:05:14,929 DEBUG   SenderThread:143679 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 14:05:14,929 INFO    SenderThread:143679 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 14:05:15,355 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 14:05:15,355 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:15,572 ERROR   SenderThread:143679 [internal_api.py:execute():246] 409 response executing GraphQL.
+2023-03-29 14:05:15,572 ERROR   SenderThread:143679 [internal_api.py:execute():247] {"errors":[{"message":"run jhmay56998/lightssd-project/66vse2ib was previously created and deleted; try a new run name","path":["upsertBucket"]}],"data":{"upsertBucket":null}}
+2023-03-29 14:05:15,693 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/wandb-summary.json
+2023-03-29 14:05:15,787 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:16,205 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:16,243 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-29 14:05:16,624 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:16,694 INFO    Thread-13 :143679 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/files/output.log
+2023-03-29 14:05:16,952 ERROR   SenderThread:143679 [internal_api.py:execute():246] 409 response executing GraphQL.
+2023-03-29 14:05:16,952 ERROR   SenderThread:143679 [internal_api.py:execute():247] {"errors":[{"message":"run jhmay56998/lightssd-project/66vse2ib was previously created and deleted; try a new run name","path":["upsertBucket"]}],"data":{"upsertBucket":null}}
+2023-03-29 14:05:17,060 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:17,304 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:17,786 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:18,214 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:18,638 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:19,060 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:19,235 ERROR   SenderThread:143679 [internal_api.py:execute():246] 409 response executing GraphQL.
+2023-03-29 14:05:19,236 ERROR   SenderThread:143679 [internal_api.py:execute():247] {"errors":[{"message":"run jhmay56998/lightssd-project/66vse2ib was previously created and deleted; try a new run name","path":["upsertBucket"]}],"data":{"upsertBucket":null}}
+2023-03-29 14:05:19,236 INFO    SenderThread:143679 [retry.py:__call__():172] Retry attempt failed:
+Traceback (most recent call last):
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/sdk/lib/retry.py", line 131, in __call__
+    result = self._call_fn(*args, **kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/sdk/internal/internal_api.py", line 243, in execute
+    return self.client.execute(*args, **kwargs)  # type: ignore
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 52, in execute
+    result = self._get_result(document, *args, **kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 60, in _get_result
+    return self.transport.execute(document, *args, **kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/transport/requests.py", line 39, in execute
+    request.raise_for_status()
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/requests/models.py", line 1021, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 409 Client Error: Conflict for url: https://api.wandb.ai/graphql
+2023-03-29 14:05:19,494 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:19,917 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:20,348 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:20,781 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:21,215 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 14:05:21,244 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: keepalive
+2023-03-29 14:05:22,638 DEBUG   HandlerThread:143679 [handler.py:handle_request():144] handle_request: poll_exit
+2023-03-29 14:05:23,142 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:23,142 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:23,142 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:23,143 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:24,438 ERROR   SenderThread:143679 [internal_api.py:execute():246] 409 response executing GraphQL.
+2023-03-29 14:05:24,438 ERROR   SenderThread:143679 [internal_api.py:execute():247] {"errors":[{"message":"run jhmay56998/lightssd-project/66vse2ib was previously created and deleted; try a new run name","path":["upsertBucket"]}],"data":{"upsertBucket":null}}
+2023-03-29 14:05:25,143 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:25,144 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:25,145 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:25,146 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:25,207 WARNING StreamThr :143679 [internal.py:is_dead():415] Internal process exiting, parent pid 143627 disappeared
+2023-03-29 14:05:25,207 ERROR   StreamThr :143679 [internal.py:wandb_internal():153] Internal process shutdown.
+2023-03-29 14:05:25,639 INFO    HandlerThread:143679 [handler.py:finish():842] shutting down handler
+2023-03-29 14:05:25,639 INFO    WriterThread:143679 [datastore.py:close():298] close: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_140444-66vse2ib/run-66vse2ib.wandb
+2023-03-29 14:05:27,146 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:27,146 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:27,147 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:27,147 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:29,147 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:29,147 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:29,147 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:29,147 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:31,147 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:31,148 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:31,148 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:31,148 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:33,148 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:33,149 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:33,149 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:33,149 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:34,348 ERROR   SenderThread:143679 [internal_api.py:execute():246] 409 response executing GraphQL.
+2023-03-29 14:05:34,348 ERROR   SenderThread:143679 [internal_api.py:execute():247] {"errors":[{"message":"run jhmay56998/lightssd-project/66vse2ib was previously created and deleted; try a new run name","path":["upsertBucket"]}],"data":{"upsertBucket":null}}
+2023-03-29 14:05:35,149 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:35,149 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:35,149 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:35,149 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:37,149 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:37,149 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:37,150 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:37,150 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:39,150 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:39,150 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:39,150 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:39,150 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:41,150 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:41,150 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:41,150 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:41,150 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:43,150 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:43,151 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:43,151 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:43,151 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:45,133 DEBUG   SystemMonitor:143679 [system_monitor.py:_start():161] Starting system metrics aggregation loop
+2023-03-29 14:05:45,151 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:45,151 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:45,151 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:45,152 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:47,152 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:47,152 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:47,152 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:47,152 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:49,152 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:49,152 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:49,153 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:49,153 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:50,991 ERROR   SenderThread:143679 [internal_api.py:execute():246] 409 response executing GraphQL.
+2023-03-29 14:05:50,991 ERROR   SenderThread:143679 [internal_api.py:execute():247] {"errors":[{"message":"run jhmay56998/lightssd-project/66vse2ib was previously created and deleted; try a new run name","path":["upsertBucket"]}],"data":{"upsertBucket":null}}
+2023-03-29 14:05:51,153 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:51,153 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:51,153 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:51,154 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:53,153 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:53,153 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:53,154 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:53,154 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:55,154 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:55,154 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:55,154 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:55,154 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:57,154 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:57,154 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:57,155 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:57,155 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:59,154 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:59,155 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:59,155 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:05:59,155 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:01,155 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:01,155 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:01,155 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:01,155 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:03,155 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:03,157 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:03,158 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:03,158 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:05,157 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:05,158 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:05,160 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:05,160 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:07,159 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:07,159 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:07,161 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:07,161 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:09,159 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:09,160 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:09,162 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:09,162 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:11,160 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:11,161 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:11,163 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:11,163 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:13,161 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:13,161 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:13,163 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:13,163 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:15,161 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:15,161 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:15,163 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:15,164 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:17,162 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:17,162 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:17,164 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:17,164 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:19,162 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:19,162 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:19,164 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:19,164 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:21,162 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:21,163 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:21,165 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:21,165 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:23,163 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:23,163 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:23,165 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:23,165 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:25,163 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:25,164 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:25,165 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:25,165 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:26,484 ERROR   SenderThread:143679 [internal_api.py:execute():246] 409 response executing GraphQL.
+2023-03-29 14:06:26,484 ERROR   SenderThread:143679 [internal_api.py:execute():247] {"errors":[{"message":"run jhmay56998/lightssd-project/66vse2ib was previously created and deleted; try a new run name","path":["upsertBucket"]}],"data":{"upsertBucket":null}}
+2023-03-29 14:06:27,164 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:27,164 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:27,166 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:27,166 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:29,164 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:29,164 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:29,166 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:29,166 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:31,165 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:31,165 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:31,166 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:31,166 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:33,165 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:33,165 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:33,167 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:33,167 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:35,166 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:35,166 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:35,167 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:35,167 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:37,166 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:37,166 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:37,167 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:37,167 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:39,166 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:39,167 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:39,167 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:39,167 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:41,167 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:41,167 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:41,168 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:41,168 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:43,167 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:43,167 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:43,168 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:43,168 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:45,168 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:45,168 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:45,168 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:45,168 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:47,168 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:47,168 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:47,169 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:47,169 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:49,169 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:49,169 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:49,169 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:49,169 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:51,169 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:51,169 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:51,170 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:51,170 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:53,170 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:53,170 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:53,170 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:53,170 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:55,170 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:55,170 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:55,170 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:55,171 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:57,170 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:57,171 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:57,171 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:57,171 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:59,171 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:59,171 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:59,171 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:06:59,171 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:01,171 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:01,172 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:01,172 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:01,172 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:03,172 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:03,172 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:03,172 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:03,172 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:05,172 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:05,172 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:05,173 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:05,173 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:07,173 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:07,173 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:07,173 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:07,173 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:09,173 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:09,173 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:09,173 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:09,173 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:11,173 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:11,174 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:11,174 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:11,174 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:13,174 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:13,174 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:13,175 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:13,175 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:15,175 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:15,175 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:15,175 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:15,175 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:17,175 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:17,175 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:17,176 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:17,176 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:19,176 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:19,176 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:19,176 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:19,176 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:21,176 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:21,176 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:21,177 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:21,177 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:23,177 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:23,177 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:23,177 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:23,177 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:25,177 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:25,178 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:25,178 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:25,178 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:27,178 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:27,180 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:27,181 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:27,181 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:29,182 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:29,183 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:29,184 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:29,185 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:31,185 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:31,186 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:31,186 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:31,186 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:33,186 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:33,186 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:33,186 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:33,186 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:35,187 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:35,189 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:35,190 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:35,190 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:35,481 ERROR   SenderThread:143679 [internal_api.py:execute():246] 409 response executing GraphQL.
+2023-03-29 14:07:35,482 ERROR   SenderThread:143679 [internal_api.py:execute():247] {"errors":[{"message":"run jhmay56998/lightssd-project/66vse2ib was previously created and deleted; try a new run name","path":["upsertBucket"]}],"data":{"upsertBucket":null}}
+2023-03-29 14:07:35,483 ERROR   StreamThr :143679 [internal.py:wandb_internal():175] Thread SenderThread:
+Traceback (most recent call last):
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/apis/normalize.py", line 25, in wrapper
+    return func(*args, **kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/sdk/internal/internal_api.py", line 1664, in upsert_run
+    response = self.gql(
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/sdk/internal/internal_api.py", line 215, in gql
+    ret = self._retry_gql(
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/sdk/lib/retry.py", line 131, in __call__
+    result = self._call_fn(*args, **kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/sdk/internal/internal_api.py", line 243, in execute
+    return self.client.execute(*args, **kwargs)  # type: ignore
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 52, in execute
+    result = self._get_result(document, *args, **kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 60, in _get_result
+    return self.transport.execute(document, *args, **kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/transport/requests.py", line 39, in execute
+    request.raise_for_status()
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/requests/models.py", line 1021, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 409 Client Error: Conflict for url: https://api.wandb.ai/graphql
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/sdk/internal/internal_util.py", line 49, in run
+    self._run()
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/sdk/internal/internal_util.py", line 93, in _run
+    self._debounce()
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/sdk/internal/internal.py", line 335, in _debounce
+    self._sm.debounce()
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/sdk/internal/sender.py", line 512, in debounce
+    self._maybe_update_config(always=final)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/sdk/internal/sender.py", line 489, in _maybe_update_config
+    self._debounce_config()
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/sdk/internal/sender.py", line 518, in _debounce_config
+    self._api.upsert_run(
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/wandb/apis/normalize.py", line 27, in wrapper
+    raise CommError(err.response, err)
+wandb.errors.CommError: <Response [409]>
+2023-03-29 14:07:37,190 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:37,190 ERROR   cpu       :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:37,191 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)
+2023-03-29 14:07:37,192 ERROR   memory    :143679 [interfaces.py:monitor():141] Failed to sample metric: process no longer exists (pid=143627)

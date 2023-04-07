@@ -1,0 +1,68 @@
+
+
+
+trian_epoch [1/20]: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████| 16/16 [00:06<00:00,  2.30it/s, train_acc=0.43, train_loss=1]
+val_epoch [1/20]: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  4.11it/s, val_acc=0.27, val_loss=1.18]
+
+
+
+trian_epoch [2/20]: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 16/16 [00:07<00:00,  2.03it/s, train_acc=0.382, train_loss=1]
+val_epoch [2/20]: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  2.83it/s, val_acc=0.341, val_loss=1.27]
+
+
+
+trian_epoch [3/20]: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 16/16 [00:07<00:00,  2.02it/s, train_acc=0.424, train_loss=1]
+val_epoch [3/20]: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  3.53it/s, val_acc=0.354, val_loss=1.32]
+
+
+
+trian_epoch [4/20]: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 16/16 [00:07<00:00,  2.10it/s, train_acc=0.401, train_loss=1.02]
+val_epoch [4/20]: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  3.59it/s, val_acc=0.384, val_loss=1.26]
+
+
+
+trian_epoch [5/20]: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████| 16/16 [00:08<00:00,  2.00it/s, train_acc=0.484, train_loss=0.886]
+val_epoch [5/20]: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  2.99it/s, val_acc=0.351, val_loss=1.26]
+
+
+
+trian_epoch [6/20]: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████| 16/16 [00:08<00:00,  1.94it/s, train_acc=0.402, train_loss=0.963]
+val_epoch [6/20]: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  3.15it/s, val_acc=0.332, val_loss=1.22]
+
+
+trian_epoch [7/20]: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████| 16/16 [00:07<00:00,  2.20it/s, train_acc=0.508, train_loss=0.862]
+val_epoch [7/20]: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  4.02it/s, val_acc=0.349, val_loss=1.17]
+
+
+trian_epoch [8/20]: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████| 16/16 [00:07<00:00,  2.28it/s, train_acc=0.455, train_loss=0.882]
+val_epoch [8/20]: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  3.99it/s, val_acc=0.393, val_loss=1.15]
+
+
+
+trian_epoch [9/20]: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████| 16/16 [00:07<00:00,  2.09it/s, train_acc=0.446, train_loss=0.906]
+val_epoch [9/20]: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  4.11it/s, val_acc=0.313, val_loss=1.13]
+  0%|                                                                                                                                                                          | 0/16 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/yaocong/Experimental/speed_smoke_segmentation/train.py", line 251, in <module>
+    train(args)
+  File "/home/yaocong/Experimental/speed_smoke_segmentation/train.py", line 142, in train
+    output_f19, output_f34 = model(img_image)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/yaocong/Experimental/speed_smoke_segmentation/lightssd.py", line 308, in forward
+    f2 ,f3 = self.aem(img)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/yaocong/Experimental/speed_smoke_segmentation/lightssd.py", line 125, in forward
+    out_3 = self.stage3_CSSAM_dt5(out_3)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/yaocong/Experimental/speed_smoke_segmentation/lightssd.py", line 73, in forward
+    out31 = self.conv31(x1)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/conv.py", line 463, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/conv.py", line 459, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+KeyboardInterrupt

@@ -1,0 +1,196 @@
+2023-03-29 13:56:25,366 INFO    StreamThr :141588 [internal.py:wandb_internal():87] W&B internal server running at pid: 141588, started at: 2023-03-29 13:56:25.366338
+2023-03-29 13:56:25,367 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: status
+2023-03-29 13:56:25,370 INFO    WriterThread:141588 [datastore.py:open_for_write():85] open: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/run-xu2lic9h.wandb
+2023-03-29 13:56:25,371 DEBUG   SenderThread:141588 [sender.py:send():336] send: header
+2023-03-29 13:56:25,399 DEBUG   SenderThread:141588 [sender.py:send():336] send: run
+2023-03-29 13:56:25,927 INFO    SenderThread:141588 [dir_watcher.py:__init__():219] watching files in: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files
+2023-03-29 13:56:25,927 INFO    SenderThread:141588 [sender.py:_start_run_threads():1078] run started: xu2lic9h with start time 1680069385.365824
+2023-03-29 13:56:25,927 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 13:56:25,927 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:25,928 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: check_version
+2023-03-29 13:56:25,928 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: check_version
+2023-03-29 13:56:26,059 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: run_start
+2023-03-29 13:56:26,062 DEBUG   HandlerThread:141588 [system_info.py:__init__():31] System info init
+2023-03-29 13:56:26,062 DEBUG   HandlerThread:141588 [system_info.py:__init__():46] System info init done
+2023-03-29 13:56:26,062 INFO    HandlerThread:141588 [system_monitor.py:start():183] Starting system monitor
+2023-03-29 13:56:26,063 INFO    SystemMonitor:141588 [system_monitor.py:_start():147] Starting system asset monitoring threads
+2023-03-29 13:56:26,063 INFO    HandlerThread:141588 [system_monitor.py:probe():204] Collecting system info
+2023-03-29 13:56:26,063 INFO    SystemMonitor:141588 [interfaces.py:start():187] Started cpu monitoring
+2023-03-29 13:56:26,063 INFO    SystemMonitor:141588 [interfaces.py:start():187] Started disk monitoring
+2023-03-29 13:56:26,063 INFO    SystemMonitor:141588 [interfaces.py:start():187] Started gpu monitoring
+2023-03-29 13:56:26,064 INFO    SystemMonitor:141588 [interfaces.py:start():187] Started memory monitoring
+2023-03-29 13:56:26,064 INFO    SystemMonitor:141588 [interfaces.py:start():187] Started network monitoring
+2023-03-29 13:56:26,073 DEBUG   HandlerThread:141588 [system_info.py:probe():195] Probing system
+2023-03-29 13:56:26,077 DEBUG   HandlerThread:141588 [system_info.py:_probe_git():180] Probing git
+2023-03-29 13:56:26,082 DEBUG   HandlerThread:141588 [system_info.py:_probe_git():188] Probing git done
+2023-03-29 13:56:26,082 DEBUG   HandlerThread:141588 [system_info.py:probe():240] Probing system done
+2023-03-29 13:56:26,082 DEBUG   HandlerThread:141588 [system_monitor.py:probe():213] {'os': 'Linux-5.19.0-38-generic-x86_64-with-glibc2.35', 'python': '3.9.15', 'heartbeatAt': '2023-03-29T05:56:26.073870', 'startedAt': '2023-03-29T05:56:25.360752', 'docker': None, 'cuda': None, 'args': ('-wn', 'testsave', '-e', '20'), 'state': 'running', 'program': '/home/yaocong/Experimental/speed_smoke_segmentation/train.py', 'codePath': 'train.py', 'git': {'remote': 'https://github.com/yaocongchen/speed_smoke_segmentation.git', 'commit': '531479067cf37ca274e30b95c2589245e105354d'}, 'email': 'yaocongchen@outlook.com', 'root': '/home/yaocong/Experimental/speed_smoke_segmentation', 'host': 'yaocong-lab', 'username': 'yaocong', 'executable': '/home/yaocong/miniconda3/envs/torch/bin/python', 'cpu_count': 14, 'cpu_count_logical': 20, 'cpu_freq': {'current': 4.414000000000001, 'min': 800.0, 'max': 4620.0}, 'cpu_freq_per_core': [{'current': 5.1, 'min': 800.0, 'max': 5100.0}, {'current': 5.087, 'min': 800.0, 'max': 5100.0}, {'current': 5.1, 'min': 800.0, 'max': 5100.0}, {'current': 5.1, 'min': 800.0, 'max': 5100.0}, {'current': 5.1, 'min': 800.0, 'max': 5100.0}, {'current': 5.1, 'min': 800.0, 'max': 5100.0}, {'current': 5.1, 'min': 800.0, 'max': 5100.0}, {'current': 5.1, 'min': 800.0, 'max': 5100.0}, {'current': 5.1, 'min': 800.0, 'max': 5100.0}, {'current': 5.097, 'min': 800.0, 'max': 5100.0}, {'current': 5.1, 'min': 800.0, 'max': 5100.0}, {'current': 5.1, 'min': 800.0, 'max': 5100.0}, {'current': 3.899, 'min': 800.0, 'max': 3900.0}, {'current': 3.902, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 1.395, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 3.5, 'min': 800.0, 'max': 3900.0}, {'current': 3.9, 'min': 800.0, 'max': 3900.0}], 'disk': {'total': 139.74505996704102, 'used': 19.32217025756836}, 'gpu': 'NVIDIA GeForce GTX 1060 6GB', 'gpu_count': 1, 'gpu_devices': [{'name': 'NVIDIA GeForce GTX 1060 6GB', 'memory_total': 6442450944}], 'memory': {'total': 31.123355865478516}}
+2023-03-29 13:56:26,082 INFO    HandlerThread:141588 [system_monitor.py:probe():214] Finished collecting system info
+2023-03-29 13:56:26,082 INFO    HandlerThread:141588 [system_monitor.py:probe():217] Publishing system info
+2023-03-29 13:56:26,082 DEBUG   HandlerThread:141588 [system_info.py:_save_pip():51] Saving list of pip packages installed into the current environment
+2023-03-29 13:56:26,082 DEBUG   HandlerThread:141588 [system_info.py:_save_pip():67] Saving pip packages done
+2023-03-29 13:56:26,082 DEBUG   HandlerThread:141588 [system_info.py:_save_conda():74] Saving list of conda packages installed into the current environment
+2023-03-29 13:56:26,928 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/conda-environment.yaml
+2023-03-29 13:56:26,928 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/wandb-summary.json
+2023-03-29 13:56:26,928 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/requirements.txt
+2023-03-29 13:56:27,126 DEBUG   HandlerThread:141588 [system_info.py:_save_conda():86] Saving conda packages done
+2023-03-29 13:56:27,127 INFO    HandlerThread:141588 [system_monitor.py:probe():219] Finished publishing system info
+2023-03-29 13:56:27,129 DEBUG   SenderThread:141588 [sender.py:send():336] send: files
+2023-03-29 13:56:27,129 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-metadata.json with policy now
+2023-03-29 13:56:27,131 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-29 13:56:27,131 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: stop_status
+2023-03-29 13:56:27,352 DEBUG   SenderThread:141588 [sender.py:send():336] send: telemetry
+2023-03-29 13:56:27,352 DEBUG   SenderThread:141588 [sender.py:send():336] send: telemetry
+2023-03-29 13:56:27,352 DEBUG   SenderThread:141588 [sender.py:send():336] send: config
+2023-03-29 13:56:27,352 DEBUG   SenderThread:141588 [sender.py:send():336] send: config
+2023-03-29 13:56:27,352 DEBUG   SenderThread:141588 [sender.py:send():336] send: config
+2023-03-29 13:56:27,352 DEBUG   SenderThread:141588 [sender.py:send():336] send: telemetry
+2023-03-29 13:56:27,736 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 13:56:27,736 DEBUG   SenderThread:141588 [sender.py:send():336] send: history
+2023-03-29 13:56:27,736 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 13:56:27,737 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:27,794 INFO    wandb-upload_0:141588 [upload_job.py:push():138] Uploaded file /tmp/tmpqq6av519wandb/727hmf7i-wandb-metadata.json
+2023-03-29 13:56:27,928 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/conda-environment.yaml
+2023-03-29 13:56:27,928 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/wandb-summary.json
+2023-03-29 13:56:27,928 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/wandb-metadata.json
+2023-03-29 13:56:27,928 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_created():278] file/dir created: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/output.log
+2023-03-29 13:56:28,160 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 13:56:28,161 DEBUG   SenderThread:141588 [sender.py:send():336] send: history
+2023-03-29 13:56:28,161 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 13:56:28,162 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:28,582 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 13:56:28,591 DEBUG   SenderThread:141588 [sender.py:send():336] send: history
+2023-03-29 13:56:28,591 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 13:56:28,591 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:28,928 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/wandb-summary.json
+2023-03-29 13:56:29,003 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 13:56:29,004 DEBUG   SenderThread:141588 [sender.py:send():336] send: history
+2023-03-29 13:56:29,004 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 13:56:29,004 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:29,424 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 13:56:29,424 DEBUG   SenderThread:141588 [sender.py:send():336] send: history
+2023-03-29 13:56:29,424 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 13:56:29,425 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:29,844 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 13:56:29,845 DEBUG   SenderThread:141588 [sender.py:send():336] send: history
+2023-03-29 13:56:29,845 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 13:56:29,845 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:29,928 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/output.log
+2023-03-29 13:56:29,928 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/wandb-summary.json
+2023-03-29 13:56:30,263 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 13:56:30,263 DEBUG   SenderThread:141588 [sender.py:send():336] send: history
+2023-03-29 13:56:30,264 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 13:56:30,265 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:30,682 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 13:56:30,682 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 13:56:30,683 DEBUG   SenderThread:141588 [sender.py:send():336] send: history
+2023-03-29 13:56:30,683 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 13:56:30,683 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:30,929 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/wandb-summary.json
+2023-03-29 13:56:31,102 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 13:56:31,102 DEBUG   SenderThread:141588 [sender.py:send():336] send: history
+2023-03-29 13:56:31,102 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 13:56:31,102 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:31,522 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 13:56:31,522 DEBUG   SenderThread:141588 [sender.py:send():336] send: history
+2023-03-29 13:56:31,522 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 13:56:31,523 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:31,929 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/output.log
+2023-03-29 13:56:31,929 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/wandb-summary.json
+2023-03-29 13:56:31,949 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: partial_history
+2023-03-29 13:56:31,950 DEBUG   SenderThread:141588 [sender.py:send():336] send: history
+2023-03-29 13:56:31,950 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: summary_record
+2023-03-29 13:56:31,950 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:32,373 DEBUG   SenderThread:141588 [sender.py:send():336] send: exit
+2023-03-29 13:56:32,373 INFO    SenderThread:141588 [sender.py:send_exit():559] handling exit code: 255
+2023-03-29 13:56:32,373 INFO    SenderThread:141588 [sender.py:send_exit():561] handling runtime: 6
+2023-03-29 13:56:32,374 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:32,374 INFO    SenderThread:141588 [sender.py:send_exit():567] send defer
+2023-03-29 13:56:32,374 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: defer
+2023-03-29 13:56:32,374 INFO    HandlerThread:141588 [handler.py:handle_request_defer():170] handle defer: 0
+2023-03-29 13:56:32,374 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: defer
+2023-03-29 13:56:32,374 INFO    SenderThread:141588 [sender.py:send_request_defer():583] handle sender defer: 0
+2023-03-29 13:56:32,374 INFO    SenderThread:141588 [sender.py:transition_state():587] send defer: 1
+2023-03-29 13:56:32,374 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: defer
+2023-03-29 13:56:32,374 INFO    HandlerThread:141588 [handler.py:handle_request_defer():170] handle defer: 1
+2023-03-29 13:56:32,374 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: defer
+2023-03-29 13:56:32,374 INFO    SenderThread:141588 [sender.py:send_request_defer():583] handle sender defer: 1
+2023-03-29 13:56:32,374 INFO    SenderThread:141588 [sender.py:transition_state():587] send defer: 2
+2023-03-29 13:56:32,374 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: defer
+2023-03-29 13:56:32,374 INFO    HandlerThread:141588 [handler.py:handle_request_defer():170] handle defer: 2
+2023-03-29 13:56:32,374 INFO    HandlerThread:141588 [system_monitor.py:finish():193] Stopping system monitor
+2023-03-29 13:56:32,374 DEBUG   SystemMonitor:141588 [system_monitor.py:_start():161] Starting system metrics aggregation loop
+2023-03-29 13:56:32,375 DEBUG   SystemMonitor:141588 [system_monitor.py:_start():168] Finished system metrics aggregation loop
+2023-03-29 13:56:32,375 DEBUG   SystemMonitor:141588 [system_monitor.py:_start():172] Publishing last batch of metrics
+2023-03-29 13:56:32,375 INFO    HandlerThread:141588 [interfaces.py:finish():199] Joined cpu monitor
+2023-03-29 13:56:32,375 INFO    HandlerThread:141588 [interfaces.py:finish():199] Joined disk monitor
+2023-03-29 13:56:32,393 INFO    HandlerThread:141588 [interfaces.py:finish():199] Joined gpu monitor
+2023-03-29 13:56:32,393 INFO    HandlerThread:141588 [interfaces.py:finish():199] Joined memory monitor
+2023-03-29 13:56:32,393 INFO    HandlerThread:141588 [interfaces.py:finish():199] Joined network monitor
+2023-03-29 13:56:32,393 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: defer
+2023-03-29 13:56:32,394 INFO    SenderThread:141588 [sender.py:send_request_defer():583] handle sender defer: 2
+2023-03-29 13:56:32,394 INFO    SenderThread:141588 [sender.py:transition_state():587] send defer: 3
+2023-03-29 13:56:32,394 DEBUG   SenderThread:141588 [sender.py:send():336] send: stats
+2023-03-29 13:56:32,394 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: defer
+2023-03-29 13:56:32,394 INFO    HandlerThread:141588 [handler.py:handle_request_defer():170] handle defer: 3
+2023-03-29 13:56:32,394 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: defer
+2023-03-29 13:56:32,394 INFO    SenderThread:141588 [sender.py:send_request_defer():583] handle sender defer: 3
+2023-03-29 13:56:32,394 INFO    SenderThread:141588 [sender.py:transition_state():587] send defer: 4
+2023-03-29 13:56:32,394 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: defer
+2023-03-29 13:56:32,394 INFO    HandlerThread:141588 [handler.py:handle_request_defer():170] handle defer: 4
+2023-03-29 13:56:32,394 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: defer
+2023-03-29 13:56:32,394 INFO    SenderThread:141588 [sender.py:send_request_defer():583] handle sender defer: 4
+2023-03-29 13:56:32,394 INFO    SenderThread:141588 [sender.py:transition_state():587] send defer: 5
+2023-03-29 13:56:32,394 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: defer
+2023-03-29 13:56:32,394 INFO    HandlerThread:141588 [handler.py:handle_request_defer():170] handle defer: 5
+2023-03-29 13:56:32,394 DEBUG   SenderThread:141588 [sender.py:send():336] send: summary
+2023-03-29 13:56:32,394 INFO    SenderThread:141588 [sender.py:_save_file():1332] saving file wandb-summary.json with policy end
+2023-03-29 13:56:32,394 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: defer
+2023-03-29 13:56:32,394 INFO    SenderThread:141588 [sender.py:send_request_defer():583] handle sender defer: 5
+2023-03-29 13:56:32,394 INFO    SenderThread:141588 [sender.py:transition_state():587] send defer: 6
+2023-03-29 13:56:32,394 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: defer
+2023-03-29 13:56:32,395 INFO    HandlerThread:141588 [handler.py:handle_request_defer():170] handle defer: 6
+2023-03-29 13:56:32,395 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: defer
+2023-03-29 13:56:32,395 INFO    SenderThread:141588 [sender.py:send_request_defer():583] handle sender defer: 6
+2023-03-29 13:56:32,396 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 13:56:32,644 INFO    SenderThread:141588 [sender.py:transition_state():587] send defer: 7
+2023-03-29 13:56:32,644 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: defer
+2023-03-29 13:56:32,644 INFO    HandlerThread:141588 [handler.py:handle_request_defer():170] handle defer: 7
+2023-03-29 13:56:32,645 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: defer
+2023-03-29 13:56:32,645 INFO    SenderThread:141588 [sender.py:send_request_defer():583] handle sender defer: 7
+2023-03-29 13:56:32,929 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/wandb-summary.json
+2023-03-29 13:56:32,929 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/config.yaml
+2023-03-29 13:56:33,363 INFO    SenderThread:141588 [sender.py:transition_state():587] send defer: 8
+2023-03-29 13:56:33,363 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: defer
+2023-03-29 13:56:33,364 INFO    HandlerThread:141588 [handler.py:handle_request_defer():170] handle defer: 8
+2023-03-29 13:56:33,364 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: defer
+2023-03-29 13:56:33,364 INFO    SenderThread:141588 [sender.py:send_request_defer():583] handle sender defer: 8
+2023-03-29 13:56:33,373 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: poll_exit
+2023-03-29 13:56:33,384 INFO    SenderThread:141588 [sender.py:transition_state():587] send defer: 9
+2023-03-29 13:56:33,385 DEBUG   SenderThread:141588 [sender.py:send_request():363] send_request: poll_exit
+2023-03-29 13:56:33,386 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: defer
+2023-03-29 13:56:33,386 DEBUG   SenderThread:141588 [sender.py:send():336] send: artifact
+2023-03-29 13:56:33,386 INFO    HandlerThread:141588 [handler.py:handle_request_defer():170] handle defer: 9
+2023-03-29 13:56:33,929 INFO    Thread-13 :141588 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/output.log
+2023-03-29 13:56:34,374 DEBUG   HandlerThread:141588 [handler.py:handle_request():144] handle_request: poll_exit
+2023-03-29 13:56:34,377 WARNING StreamThr :141588 [internal.py:is_dead():415] Internal process exiting, parent pid 141545 disappeared
+2023-03-29 13:56:34,377 ERROR   StreamThr :141588 [internal.py:wandb_internal():153] Internal process shutdown.
+2023-03-29 13:56:34,893 INFO    SenderThread:141588 [sender.py:send_artifact():1428] sent artifact job-https___github.com_yaocongchen_speed_smoke_segmentation.git_train.py - {'id': 'QXJ0aWZhY3Q6NDA5MDU5MzU1', 'digest': 'd679012fa3c9256758b9fe6600289fa9', 'state': 'COMMITTED', 'aliases': [{'artifactCollectionName': 'job-https___github.com_yaocongchen_speed_smoke_segmentation.git_train.py', 'alias': 'latest'}, {'artifactCollectionName': 'job-https___github.com_yaocongchen_speed_smoke_segmentation.git_train.py', 'alias': 'v5'}], 'artifactSequence': {'id': 'QXJ0aWZhY3RDb2xsZWN0aW9uOjU5MTMwOTcy', 'latestArtifact': {'id': 'QXJ0aWZhY3Q6NDA5MDU5MzU1', 'versionIndex': 5}}, 'version': 'v5'}
+2023-03-29 13:56:34,893 INFO    SenderThread:141588 [sender.py:finish():1504] shutting down sender
+2023-03-29 13:56:34,893 INFO    SenderThread:141588 [dir_watcher.py:finish():365] shutting down directory watcher
+2023-03-29 13:56:34,930 INFO    SenderThread:141588 [dir_watcher.py:finish():395] scan: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files
+2023-03-29 13:56:34,930 INFO    SenderThread:141588 [dir_watcher.py:finish():409] scan save: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/output.log output.log
+2023-03-29 13:56:34,930 INFO    SenderThread:141588 [dir_watcher.py:finish():409] scan save: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/conda-environment.yaml conda-environment.yaml
+2023-03-29 13:56:34,930 INFO    SenderThread:141588 [dir_watcher.py:finish():409] scan save: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/config.yaml config.yaml
+2023-03-29 13:56:34,930 INFO    SenderThread:141588 [dir_watcher.py:finish():409] scan save: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/wandb-summary.json wandb-summary.json
+2023-03-29 13:56:34,930 INFO    SenderThread:141588 [dir_watcher.py:finish():409] scan save: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/requirements.txt requirements.txt
+2023-03-29 13:56:34,930 INFO    SenderThread:141588 [dir_watcher.py:finish():409] scan save: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/wandb-metadata.json wandb-metadata.json
+2023-03-29 13:56:34,930 INFO    SenderThread:141588 [file_pusher.py:finish():164] shutting down file pusher
+2023-03-29 13:56:34,930 INFO    SenderThread:141588 [file_pusher.py:join():169] waiting for file pusher
+2023-03-29 13:56:35,374 INFO    HandlerThread:141588 [handler.py:finish():842] shutting down handler
+2023-03-29 13:56:35,375 INFO    WriterThread:141588 [datastore.py:close():298] close: /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/run-xu2lic9h.wandb
+2023-03-29 13:56:35,534 INFO    wandb-upload_2:141588 [upload_job.py:push():138] Uploaded file /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/config.yaml
+2023-03-29 13:56:35,561 INFO    wandb-upload_4:141588 [upload_job.py:push():138] Uploaded file /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/requirements.txt
+2023-03-29 13:56:35,564 INFO    wandb-upload_1:141588 [upload_job.py:push():138] Uploaded file /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/output.log
+2023-03-29 13:56:35,572 INFO    wandb-upload_0:141588 [upload_job.py:push():138] Uploaded file /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/conda-environment.yaml
+2023-03-29 13:56:35,855 INFO    wandb-upload_3:141588 [upload_job.py:push():138] Uploaded file /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230329_135625-xu2lic9h/files/wandb-summary.json

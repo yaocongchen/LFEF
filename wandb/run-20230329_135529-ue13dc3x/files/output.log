@@ -1,0 +1,48 @@
+
+
+
+trian_epoch [1/150]: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:06<00:00,  1.09s/it, train_acc=0.343, train_loss=1.09]
+0it [00:00, ?it/s]
+
+
+trian_epoch [2/150]: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:06<00:00,  1.09s/it, train_acc=0.332, train_loss=1.05]
+0it [00:00, ?it/s]
+
+
+trian_epoch [3/150]: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:06<00:00,  1.07s/it, train_acc=0.355, train_loss=1.02]
+0it [00:00, ?it/s]
+
+
+
+trian_epoch [4/150]: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:06<00:00,  1.04s/it, train_acc=0.404, train_loss=0.988]
+0it [00:00, ?it/s]
+
+
+trian_epoch [5/150]: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:06<00:00,  1.06s/it, train_acc=0.366, train_loss=0.982]
+0it [00:00, ?it/s]
+
+
+trian_epoch [6/150]: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:06<00:00,  1.04s/it, train_acc=0.403, train_loss=0.97]
+0it [00:00, ?it/s]
+
+
+trian_epoch [7/150]: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:06<00:00,  1.04s/it, train_acc=0.359, train_loss=0.998]
+0it [00:00, ?it/s]
+
+trian_epoch [8/150]:  33%|███████████████████████████████████▋                                                                       | 2/6 [00:03<00:06,  1.56s/it, train_acc=0.374, train_loss=0.967]
+Traceback (most recent call last):
+  File "/home/yaocong/Experimental/speed_smoke_segmentation/train.py", line 251, in <module>
+    train(args)
+  File "/home/yaocong/Experimental/speed_smoke_segmentation/train.py", line 151, in train
+    optimizer.step()
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/optim/optimizer.py", line 140, in wrapper
+    out = func(*args, **kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/optim/optimizer.py", line 23, in _use_grad
+    ret = func(self, *args, **kwargs)
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/optim/adam.py", line 234, in step
+    adam(params_with_grad,
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/optim/adam.py", line 300, in adam
+    func(params,
+  File "/home/yaocong/miniconda3/envs/torch/lib/python3.9/site-packages/torch/optim/adam.py", line 410, in _single_tensor_adam
+    denom = (exp_avg_sq.sqrt() / bias_correction2_sqrt).add_(eps)
+KeyboardInterrupt

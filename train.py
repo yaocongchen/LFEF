@@ -31,7 +31,7 @@ def train(args):
         
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
     # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
-    cudnn.enabled = True
+    cudnn.enabled = False
 
     # Model import 模型導入
     model = lightssd.Net()
@@ -126,7 +126,7 @@ def train(args):
 
     for epoch in range(start_epoch, args['epochs']+1):
         model.train()
-        cudnn.benchmark= True
+        cudnn.benchmark= False
         count=0
         # Training loop 訓練迴圈 
         pbar = tqdm((training_data_loader),total=len(training_data_loader))
@@ -164,13 +164,13 @@ def train(args):
 
         # Validation loop 驗證迴圈
         count=0
-
+        model.eval()
         pbar = tqdm((validation_data_loader),total=len(validation_data_loader))
         for img_image,mask_image in pbar:
             img_image = img_image.to(device)
             mask_image = mask_image.to(device)
 
-            model.eval()
+            
             
             output_f19, output_f34 = model(img_image)
 
@@ -202,6 +202,7 @@ def train(args):
             #torch.onnx.export(model, onnx_img_image, model_file_nameonnx, verbose=False)
 
     torch.save(state, args['save_dir'] + 'final' +  '.pth')
+    wandb.save(args['save_dir'] + 'final' +  '.pth')
     #torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'final' +  '.onnx', verbose=False)
 
     # Calculation of end time end elapsed time 
@@ -248,7 +249,8 @@ if __name__=="__main__":
     args = vars(ap.parse_args())  #Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
     
     train(args)
-
+    
+    wandb.finish()
     # if args["wandb_name"]!="no":
     #     # Define sweep config
     #     sweep_configuration = {
