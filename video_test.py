@@ -66,12 +66,14 @@ def video_smoke_semantic_test(video_path,model_input):
         if output_np.shape[0] == 1:
             output_np = (output_np[0] + 1)/2.0 *255.0
 
-        im = Image.fromarray(output_np)
-        im.show()
+        #im = Image.fromarray(output_np)
+
+        #im.show()
         cv2.imwrite('test_mask.jpg',output_np)
         #print(output_np.shape)
-        cv2.imshow('frame',frame)
-
+        output_np = cv2.resize(output_np,(1280,720),interpolation = cv2.INTER_AREA)    #插值
+        cv2.imshow('frame',output_np)
+        cv2.imshow('frame1',frame)
         #out.write(frame)
 
         #print(output_np.shape)
