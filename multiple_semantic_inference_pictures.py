@@ -153,9 +153,9 @@ def multiple_smoke_semantic_test(directory,model_input):
         smoke_input_image = transform(smoke_input_image)
         smoke_input_image = (smoke_input_image)/255.0
         smoke_input_image  = smoke_input_image.unsqueeze(0).to(device)
-        output_f19, output_f34 = smoke_semantic(smoke_input_image,model_input)
+        output = smoke_semantic(smoke_input_image,model_input)
         i+=1
-        torchvision.utils.save_image(output_f34 ,"./" + save_smoke_semantic_dir_name + "/" + save_smoke_semantic_image_name  + f"{i}.jpg")
+        torchvision.utils.save_image(output ,"./" + save_smoke_semantic_dir_name + "/" + save_smoke_semantic_image_name  + f"{i}.jpg")
         image_overlap(os.path.join(directory,filename),i)
         image_stitching(os.path.join(directory,filename),i)
 
@@ -163,7 +163,7 @@ def multiple_smoke_semantic_test(directory,model_input):
 if __name__ == "__main__":
     
     ap = argparse.ArgumentParser()
-    ap.add_argument("-td", "--test_directory",default = "/home/yaocong/Experimental/speed_smoke_segmentation/ttt/img/",required=True, help="path to test images directory")
+    ap.add_argument("-td", "--test_directory",default = "/home/yaocong/Experimental/speed_smoke_segmentation/ttt/img",required=True, help="path to test images directory")
     ap.add_argument('-m','--model_path' ,required=True, help="load model path")
     args = vars(ap.parse_args())
 

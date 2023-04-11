@@ -8,11 +8,10 @@ lambda_reg = 0.01
 S = nn.Sigmoid()
 L = nn.BCELoss(reduction='mean')
 
-def CustomLoss(f19, f34, mask):
-    l1_loss = L(S(f34), mask)
-    l2_loss = L(S(f19), mask)
+def CustomLoss(model_output, mask):
+    l1_loss = L(S(model_output), mask)
 
-    total_loss = l1_loss + alpha * l2_loss
+    total_loss = l1_loss
 
     return total_loss
 

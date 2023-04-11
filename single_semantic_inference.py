@@ -113,8 +113,8 @@ def single_smoke_semantic_test(input,model_input):
     # print(smoke_input_image.shape)
     smoke_input_image = (smoke_input_image)/255.0
     smoke_input_image  = smoke_input_image.unsqueeze(0).to(device)
-    output_f19, output_f34 = smoke_semantic(smoke_input_image,model_input)
-    torchvision.utils.save_image(output_f34 ,save_smoke_semantic_image_name + ".jpg")
+    output = smoke_semantic(smoke_input_image,model_input)
+    torchvision.utils.save_image(output ,save_smoke_semantic_image_name + ".jpg")
 
     image_overlap(input)
     image_stitching(input)

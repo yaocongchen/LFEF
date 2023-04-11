@@ -1,0 +1,40 @@
+2023-04-11 15:16:55,560 INFO    MainThread:292530 [wandb_setup.py:_flush():76] Configure stats pid to 292530
+2023-04-11 15:16:55,561 INFO    MainThread:292530 [wandb_setup.py:_flush():76] Loading settings from /home/yaocong/.config/wandb/settings
+2023-04-11 15:16:55,561 INFO    MainThread:292530 [wandb_setup.py:_flush():76] Loading settings from /home/yaocong/Experimental/speed_smoke_segmentation/wandb/settings
+2023-04-11 15:16:55,561 INFO    MainThread:292530 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2023-04-11 15:16:55,561 INFO    MainThread:292530 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2023-04-11 15:16:55,561 INFO    MainThread:292530 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'train.py', 'program': '/home/yaocong/Experimental/speed_smoke_segmentation/train.py'}
+2023-04-11 15:16:55,561 INFO    MainThread:292530 [wandb_init.py:_log_setup():506] Logging user logs to /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230411_151655-y4w8pk9m/logs/debug.log
+2023-04-11 15:16:55,561 INFO    MainThread:292530 [wandb_init.py:_log_setup():507] Logging internal logs to /home/yaocong/Experimental/speed_smoke_segmentation/wandb/run-20230411_151655-y4w8pk9m/logs/debug-internal.log
+2023-04-11 15:16:55,561 INFO    MainThread:292530 [wandb_init.py:init():546] calling init triggers
+2023-04-11 15:16:55,561 INFO    MainThread:292530 [wandb_init.py:init():552] wandb.init called with sweep_config: {}
+config: {'Model_size': '7.90 MB', 'FLOPs': '3.68 GMac', 'Parameters': '2.06 M', 'train_images': '/home/yaocong/Experimental/pytorch_model/dataset/train/images/', 'train_masks': '/home/yaocong/Experimental/pytorch_model/dataset/train/masks/', 'device': 'GPU', 'gpus': '0', 'batch_size': 8, 'num_workers': 1, 'epochs': 150, 'learning_rate': 0.0001, 'save_dir': './checkpoint//bs8e150/', 'resume': '/home/yaocong/Experimental/My_pytorch_model/checkpoint/model_1.pth'}
+2023-04-11 15:16:55,561 INFO    MainThread:292530 [wandb_init.py:init():602] starting backend
+2023-04-11 15:16:55,561 INFO    MainThread:292530 [wandb_init.py:init():606] setting up manager
+2023-04-11 15:16:55,563 INFO    MainThread:292530 [backend.py:_multiprocessing_setup():106] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2023-04-11 15:16:55,572 INFO    MainThread:292530 [wandb_init.py:init():613] backend started and connected
+2023-04-11 15:16:55,577 INFO    MainThread:292530 [wandb_init.py:init():701] updated telemetry
+2023-04-11 15:16:55,602 INFO    MainThread:292530 [wandb_init.py:init():741] communicating run to backend with 60.0 second timeout
+2023-04-11 15:16:56,139 INFO    MainThread:292530 [wandb_run.py:_on_init():2133] communicating current version
+2023-04-11 15:16:56,406 INFO    MainThread:292530 [wandb_run.py:_on_init():2142] got version response upgrade_message: "wandb version 0.14.2 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2023-04-11 15:16:56,406 INFO    MainThread:292530 [wandb_init.py:init():789] starting run threads in backend
+2023-04-11 15:16:57,548 INFO    MainThread:292530 [wandb_run.py:_console_start():2114] atexit reg
+2023-04-11 15:16:57,548 INFO    MainThread:292530 [wandb_run.py:_redirect():1969] redirect: SettingsConsole.WRAP_RAW
+2023-04-11 15:16:57,548 INFO    MainThread:292530 [wandb_run.py:_redirect():2034] Wrapping output streams.
+2023-04-11 15:16:57,548 INFO    MainThread:292530 [wandb_run.py:_redirect():2059] Redirects installed.
+2023-04-11 15:16:57,548 INFO    MainThread:292530 [wandb_init.py:init():831] run started, returning control to user process
+2023-04-11 15:16:57,549 INFO    MainThread:292530 [wandb_config.py:__setitem__():152] config set epochs = 150 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x7f34f4069cd0>>
+2023-04-11 15:16:57,549 INFO    MainThread:292530 [wandb_run.py:_config_callback():1251] config_cb epochs 150 None
+2023-04-11 15:16:57,549 INFO    MainThread:292530 [wandb_config.py:__setitem__():152] config set batch_size = 8 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x7f34f4069cd0>>
+2023-04-11 15:16:57,549 INFO    MainThread:292530 [wandb_run.py:_config_callback():1251] config_cb batch_size 8 None
+2023-04-11 15:16:57,549 INFO    MainThread:292530 [wandb_config.py:__setitem__():152] config set learning_rate = 0.0001 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x7f34f4069cd0>>
+2023-04-11 15:16:57,549 INFO    MainThread:292530 [wandb_run.py:_config_callback():1251] config_cb learning_rate 0.0001 None
+2023-04-11 15:16:57,549 INFO    MainThread:292530 [wandb_watch.py:watch():51] Watching
+2023-04-11 15:34:42,723 INFO    MainThread:292530 [wandb_run.py:_finish():1854] finishing run jhmay56998/lightssd-project/y4w8pk9m
+2023-04-11 15:34:42,723 INFO    MainThread:292530 [wandb_run.py:_atexit_cleanup():2083] got exitcode: 0
+2023-04-11 15:34:42,723 INFO    MainThread:292530 [wandb_run.py:_restore():2066] restore
+2023-04-11 15:34:42,723 INFO    MainThread:292530 [wandb_run.py:_restore():2072] restore done
+2023-04-11 15:34:55,364 INFO    MainThread:292530 [wandb_run.py:_footer_history_summary_info():3422] rendering history
+2023-04-11 15:34:55,372 INFO    MainThread:292530 [wandb_run.py:_footer_history_summary_info():3454] rendering summary
+2023-04-11 15:34:55,373 INFO    MainThread:292530 [wandb_run.py:_footer_sync_info():3380] logging synced files

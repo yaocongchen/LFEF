@@ -8,7 +8,7 @@ import os
 import argparse
 import time
 import dataset       
-import lightssd as lightssd                     # Introducing self-written models 引入自行寫的模型
+import erfnet as erfnet                     # Introducing self-written models 引入自行寫的模型
 import utils
 import numpy as np
 from torch.utils.data import DataLoader
@@ -34,7 +34,7 @@ def train(args):
     cudnn.enabled = False
 
     # Model import 模型導入
-    model = lightssd.Net()
+    model = erfnet.Net(1)
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
@@ -139,12 +139,12 @@ def train(args):
             img_image = Variable(img_image, requires_grad=True)    # Variable storage data supports almost all tensor operations, requires_grad=True: Derivatives can be obtained, and the backwards method can be used to calculate and accumulate gradients
             mask_image = Variable(mask_image, requires_grad=True)  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
 
-            output_f19, output_f34 = model(img_image)
+            output = model(img_image)
             
             optimizer.zero_grad()     # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
         
-            loss = utils.CustomLoss(output_f19, output_f34, mask_image)
-            acc = utils.acc_miou(output_f34,mask_image)
+            loss = utils.CustomLoss(output, mask_image)
+            acc = utils.acc_miou(output,mask_image)
 
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(),0.1)
@@ -160,7 +160,7 @@ def train(args):
             count +=1
             if not os.path.exists("./training_data_captures/"):
                 os.makedirs("./training_data_captures/")
-            torchvision.utils.save_image(torch.cat((mask_image,output_f34),0), "./training_data_captures/" +str(count)+".jpg")
+            torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
 
         # Validation loop 驗證迴圈
         count=0
@@ -172,10 +172,10 @@ def train(args):
 
             
             
-            output_f19, output_f34 = model(img_image)
+            output = model(img_image)
 
-            loss = utils.CustomLoss(output_f19, output_f34, mask_image)
-            acc = utils.acc_miou(output_f34,mask_image)
+            loss = utils.CustomLoss(output, mask_image)
+            acc = utils.acc_miou(output,mask_image)
 
             pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
             pbar.set_postfix(val_loss=loss.item(),val_acc=acc.item())
@@ -188,7 +188,7 @@ def train(args):
             count +=1
             if not os.path.exists("./validation_data_captures/"):
                 os.makedirs("./validation_data_captures/")
-            torchvision.utils.save_image(torch.cat((mask_image,output_f34),0), "./validation_data_captures/" +str(count)+".jpg")
+            torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" +str(count)+".jpg")
 
         # Save model 模型存檔              
         model_file_name = args['save_dir'] + 'model_' + str(epoch) + '.pth'

@@ -39,12 +39,12 @@ def multiple_smoke_semantic_test(args):
         img_image = img_image.to(device)
         mask_image = mask_image.to(device)
 
-        output_f19, output_f34 = smoke_semantic(img_image,args['model_path'])
+        output = smoke_semantic(img_image,args['model_path'])
         count += 1
-        torchvision.utils.save_image(torch.cat((mask_image,output_f34),0),"./" + save_smoke_semantic_dir_name + "/" + save_smoke_semantic_image_name  + f"{count}.jpg")
+        torchvision.utils.save_image(torch.cat((mask_image,output),0),"./" + save_smoke_semantic_dir_name + "/" + save_smoke_semantic_image_name  + f"{count}.jpg")
 
-        loss = utils.CustomLoss(output_f19, output_f34, mask_image)
-        acc = utils.acc_miou(output_f34,mask_image)
+        loss = utils.CustomLoss(output, mask_image)
+        acc = utils.acc_miou(output,mask_image)
 
 
         pbar.set_postfix(test_loss=loss.item(),test_acc=acc.item())

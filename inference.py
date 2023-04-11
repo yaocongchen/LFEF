@@ -7,7 +7,7 @@ import time
 from torchvision.io import read_image
 from zmq import device
 import dataset
-import lightssd as lightssd
+import erfnet as erfnet
 import numpy
 import numpy as np
 from torchvision import transforms
@@ -19,17 +19,16 @@ device = (torch.device('cuda') if torch.cuda.is_available()
 print(f"Training on device {device}.")
 
 def smoke_semantic(input_image,model_path):
-	model = lightssd.Net().to(device)
+	model = erfnet.Net(1).to(device)
 	model.load_state_dict(torch.load(model_path))     
-	#model.eval()
-	output_f19, output_f34 = model(input_image)   # Import model 導進模型
-	return output_f19, output_f34
+	model.eval()
+	output = model(input_image)   # Import model 導進模型
+	return output
 
 if __name__ == "__main__":
 	smoke_input_image = read_image('/home/yaocong/Experimental/speed_smoke_segmentation/123.jpg')
 	transform = transforms.Resize([256, 256])
 	smoke_input_image = transform(smoke_input_image)
-	output_f19, output_f34 = smoke_semantic(smoke_input_image,'/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs32e150/final.pth')
-	print("output_f34:",output_f34.shape)
-	print("output_f19:",output_f19.shape)
-	torchvision.utils.save_image(output_f34 ,"inference" + ".jpg")
+	output = smoke_semantic(smoke_input_image,'/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs32e150/final.pth')
+	print("output_f34:",output.shape)
+	torchvision.utils.save_image(output,"inference" + ".jpg")
