@@ -36,7 +36,7 @@ def video_smoke_semantic_test(video_path,model_input):
     #print(cv2.getBuildInformation())
     #Define the codec and create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('./output.mp4', fourcc, video_FPS, (video_W,video_H),3)
+    out = cv2.VideoWriter('./output.mp4', fourcc, video_FPS, (video_W,video_H),3)   #mp4 only RGB
 
     while cap.isOpened():
         ret,frame = cap.read()
