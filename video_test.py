@@ -30,12 +30,13 @@ def video_smoke_semantic_test(video_path,model_input):
 
     cap = cv2.VideoCapture(video_path)
     # 設定擷取影像的尺寸大小
-    #cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    #cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    video_W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    video_H = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    video_FPS = cap.get(cv2.CAP_PROP_FPS)
     #print(cv2.getBuildInformation())
     #Define the codec and create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('./output.mp4', fourcc, 30.0, (256,256),4)
+    out = cv2.VideoWriter('./output.mp4', fourcc, video_FPS, (video_W,video_H),3)
 
     while cap.isOpened():
         ret,frame = cap.read()
@@ -48,7 +49,7 @@ def video_smoke_semantic_test(video_path,model_input):
         #write the flipped frame
         
         counter += 1
-
+        
         process_frame = frame  
         process_frame = cv2.resize(process_frame,(256,256),interpolation = cv2.INTER_AREA)    #插值
         process_frame = process_frame.astype('float32')      # Normalized 歸一化
@@ -63,8 +64,7 @@ def video_smoke_semantic_test(video_path,model_input):
 
         frame_image = Image.fromarray(frame)
         frame_RGBA = frame_image.convert('RGBA')
-        test_video_L,test_video_H = frame_RGBA.size
-        output_np = cv2.resize(output_np,(test_video_L,test_video_H),interpolation = cv2.INTER_AREA)    #插值
+        output_np = cv2.resize(output_np,(video_W,video_H),interpolation = cv2.INTER_AREA)    #插值
         output_np = Image.fromarray(output_np)
 
         # output_np to binarization output_np轉二值化
@@ -103,7 +103,8 @@ def video_smoke_semantic_test(video_path,model_input):
 
         # Overlay image 疊合影像
         blendImg = Image.blend(frame_RGBA, output_np_RGBA , alpha = 0.2)
-        output_np = np.asarray(blendImg)
+        output_np = blendImg.convert('RGB')
+        output_np = np.asarray(output_np)
 
         
         print("FPS: ",counter / (time.time() - start_time))
@@ -128,7 +129,7 @@ def video_smoke_semantic_test(video_path,model_input):
 if __name__ == "__main__":
     
     ap = argparse.ArgumentParser()
-    ap.add_argument("-tv", "--test_video",default = 0,required=False, help="path to test video path")
+    ap.add_argument("-tv", "--test_video",default = "/home/yaocong/Experimental/speed_smoke_segmentation/Black_smoke_517.avi",required=False, help="path to test video path")
     ap.add_argument('-m',"--model_path" ,default = "/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs8e150/final.pth",required=False, help="load model path")
     args = vars(ap.parse_args())
 
