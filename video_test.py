@@ -2,7 +2,6 @@ import cv2
 from inference import smoke_semantic
 import torch
 import torchvision
-import torch.nn as nn
 import os
 import argparse
 from time import sleep
@@ -19,11 +18,16 @@ device = (torch.device('cuda') if torch.cuda.is_available()
         else torch.device('cpu'))
 print(f"Training on device {device}.")
 
-S = nn.Sigmoid()
+
+binary_mode = False
+print("binary_mode:",binary_mode)
 
 # Main function 主函式
 def video_smoke_semantic_test(video_path,model_input):
     
+    start_time = time.time()
+    counter = 0
+
     cap = cv2.VideoCapture(video_path)
     # 設定擷取影像的尺寸大小
     #cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
@@ -31,7 +35,7 @@ def video_smoke_semantic_test(video_path,model_input):
     #print(cv2.getBuildInformation())
     #Define the codec and create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('./output.mp4', fourcc, 30.0, (256,256),3)
+    out = cv2.VideoWriter('./output.mp4', fourcc, 30.0, (256,256),4)
 
     while cap.isOpened():
         ret,frame = cap.read()
@@ -43,40 +47,72 @@ def video_smoke_semantic_test(video_path,model_input):
         #frame = cv2.flip(frame,0)
         #write the flipped frame
         
+        counter += 1
 
-
-
-        
-        process_frame = frame
-        
+        process_frame = frame  
         process_frame = cv2.resize(process_frame,(256,256),interpolation = cv2.INTER_AREA)    #插值
-
         process_frame = process_frame.astype('float32')      # Normalized 歸一化
         process_frame = process_frame / 255.0
 
-
         video_frame = torch.from_numpy(process_frame).float()
         video_frame=video_frame.permute(2,0,1)
-
         smoke_input_image  = video_frame.unsqueeze(0).to(device)  #add batch
         output = smoke_semantic(smoke_input_image,model_input)
-        #output = S(output)
-        #print(output)
-        output_np=output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255).to("cpu", torch.uint8).detach().numpy()   # remove batch
-        if output_np.shape[0] == 1:
-            output_np = (output_np[0] + 1)/2.0 *255.0
+        output_np=output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).detach().numpy()   # remove batch
+        #cv2.imwrite('test_mask.jpg',output_np)
 
-        #im = Image.fromarray(output_np)
+        frame_image = Image.fromarray(frame)
+        frame_RGBA = frame_image.convert('RGBA')
+        test_video_L,test_video_H = frame_RGBA.size
+        output_np = cv2.resize(output_np,(test_video_L,test_video_H),interpolation = cv2.INTER_AREA)    #插值
+        output_np = Image.fromarray(output_np)
 
-        #im.show()
-        cv2.imwrite('test_mask.jpg',output_np)
-        #print(output_np.shape)
-        output_np = cv2.resize(output_np,(1280,720),interpolation = cv2.INTER_AREA)    #插值
+        # output_np to binarization output_np轉二值化
+        gray = output_np.convert('L')
+        threshold = 200
+
+        table = []
+        for pixel_g in range(256):
+            if pixel_g < threshold:
+                table.append(0)
+            else:
+                table.append(1)
+        binary = gray.point(table, '1')
+        
+        if binary_mode == True:
+            output_np_RGBA = binary.convert('RGBA')
+        else:    
+            output_np_RGBA = output_np.convert('RGBA')
+
+        # output_np_RGBA_show = np.asarray(output_np_RGBA)
+        # cv2.imshow('output_np_RGBA',output_np_RGBA_show)
+
+        L,H = output_np_RGBA.size
+        black_background = (0, 0, 0, 255)
+        #white_mask = (255, 255, 255, 255)
+        for h in range(H):
+            for l in range(L):
+                dot = (l,h)
+                color_1 = output_np_RGBA.getpixel(dot)
+                if color_1 == black_background:
+                    color_1 = color_1[:-1] + (0,)   # Commas are used to create a (tuple) 逗號是用於創造一個(tuple)
+                    output_np_RGBA.putpixel(dot,color_1)
+                else:
+                    color_1 = (0,0,255,) + color_1[3:]  #逗號是用於創造一個(tuple)
+                    output_np_RGBA.putpixel(dot,color_1)
+
+        # Overlay image 疊合影像
+        blendImg = Image.blend(frame_RGBA, output_np_RGBA , alpha = 0.2)
+        output_np = np.asarray(blendImg)
+
+        
+        print("FPS: ",counter / (time.time() - start_time))
+        counter = 0
+        start_time = time.time()
+
+        out.write(output_np)
         cv2.imshow('frame',output_np)
-        cv2.imshow('frame1',frame)
-        #out.write(frame)
-
-        #print(output_np.shape)
+        #cv2.imshow('frame1',frame)
 
         if cv2.waitKey(1) == ord('q'):
             break
@@ -84,7 +120,7 @@ def video_smoke_semantic_test(video_path,model_input):
     #Release everything if job is finished
     cap.release()
     out.release()
-    cv2.destroyAllWindow
+    cv2.destroyAllWindows()
 
     return 
 
@@ -92,8 +128,8 @@ def video_smoke_semantic_test(video_path,model_input):
 if __name__ == "__main__":
     
     ap = argparse.ArgumentParser()
-    ap.add_argument("-tv", "--test_video",default = "/home/yaocong/Experimental/speed_smoke_segmentation/smoke_video.mp4",required=True, help="path to test video path")
-    ap.add_argument('-m','--model_path' ,required=True, help="load model path")
+    ap.add_argument("-tv", "--test_video",default = 0,required=False, help="path to test video path")
+    ap.add_argument('-m',"--model_path" ,default = "/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs8e150/final.pth",required=False, help="load model path")
     args = vars(ap.parse_args())
 
 # Calculate the total execution time 計算總執行時間  
