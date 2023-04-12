@@ -77,12 +77,12 @@ def image_overlap(input_image):
     img1=img1.resize(imgSize)
     img2=img2.resize(imgSize)
 
-    L,H = img2.size
+    W,H = img2.size
     black_background = (0, 0, 0, 255)
 
     for h in range(H):
-        for l in range(L):
-            dot = (l,h)
+        for w in range(W):
+            dot = (w,h)
             color_1 = img2.getpixel(dot)
             if color_1 == black_background:
                 color_1 = color_1[:-1] + (0,)   # Commas are used to create a (tuple) 逗號是用於創造一個(tuple)

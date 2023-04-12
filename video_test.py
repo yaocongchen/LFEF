@@ -87,12 +87,12 @@ def video_smoke_semantic_test(video_path,model_input):
         # output_np_RGBA_show = np.asarray(output_np_RGBA)
         # cv2.imshow('output_np_RGBA',output_np_RGBA_show)
 
-        L,H = output_np_RGBA.size
+        W,H = output_np_RGBA.size
         black_background = (0, 0, 0, 255)
         #white_mask = (255, 255, 255, 255)
         for h in range(H):
-            for l in range(L):
-                dot = (l,h)
+            for w in range(W):
+                dot = (w,h)
                 color_1 = output_np_RGBA.getpixel(dot)
                 if color_1 == black_background:
                     color_1 = color_1[:-1] + (0,)   # Commas are used to create a (tuple) 逗號是用於創造一個(tuple)
@@ -129,8 +129,8 @@ def video_smoke_semantic_test(video_path,model_input):
 if __name__ == "__main__":
     
     ap = argparse.ArgumentParser()
-    ap.add_argument("-tv", "--test_video",default = "/home/yaocong/Experimental/speed_smoke_segmentation/Black_smoke_517.avi",required=False, help="path to test video path")
-    ap.add_argument('-m',"--model_path" ,default = "/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs8e150/final.pth",required=False, help="load model path")
+    ap.add_argument("-tv", "--test_video",type=int,required=True, help="path to test video path")
+    ap.add_argument('-m',"--model_path" ,required=True, help="load model path")
     args = vars(ap.parse_args())
 
 # Calculate the total execution time 計算總執行時間  

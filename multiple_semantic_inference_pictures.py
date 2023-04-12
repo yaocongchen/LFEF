@@ -120,13 +120,13 @@ def image_overlap(input_image,i):
     img1=img1.resize(imgSize)
     img2=img2.resize(imgSize)
 
-    L,H = img2.size
+    W,H = img2.size
     black_background = (0, 0, 0, 255)
     #white_mask = (255, 255, 255, 255)
 
     for h in range(H):
-        for l in range(L):
-            dot = (l,h)
+        for w in range(W):
+            dot = (w,h)
             color_1 = img2.getpixel(dot)
             if color_1 == black_background:
                 color_1 = color_1[:-1] + (0,)   # Commas are used to create a (tuple) 逗號是用於創造一個(tuple)
@@ -163,7 +163,7 @@ def multiple_smoke_semantic_test(directory,model_input):
 if __name__ == "__main__":
     
     ap = argparse.ArgumentParser()
-    ap.add_argument("-td", "--test_directory",default = "/home/yaocong/Experimental/speed_smoke_segmentation/ttt/img",required=True, help="path to test images directory")
+    ap.add_argument("-td", "--test_directory",required=True, help="path to test images directory")
     ap.add_argument('-m','--model_path' ,required=True, help="load model path")
     args = vars(ap.parse_args())
 
