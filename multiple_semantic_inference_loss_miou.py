@@ -3,14 +3,12 @@ import torch
 import torchvision
 import os
 import argparse
-from time import sleep
-from tqdm import tqdm
-from torchvision import transforms
-from torchvision.io import read_image
+import time
 import shutil
 import time
 import dataset
 import utils
+from tqdm import tqdm
 from torch.utils.data import DataLoader
 
 device = (torch.device('cuda') if torch.cuda.is_available()

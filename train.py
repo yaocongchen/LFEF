@@ -1,6 +1,5 @@
 # %%
 import torch
-import torch.nn as nn
 import torchvision
 import torch.backends.cudnn as cudnn
 import torch.optim
@@ -10,9 +9,7 @@ import time
 import dataset       
 import erfnet as erfnet                     # Introducing self-written models 引入自行寫的模型
 import utils
-import numpy as np
 from torch.utils.data import DataLoader
-from torchvision import transforms  # Introducing related packages 引入相關套件
 from tqdm import tqdm
 from torch.autograd import Variable
 
@@ -235,7 +232,7 @@ if __name__=="__main__":
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
     
-    ap.add_argument('-bs','--batch_size',type=int, default = 8, help="set batch_size")
+    ap.add_argument('-bs','--batch_size',type=int, default = 2, help="set batch_size")
     ap.add_argument('-nw','--num_workers' ,type=int,default = 1 , help="set num_workers")
     ap.add_argument('-e', '--epochs', type = int , default=150,  help="number of epochs for training")
     ap.add_argument('-lr', '--learning_rate', type = float ,default=0.0001, help="learning rate for training")

@@ -1,18 +1,10 @@
 import torch
-import torch.nn as nn
 import torchvision
-import torch.backends.cudnn as cudnn
 import torch.optim
-import time
 from torchvision.io import read_image
 from zmq import device
-import dataset
 import erfnet as erfnet
-import numpy
-import numpy as np
 from torchvision import transforms
-from PIL import Image
-from matplotlib import pyplot as plt
 
 device = (torch.device('cuda') if torch.cuda.is_available()
         else torch.device('cpu'))
