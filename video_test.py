@@ -1,15 +1,7 @@
 import cv2
 from inference import smoke_semantic
 import torch
-import torchvision
-import os
 import argparse
-from time import sleep
-from tqdm import tqdm
-from torchvision import transforms
-from torchvision.io import read_image
-from PIL import Image, ImageOps
-import shutil
 import time
 from PIL import Image
 import numpy as np
@@ -24,10 +16,12 @@ print("binary_mode:",binary_mode)
 
 # Main function 主函式
 def video_smoke_semantic_test(video_path,model_input):
-    
+   
     start_time = time.time()
     counter = 0
-
+    
+    if video_path == '0':
+        video_path=int(video_path)
     cap = cv2.VideoCapture(video_path)
     # 設定擷取影像的尺寸大小
     video_W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -36,7 +30,7 @@ def video_smoke_semantic_test(video_path,model_input):
     #print(cv2.getBuildInformation())
     #Define the codec and create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('./output.mp4', fourcc, video_FPS, (video_W,video_H),3)   #mp4 only RGB
+    out = cv2.VideoWriter('./results/output.mp4', fourcc, video_FPS, (video_W,video_H),3)   #mp4 only RGB
 
     while cap.isOpened():
         ret,frame = cap.read()
@@ -129,20 +123,8 @@ def video_smoke_semantic_test(video_path,model_input):
 if __name__ == "__main__":
     
     ap = argparse.ArgumentParser()
-    ap.add_argument("-tv", "--test_video",type=int,required=True, help="path to test video path")
+    ap.add_argument("-vs", "--video_source",type = str,required=True, help="path to test video path")
     ap.add_argument('-m',"--model_path" ,required=True, help="load model path")
     args = vars(ap.parse_args())
 
-# Calculate the total execution time 計算總執行時間  
-    time_start = time.time()
-    video_smoke_semantic_test(args["test_video"],args['model_path'])
-#     total_image = len(os.listdir(args["test_directory"]))
-#     time_end = time.time()
-#     spend_time = int(time_end-time_start) 
-#     time_min = spend_time // 60 
-#     time_sec = spend_time % 60
-#     print('totally cost:',f"{time_min}m {time_sec}s")
-#     #print(total_image)
-
-# # Calculate FPS
-#     print("FPS:{:.1f}".format(total_image/(time_end-time_start)))
+    video_smoke_semantic_test(args["video_source"],args['model_path'])

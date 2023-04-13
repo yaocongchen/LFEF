@@ -7,10 +7,10 @@ from torchvision.io import read_image
 from PIL import Image, ImageOps
 
 # Set archive name 設定存檔名稱
-save_smoke_semantic_image_name = "./smoke_semantic"
-save_image_binary_name = "./binary"
-save_image_overlap_name  = "./image_overlap"
-save_image_stitching_name = "./image_stitching"
+save_smoke_semantic_image_name = "./results/smoke_semantic"
+save_image_binary_name = "./results/binary"
+save_image_overlap_name  = "./results/image_overlap"
+save_image_stitching_name = "./results/image_stitching"
 
 # Merge all resulting images 合併所有產生之圖像
 def image_stitching(input_image):
