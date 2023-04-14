@@ -6,16 +6,19 @@ import torch.optim
 import os 
 import argparse
 import time
-import dataset       
-import erfnet as erfnet                     # Introducing self-written models 引入自行寫的模型
-import utils
-from torch.utils.data import DataLoader
 from tqdm import tqdm
 from torch.autograd import Variable
-
-import torch.onnx
-onnx_img_image = []
 import wandb
+import torch.onnx
+from torch.utils.data import DataLoader
+
+#import self-written modules
+import models.erfnet as network_model                    # import self-written models 引入自行寫的模型
+import utils.dataset as dataset     
+import utils.loss as binary_cross_entropy_loss
+import utils.metrics as metrics
+
+onnx_img_image = []
 
 def train(args):
 
@@ -31,11 +34,11 @@ def train(args):
     cudnn.enabled = False
 
     # Model import 模型導入
-    model = erfnet.Net(1)
+    model = network_model.Net(1)
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
-    c = utils.Calculate(model)
+    c = metrics.Calculate(model)
     model_size = c.get_model_size()
     flops,params = c.get_params()
     
@@ -140,8 +143,8 @@ def train(args):
             
             optimizer.zero_grad()     # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
         
-            loss = utils.CustomLoss(output, mask_image)
-            acc = utils.acc_miou(output,mask_image)
+            loss = binary_cross_entropy_loss.CustomLoss(output, mask_image)
+            acc = metrics.acc_miou(output,mask_image)
 
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(),0.1)
@@ -171,8 +174,8 @@ def train(args):
             
             output = model(img_image)
 
-            loss = utils.CustomLoss(output, mask_image)
-            acc = utils.acc_miou(output,mask_image)
+            loss = binary_cross_entropy_loss.CustomLoss(output, mask_image)
+            acc = metrics.acc_miou(output,mask_image)
 
             pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
             pbar.set_postfix(val_loss=loss.item(),val_acc=acc.item())

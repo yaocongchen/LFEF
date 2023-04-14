@@ -2,19 +2,7 @@ import torch
 import torch.nn as nn
 from ptflops import get_model_complexity_info
 
-alpha = 0.5 
-lambda_reg = 0.01
-
 S = nn.Sigmoid()
-L = nn.BCELoss(reduction='mean')
-
-def CustomLoss(model_output, mask):
-    l1_loss = L(S(model_output), mask)
-
-    total_loss = l1_loss
-
-    return total_loss
-
 
 def acc_miou(model_output,mask, smooth=1):             # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
     model_output = S(model_output)
@@ -56,4 +44,3 @@ class Calculate():
     
     def get_params(self):
         return self.params
-
