@@ -11,6 +11,6 @@ if __name__ == "__main__":
 
     #test.video.smoke_segmentation(args['source'],args['model_path'])
     #test.single_picture.smoke_segmentation(args['source'],args['model_path'])
-    #test.multiple_pictures.smoke_segmentation(args['source'],args['model_path'])
+    test.multiple_pictures.smoke_segmentation(args['source'],args['model_path'])
 
     
