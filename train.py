@@ -14,9 +14,10 @@ from torch.utils.data import DataLoader
 
 #import self-written modules
 import models.erfnet as network_model                    # import self-written models 引入自行寫的模型
-import utils.dataset as dataset     
-import utils.loss as binary_cross_entropy_loss
-import utils.metrics as metrics
+import utils
+# import utils.dataset as dataset     
+# import utils.loss as binary_cross_entropy_loss
+# import utils.metrics as metrics
 
 onnx_img_image = []
 
@@ -38,7 +39,7 @@ def train(args):
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
-    c = metrics.Calculate(model)
+    c = utils.metrics.Calculate(model)
     model_size = c.get_model_size()
     flops,params = c.get_params()
     
@@ -68,9 +69,9 @@ def train(args):
 
     
     # Import data導入資料
-    training_data = dataset.DataLoaderSegmentation(args['train_images'],
+    training_data = utils.dataset.DataLoaderSegmentation(args['train_images'],
                                                 args['train_masks'])
-    validation_data = dataset.DataLoaderSegmentation(args['train_images'],
+    validation_data = utils.dataset.DataLoaderSegmentation(args['train_images'],
                                                 args['train_masks'],mode = 'val')
     training_data_loader = DataLoader(training_data ,batch_size= args['batch_size'], shuffle = True, num_workers = args['num_workers'], pin_memory = True, drop_last=True)
     validation_data_loader = DataLoader(validation_data, batch_size = args['batch_size'], shuffle = True, num_workers = args['num_workers'], pin_memory = True, drop_last=True)
@@ -142,9 +143,9 @@ def train(args):
             output = model(img_image)
             
             optimizer.zero_grad()     # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
-        
-            loss = binary_cross_entropy_loss.CustomLoss(output, mask_image)
-            acc = metrics.acc_miou(output,mask_image)
+            
+            loss = utils.loss.CustomLoss(output, mask_image)
+            acc = utils.metrics.acc_miou(output,mask_image)
 
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(),0.1)
@@ -169,13 +170,11 @@ def train(args):
         for img_image,mask_image in pbar:
             img_image = img_image.to(device)
             mask_image = mask_image.to(device)
-
-            
             
             output = model(img_image)
 
-            loss = binary_cross_entropy_loss.CustomLoss(output, mask_image)
-            acc = metrics.acc_miou(output,mask_image)
+            loss = utils.loss.CustomLoss(output, mask_image)
+            acc = utils.metrics.acc_miou(output,mask_image)
 
             pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
             pbar.set_postfix(val_loss=loss.item(),val_acc=acc.item())
