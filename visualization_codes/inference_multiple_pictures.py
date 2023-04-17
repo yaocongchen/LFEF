@@ -1,4 +1,4 @@
-from test.inference import smoke_semantic
+from visualization_codes.inference import smoke_semantic
 import torch
 import torchvision
 import os
@@ -13,7 +13,7 @@ import time
 
 device = (torch.device('cuda') if torch.cuda.is_available()
         else torch.device('cpu'))
-print(f"Training on device {device}.")
+print(f"Dataset on device {device}.")
 
 # Set save folder and save name 設定存檔資料夾與存檔名稱
 save_smoke_semantic_dir_name = "multiple_result"
@@ -160,26 +160,26 @@ def smoke_segmentation(directory,model_input):
         image_stitching(os.path.join(directory,filename),i)
 
     return 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     
-    ap = argparse.ArgumentParser()
-    ap.add_argument("-td", "--test_directory",required=True, help="path to test images directory")
-    ap.add_argument('-m','--model_path' ,required=True, help="load model path")
-    args = vars(ap.parse_args())
+#     ap = argparse.ArgumentParser()
+#     ap.add_argument("-td", "--test_directory",required=True, help="path to test images directory")
+#     ap.add_argument('-m','--model_path' ,required=True, help="load model path")
+#     args = vars(ap.parse_args())
 
-# Calculate the total execution time 計算總執行時間  
-    time_start = time.time()
-    smoke_segmentation(args["test_directory"],args['model_path'])
-    total_image = len(os.listdir(args["test_directory"]))
-    time_end = time.time()
-    spend_time = int(time_end-time_start) 
-    time_min = spend_time // 60 
-    time_sec = spend_time % 60
-    print('totally cost:',f"{time_min}m {time_sec}s")
-    #print(total_image)
+# # Calculate the total execution time 計算總執行時間  
+#     time_start = time.time()
+#     smoke_segmentation(args["test_directory"],args['model_path'])
+#     total_image = len(os.listdir(args["test_directory"]))
+#     time_end = time.time()
+#     spend_time = int(time_end-time_start) 
+#     time_min = spend_time // 60 
+#     time_sec = spend_time % 60
+#     print('totally cost:',f"{time_min}m {time_sec}s")
+#     #print(total_image)
 
-# Calculate FPS
-    print("FPS:{:.1f}".format(total_image/(time_end-time_start)))
+# # Calculate FPS
+#     print("FPS:{:.1f}".format(total_image/(time_end-time_start)))
 
 
 

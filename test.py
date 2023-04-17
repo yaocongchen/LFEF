@@ -1,4 +1,4 @@
-from test.inference import smoke_semantic
+from visualization_codes.inference import smoke_semantic
 import torch
 import torchvision
 import os

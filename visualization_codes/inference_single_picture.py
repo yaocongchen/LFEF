@@ -1,6 +1,6 @@
 import torch
 import torchvision
-from test.inference import smoke_semantic
+from visualization_codes.inference import smoke_semantic
 import argparse
 from torchvision import transforms
 from torchvision.io import read_image
@@ -102,7 +102,7 @@ def image_overlap(input_image):
 
 device = (torch.device('cuda') if torch.cuda.is_available()
         else torch.device('cpu'))
-print(f"Training on device {device}.")
+print(f"Dataset on device {device}.")
 
 # Main function 主函式 
 def smoke_segmentation(input,model_input):
@@ -119,11 +119,11 @@ def smoke_segmentation(input,model_input):
     image_overlap(input)
     image_stitching(input)
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     
-    ap = argparse.ArgumentParser()
-    ap.add_argument('-i', '--image', required=True, help="path to input image")      # If the name of the input file in the terminal has "(" ")", please rewrite it as "\(" "\)" #如果在terminal輸入檔案的名稱有"("  ")"請改寫為  "\("   "\)"
-    ap.add_argument('-m','--model_path', required=True, help="load model path")
-    args = vars(ap.parse_args())
+#     ap = argparse.ArgumentParser()
+#     ap.add_argument('-i', '--image', required=True, help="path to input image")      # If the name of the input file in the terminal has "(" ")", please rewrite it as "\(" "\)" #如果在terminal輸入檔案的名稱有"("  ")"請改寫為  "\("   "\)"
+#     ap.add_argument('-m','--model_path', required=True, help="load model path")
+#     args = vars(ap.parse_args())
     
-    smoke_segmentation(args['image'],args['model_path'])
+#     smoke_segmentation(args['image'],args['model_path'])

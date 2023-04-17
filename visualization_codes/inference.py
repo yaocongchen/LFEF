@@ -10,7 +10,7 @@ from models import erfnet
 
 device = (torch.device('cuda') if torch.cuda.is_available()
         else torch.device('cpu'))
-print(f"Training on device {device}.")
+print(f"Testing on device {device}.")
 
 def smoke_semantic(input_image,model_path):
 	model = erfnet.Net(1).to(device)
