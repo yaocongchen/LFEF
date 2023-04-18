@@ -12,7 +12,7 @@ device = (torch.device('cuda') if torch.cuda.is_available()
         else torch.device('cpu'))
 print(f"Testing on device {device}.")
 
-def smoke_semantic(input_image,model_path):
+def smoke_semantic(input_image,model_path, device=device):
 	model = erfnet.Net(1).to(device)
 	model.load_state_dict(torch.load(model_path))     
 	model.eval()

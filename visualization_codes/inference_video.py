@@ -8,8 +8,7 @@ import numpy as np
 
 device = (torch.device('cuda') if torch.cuda.is_available()
         else torch.device('cpu'))
-print(f"Dataset on device {device}.")
-
+print(f"video on device {device}.")
 
 binary_mode = False
 print("binary_mode:",binary_mode)
@@ -120,11 +119,11 @@ def smoke_segmentation(video_path,model_input):
     return 
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
     
-#     ap = argparse.ArgumentParser()
-#     ap.add_argument("-vs", "--video_source",type = str,required=True, help="path to test video path")
-#     ap.add_argument('-m',"--model_path" ,required=True, help="load model path")
-#     args = vars(ap.parse_args())
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-vs", "--video_source",type = str,required=True, help="path to test video path")
+    ap.add_argument('-m',"--model_path" ,required=True, help="load model path")
+    args = vars(ap.parse_args())
 
-#     smoke_segmentation(args["video_source"],args['model_path'])
+    smoke_segmentation(args["video_source"],args['model_path'])
