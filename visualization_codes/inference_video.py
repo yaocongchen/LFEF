@@ -5,6 +5,7 @@ import argparse
 import time
 from PIL import Image
 import numpy as np
+import os
 
 # Main function 主函式
 def smoke_segmentation(video_path,model_input,device,binary_mode):
@@ -21,6 +22,8 @@ def smoke_segmentation(video_path,model_input,device,binary_mode):
     video_FPS = cap.get(cv2.CAP_PROP_FPS)
     #print(cv2.getBuildInformation())
     #Define the codec and create VideoWriter object
+    if not os.path.exists("./" + "results"):
+        os.makedirs("./" + "results")
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter('./results/output.mp4', fourcc, video_FPS, (video_W,video_H),3)   #mp4 only RGB
 

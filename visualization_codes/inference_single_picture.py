@@ -2,12 +2,15 @@ import torch
 import torchvision
 from visualization_codes.inference import smoke_semantic
 import argparse
+import os
 from torchvision import transforms
 from torchvision.io import read_image
 from PIL import Image, ImageOps
 
 def files_name():
     # Set archive name 設定存檔名稱
+    if not os.path.exists("./" + "results"):
+        os.makedirs("./" + "results")
     save_smoke_semantic_image_name = "./results/smoke_semantic"
     save_image_binary_name = "./results/binary"
     save_image_overlap_name  = "./results/image_overlap"
@@ -55,7 +58,7 @@ def image_stitching(input_image,names):
 def image_overlap(input_image,names):
     img1 = Image.open(input_image)
     img1 = img1.convert('RGBA')
-    img2 = Image.open(names[1] + ".jpg")
+    img2 = Image.open(names[0] + ".jpg")
 
     # img2 to binarization img2轉二值化
     gray = img2.convert('L')
@@ -69,7 +72,7 @@ def image_overlap(input_image,names):
             table.append(1)
 
     binary = gray.point(table, '1')
-    binary.save(names[2] + ".jpg")
+    binary.save(names[1] + ".jpg")
     img2 = binary.convert('RGBA')
 
 
