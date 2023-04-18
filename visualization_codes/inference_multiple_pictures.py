@@ -49,16 +49,26 @@ def folders_and_files_name():
         os.makedirs("./" + save_image_stitching_dir_name)
     save_image_stitching_name = "image_stitching_"
 
-    return save_smoke_semantic_dir_name,save_smoke_semantic_image_name,save_image_binary_dir_name,save_image_binary_name,save_image_overlap_dir_name,save_image_overlap_name,save_image_stitching_dir_name,save_image_stitching_name
+    names = {}
+    names["smoke_semantic_dir_name"] = save_smoke_semantic_dir_name
+    names["smoke_semantic_image_name"] = save_smoke_semantic_image_name
+    names["image_binary_dir_name"] = save_image_binary_dir_name
+    names["image_binary_name"] = save_image_binary_name
+    names["image_overlap_dir_name"] = save_image_overlap_dir_name
+    names["image_overlap_name"] = save_image_overlap_name
+    names["image_stitching_dir_name"] = save_image_stitching_dir_name
+    names["image_stitching_name"] = save_image_stitching_name
+
+    return names
 
 # Merge all resulting images 合併所有產生之圖像
 def image_stitching(input_image,i,names):
     bg = Image.new('RGB',(1200, 300), '#000000') # Produces a 1200 x 300 all black image 產生一張 1200x300 的全黑圖片
     # Load two images 載入兩張影像
     img1 = Image.open(input_image)
-    img2 = Image.open("./" + names[0] + "/" + names[1]  + f"{i}.jpg")
-    img3 = Image.open("./" + names[2] + "/" + names[3] + f"{i}.jpg")
-    img4 = Image.open("./" + names[4] + "/" + names[5] + f"{i}.png")
+    img2 = Image.open("./" + names["smoke_semantic_dir_name"] + "/" + names["smoke_semantic_image_name"]  + f"{i}.jpg")
+    img3 = Image.open("./" + names["image_binary_dir_name"] + "/" + names["image_binary_name"]  + f"{i}.jpg")
+    img4 = Image.open("./" + names["image_overlap_dir_name"]  + "/" + names["image_overlap_name"] + f"{i}.png")
 
 
     # Check if the two images are the same size 檢查兩張影像大小是否一致
@@ -85,7 +95,7 @@ def image_stitching(input_image,i,names):
     bg.paste(img4, (900, 0))
 
     #bg.show()
-    bg.save("./" + names[6] + "/" + names[7] + f"{i}.jpg")
+    bg.save("./" + names["image_stitching_dir_name"] + "/" + names["image_stitching_name"] + f"{i}.jpg")
 
     return
 
@@ -93,7 +103,7 @@ def image_stitching(input_image,i,names):
 def image_overlap(input_image,i,names):
     img1 = Image.open(input_image)
     img1 = img1.convert('RGBA')
-    img2 = Image.open("./" + names[0] + "/" + names[1]  + f"{i}.jpg")
+    img2 = Image.open("./" + names["smoke_semantic_dir_name"] + "/" + names["smoke_semantic_image_name"]  + f"{i}.jpg")
 
     # img2 to binarization img2轉二值化
     gray = img2.convert('L')
@@ -108,7 +118,7 @@ def image_overlap(input_image,i,names):
             table.append(1)
 
     binary = gray.point(table, '1')
-    binary.save("./" + names[2] + "/" + names[3] + f"{i}.jpg")
+    binary.save("./" + names["image_binary_dir_name"] + "/" + names["image_binary_name"]  + f"{i}.jpg")
 
     img2 = binary.convert('RGBA')
 
@@ -138,12 +148,12 @@ def image_overlap(input_image,i,names):
     blendImg = Image.blend(img1, img2 , alpha = 0.2)
     # Display image 顯示影像
     #blendImg.show()
-    blendImg.save("./" + names[4] + "/" + names[5] + f"{i}.png")
+    blendImg.save("./" + names["image_overlap_dir_name"]  + "/" + names["image_overlap_name"] + f"{i}.png")
 
     return
 
 # Main function 主函式
-def smoke_segmentation(directory,model_input,device,names):
+def smoke_segmentation(directory:str,model_input:str,device:torch.device,names:dict):
     i = 0
     pbar = tqdm((os.listdir(directory)),total=len(os.listdir(directory)))
     for filename in pbar:
@@ -154,11 +164,12 @@ def smoke_segmentation(directory,model_input,device,names):
         smoke_input_image  = smoke_input_image.unsqueeze(0).to(device)
         output = smoke_semantic(smoke_input_image,model_input,device)
         i+=1
-        torchvision.utils.save_image(output ,"./" + names[0] + "/" + names[1]  + f"{i}.jpg")
+        torchvision.utils.save_image(output ,"./" + names["smoke_semantic_dir_name"] + "/" + names["smoke_semantic_image_name"]  + f"{i}.jpg")
         image_overlap(os.path.join(directory,filename),i,names)
         image_stitching(os.path.join(directory,filename),i,names)
 
     return 
+
 if __name__ == "__main__":
     
     ap = argparse.ArgumentParser()

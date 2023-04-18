@@ -4,12 +4,13 @@ import os
 import time
 from visualization_codes import inference_single_picture,inference_multiple_pictures,inference_video
 
-def smoke_segmentation(device,save_img_or_video = False):
+def smoke_segmentation(device):
     source = args['source']
 
     if os.path.isdir(source):
 
         names = inference_multiple_pictures.folders_and_files_name()
+
         total_image = len(os.listdir(args["source"]))
         time_start = time.time()
         inference_multiple_pictures.smoke_segmentation(args['source'],args['model_path'],device,names)
@@ -32,13 +33,15 @@ def smoke_segmentation(device,save_img_or_video = False):
             inference_single_picture.smoke_segmentation(args['source'],args['model_path'],device,names)
         elif extension in ['.mp4', '.avi']:
             binary_mode = True
-            inference_video.smoke_segmentation(args['source'],args['model_path'],device,binary_mode)
+            inference_video.smoke_segmentation(args['source'],args['model_path'],device,binary_mode,args["save_video"],args['show_video'])
 
 if __name__ == "__main__":
     
     ap = argparse.ArgumentParser()
-    ap.add_argument("-s", "--source",type = str,default = '/home/yaocong/Experimental/speed_smoke_segmentation/test_files/smoke_video.mp4',required=False, help="path to test video path")
+    ap.add_argument('-s', "--source",type = str,default = '/home/yaocong/Experimental/speed_smoke_segmentation/test_files/Dry_leaf_smoke_02.avi',required=False, help="path to test video path")
     ap.add_argument('-m',"--model_path" ,default = '/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs8e150/final.pth ',required=False, help="load model path")
+    ap.add_argument('-save',"--save_video" ,type = str,default = 'True',required=False, help="save video")  #argparse.ArgumentParser()無法辨識boolean
+    ap.add_argument('-show',"--show_video" ,type = str,default = 'True',required=False, help="save video") 
     args = vars(ap.parse_args())
 
     device = (torch.device('cuda') if torch.cuda.is_available()

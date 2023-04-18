@@ -16,16 +16,22 @@ def files_name():
     save_image_overlap_name  = "./results/image_overlap"
     save_image_stitching_name = "./results/image_stitching"
 
-    return save_smoke_semantic_image_name,save_image_binary_name,save_image_overlap_name,save_image_stitching_name
+    names = {}
+    names["smoke_semantic_image_name"] = save_smoke_semantic_image_name
+    names["image_binary_name"] = save_image_binary_name
+    names["image_overlap_name"] = save_image_overlap_name
+    names["image_stitching_name"] = save_image_stitching_name
+
+    return names
 
 # Merge all resulting images 合併所有產生之圖像
 def image_stitching(input_image,names):
     bg = Image.new('RGB',(1200, 300), '#000000') # 產生一張 600x300 的全黑圖片
     # Load two images 載入兩張影像
     img1 = Image.open(input_image)
-    img2 = Image.open(names[0] + ".jpg")
-    img3 = Image.open(names[1] + ".jpg")
-    img4 = Image.open(names[2] + ".png")
+    img2 = Image.open(names["smoke_semantic_image_name"] + ".jpg")
+    img3 = Image.open(names["image_binary_name"] + ".jpg")
+    img4 = Image.open(names["image_overlap_name"] + ".png")
 
 
     # Check if the two images are the same size 檢查兩張影像大小是否一致
@@ -50,7 +56,7 @@ def image_stitching(input_image,names):
     bg.paste(img4, (900, 0))
 
     #bg.show()
-    bg.save(names[3]+ ".jpg")
+    bg.save(names["image_stitching_name"]+ ".jpg")
 
     return
 
@@ -58,7 +64,7 @@ def image_stitching(input_image,names):
 def image_overlap(input_image,names):
     img1 = Image.open(input_image)
     img1 = img1.convert('RGBA')
-    img2 = Image.open(names[0] + ".jpg")
+    img2 = Image.open(names["smoke_semantic_image_name"] + ".jpg")
 
     # img2 to binarization img2轉二值化
     gray = img2.convert('L')
@@ -72,7 +78,7 @@ def image_overlap(input_image,names):
             table.append(1)
 
     binary = gray.point(table, '1')
-    binary.save(names[1] + ".jpg")
+    binary.save(names["image_binary_name"] + ".jpg")
     img2 = binary.convert('RGBA')
 
 
@@ -102,12 +108,12 @@ def image_overlap(input_image,names):
     blendImg = Image.blend(img1, img2 , alpha = 0.2)
     # Display image 顯示影像
     #blendImg.show()
-    blendImg.save(names[2] + ".png")
+    blendImg.save(names["image_overlap_name"] + ".png")
     
     return
 
 # Main function 主函式 
-def smoke_segmentation(input,model_input,device,names):
+def smoke_segmentation(input:str,model_input:str,device:torch.device,names:dict):
     smoke_input_image = read_image(input)
     # print(smoke_input_image.shape)
     transform = transforms.Resize([256, 256])
@@ -116,7 +122,7 @@ def smoke_segmentation(input,model_input,device,names):
     smoke_input_image = (smoke_input_image)/255.0
     smoke_input_image  = smoke_input_image.unsqueeze(0).to(device)
     output = smoke_semantic(smoke_input_image,model_input,device)
-    torchvision.utils.save_image(output ,names[0] + ".jpg")
+    torchvision.utils.save_image(output ,names["smoke_semantic_image_name"] + ".jpg")
 
     image_overlap(input,names)
     image_stitching(input,names)

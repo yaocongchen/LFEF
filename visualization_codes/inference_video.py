@@ -8,8 +8,11 @@ import numpy as np
 import os
 
 # Main function 主函式
-def smoke_segmentation(video_path,model_input,device,binary_mode):
+def smoke_segmentation(video_path:str,model_input:str,device:torch.device,binary_mode:bool,save_video:str,show_video:str):
     print("binary_mode:",binary_mode)
+    print("save_video:",save_video)
+    print("show_video:",show_video)
+
     start_time = time.time()
     counter = 0
     
@@ -22,10 +25,11 @@ def smoke_segmentation(video_path,model_input,device,binary_mode):
     video_FPS = cap.get(cv2.CAP_PROP_FPS)
     #print(cv2.getBuildInformation())
     #Define the codec and create VideoWriter object
-    if not os.path.exists("./" + "results"):
-        os.makedirs("./" + "results")
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter('./results/output.mp4', fourcc, video_FPS, (video_W,video_H),3)   #mp4 only RGB
+    if save_video == 'True':
+        if not os.path.exists("./" + "results"):
+            os.makedirs("./" + "results")
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter('./results/output.mp4', fourcc, video_FPS, (video_W,video_H),3)   #mp4 only RGB
 
     while cap.isOpened():
         ret,frame = cap.read()
@@ -100,9 +104,12 @@ def smoke_segmentation(video_path,model_input,device,binary_mode):
         counter = 0
         start_time = time.time()
 
-        out.write(output_np)
-        cv2.imshow('frame',output_np)
-        #cv2.imshow('frame1',frame)
+        if save_video == 'True':
+            out.write(output_np)
+
+        if show_video == 'True':
+            cv2.imshow('frame',output_np)
+            #cv2.imshow('frame1',frame)
 
         if cv2.waitKey(1) == ord('q'):
             break
@@ -129,4 +136,5 @@ if __name__ == "__main__":
     binary_mode = False
     print("binary_mode:",binary_mode)
 
-    smoke_segmentation(args["video_source"],args['model_path'],device,binary_mode)
+    save_video = True
+    smoke_segmentation(args["video_source"],args['model_path'],device,binary_mode,save_video)
