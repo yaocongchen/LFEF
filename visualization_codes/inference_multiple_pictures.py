@@ -11,55 +11,54 @@ from PIL import Image, ImageOps
 import shutil
 import time
 
-device = (torch.device('cuda') if torch.cuda.is_available()
-        else torch.device('cpu'))
-print(f"inference_multiple_Dataset on device {device}.")
+def folders_and_files_name():
+        # Set save folder and save name 設定存檔資料夾與存檔名稱
+    save_smoke_semantic_dir_name = "multiple_result"
+    if os.path.exists("./" + save_smoke_semantic_dir_name):
+        shutil.rmtree("./" + save_smoke_semantic_dir_name)      # Delete the original folder and content 將原有的資料夾與內容刪除
+        os.makedirs("./" + save_smoke_semantic_dir_name)        # Create new folder 創建新的資料夾
+    else:
+    # if not os.path.exists("./" + save_smoke_semantic_dir_name):
+        os.makedirs("./" + save_smoke_semantic_dir_name)
+    save_smoke_semantic_image_name = "smoke_semantic_image_"
 
-# Set save folder and save name 設定存檔資料夾與存檔名稱
-save_smoke_semantic_dir_name = "multiple_result"
-if os.path.exists("./" + save_smoke_semantic_dir_name):
-    shutil.rmtree("./" + save_smoke_semantic_dir_name)      # Delete the original folder and content 將原有的資料夾與內容刪除
-    os.makedirs("./" + save_smoke_semantic_dir_name)        # Create new folder 創建新的資料夾
-else:
-# if not os.path.exists("./" + save_smoke_semantic_dir_name):
-    os.makedirs("./" + save_smoke_semantic_dir_name)
-save_smoke_semantic_image_name = "smoke_semantic_image_"
+    save_image_binary_dir_name = "multiple_binary"
+    if os.path.exists("./" + save_image_binary_dir_name):
+        shutil.rmtree("./" + save_image_binary_dir_name)
+        os.makedirs("./" + save_image_binary_dir_name)
+    else:
+    #if not os.path.exists("./" + save_image_binary_dir_name):
+        os.makedirs("./" + save_image_binary_dir_name)
+    save_image_binary_name = "binary_"
 
-save_image_binary_dir_name = "multiple_binary"
-if os.path.exists("./" + save_image_binary_dir_name):
-    shutil.rmtree("./" + save_image_binary_dir_name)
-    os.makedirs("./" + save_image_binary_dir_name)
-else:
-#if not os.path.exists("./" + save_image_binary_dir_name):
-    os.makedirs("./" + save_image_binary_dir_name)
-save_image_binary_name = "binary_"
+    save_image_overlap_dir_name  = "multiple_overlap"
+    if os.path.exists("./" + save_image_overlap_dir_name):
+        shutil.rmtree("./" + save_image_overlap_dir_name)
+        os.makedirs("./" + save_image_overlap_dir_name)
+    else:
+    #if not os.path.exists("./" + save_image_overlap_dir_name):
+        os.makedirs("./" + save_image_overlap_dir_name)
+    save_image_overlap_name  = "image_overlap_"
 
-save_image_overlap_dir_name  = "multiple_overlap"
-if os.path.exists("./" + save_image_overlap_dir_name):
-    shutil.rmtree("./" + save_image_overlap_dir_name)
-    os.makedirs("./" + save_image_overlap_dir_name)
-else:
-#if not os.path.exists("./" + save_image_overlap_dir_name):
-    os.makedirs("./" + save_image_overlap_dir_name)
-save_image_overlap_name  = "image_overlap_"
+    save_image_stitching_dir_name = "multiple_stitching"
+    if os.path.exists("./" + save_image_stitching_dir_name):
+        shutil.rmtree("./" + save_image_stitching_dir_name)
+        os.makedirs("./" + save_image_stitching_dir_name)
+    else:
+    #if not os.path.exists("./" + save_image_stitching_dir_name):
+        os.makedirs("./" + save_image_stitching_dir_name)
+    save_image_stitching_name = "image_stitching_"
 
-save_image_stitching_dir_name = "multiple_stitching"
-if os.path.exists("./" + save_image_stitching_dir_name):
-    shutil.rmtree("./" + save_image_stitching_dir_name)
-    os.makedirs("./" + save_image_stitching_dir_name)
-else:
-#if not os.path.exists("./" + save_image_stitching_dir_name):
-    os.makedirs("./" + save_image_stitching_dir_name)
-save_image_stitching_name = "image_stitching_"
+    return save_smoke_semantic_dir_name,save_smoke_semantic_image_name,save_image_binary_dir_name,save_image_binary_name,save_image_overlap_dir_name,save_image_overlap_name,save_image_stitching_dir_name,save_image_stitching_name
 
 # Merge all resulting images 合併所有產生之圖像
-def image_stitching(input_image,i):
+def image_stitching(input_image,i,names):
     bg = Image.new('RGB',(1200, 300), '#000000') # Produces a 1200 x 300 all black image 產生一張 1200x300 的全黑圖片
     # Load two images 載入兩張影像
     img1 = Image.open(input_image)
-    img2 = Image.open("./" + save_smoke_semantic_dir_name + "/" + save_smoke_semantic_image_name  + f"{i}.jpg")
-    img3 = Image.open("./" + save_image_binary_dir_name + "/" + save_image_binary_name + f"{i}.jpg")
-    img4 = Image.open("./" + save_image_overlap_dir_name + "/" + save_image_overlap_name + f"{i}.png")
+    img2 = Image.open("./" + names[0] + "/" + names[1]  + f"{i}.jpg")
+    img3 = Image.open("./" + names[2] + "/" + names[3] + f"{i}.jpg")
+    img4 = Image.open("./" + names[4] + "/" + names[5] + f"{i}.png")
 
 
     # Check if the two images are the same size 檢查兩張影像大小是否一致
@@ -86,15 +85,15 @@ def image_stitching(input_image,i):
     bg.paste(img4, (900, 0))
 
     #bg.show()
-    bg.save("./" + save_image_stitching_dir_name + "/" + save_image_stitching_dir_name + f"{i}.jpg")
+    bg.save("./" + names[6] + "/" + names[7] + f"{i}.jpg")
 
     return
 
 # The trained feature map is fuse d with the original image 訓練出的特徵圖融合原圖
-def image_overlap(input_image,i):
+def image_overlap(input_image,i,names):
     img1 = Image.open(input_image)
     img1 = img1.convert('RGBA')
-    img2 = Image.open("./" + save_smoke_semantic_dir_name + "/" + save_smoke_semantic_image_name  + f"{i}.jpg")
+    img2 = Image.open("./" + names[0] + "/" + names[1]  + f"{i}.jpg")
 
     # img2 to binarization img2轉二值化
     gray = img2.convert('L')
@@ -109,7 +108,7 @@ def image_overlap(input_image,i):
             table.append(1)
 
     binary = gray.point(table, '1')
-    binary.save("./" + save_image_binary_dir_name + "/" + save_image_binary_name + f"{i}.jpg")
+    binary.save("./" + names[2] + "/" + names[3] + f"{i}.jpg")
 
     img2 = binary.convert('RGBA')
 
@@ -139,12 +138,12 @@ def image_overlap(input_image,i):
     blendImg = Image.blend(img1, img2 , alpha = 0.2)
     # Display image 顯示影像
     #blendImg.show()
-    blendImg.save("./" + save_image_overlap_dir_name + "/" + save_image_overlap_name + f"{i}.png")
+    blendImg.save("./" + names[4] + "/" + names[5] + f"{i}.png")
 
     return
 
 # Main function 主函式
-def smoke_segmentation(directory,model_input):
+def smoke_segmentation(directory,model_input,device,names):
     i = 0
     pbar = tqdm((os.listdir(directory)),total=len(os.listdir(directory)))
     for filename in pbar:
@@ -153,11 +152,11 @@ def smoke_segmentation(directory,model_input):
         smoke_input_image = transform(smoke_input_image)
         smoke_input_image = (smoke_input_image)/255.0
         smoke_input_image  = smoke_input_image.unsqueeze(0).to(device)
-        output = smoke_semantic(smoke_input_image,model_input)
+        output = smoke_semantic(smoke_input_image,model_input,device)
         i+=1
-        torchvision.utils.save_image(output ,"./" + save_smoke_semantic_dir_name + "/" + save_smoke_semantic_image_name  + f"{i}.jpg")
-        image_overlap(os.path.join(directory,filename),i)
-        image_stitching(os.path.join(directory,filename),i)
+        torchvision.utils.save_image(output ,"./" + names[0] + "/" + names[1]  + f"{i}.jpg")
+        image_overlap(os.path.join(directory,filename),i,names)
+        image_stitching(os.path.join(directory,filename),i,names)
 
     return 
 if __name__ == "__main__":
@@ -167,9 +166,15 @@ if __name__ == "__main__":
     ap.add_argument('-m','--model_path' ,required=True, help="load model path")
     args = vars(ap.parse_args())
 
+    device = (torch.device('cuda') if torch.cuda.is_available()
+        else torch.device('cpu'))
+    print(f"inference_multiple_Dataset on device {device}.")
+
+    names = folders_and_files_name()
+    print(names)
 # Calculate the total execution time 計算總執行時間  
     time_start = time.time()
-    smoke_segmentation(args["test_directory"],args['model_path'])
+    smoke_segmentation(args["test_directory"],args['model_path'],device,names)
     total_image = len(os.listdir(args["test_directory"]))
     time_end = time.time()
     spend_time = int(time_end-time_start) 

@@ -6,16 +6,9 @@ import time
 from PIL import Image
 import numpy as np
 
-device = (torch.device('cuda') if torch.cuda.is_available()
-        else torch.device('cpu'))
-print(f"video on device {device}.")
-
-binary_mode = False
-print("binary_mode:",binary_mode)
-
 # Main function 主函式
-def smoke_segmentation(video_path,model_input):
-
+def smoke_segmentation(video_path,model_input,device,binary_mode):
+    print("binary_mode:",binary_mode)
     start_time = time.time()
     counter = 0
     
@@ -51,7 +44,7 @@ def smoke_segmentation(video_path,model_input):
         video_frame = torch.from_numpy(process_frame).float()
         video_frame=video_frame.permute(2,0,1)
         smoke_input_image  = video_frame.unsqueeze(0).to(device)  #add batch
-        output = smoke_semantic(smoke_input_image,model_input)
+        output = smoke_semantic(smoke_input_image,model_input,device)
         output_np=output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).detach().numpy()   # remove batch
         #cv2.imwrite('test_mask.jpg',output_np)
 
@@ -126,4 +119,11 @@ if __name__ == "__main__":
     ap.add_argument('-m',"--model_path" ,required=True, help="load model path")
     args = vars(ap.parse_args())
 
-    smoke_segmentation(args["video_source"],args['model_path'])
+    device = (torch.device('cuda') if torch.cuda.is_available()
+        else torch.device('cpu'))
+    print(f"video on device {device}.")
+
+    binary_mode = False
+    print("binary_mode:",binary_mode)
+
+    smoke_segmentation(args["video_source"],args['model_path'],device,binary_mode)

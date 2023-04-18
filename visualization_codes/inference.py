@@ -8,11 +8,7 @@ from torchvision import transforms
 sys.path.append("..")
 from models import erfnet
 
-device = (torch.device('cuda') if torch.cuda.is_available()
-        else torch.device('cpu'))
-print(f"Testing on device {device}.")
-
-def smoke_semantic(input_image,model_path, device=device):
+def smoke_semantic(input_image,model_path,device):
 	model = erfnet.Net(1).to(device)
 	model.load_state_dict(torch.load(model_path))     
 	model.eval()
@@ -20,10 +16,18 @@ def smoke_semantic(input_image,model_path, device=device):
 	return output
 
 if __name__ == "__main__":
-	
-	smoke_input_image = read_image('/home/yaocong/Experimental/speed_smoke_segmentation/123.jpg')
+
+	device = (torch.device('cuda') if torch.cuda.is_available()
+        else torch.device('cpu'))
+	print(f"Inference on device {device}.")
+
+	smoke_input_image = read_image('/home/yaocong/Experimental/speed_smoke_segmentation/test_files/123.jpg')
+	model_path = '/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs8e150/final.pth'
 	transform = transforms.Resize([256, 256])
 	smoke_input_image = transform(smoke_input_image)
-	output = smoke_semantic(smoke_input_image,'/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs32e150/final.pth')
-	print("output_f34:",output.shape)
+	smoke_input_image = (smoke_input_image)/255.0
+	smoke_input_image  = smoke_input_image.unsqueeze(0).to(device)
+
+	output = smoke_semantic(smoke_input_image,model_path,device)
+	print("output:",output.shape)
 	torchvision.utils.save_image(output,"inference" + ".jpg")

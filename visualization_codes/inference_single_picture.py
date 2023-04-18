@@ -6,20 +6,23 @@ from torchvision import transforms
 from torchvision.io import read_image
 from PIL import Image, ImageOps
 
-# Set archive name 設定存檔名稱
-save_smoke_semantic_image_name = "./results/smoke_semantic"
-save_image_binary_name = "./results/binary"
-save_image_overlap_name  = "./results/image_overlap"
-save_image_stitching_name = "./results/image_stitching"
+def files_name():
+    # Set archive name 設定存檔名稱
+    save_smoke_semantic_image_name = "./results/smoke_semantic"
+    save_image_binary_name = "./results/binary"
+    save_image_overlap_name  = "./results/image_overlap"
+    save_image_stitching_name = "./results/image_stitching"
+
+    return save_smoke_semantic_image_name,save_image_binary_name,save_image_overlap_name,save_image_stitching_name
 
 # Merge all resulting images 合併所有產生之圖像
-def image_stitching(input_image):
+def image_stitching(input_image,names):
     bg = Image.new('RGB',(1200, 300), '#000000') # 產生一張 600x300 的全黑圖片
     # Load two images 載入兩張影像
     img1 = Image.open(input_image)
-    img2 = Image.open(save_smoke_semantic_image_name + ".jpg")
-    img3 = Image.open(save_image_binary_name + ".jpg")
-    img4 = Image.open(save_image_overlap_name + ".png")
+    img2 = Image.open(names[0] + ".jpg")
+    img3 = Image.open(names[1] + ".jpg")
+    img4 = Image.open(names[2] + ".png")
 
 
     # Check if the two images are the same size 檢查兩張影像大小是否一致
@@ -44,15 +47,15 @@ def image_stitching(input_image):
     bg.paste(img4, (900, 0))
 
     #bg.show()
-    bg.save(save_image_stitching_name+ ".jpg")
+    bg.save(names[3]+ ".jpg")
 
     return
 
 # The trained feature map is fused with the original image 訓練出的特徵圖融合原圖
-def image_overlap(input_image):
+def image_overlap(input_image,names):
     img1 = Image.open(input_image)
     img1 = img1.convert('RGBA')
-    img2 = Image.open(save_smoke_semantic_image_name + ".jpg")
+    img2 = Image.open(names[1] + ".jpg")
 
     # img2 to binarization img2轉二值化
     gray = img2.convert('L')
@@ -66,7 +69,7 @@ def image_overlap(input_image):
             table.append(1)
 
     binary = gray.point(table, '1')
-    binary.save(save_image_binary_name + ".jpg")
+    binary.save(names[2] + ".jpg")
     img2 = binary.convert('RGBA')
 
 
@@ -96,16 +99,12 @@ def image_overlap(input_image):
     blendImg = Image.blend(img1, img2 , alpha = 0.2)
     # Display image 顯示影像
     #blendImg.show()
-    blendImg.save(save_image_overlap_name + ".png")
+    blendImg.save(names[2] + ".png")
     
     return
 
-device = (torch.device('cuda') if torch.cuda.is_available()
-        else torch.device('cpu'))
-print(f"inference_single_Dataset on device {device}.")
-
 # Main function 主函式 
-def smoke_segmentation(input,model_input):
+def smoke_segmentation(input,model_input,device,names):
     smoke_input_image = read_image(input)
     # print(smoke_input_image.shape)
     transform = transforms.Resize([256, 256])
@@ -113,11 +112,11 @@ def smoke_segmentation(input,model_input):
     # print(smoke_input_image.shape)
     smoke_input_image = (smoke_input_image)/255.0
     smoke_input_image  = smoke_input_image.unsqueeze(0).to(device)
-    output = smoke_semantic(smoke_input_image,model_input)
-    torchvision.utils.save_image(output ,save_smoke_semantic_image_name + ".jpg")
+    output = smoke_semantic(smoke_input_image,model_input,device)
+    torchvision.utils.save_image(output ,names[0] + ".jpg")
 
-    image_overlap(input)
-    image_stitching(input)
+    image_overlap(input,names)
+    image_stitching(input,names)
 
 if __name__ == "__main__":
     
@@ -126,4 +125,10 @@ if __name__ == "__main__":
     ap.add_argument('-m','--model_path', required=True, help="load model path")
     args = vars(ap.parse_args())
     
-    smoke_segmentation(args['image'],args['model_path'])
+    device = (torch.device('cuda') if torch.cuda.is_available()
+        else torch.device('cpu'))
+    print(f"inference_single_Dataset on device {device}.")
+
+    names=files_name
+
+    smoke_segmentation(args['image'],args['model_path'],device,names)
