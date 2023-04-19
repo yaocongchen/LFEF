@@ -25,25 +25,8 @@ def check_have_GPU():
         os.environ["CUDA_VISIBLE_DEVICES"] = args['gpus']
         if not torch.cuda.is_available():
             raise Exception("No GPU found or Wrong gpu id, please run without --device")    #例外事件跳出
-        
-def train():
 
-    # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
-    # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
-    cudnn.enabled = False
-
-    # Model import 模型導入
-    model = network_model.Net(1)
-
-    # Calculation model size parameter amount and calculation amount
-    # 計算模型大小、參數量與計算量
-    c = utils.metrics.Calculate(model)
-    model_size = c.get_model_size()
-    flops,params = c.get_params()
-    
-
-    # Set up the device for training 
-    # 設定用於訓練之裝置
+def check_number_of_GPUs(model):
     if args['device']=='GPU':
 
         #args.gpu_nums = 1
@@ -61,11 +44,90 @@ def train():
         model = model.cpu()   #use cpu data parallel
         device = torch.device('cpu')
 
+    return device
+
+def set_save_dir_names():
     args['save_dir'] = ( args['save_dir'] + '/' + 'bs' + str(args['batch_size']) + 'e' + str(args['epochs']) + '/')
     if not os.path.exists(args['save_dir']):
         os.makedirs(args['save_dir'])
 
+def checkpoint_training(model):
+    if os.path.isfile(args['resume']):    # There is a specified file in the path 路徑中有指定檔案
+        checkpoint = torch.load(args['resume'])
+        start_epoch = checkpoint['epoch']
+        model.load_state_dict(checkpoint['model'])
+        print("=====> load checkpoint '{}' (epoch {})".format(args['resume'], checkpoint['epoch']))
+    else:
+        print("=====> no checkpoint found at '{}'".format(args['resume']))
+
+def wandb_information(model_size,flops,params,model):
+    wandb.init(
+        # set the wandb project where this run will be logged
+        project="lightssd-project",
+        name = args["wandb_name"],
+        # track hyperparameters and run metadata
+        config={
+        "Model_size":model_size,
+        "FLOPs":flops,
+        "Parameters":params,
+        "train_images": args["train_images"],
+        "train_masks": args["train_masks"],
+        "device": args["device"],
+        "gpus":args["gpus"],
+        "batch_size": args["batch_size"],
+        "num_workers": args["num_workers"],
+        "epochs":args["epochs"],
+        "learning_rate":args["learning_rate"],
+        "save_dir":args["save_dir"],
+        "resume":args["resume"],
+        }
+    )
+
+    wandb.config.epochs = args["epochs"]
+    wandb.config.batch_size = args["batch_size"]
+    wandb.config.learning_rate = args["learning_rate"]
+    #wandb.config.architecture = "resnet"
+
+    #Log gradients and model parameters
+    wandb.watch(model)
+
+def time_processing(spend_time):
+    time_day = spend_time // 86400
+    spend_time = spend_time % 86400
+    time_hour = spend_time // 3600
+    spend_time = spend_time % 3600
+    time_min = spend_time // 60
+    time_sec = spend_time % 60
     
+    time_dict = {}
+    time_dict['time_day'] = time_day
+    time_dict['time_hour'] = time_hour
+    time_dict['time_min'] = time_min
+    time_dict['time_sec'] = time_sec
+
+    return time_dict
+    
+def train():
+    check_have_GPU()
+    # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
+    # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
+    cudnn.enabled = False
+
+    # Model import 模型導入
+    model = network_model.Net(1)
+
+    # Calculation model size parameter amount and calculation amount
+    # 計算模型大小、參數量與計算量
+    c = utils.metrics.Calculate(model)
+    model_size = c.get_model_size()
+    flops,params = c.get_params()
+
+    # Set up the device for training 
+    # 設定用於訓練之裝置
+    device = check_number_of_GPUs(model)
+        
+    set_save_dir_names()
+
     # Import data導入資料
     training_data = utils.dataset.DataLoaderSegmentation(args['train_images'],
                                                 args['train_masks'])
@@ -81,45 +143,11 @@ def train():
 
     # Checkpoint training 斷點訓練      
     if args['resume']:
-        if os.path.isfile(args['resume']):    # There is a specified file in the path 路徑中有指定檔案
-            checkpoint = torch.load(args['resume'])
-            start_epoch = checkpoint['epoch']
-            model.load_state_dict(checkpoint['model'])
-            print("=====> load checkpoint '{}' (epoch {})".format(args['resume'], checkpoint['epoch']))
-        else:
-            print("=====> no checkpoint found at '{}'".format(args['resume']))
+        checkpoint_training(model)
 
     #wandb.ai
     if args["wandb_name"]!="no":
-        wandb.init(
-            # set the wandb project where this run will be logged
-            project="lightssd-project",
-            name = args["wandb_name"],
-            # track hyperparameters and run metadata
-            config={
-            "Model_size":model_size,
-            "FLOPs":flops,
-            "Parameters":params,
-            "train_images": args["train_images"],
-            "train_masks": args["train_masks"],
-            "device": args["device"],
-            "gpus":args["gpus"],
-            "batch_size": args["batch_size"],
-            "num_workers": args["num_workers"],
-            "epochs":args["epochs"],
-            "learning_rate":args["learning_rate"],
-            "save_dir":args["save_dir"],
-            "resume":args["resume"],
-            }
-        )
-
-        wandb.config.epochs = args["epochs"]
-        wandb.config.batch_size = args["batch_size"]
-        wandb.config.learning_rate = args["learning_rate"]
-        #wandb.config.architecture = "resnet"
-
-        #Log gradients and model parameters
-        wandb.watch(model)
+        wandb_information(model_size,flops,params,model)
         
     time_start = time.time()      # Training start time 訓練開始時間
 
@@ -206,28 +234,21 @@ def train():
     # 計算結束時間與花費時間     
     time_end = time.time()
     spend_time = int(time_end-time_start)
-    time_day = spend_time // 86400
-    spend_time = spend_time % 86400
-    time_hour = spend_time // 3600
-    spend_time = spend_time % 3600
-    time_min = spend_time // 60
-    time_sec = spend_time % 60
-    print('totally cost:',f"{time_day}d {time_hour}h {time_min}m {time_sec}s")
-
-
+    time_dict =time_processing(spend_time)
+    print('totally cost:',f"{time_dict['time_day']}d {time_dict['time_hour']}h {time_dict['time_min']}m {time_dict['time_sec']}s")
 
 if __name__=="__main__":
 
     ap = argparse.ArgumentParser()
     
-    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
-    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
+    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
+    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
 
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Imag/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Mask/",  help="path to mask")
     
-    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/" , help="path to hazy training images")
-    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",  help="path to mask")
+    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/" , help="path to hazy training images")
+    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",  help="path to mask")
 
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
@@ -245,7 +266,6 @@ if __name__=="__main__":
 
     args = vars(ap.parse_args())  #Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
 
-    check_have_GPU()
     train()
     
     wandb.finish()
