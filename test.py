@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     device = (torch.device('cuda') if torch.cuda.is_available()
         else torch.device('cpu'))
-    #print(f"Training on device {device}.")
+    print(f"Testing on device {device}.")
 
     names=folders_and_files_name()
     # Calculate the total implement time 計算總執行時間

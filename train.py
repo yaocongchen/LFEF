@@ -15,14 +15,10 @@ from torch.utils.data import DataLoader
 #import self-written modules
 import models.erfnet as network_model                    # import self-written models 引入自行寫的模型
 import utils
-# import utils.dataset as dataset     
-# import utils.loss as binary_cross_entropy_loss
-# import utils.metrics as metrics
 
 onnx_img_image = []
 
-def train(args):
-
+def check_have_GPU():
     # Check have GPU device 確認是否有GPU裝置 
     if args['device']=='GPU':
         print("====> Use gpu id:'{}'".format(args['gpus']))
@@ -30,6 +26,8 @@ def train(args):
         if not torch.cuda.is_available():
             raise Exception("No GPU found or Wrong gpu id, please run without --device")    #例外事件跳出
         
+def train():
+
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
     # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
     cudnn.enabled = False
@@ -234,7 +232,7 @@ if __name__=="__main__":
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
     
-    ap.add_argument('-bs','--batch_size',type=int, default = 8, help="set batch_size")
+    ap.add_argument('-bs','--batch_size',type=int, default = 2, help="set batch_size")
     ap.add_argument('-nw','--num_workers' ,type=int,default = 1 , help="set num_workers")
     ap.add_argument('-e', '--epochs', type = int , default=150,  help="number of epochs for training")
     ap.add_argument('-lr', '--learning_rate', type = float ,default=0.0001, help="learning rate for training")
@@ -246,8 +244,9 @@ if __name__=="__main__":
     ap.add_argument('-wn','--wandb_name',type = str ,default = "no" ,help = "wandb test name,but 'no' is not use wandb")
 
     args = vars(ap.parse_args())  #Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
-    
-    train(args)
+
+    check_have_GPU()
+    train()
     
     wandb.finish()
     # if args["wandb_name"]!="no":
