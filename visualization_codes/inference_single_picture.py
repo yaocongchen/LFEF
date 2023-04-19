@@ -1,11 +1,22 @@
 import torch
 import torchvision
 from visualization_codes.inference import smoke_semantic
+import visualization_codes.image_process_utils as image_process
 import argparse
 import os
 from torchvision import transforms
 from torchvision.io import read_image
 from PIL import Image, ImageOps
+import time
+
+
+def timeit(func):
+    def warp(*args, **kwargs):
+        start = time.time()
+        func(*args, **kwargs)
+        print(f"{func.__name__} time cost: {time.time()- start}")
+    return warp
+
 
 def files_name():
     # Set archive name 設定存檔名稱
@@ -67,20 +78,10 @@ def image_overlap(input_image,names):
     img2 = Image.open(names["smoke_semantic_image_name"] + ".jpg")
 
     # img2 to binarization img2轉二值化
-    gray = img2.convert('L')
-    threshold = 200
+    binary_image = image_process.gray_to_binary(img2)
 
-    table = []
-    for i in range(256):
-        if i < threshold:
-            table.append(0)
-        else:
-            table.append(1)
-
-    binary = gray.point(table, '1')
-    binary.save(names["image_binary_name"] + ".jpg")
-    img2 = binary.convert('RGBA')
-
+    binary_image.save(names["image_binary_name"] + ".jpg")
+    img2 = binary_image.convert('RGBA')
 
     # Specify target image size 指定目標圖片大小
     imgSize = (256,256)
@@ -89,26 +90,11 @@ def image_overlap(input_image,names):
     img1=img1.resize(imgSize)
     img2=img2.resize(imgSize)
 
-    W,H = img2.size
-    black_background = (0, 0, 0, 255)
-
-    for h in range(H):
-        for w in range(W):
-            dot = (w,h)
-            color_1 = img2.getpixel(dot)
-            if color_1 == black_background:
-                color_1 = color_1[:-1] + (0,)   # Commas are used to create a (tuple) 逗號是用於創造一個(tuple)
-                img2.putpixel(dot,color_1)
-            else:
-                color_1 = (255,0,0,) + color_1[3:]  #  逗號是用於創造一個(tuple)
-                img2.putpixel(dot,color_1)
-            
-    #img2.show()
-    # Overlay image 疊合影像
-    blendImg = Image.blend(img1, img2 , alpha = 0.2)
+    blendImage = image_process.overlap(img1,img2,read_method = "PIL_RGBA")
+    
     # Display image 顯示影像
     #blendImg.show()
-    blendImg.save(names["image_overlap_name"] + ".png")
+    blendImage.save(names["image_overlap_name"] + ".png")
     
     return
 
@@ -138,6 +124,8 @@ if __name__ == "__main__":
         else torch.device('cpu'))
     print(f"inference_single_Dataset on device {device}.")
 
-    names=files_name
+    names=files_name()
 
     smoke_segmentation(args['image'],args['model_path'],device,names)
+
+
