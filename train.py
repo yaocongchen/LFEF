@@ -15,9 +15,8 @@ from torch.utils.data import DataLoader
 #import self-written modules
 import models.erfnet as network_model                    # import self-written models 引入自行寫的模型
 import utils
-test_branch = []
 onnx_img_image = []
-
+test = []
 def check_have_GPU():
     # Check have GPU device 確認是否有GPU裝置 
     if args['device']=='GPU':
