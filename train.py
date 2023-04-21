@@ -12,10 +12,24 @@ import wandb
 import torch.onnx
 from torch.utils.data import DataLoader
 
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+
 #import self-written modules
 import models.erfnet as network_model                    # import self-written models 引入自行寫的模型
 import utils
 onnx_img_image = []
+
+def setup(rank,world_size):
+    os.environ['MASTER_ADDR'] = 'localhost'
+    os.environ['MASTER_PORT'] = '12355'
+
+    #initialize the process group
+    dist.init_process_group("gloo", rank=rank ,world_size=world_size)
+
+def cleanup():
+    dist.destroy_process_group()
+
 
 def check_have_GPU():
     # Check have GPU device 確認是否有GPU裝置 
@@ -106,7 +120,7 @@ def time_processing(spend_time):
 
     return time_dict
     
-def train():
+def train(rank,world_size):
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
     # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
@@ -114,6 +128,12 @@ def train():
 
     # Model import 模型導入
     model = network_model.Net(1)
+
+
+    print(f"Start running basic DDP example on rank {rank}.")
+    setup(rank, world_size)
+    # create model and move it to GPU with id rank
+    model = model.to(rank)
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
@@ -147,7 +167,7 @@ def train():
     #wandb.ai
     if args["wandb_name"]!="no":
         wandb_information(model_size,flops,params,model)
-        
+    
     time_start = time.time()      # Training start time 訓練開始時間
 
     for epoch in range(start_epoch, args['epochs']+1):
