@@ -134,6 +134,7 @@ def train(rank,world_size):
     setup(rank, world_size)
     # create model and move it to GPU with id rank
     model = model.to(rank)
+    model = DDP(model,device_ids=[rank])
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
@@ -143,7 +144,7 @@ def train(rank,world_size):
 
     # Set up the device for training 
     # 設定用於訓練之裝置
-    device = check_number_of_GPUs(model)
+    #device = check_number_of_GPUs(model)
         
     set_save_dir_names()
 
@@ -178,8 +179,8 @@ def train(rank,world_size):
         pbar = tqdm((training_data_loader),total=len(training_data_loader))
         #for iteration,(img_image, mask_image) in enumerate(training_data_loader):
         for img_image, mask_image in pbar:
-            img_image = img_image.to(device)
-            mask_image = mask_image.to(device)
+            img_image = img_image.to(rank)
+            mask_image = mask_image.to(rank)
             onnx_img_image=img_image
 
             img_image = Variable(img_image, requires_grad=True)    # Variable storage data supports almost all tensor operations, requires_grad=True: Derivatives can be obtained, and the backwards method can be used to calculate and accumulate gradients
@@ -213,8 +214,8 @@ def train(rank,world_size):
         model.eval()
         pbar = tqdm((validation_data_loader),total=len(validation_data_loader))
         for img_image,mask_image in pbar:
-            img_image = img_image.to(device)
-            mask_image = mask_image.to(device)
+            img_image = img_image.to(rank)
+            mask_image = mask_image.to(rank)
             
             output = model(img_image)
 
