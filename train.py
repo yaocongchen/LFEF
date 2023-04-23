@@ -106,6 +106,71 @@ def time_processing(spend_time):
 
     return time_dict
 
+def train_epoch(model,training_data_loader,device,optimizer,epoch):
+    model.train()
+    cudnn.benchmark= False
+    count=0
+    # Training loop 訓練迴圈 
+    pbar = tqdm((training_data_loader),total=len(training_data_loader))
+    #for iteration,(img_image, mask_image) in enumerate(training_data_loader):
+    for img_image, mask_image in pbar:
+        img_image = img_image.to(device)
+        mask_image = mask_image.to(device)
+        onnx_img_image=img_image
+
+        img_image = Variable(img_image, requires_grad=True)    # Variable storage data supports almost all tensor operations, requires_grad=True: Derivatives can be obtained, and the backwards method can be used to calculate and accumulate gradients
+        mask_image = Variable(mask_image, requires_grad=True)  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
+
+        output = model(img_image)
+        
+        optimizer.zero_grad()     # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
+        
+        loss = utils.loss.CustomLoss(output, mask_image)
+        acc = utils.metrics.acc_miou(output,mask_image)
+
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(),0.1)
+        optimizer.step()
+
+        pbar.set_description(f"trian_epoch [{epoch}/{args['epochs']}]")
+        pbar.set_postfix(train_loss=loss.item(),train_acc=acc.item())
+        if args["wandb_name"]!="no":
+            wandb.log({"train_loss": loss.item(),"train_acc": acc.item()})
+
+        # Graphical archive of the epoch test set 
+        # epoch 測試集中的圖示化存檔
+        count +=1
+        if not os.path.exists("./training_data_captures/"):
+            os.makedirs("./training_data_captures/")
+        torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
+
+def valid_epoch(model,validation_data_loader,device,epoch):
+    # Validation loop 驗證迴圈
+    count=0
+    model.eval()
+    pbar = tqdm((validation_data_loader),total=len(validation_data_loader))
+    for img_image,mask_image in pbar:
+        img_image = img_image.to(device)
+        mask_image = mask_image.to(device)
+        
+        output = model(img_image)
+
+        loss = utils.loss.CustomLoss(output, mask_image)
+        acc = utils.metrics.acc_miou(output,mask_image)
+
+        pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
+        pbar.set_postfix(val_loss=loss.item(),val_acc=acc.item())
+        
+        if args["wandb_name"]!="no":
+            wandb.log({"val_loss": loss.item(),"val_acc": acc.item()})
+
+        # Graphical archive of the epoch test set 
+        # epoch 測試集中的圖示化存檔
+        count +=1
+        if not os.path.exists("./validation_data_captures/"):
+            os.makedirs("./validation_data_captures/")
+        torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" +str(count)+".jpg")
+
 def train():
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
@@ -151,68 +216,9 @@ def train():
     time_start = time.time()      # Training start time 訓練開始時間
 
     for epoch in range(start_epoch, args['epochs']+1):
-        model.train()
-        cudnn.benchmark= False
-        count=0
-        # Training loop 訓練迴圈 
-        pbar = tqdm((training_data_loader),total=len(training_data_loader))
-        #for iteration,(img_image, mask_image) in enumerate(training_data_loader):
-        for img_image, mask_image in pbar:
-            img_image = img_image.to(device)
-            mask_image = mask_image.to(device)
-            onnx_img_image=img_image
-
-            img_image = Variable(img_image, requires_grad=True)    # Variable storage data supports almost all tensor operations, requires_grad=True: Derivatives can be obtained, and the backwards method can be used to calculate and accumulate gradients
-            mask_image = Variable(mask_image, requires_grad=True)  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
-
-            output = model(img_image)
-            
-            optimizer.zero_grad()     # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
-            
-            loss = utils.loss.CustomLoss(output, mask_image)
-            acc = utils.metrics.acc_miou(output,mask_image)
-
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(),0.1)
-            optimizer.step()
-
-            pbar.set_description(f"trian_epoch [{epoch}/{args['epochs']}]")
-            pbar.set_postfix(train_loss=loss.item(),train_acc=acc.item())
-            if args["wandb_name"]!="no":
-                wandb.log({"train_loss": loss.item(),"train_acc": acc.item()})
-
-            # Graphical archive of the epoch test set 
-            # epoch 測試集中的圖示化存檔
-            count +=1
-            if not os.path.exists("./training_data_captures/"):
-                os.makedirs("./training_data_captures/")
-            torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
-
-        # Validation loop 驗證迴圈
-        count=0
-        model.eval()
-        pbar = tqdm((validation_data_loader),total=len(validation_data_loader))
-        for img_image,mask_image in pbar:
-            img_image = img_image.to(device)
-            mask_image = mask_image.to(device)
-            
-            output = model(img_image)
-
-            loss = utils.loss.CustomLoss(output, mask_image)
-            acc = utils.metrics.acc_miou(output,mask_image)
-
-            pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
-            pbar.set_postfix(val_loss=loss.item(),val_acc=acc.item())
-            
-            if args["wandb_name"]!="no":
-                wandb.log({"val_loss": loss.item(),"val_acc": acc.item()})
-
-            # Graphical archive of the epoch test set 
-            # epoch 測試集中的圖示化存檔
-            count +=1
-            if not os.path.exists("./validation_data_captures/"):
-                os.makedirs("./validation_data_captures/")
-            torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" +str(count)+".jpg")
+        
+        train_epoch(model,training_data_loader,device,optimizer,epoch)
+        valid_epoch(model,validation_data_loader,device,epoch)
 
         # Save model 模型存檔              
         model_file_name = args['save_dir'] + 'model_' + str(epoch) + '.pth'
