@@ -105,7 +105,7 @@ def time_processing(spend_time):
     time_dict['time_sec'] = time_sec
 
     return time_dict
-    
+
 def train():
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
@@ -240,8 +240,11 @@ if __name__=="__main__":
 
     ap = argparse.ArgumentParser()
     
-    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
-    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
+    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
+    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
+
+    ap.add_argument('-ti', '--train_images',default="C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/images/" , help="path to hazy training images")
+    ap.add_argument('-tm', '--train_masks',default= "C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/masks/",  help="path to mask")
 
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Imag/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Mask/",  help="path to mask")
