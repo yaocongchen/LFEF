@@ -280,12 +280,17 @@ if __name__=="__main__":
     ap.add_argument('-savedir','--save_dir', default= "./checkpoint/", help = "directory to save the model snapshot")
     ap.add_argument('-device' ,default='GPU' , help =  "running on CPU or GPU")
     ap.add_argument('-gpus', type= str ,default = "0" , help = "defualt GPU devices(0,1)")
+    ap.add_argument('-rank',"--local_rank",default=-1 )
     ap.add_argument('-resume',type= str ,default= "/home/yaocong/Experimental/My_pytorch_model/checkpoint/model_1.pth", 
                         help = "use this file to load last checkpoint for continuing training")    #Use this flag to load last checkpoint for training
     ap.add_argument('-wn','--wandb_name',type = str ,default = "no" ,help = "wandb test name,but 'no' is not use wandb")
 
     args = vars(ap.parse_args())  #Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
 
+    dist.init_process_group(backend=='nccl')
+    dist.barrier()
+    # rank = dist.get_rank()
+    world_size = dist.get_world_size()
     train()
     
     wandb.finish()
