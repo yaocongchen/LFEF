@@ -12,33 +12,19 @@ import wandb
 import torch.onnx
 from torch.utils.data import DataLoader
 
-import torch.distributed as dist
-from torch.nn.parallel import DistributedDataParallel as DDP
-from torch.utils.data.distributed import DistributedSampler
-
 #import self-written modules
-import models.erfnet as network_model                  
+import models.erfnet as network_model                    # import self-written models 引入自行寫的模型
 import utils
 onnx_img_image = []
 
-# def setup(rank,world_size):
-#     os.environ['MASTER_ADDR'] = 'localhost'
-#     os.environ['MASTER_PORT'] = '12355'
-
-#     #initialize the process group
-#     dist.init_process_group("gloo", rank=rank ,world_size=world_size)
-
-# def cleanup():
-#     dist.destroy_process_group()
-
-
 def check_have_GPU():
-    # Check have GPU device 
+    # Check have GPU device 確認是否有GPU裝置 
     if args['device']=='GPU':
         print("====> Use gpu id:'{}'".format(args['gpus']))
         os.environ["CUDA_VISIBLE_DEVICES"] = args['gpus']
         if not torch.cuda.is_available():
-            raise Exception("No GPU found or Wrong gpu id, please run without --device")    
+            raise Exception("No GPU found or Wrong gpu id, please run without --device")    #例外事件跳出
+
 def check_number_of_GPUs(model):
     if args['device']=='GPU':
 
@@ -46,8 +32,8 @@ def check_number_of_GPUs(model):
         if torch.cuda.device_count() > 1:
             print("torch.cuda.device_count()=",torch.cuda.device_count())
             #args.gpu_nums = torch.cuda.device_count()
-            #model = torch.nn.DataParallel(model).cuda() #multi-card data parallel
-            device = torch.device('cuda',args['local_rank'])
+            model = torch.nn.DataParallel(model).cuda() #multi-card data parallel
+            device = torch.device('cuda')
         else:
             print("Single GPU for training")
             model = model.cuda() #1-card data parallel
@@ -65,7 +51,7 @@ def set_save_dir_names():
         os.makedirs(args['save_dir'])
 
 def checkpoint_training(model):
-    if os.path.isfile(args['resume']):    
+    if os.path.isfile(args['resume']):    # There is a specified file in the path 路徑中有指定檔案
         checkpoint = torch.load(args['resume'])
         start_epoch = checkpoint['epoch']
         model.load_state_dict(checkpoint['model'])
@@ -124,7 +110,7 @@ def train_epoch(model,training_data_loader,device,optimizer,epoch):
     model.train()
     cudnn.benchmark= False
     count=0
-    # Training loop
+    # Training loop 訓練迴圈 
     pbar = tqdm((training_data_loader),total=len(training_data_loader))
     #for iteration,(img_image, mask_image) in enumerate(training_data_loader):
     for img_image, mask_image in pbar:
@@ -133,11 +119,11 @@ def train_epoch(model,training_data_loader,device,optimizer,epoch):
         onnx_img_image=img_image
 
         img_image = Variable(img_image, requires_grad=True)    # Variable storage data supports almost all tensor operations, requires_grad=True: Derivatives can be obtained, and the backwards method can be used to calculate and accumulate gradients
-        mask_image = Variable(mask_image, requires_grad=True) 
+        mask_image = Variable(mask_image, requires_grad=True)  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
 
         output = model(img_image)
         
-        optimizer.zero_grad()     # Clear before loss.backward() to avoid gradient residue
+        optimizer.zero_grad()     # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
         
         loss = utils.loss.CustomLoss(output, mask_image)
         acc = utils.metrics.acc_miou(output,mask_image)
@@ -152,14 +138,14 @@ def train_epoch(model,training_data_loader,device,optimizer,epoch):
             wandb.log({"train_loss": loss.item(),"train_acc": acc.item()})
 
         # Graphical archive of the epoch test set 
-      
+        # epoch 測試集中的圖示化存檔
         count +=1
         if not os.path.exists("./training_data_captures/"):
             os.makedirs("./training_data_captures/")
         torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
 
 def valid_epoch(model,validation_data_loader,device,epoch):
-  
+    # Validation loop 驗證迴圈
     count=0
     model.eval()
     pbar = tqdm((validation_data_loader),total=len(validation_data_loader))
@@ -179,7 +165,7 @@ def valid_epoch(model,validation_data_loader,device,epoch):
             wandb.log({"val_loss": loss.item(),"val_acc": acc.item()})
 
         # Graphical archive of the epoch test set 
-
+        # epoch 測試集中的圖示化存檔
         count +=1
         if not os.path.exists("./validation_data_captures/"):
             os.makedirs("./validation_data_captures/")
@@ -188,78 +174,53 @@ def valid_epoch(model,validation_data_loader,device,epoch):
 def train():
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
-
+    # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
     cudnn.enabled = False
 
-    # Model import
+    # Model import 模型導入
     model = network_model.Net(1)
 
-
-    # print(f"Start running basic DDP example on rank {rank}.")
-    # setup(rank, world_size)
-    # create model and move it to GPU with id rank
-
-    device = check_number_of_GPUs(model)
-
-    dist.init_process_group(backend='nccl')
-    dist.barrier()
-    # rank = dist.get_rank()
-    world_size = dist.get_world_size()
-    
-    model = model.to(device)
-
     # Calculation model size parameter amount and calculation amount
-
+    # 計算模型大小、參數量與計算量
     c = utils.metrics.Calculate(model)
     model_size = c.get_model_size()
     flops,params = c.get_params()
 
     # Set up the device for training 
-
-
+    # 設定用於訓練之裝置
+    device = check_number_of_GPUs(model)
         
     set_save_dir_names()
-    
-    model = torch.nn.parallel.DistributedDataParallel(model, device_ids=args['local_rank'],
-                                                output_device=args['local_rank'])
 
-    # Import data
+    # Import data導入資料
     training_data = utils.dataset.DataLoaderSegmentation(args['train_images'],
                                                 args['train_masks'])
     validation_data = utils.dataset.DataLoaderSegmentation(args['train_images'],
                                                 args['train_masks'],mode = 'val')
-    
-    train_sampler = DistributedSampler(training_data)
-    valid_sampler = DistributedSampler(validation_data)
+    training_data_loader = DataLoader(training_data ,batch_size= args['batch_size'], shuffle = True, num_workers = args['num_workers'], pin_memory = True, drop_last=True)
+    validation_data_loader = DataLoader(validation_data, batch_size = args['batch_size'], shuffle = True, num_workers = args['num_workers'], pin_memory = True, drop_last=True)
 
-    training_data_loader = DataLoader(training_data ,sampler =train_sampler, batch_size= args['batch_size'], shuffle = True, num_workers = args['num_workers'], pin_memory = False, drop_last=True)
-    validation_data_loader = DataLoader(validation_data, sampler =valid_sampler,batch_size = args['batch_size'], shuffle = True, num_workers = args['num_workers'], pin_memory = False, drop_last=True)
-
-
-
-    # Import optimizer 
+    # Import optimizer導入優化器   
     optimizer = torch.optim.Adam(model.parameters(), lr=float(args['learning_rate']), weight_decay=0.0001)
 
-    start_epoch = 1  
-    
-    # Checkpoint training      
+    start_epoch = 1     # Initial epoch 初始epoch值
+
+    # Checkpoint training 斷點訓練      
     if args['resume']:
         checkpoint_training(model)
 
     #wandb.ai
     if args["wandb_name"]!="no":
         wandb_information(model_size,flops,params,model)
-    
-    time_start = time.time()      # Training start time
+        
+    time_start = time.time()      # Training start time 訓練開始時間
 
     for epoch in range(start_epoch, args['epochs']+1):
-        train_sampler.set_epoch(epoch)
-        valid_sampler.set_epoch(epoch)
+        
+        train_epoch(model,training_data_loader,device,optimizer,epoch)
+        valid_epoch(model,validation_data_loader,device,epoch)
 
-        train_epoch(model,training_data_loader,device,optimizer,epoch,world_size)
-        valid_epoch(model,validation_data_loader,device,epoch,world_size)
-
-        # Save model              
+        # Save model 模型存檔              
         model_file_name = args['save_dir'] + 'model_' + str(epoch) + '.pth'
         model_file_nameonnx = args['save_dir'] + 'onnxmodel_' + str(epoch) + '.onnx'
         state = model.state_dict()
@@ -275,7 +236,7 @@ def train():
     #torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'final' +  '.onnx', verbose=False)
 
     # Calculation of end time end elapsed time 
-     
+    # 計算結束時間與花費時間     
     time_end = time.time()
     spend_time = int(time_end-time_start)
     time_dict =time_processing(spend_time)
@@ -285,8 +246,11 @@ if __name__=="__main__":
 
     ap = argparse.ArgumentParser()
     
-    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
-    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
+    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
+    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
+
+    ap.add_argument('-ti', '--train_images',default="C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/images/" , help="path to hazy training images")
+    ap.add_argument('-tm', '--train_masks',default= "C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/masks/",  help="path to mask")
 
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Imag/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Mask/",  help="path to mask")
@@ -304,12 +268,11 @@ if __name__=="__main__":
     ap.add_argument('-savedir','--save_dir', default= "./checkpoint/", help = "directory to save the model snapshot")
     ap.add_argument('-device' ,default='GPU' , help =  "running on CPU or GPU")
     ap.add_argument('-gpus', type= str ,default = "0" , help = "defualt GPU devices(0,1)")
-    ap.add_argument('-rank',"--local_rank",type =int,default=0)
     ap.add_argument('-resume',type= str ,default= "/home/yaocong/Experimental/My_pytorch_model/checkpoint/model_1.pth", 
                         help = "use this file to load last checkpoint for continuing training")    #Use this flag to load last checkpoint for training
     ap.add_argument('-wn','--wandb_name',type = str ,default = "no" ,help = "wandb test name,but 'no' is not use wandb")
 
-    args = vars(ap.parse_args())  #Use vars() to access the value of ap.parse_args() like a dictionary
+    args = vars(ap.parse_args())  #Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
 
     train()
     
