@@ -196,8 +196,8 @@ def train(rank,world_size):
     model = network_model.Net(1)
 
 
-    print(f"Start running basic DDP example on rank {rank}.")
-    setup(rank, world_size)
+    # print(f"Start running basic DDP example on rank {rank}.")
+    # setup(rank, world_size)
     # create model and move it to GPU with id rank
     model = model.to(rank)
     model = DDP(model,device_ids=[rank])
