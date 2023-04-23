@@ -21,15 +21,15 @@ import models.erfnet as network_model                    # import self-written m
 import utils
 onnx_img_image = []
 
-def setup(rank,world_size):
-    os.environ['MASTER_ADDR'] = 'localhost'
-    os.environ['MASTER_PORT'] = '12355'
+# def setup(rank,world_size):
+#     os.environ['MASTER_ADDR'] = 'localhost'
+#     os.environ['MASTER_PORT'] = '12355'
 
-    #initialize the process group
-    dist.init_process_group("gloo", rank=rank ,world_size=world_size)
+#     #initialize the process group
+#     dist.init_process_group("gloo", rank=rank ,world_size=world_size)
 
-def cleanup():
-    dist.destroy_process_group()
+# def cleanup():
+#     dist.destroy_process_group()
 
 
 def check_have_GPU():
@@ -256,7 +256,7 @@ def train(rank,world_size):
     for epoch in range(start_epoch, args['epochs']+1):
         train_sampler.set_epoch(epoch)
         valid_sampler.set_epoch(epoch)
-        
+
         train_epoch(model,training_data_loader,rank,optimizer,epoch,world_size)
         valid_epoch(model,validation_data_loader,rank,epoch,world_size)
 
