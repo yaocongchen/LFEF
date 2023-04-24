@@ -245,7 +245,7 @@ def train():
 if __name__=="__main__":
 
     ap = argparse.ArgumentParser()
-    
+    dsd
     ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
     ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
 
