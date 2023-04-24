@@ -12,24 +12,10 @@ import wandb
 import torch.onnx
 from torch.utils.data import DataLoader
 
-import torch.distributed as dist
-from torch.nn.parallel import DistributedDataParallel as DDP
-
 #import self-written modules
 import models.erfnet as network_model                    # import self-written models 引入自行寫的模型
 import utils
 onnx_img_image = []
-
-def setup(rank,world_size):
-    os.environ['MASTER_ADDR'] = 'localhost'
-    os.environ['MASTER_PORT'] = '12355'
-
-    #initialize the process group
-    dist.init_process_group("gloo", rank=rank ,world_size=world_size)
-
-def cleanup():
-    dist.destroy_process_group()
-
 
 def check_have_GPU():
     # Check have GPU device 確認是否有GPU裝置 
@@ -119,8 +105,73 @@ def time_processing(spend_time):
     time_dict['time_sec'] = time_sec
 
     return time_dict
-    
-def train(rank,world_size):
+
+def train_epoch(model,training_data_loader,device,optimizer,epoch):
+    model.train()
+    cudnn.benchmark= False
+    count=0
+    # Training loop 訓練迴圈 
+    pbar = tqdm((training_data_loader),total=len(training_data_loader))
+    #for iteration,(img_image, mask_image) in enumerate(training_data_loader):
+    for img_image, mask_image in pbar:
+        img_image = img_image.to(device)
+        mask_image = mask_image.to(device)
+        onnx_img_image=img_image
+
+        img_image = Variable(img_image, requires_grad=True)    # Variable storage data supports almost all tensor operations, requires_grad=True: Derivatives can be obtained, and the backwards method can be used to calculate and accumulate gradients
+        mask_image = Variable(mask_image, requires_grad=True)  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
+
+        output = model(img_image)
+        
+        optimizer.zero_grad()     # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
+        
+        loss = utils.loss.CustomLoss(output, mask_image)
+        acc = utils.metrics.acc_miou(output,mask_image)
+
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(),0.1)
+        optimizer.step()
+
+        pbar.set_description(f"trian_epoch [{epoch}/{args['epochs']}]")
+        pbar.set_postfix(train_loss=loss.item(),train_acc=acc.item())
+        if args["wandb_name"]!="no":
+            wandb.log({"train_loss": loss.item(),"train_acc": acc.item()})
+
+        # Graphical archive of the epoch test set 
+        # epoch 測試集中的圖示化存檔
+        count +=1
+        if not os.path.exists("./training_data_captures/"):
+            os.makedirs("./training_data_captures/")
+        torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
+
+def valid_epoch(model,validation_data_loader,device,epoch):
+    # Validation loop 驗證迴圈
+    count=0
+    model.eval()
+    pbar = tqdm((validation_data_loader),total=len(validation_data_loader))
+    for img_image,mask_image in pbar:
+        img_image = img_image.to(device)
+        mask_image = mask_image.to(device)
+        
+        output = model(img_image)
+
+        loss = utils.loss.CustomLoss(output, mask_image)
+        acc = utils.metrics.acc_miou(output,mask_image)
+
+        pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
+        pbar.set_postfix(val_loss=loss.item(),val_acc=acc.item())
+        
+        if args["wandb_name"]!="no":
+            wandb.log({"val_loss": loss.item(),"val_acc": acc.item()})
+
+        # Graphical archive of the epoch test set 
+        # epoch 測試集中的圖示化存檔
+        count +=1
+        if not os.path.exists("./validation_data_captures/"):
+            os.makedirs("./validation_data_captures/")
+        torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" +str(count)+".jpg")
+
+def train():
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
     # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
@@ -128,12 +179,6 @@ def train(rank,world_size):
 
     # Model import 模型導入
     model = network_model.Net(1)
-
-
-    print(f"Start running basic DDP example on rank {rank}.")
-    setup(rank, world_size)
-    # create model and move it to GPU with id rank
-    model = model.to(rank)
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
@@ -167,72 +212,13 @@ def train(rank,world_size):
     #wandb.ai
     if args["wandb_name"]!="no":
         wandb_information(model_size,flops,params,model)
-    
+        
     time_start = time.time()      # Training start time 訓練開始時間
 
     for epoch in range(start_epoch, args['epochs']+1):
-        model.train()
-        cudnn.benchmark= False
-        count=0
-        # Training loop 訓練迴圈 
-        pbar = tqdm((training_data_loader),total=len(training_data_loader))
-        #for iteration,(img_image, mask_image) in enumerate(training_data_loader):
-        for img_image, mask_image in pbar:
-            img_image = img_image.to(device)
-            mask_image = mask_image.to(device)
-            onnx_img_image=img_image
-
-            img_image = Variable(img_image, requires_grad=True)    # Variable storage data supports almost all tensor operations, requires_grad=True: Derivatives can be obtained, and the backwards method can be used to calculate and accumulate gradients
-            mask_image = Variable(mask_image, requires_grad=True)  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
-
-            output = model(img_image)
-            
-            optimizer.zero_grad()     # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
-            
-            loss = utils.loss.CustomLoss(output, mask_image)
-            acc = utils.metrics.acc_miou(output,mask_image)
-
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(),0.1)
-            optimizer.step()
-
-            pbar.set_description(f"trian_epoch [{epoch}/{args['epochs']}]")
-            pbar.set_postfix(train_loss=loss.item(),train_acc=acc.item())
-            if args["wandb_name"]!="no":
-                wandb.log({"train_loss": loss.item(),"train_acc": acc.item()})
-
-            # Graphical archive of the epoch test set 
-            # epoch 測試集中的圖示化存檔
-            count +=1
-            if not os.path.exists("./training_data_captures/"):
-                os.makedirs("./training_data_captures/")
-            torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
-
-        # Validation loop 驗證迴圈
-        count=0
-        model.eval()
-        pbar = tqdm((validation_data_loader),total=len(validation_data_loader))
-        for img_image,mask_image in pbar:
-            img_image = img_image.to(device)
-            mask_image = mask_image.to(device)
-            
-            output = model(img_image)
-
-            loss = utils.loss.CustomLoss(output, mask_image)
-            acc = utils.metrics.acc_miou(output,mask_image)
-
-            pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
-            pbar.set_postfix(val_loss=loss.item(),val_acc=acc.item())
-            
-            if args["wandb_name"]!="no":
-                wandb.log({"val_loss": loss.item(),"val_acc": acc.item()})
-
-            # Graphical archive of the epoch test set 
-            # epoch 測試集中的圖示化存檔
-            count +=1
-            if not os.path.exists("./validation_data_captures/"):
-                os.makedirs("./validation_data_captures/")
-            torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" +str(count)+".jpg")
+        
+        train_epoch(model,training_data_loader,device,optimizer,epoch)
+        valid_epoch(model,validation_data_loader,device,epoch)
 
         # Save model 模型存檔              
         model_file_name = args['save_dir'] + 'model_' + str(epoch) + '.pth'
@@ -260,8 +246,11 @@ if __name__=="__main__":
 
     ap = argparse.ArgumentParser()
     
-    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
-    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
+    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
+    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
+
+    ap.add_argument('-ti', '--train_images',default="C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/images/" , help="path to hazy training images")
+    ap.add_argument('-tm', '--train_masks',default= "C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/masks/",  help="path to mask")
 
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Imag/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Mask/",  help="path to mask")
