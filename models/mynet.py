@@ -43,22 +43,56 @@ class AttnTrans(nn.Module):
         output = self.conv1_1f(output)
 
         return output
+    
+class detail_branch(nn.Module):
+    def __init__(self, in_chs,out_chs):
+        super().__init__()
+        self.AttnTrans_1 = AttnTrans(in_chs,48)
+        self.AttnTrans_2 = AttnTrans(48,48)
+        self.AttnTrans_3 = AttnTrans(48,48)
 
-# class context_branch(nn.Module):
-#     def __init__(self, in_chs,out_chs):
-#         super().__init__()
+        self.AttnTrans_4 = AttnTrans(48,96)
+        self.AttnTrans_5 = AttnTrans(96,96)
+        self.AttnTrans_6 = AttnTrans(96,96)
 
-#     def forward(self, input):
+        self.AttnTrans_7 = AttnTrans(96,192)
+        self.AttnTrans_8 = AttnTrans(192,192)
+        self.AttnTrans_9 = AttnTrans(192,192)
 
-# class detail_branch(nn.Module):
-#     def __init(self, in_chs,out_chs):
-#         super().__init__()
-#         self.cin_cout = nn.Sequential(
-#             self.conv = nn.Conv2d(in_chs,48,(3,3),stride = 2 ,padding=1,bias = True)
-#             self.covn = nn.Conv2d(48,,(3,3),stride = 2 ,padding=1,bias = True)
+        self.AttnTrans_10 = AttnTrans(192,384)
+        self.AttnTrans_11 = AttnTrans(384,384)
+        self.AttnTrans_12 = AttnTrans(384,out_chs)
+
+    def forward(self, input):
+        out = self.AttnTrans_1(input)
+        out = self.AttnTrans_2(out)
+        out = self.AttnTrans_3(out)
+
+        out = self.AttnTrans_4(out)
+        out = self.AttnTrans_5(out)
+        out_1 = self.AttnTrans_6(out)
+
+        out_1 = self.AttnTrans_4(out_1)
+        out_1 = self.AttnTrans_5(out_1)
+        out_2 = self.AttnTrans_6(out_1)
+
+        out_2 = self.AttnTrans_4(out_2)
+        out_2 = self.AttnTrans_5(out_2)
+        out_3 = self.AttnTrans_6(out_2)
+
+        return out_1,out_2,out_3
+
+
+class context_branch(nn.Module):
+    def __init__(self, in_chs,out_chs):
+        super().__init__()
+
+    def forward(self, input):
+
+
         
-#     def forward(self, input):
-        
+
+
 
 class Net(nn.Module):
     def __init__(self):
