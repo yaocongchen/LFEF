@@ -14,9 +14,13 @@ class AttnTrans(nn.Module):
 
         self.mysigmoid = nn.Sigmoid()
         
-        self.conv1_1 = nn.Conv2d(3,3,(1,1),stride = 1,bias =True)
+        self.conv1_1 = nn.Conv2d(in_chs,in_chs,(1,1),stride = 1,bias =True)
         #TODO: NO use upsample
         #self.upsamp = nn.Upsample(size = (64,64),mode ='bilinear',align_corners = True)
+
+        self.upsamp = nn.Upsample(size = (28,28),mode ='bilinear',align_corners = True)
+
+
 
         self.conv1_1f = nn.Conv2d(in_chs,out_chs,(1,1),stride = 1,bias = True)
 
@@ -39,7 +43,7 @@ class AttnTrans(nn.Module):
 
         output = input * channel_avg
         output = output *spatial_avg
-
+        output = self.upsamp(output)
         output = self.conv1_1f(output)
 
         return output
@@ -72,43 +76,81 @@ class detail_branch(nn.Module):
         out = self.AttnTrans_5(out)
         out_1 = self.AttnTrans_6(out)
 
-        out_1 = self.AttnTrans_4(out_1)
-        out_1 = self.AttnTrans_5(out_1)
-        out_2 = self.AttnTrans_6(out_1)
+        out_2 = self.AttnTrans_7(out_1)
+        out_2 = self.AttnTrans_8(out_2)
+        out_2 = self.AttnTrans_9(out_2)
 
-        out_2 = self.AttnTrans_4(out_2)
-        out_2 = self.AttnTrans_5(out_2)
-        out_3 = self.AttnTrans_6(out_2)
+        out_3 = self.AttnTrans_10(out_2)
+        out_3 = self.AttnTrans_11(out_3)
+        out_3 = self.AttnTrans_12(out_3)
 
         return out_1,out_2,out_3
-
 
 class context_branch(nn.Module):
     def __init__(self, in_chs,out_chs):
         super().__init__()
+        self.conv_in_48 = nn.Conv2d(in_chs,48,(3,3),stride=2,bias = True)
+        
+        self.conv_48_48 = nn.Conv2d(48,48,(3,3),stride=2,bias = True)
+        self.conv_48_48_no_stride = nn.Conv2d(48,48,(3,3),stride=1,bias = True)
+
+        self.conv_48_96 = nn.Conv2d(48,96,(3,3),stride=2,bias = True)
+        self.conv_96_96 = nn.Conv2d(96,96,(3,3),stride=1,bias = True)
+        
+        self.conv_96_192= nn.Conv2d(96,192,(3,3),stride=2,bias = True)  
+        self.conv_192_192= nn.Conv2d(192,192,(3,3),stride=1,bias = True)
+        
+        self.conv_192_384 = nn.Conv2d(192,384,(3,3),stride=2,bias = True)
+        self.conv_384_384 = nn.Conv2d(384,384,(3,3),stride=1,bias = True)
 
     def forward(self, input):
-
-
+        out = self.conv_in_48(input)
         
+        out = self.conv_48_48(out)
+        out = self.conv_48_48_no_stride(out)
+        
+        out = self.conv_48_96(out)
+        out_1 = self.conv_96_96(out)
+        
+        out_2 = self.conv_96_192(out_1)
+        out_2 = self.conv_192_192(out_2)
 
+        out_3 = self.conv_192_384(out_2)
+        out_3 = self.conv_384_384(out_3)
 
+        return out_1,out_2,out_3
 
 class Net(nn.Module):
     def __init__(self):
         super().__init__()
-        self.AttnTrans = AttnTrans(3,48)
+        self.cb = context_branch(3,384)
+        self.db = detail_branch(3,384)
 
+        self.conv_192_32 = nn.Conv2d(192,32, (1,1) ,stride =1 ,bias = True)
+        self.conv_384_32 = nn.Conv2d(384,32, (1,1) ,stride =1 ,bias = True)
+        self.conv_768_32 = nn.Conv2d(768,32, (1,1) ,stride =1 ,bias = True)
 
+        self.conv_768_32 = nn.Conv2d(768,1, (1,1) ,stride =1 ,bias = True)
 
-        
+        self.upsamp = nn.Upsample(size = (256,256),mode ='bilinear',align_corners = True)
 
     def forward(self, img):
-        out = self.AttnTrans(img)
+        cb_out_1,cb_out_2,cb_out_3 = self.cb(img)
+        db_out_1,db_out_2,db_out_3 = self.db(img)
 
+        cat_out_1 = torch.cat((cb_out_1,db_out_1),dim = 1)
+        cat_out_1 = self.conv_192_32(cat_out_1) 
+
+        cat_out_2 = torch.cat((cb_out_2,db_out_2),dim = 1)
+        cat_out_2 = self.conv_768_32(cat_out_2)
+
+        cat_out_3 = torch.cat((cb_out_3,db_out_3),dim = 1)
+        cat_out_3 = self.conv_768_32(cat_out_3)
+
+        out = torch.cat((cat_out_1,cat_out_2),dim = 1)
+        out = torch.cat((out,cat_out_3),dim = 1)
 
         return out
-
 
 if __name__ == "__main__":
 
@@ -118,17 +160,19 @@ if __name__ == "__main__":
     imgTensor = imgTensor.unsqueeze(0)
     
     model = Net()
-    x = torch.randn(1,3,10,10)
+    x = torch.randn(16,3,256,256)
     print("x")
     print(x)
     print(imgTensor.shape)
 
-    output = model(imgTensor)
-    #summary(model, input_size=(16,3,256,256))
-    #torchvision.utils.save_image(output, "testjpg.jpg")
-
+    output = model(x)
     print(output)
     print(output.shape)
+
+    summary(model, input_size=(16,3,256,256))
+    #torchvision.utils.save_image(output, "testjpg.jpg")
+
+
 
 
     # #Channel Avg
