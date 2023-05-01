@@ -24,7 +24,7 @@ def image_pre_processing(input):
     process_frame = process_frame / 255.0
 
     video_frame = torch.from_numpy(process_frame).float()
-    output=video_frame.permute(2,0,1)
+    output=video_frame.permute(2,0,1).contiguous()
 
     return output
 
@@ -62,7 +62,7 @@ def smoke_segmentation(video_path:str,model_input:str,device:torch.device,binary
         video_frame = image_pre_processing(frame)
         smoke_input_image  = video_frame.unsqueeze(0).to(device)  #add batch
         output = smoke_semantic(smoke_input_image,model_input,device)
-        output_np=output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).detach().numpy()   # remove batch
+        output_np=output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).contiguous().to("cpu", torch.uint8).detach().numpy()   # remove batch
         output_np = cv2.resize(output_np,(video_W,video_H),interpolation = cv2.INTER_AREA)    #插值
         output_np = Image.fromarray(output_np)
 
