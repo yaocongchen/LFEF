@@ -39,7 +39,7 @@ if __name__ == "__main__":
     
     ap = argparse.ArgumentParser()
     ap.add_argument('-s', "--source",type = str,default = '/home/yaocong/Experimental/speed_smoke_segmentation/test_files/Dry_leaf_smoke_02.avi',required=False, help="path to test video path")
-    ap.add_argument('-m',"--model_path" ,default = '/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs8e150/final.pth ',required=False, help="load model path")
+    ap.add_argument('-m',"--model_path" ,default = '/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs8e150/final.pth',required=False, help="load model path")
     ap.add_argument('-save',"--save_video" ,type = str,default = 'True',required=False, help="save video")  #argparse.ArgumentParser()無法辨識boolean
     ap.add_argument('-show',"--show_video" ,type = str,default = 'True',required=False, help="save video") 
     args = vars(ap.parse_args())
