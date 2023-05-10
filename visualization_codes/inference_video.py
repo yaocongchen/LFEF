@@ -50,50 +50,67 @@ def smoke_segmentation(video_path:str,model_input:str,device:torch.device,binary
     if save_video == 'True':
         out = save(video_W,video_H,video_FPS)
 
+    idx = 0
+    freq = 5
     while cap.isOpened():
-        ret,frame = cap.read()
+        idx += 1
+        ret = cap.grab()
+
+
+
+
+
+        #ret,frame = cap.read()
         #if frame is read correctly ret is True
         if not ret:
             print("Can't receive frame (stream end?). Exiting ...")
             break
-
-        counter += 1
-
-        video_frame = image_pre_processing(frame)
-        smoke_input_image  = video_frame.unsqueeze(0).to(device)  #add batch
-        output = smoke_semantic(smoke_input_image,model_input,device)
-        output_np=output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).contiguous().to("cpu", torch.uint8).detach().numpy()   # remove batch
-        output_np = cv2.resize(output_np,(video_W,video_H),interpolation = cv2.INTER_AREA)    #插值
-        output_np = Image.fromarray(output_np)
-
-        # output_np to binarization output_np轉二值化
-        binary_image = image_process.gray_to_binary(output_np)
         
-        if binary_mode == True:
-            output_np_RGBA = binary_image.convert('RGBA')
-        else:    
-            output_np_RGBA = output_np.convert('RGBA')
+        if idx % freq == 1:
 
-        frame_image = Image.fromarray(frame)
-        frame_RGBA = frame_image.convert('RGBA')
-        
-        blendImage = image_process.overlap(frame_RGBA,output_np_RGBA,read_method = "OpenCV_BGRA")
-        output_np = blendImage.convert('RGB')
-        output_np = np.asarray(output_np)
-
-        print("FPS: ",counter / (time.time() - start_time))
-        counter = 0
-        start_time = time.time()
-
-        if save_video == 'True':
-            out.write(output_np)
-            
-        if show_video == 'True':
-            cv2.imshow('frame',output_np)
-            #cv2.imshow('frame1',frame)
-
-            if cv2.waitKey(1) == ord('q'):
+            ret, frame = cap.retrieve()
+            if frame is None: #exist broken frame
                 break
+            else:
+
+
+                counter += 1
+
+                video_frame = image_pre_processing(frame)
+                smoke_input_image  = video_frame.unsqueeze(0).to(device)  #add batch
+                output = smoke_semantic(smoke_input_image,model_input,device)
+                output_np=output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).contiguous().to("cpu", torch.uint8).detach().numpy()   # remove batch
+                output_np = cv2.resize(output_np,(video_W,video_H),interpolation = cv2.INTER_AREA)    #插值
+                output_np = Image.fromarray(output_np)
+
+                # output_np to binarization output_np轉二值化
+                binary_image = image_process.gray_to_binary(output_np)
+                
+                if binary_mode == True:
+                    output_np_RGBA = binary_image.convert('RGBA')
+                else:    
+                    output_np_RGBA = output_np.convert('RGBA')
+
+                frame_image = Image.fromarray(frame)
+                frame_RGBA = frame_image.convert('RGBA')
+                
+                blendImage = image_process.overlap(frame_RGBA,output_np_RGBA,read_method = "OpenCV_BGRA")
+                output_np = blendImage.convert('RGB')
+                output_np = np.asarray(output_np)
+
+                print("FPS: ",counter / (time.time() - start_time))
+                counter = 0
+                start_time = time.time()
+
+                if save_video == 'True':
+                    out.write(output_np)
+                    
+                if show_video == 'True':
+                    cv2.imshow('frame',output_np)
+                    #cv2.imshow('frame1',frame)
+
+                    if cv2.waitKey(1) == ord('q'):
+                        break
 
     #Release everything if job is finished
     cap.release()
