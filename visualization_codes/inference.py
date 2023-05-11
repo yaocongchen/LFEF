@@ -27,7 +27,7 @@ def smoke_semantic(input_image,model_path,device):
 	#print(total_image)
 
 	# Calculate FPS
-	print("FPS:{:.1f}".format(1/(time_end-time_start)))
+	print("Model_FPS: {:.1f}".format(1/(time_end-time_start)))
 
 	return output
 

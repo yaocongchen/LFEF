@@ -22,7 +22,7 @@ def smoke_segmentation(device):
         #print(total_image)
 
         # Calculate FPS
-        print("FPS:{:.1f}".format(total_image/(time_end-time_start)))
+        print("folder_process_FPS:{:.1f}".format(total_image/(time_end-time_start)))
 
     else:
         root,extension = os.path.splitext(source)
@@ -31,10 +31,13 @@ def smoke_segmentation(device):
 
             names=inference_single_picture.files_name()
             inference_single_picture.smoke_segmentation(args['source'],args['model_path'],device,names)
-        elif extension in ['.mp4', '.avi']:
+        elif extension in ['.mp4', '.avi', '0']:
             binary_mode = True
             inference_video.smoke_segmentation(args['source'],args['model_path'],device,binary_mode,args["save_video"],args['show_video'])
-
+        elif root in ['0']:
+            binary_mode = True
+            inference_video.smoke_segmentation(args['source'],args['model_path'],device,binary_mode,args["save_video"],args['show_video'])
+            
 if __name__ == "__main__":
     
     ap = argparse.ArgumentParser()
