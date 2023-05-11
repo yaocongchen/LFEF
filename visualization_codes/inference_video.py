@@ -141,7 +141,7 @@ def image_pre_processing(input):
 #     return 
 
 
-Main function 主函式
+#Main function 主函式
 def smoke_segmentation(video_path:str,model_input:str,device:torch.device,binary_mode:bool,save_video:str,show_video:str):
     print("binary_mode:",binary_mode)
     print("save_video:",save_video)
