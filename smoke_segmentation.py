@@ -34,7 +34,7 @@ def smoke_segmentation(device):
         elif extension in ['.mp4', '.avi', '0']:
             binary_mode = True
             inference_video.smoke_segmentation(args['source'],args['model_path'],device,binary_mode,args["save_video"],args['show_video'])
-        elif root in ['0']:
+        elif root in ['0']:    #camera
             binary_mode = True
             inference_video.smoke_segmentation(args['source'],args['model_path'],device,binary_mode,args["save_video"],args['show_video'])
             
