@@ -9,10 +9,10 @@ sys.path.append("..")
 from models import erfnet
 import time
 
-def smoke_semantic(input_image,model_path,device):
-	model = erfnet.Net(1).to(device)
-	model.load_state_dict(torch.load(model_path))     
-	model.eval()
+def smoke_semantic(input_image,model,device):
+	# model = erfnet.Net(1).to(device)
+	# model.load_state_dict(torch.load(model_path))     
+	# model.eval()
 
 	time_start = time.time()
 	output = model(input_image)   # Import model 導進模型
