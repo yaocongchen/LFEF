@@ -7,18 +7,23 @@ from models import erfnet
 
 def smoke_segmentation(device):
     model = erfnet.Net(1).to(device)
-    model.load_state_dict(torch.load(args['model_path']))     
+    model.load_state_dict(torch.load(args['model_path']))
+
     model.eval()
 
     source = args['source']
 
+    time_train = []
+
+    i=0
+    
     if os.path.isdir(source):
 
         names = inference_multiple_pictures.folders_and_files_name()
 
         total_image = len(os.listdir(args["source"]))
         time_start = time.time()
-        inference_multiple_pictures.smoke_segmentation(args['source'],model,device,names)
+        inference_multiple_pictures.smoke_segmentation(args['source'],model,device,names,time_train,i)
         time_end = time.time()
         spend_time = int(time_end-time_start) 
         time_min = spend_time // 60 
@@ -35,13 +40,13 @@ def smoke_segmentation(device):
         if extension in ['.jpg','.png']:
 
             names=inference_single_picture.files_name()
-            inference_single_picture.smoke_segmentation(args['source'],model,device,names)
-        elif extension in ['.mp4', '.avi', '0']:
+            inference_single_picture.smoke_segmentation(args['source'],model,device,names,time_train,i)
+        elif extension in ['.mp4', '.avi']:
             binary_mode = True
-            inference_video.smoke_segmentation(args['source'],model,device,binary_mode,args["save_video"],args['show_video'])
+            inference_video.smoke_segmentation(args['source'],model,device,binary_mode,args["save_video"],args['show_video'],time_train,i)
         elif root in ['0']:    #camera
             binary_mode = True
-            inference_video.smoke_segmentation(args['source'],model,device,binary_mode,args["save_video"],args['show_video'])
+            inference_video.smoke_segmentation(args['source'],model,device,binary_mode,args["save_video"],args['show_video'],time_train,i)
             
 if __name__ == "__main__":
     

@@ -129,7 +129,7 @@ def image_overlap(input_image,i,names):
     return
 
 # Main function 主函式
-def smoke_segmentation(directory:str,model_input:str,device:torch.device,names:dict):
+def smoke_segmentation(directory:str,model_input:str,device:torch.device,names:dict,time_train,i):
     i = 0
     pbar = tqdm((os.listdir(directory)),total=len(os.listdir(directory)))
     for filename in pbar:
@@ -138,7 +138,7 @@ def smoke_segmentation(directory:str,model_input:str,device:torch.device,names:d
         smoke_input_image = transform(smoke_input_image)
         smoke_input_image = (smoke_input_image)/255.0
         smoke_input_image  = smoke_input_image.unsqueeze(0).to(device)
-        output = smoke_semantic(smoke_input_image,model_input,device)
+        output = smoke_semantic(smoke_input_image,model_input,device,time_train,i)
         i+=1
         torchvision.utils.save_image(output ,"./" + names["smoke_semantic_dir_name"] + "/" + names["smoke_semantic_image_name"]  + f"{i}.jpg")
         image_overlap(os.path.join(directory,filename),i,names)

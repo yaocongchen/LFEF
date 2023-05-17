@@ -99,7 +99,7 @@ def image_overlap(input_image,names):
     return
 
 # Main function 主函式 
-def smoke_segmentation(input:str,model_input:str,device:torch.device,names:dict):
+def smoke_segmentation(input:str,model_input:str,device:torch.device,names:dict,time_train,i):
     smoke_input_image = read_image(input)
     # print(smoke_input_image.shape)
     transform = transforms.Resize([256, 256])
@@ -107,7 +107,7 @@ def smoke_segmentation(input:str,model_input:str,device:torch.device,names:dict)
     # print(smoke_input_image.shape)
     smoke_input_image = (smoke_input_image)/255.0
     smoke_input_image  = smoke_input_image.unsqueeze(0).to(device)
-    output = smoke_semantic(smoke_input_image,model_input,device)
+    output = smoke_semantic(smoke_input_image,model_input,device,time_train,i)
     torchvision.utils.save_image(output ,names["smoke_semantic_image_name"] + ".jpg")
 
     image_overlap(input,names)
