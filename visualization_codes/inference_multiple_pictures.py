@@ -133,7 +133,7 @@ def smoke_segmentation(directory:str,model_input:str,device:torch.device,names:d
     i = 0
     pbar = tqdm((os.listdir(directory)),total=len(os.listdir(directory)))
     for filename in pbar:
-        smoke_input_image = read_image(os.path.join(directory,filename))
+        smoke_input_image = read_image(os.path.join(directory,filename)).to(device)
         transform = transforms.Resize([256, 256])
         smoke_input_image = transform(smoke_input_image)
         smoke_input_image = (smoke_input_image)/255.0

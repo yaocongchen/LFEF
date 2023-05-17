@@ -7,6 +7,7 @@ import time
 from PIL import Image
 import numpy as np
 import os
+from torchvision import transforms
 import threading
 from copy import deepcopy
 
@@ -19,14 +20,13 @@ def save(video_W:int,video_H:int,video_FPS):
     output = cv2.VideoWriter(f'./results/{save_file_name}.mp4', fourcc, video_FPS, (video_W,video_H),3)   #mp4 only RGB
     return output
 
-def image_pre_processing(input):
-    process_frame = input  
-    process_frame = cv2.resize(process_frame,(256,256),interpolation = cv2.INTER_AREA)    #插值
-    process_frame = process_frame.astype('float32')      # Normalized 歸一化
+def image_pre_processing(input,device):
+    process_frame = torch.from_numpy(input).to(device)
+    process_frame = process_frame.permute(2,0,1).contiguous()
+    transform = transforms.Resize([256,256],antialias=True)    #插值
+    process_frame = transform(process_frame)
     process_frame = process_frame / 255.0
-
-    video_frame = torch.from_numpy(process_frame).float()
-    output=video_frame.permute(2,0,1).contiguous()
+    output  = process_frame.unsqueeze(0)
 
     return output
 
@@ -174,12 +174,14 @@ def smoke_segmentation(video_path:str,model_input:str,device:torch.device,binary
 
         counter += 1
 
-        video_frame = image_pre_processing(frame)
-        smoke_input_image  = video_frame.unsqueeze(0).to(device)  #add batch
-        output = smoke_semantic(smoke_input_image,model_input,device, time_train,i)
-        output_np = output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).contiguous().to("cpu", torch.uint8).detach().numpy()   # remove batch
-        output_np = cv2.resize(output_np,(video_W,video_H),interpolation = cv2.INTER_AREA)    #插值
-        output_np = Image.fromarray(output_np)
+        video_frame = image_pre_processing(frame,device)
+        output = smoke_semantic(video_frame,model_input,device, time_train,i)
+        output_np = output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255)
+        transform = transforms.Resize([video_H,video_W],antialias=True)    #插值
+        output_np = transform(output_np)
+
+        PILtransform = transforms.ToPILImage()
+        output_np = PILtransform(output_np)
 
         # output_np to binarization output_np轉二值化
         binary_image = image_process.gray_to_binary(output_np)
