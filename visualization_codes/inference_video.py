@@ -1,6 +1,7 @@
 import cv2
 from visualization_codes.inference import smoke_semantic
-import visualization_codes.image_process_utils as image_process
+# import visualization_codes.image_process_utils as image_process
+import visualization_codes.testcpy.image_process_utils_cython as image_process
 import torch
 import argparse
 import time
@@ -40,7 +41,7 @@ def image_pre_processing(input,device):
 #         self.img_height = img_height
 #         self.img_width = img_width
 #         self.frame = np.zeros((img_height,img_width, 3), dtype=np.uint8)
-
+False
 #     def get_frame(self):
 #         return deepcopy(self.frame)
     
@@ -142,8 +143,9 @@ def image_pre_processing(input,device):
 
 
 #Main function 主函式
-def smoke_segmentation(video_path:str,model_input:str,device:torch.device,binary_mode:bool,save_video:str,show_video:str, time_train,i):
+def smoke_segmentation(video_path:str,model_input:str,device:torch.device,binary_mode:bool,blend_image:bool,save_video:str,show_video:str, time_train,i):
     print("binary_mode:",binary_mode)
+    print("blend_image:",blend_image)
     print("save_video:",save_video)
     print("show_video:",show_video)
 
@@ -176,15 +178,22 @@ def smoke_segmentation(video_path:str,model_input:str,device:torch.device,binary
 
         video_frame = image_pre_processing(frame,device)
         output = smoke_semantic(video_frame,model_input,device, time_train,i)
-        output_np = output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255)
-        transform = transforms.Resize([video_H,video_W],antialias=True)    #插值
-        output_np = transform(output_np)
+        #use opencv method
+        output_np=output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).contiguous().to("cpu", torch.uint8).detach().numpy()
+        output_np = cv2.resize(output_np,(video_W,video_H),interpolation = cv2.INTER_AREA)    #插值
+        output_np = Image.fromarray(output_np)
 
-        PILtransform = transforms.ToPILImage()
-        output_np = PILtransform(output_np)
+        # use torchvision method
+        # output_np = output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255)
+        # transform = transforms.Resize([video_H,video_W],antialias=True)    #插值
+        # output_np = transform(output_np)
+
+        # PILtransform = transforms.ToPILImage()
+        # output_np = PILtransform(output_np)
 
         # output_np to binarization output_np轉二值化
         binary_image = image_process.gray_to_binary(output_np)
+
         
         if binary_mode == True:
             output_np_RGBA = binary_image.convert('RGBA')
@@ -194,8 +203,9 @@ def smoke_segmentation(video_path:str,model_input:str,device:torch.device,binary
         frame_image = Image.fromarray(frame)
         frame_RGBA = frame_image.convert('RGBA')
         
-        blendImage = image_process.overlap(frame_RGBA,output_np_RGBA,read_method = "OpenCV_BGRA")
-        output_np = blendImage.convert('RGB')
+        if blend_image == True:
+            blendImage = image_process.overlap(frame_RGBA,output_np_RGBA,read_method = "OpenCV_BGRA")
+            output_np = blendImage.convert('RGB')
         output_np = np.asarray(output_np)
 
         print("FPS: ",counter / (time.time() - start_time))

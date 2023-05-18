@@ -1,6 +1,6 @@
 from PIL import Image
 
-cpdef int gray_to_binary(image):
+cpdef gray_to_binary(image):
 
     cdef int threshold
     gray = image.convert('L')
@@ -14,9 +14,10 @@ cpdef int gray_to_binary(image):
             table.append(1)
 
     binary = gray.point(table, '1')   #PIL Image.point()
+
     return binary
 
-def overlap(image1,image2,read_method):
+cpdef overlap(image1,image2,read_method):
     W,H = image2.size
     black_background = (0, 0, 0, 255)
     #white_mask = (255, 255, 255, 255)
