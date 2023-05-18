@@ -41,7 +41,7 @@ def image_pre_processing(input,device):
 #         self.img_height = img_height
 #         self.img_width = img_width
 #         self.frame = np.zeros((img_height,img_width, 3), dtype=np.uint8)
-False
+
 #     def get_frame(self):
 #         return deepcopy(self.frame)
     
