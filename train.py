@@ -108,7 +108,7 @@ def time_processing(spend_time):
 
 def train_epoch(model,training_data_loader,device,optimizer,epoch):
     model.train()
-    cudnn.benchmark= False
+    cudnn.benchmark= True
     count=0
     # Training loop 訓練迴圈 
     pbar = tqdm((training_data_loader),total=len(training_data_loader))
@@ -153,7 +153,8 @@ def valid_epoch(model,validation_data_loader,device,epoch):
         img_image = img_image.to(device)
         mask_image = mask_image.to(device)
         
-        output = model(img_image)
+        with torch.no_grad():
+            output = model(img_image)
 
         loss = utils.loss.CustomLoss(output, mask_image)
         acc = utils.metrics.acc_miou(output,mask_image)
@@ -175,7 +176,7 @@ def train():
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
     # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
-    cudnn.enabled = False
+    cudnn.enabled = True
 
     # Model import 模型導入
     model = network_model.Net(1)
@@ -218,6 +219,7 @@ def train():
     for epoch in range(start_epoch, args['epochs']+1):
         
         train_epoch(model,training_data_loader,device,optimizer,epoch)
+        torch.cuda.empty_cache()    #刪除不需要的變數
         valid_epoch(model,validation_data_loader,device,epoch)
 
         # Save model 模型存檔              
