@@ -204,10 +204,11 @@ def smoke_segmentation(video_path:str,model_input:str,device:torch.device,binary
         frame_RGBA = frame_image.convert('RGBA')
         
         if blend_image == True:
-            blendImage = image_process.overlap(frame_RGBA,output_np_RGBA,read_method = "OpenCV_BGRA")
+            blendImage = image_process.overlap_v2(frame_RGBA,output_np_RGBA,read_method = "OpenCV_BGRA")
             output_np = blendImage.convert('RGB')
         output_np = np.asarray(output_np)
 
+        print("process_time: ",time.time() - start_time)
         print("FPS: ",counter / (time.time() - start_time))
         counter = 0
         start_time = time.time()
