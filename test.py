@@ -13,7 +13,7 @@ from models import erfnet
 
 def folders_and_files_name():
     # Set save folder and file name 設定存檔資料夾與存檔名稱  
-    save_smoke_semantic_dir_name = "multiple_result"
+    save_smoke_semantic_dir_name = "testing_multiple_result"
     if os.path.exists("./" + save_smoke_semantic_dir_name):
         shutil.rmtree("./" + save_smoke_semantic_dir_name)      # Delete the original folder and content 將原有的資料夾與內容刪除
         os.makedirs("./" + save_smoke_semantic_dir_name)        # Create new folder 創建新的資料夾
