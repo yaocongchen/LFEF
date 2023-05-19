@@ -1334,7 +1334,7 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 /* Module declarations from 'image_process_utils_cython' */
 static PyObject *__pyx_f_26image_process_utils_cython_gray_to_binary(PyObject *, int __pyx_skip_dispatch); /*proto*/
-static PyObject *__pyx_f_26image_process_utils_cython_overlap(PyObject *, PyObject *, PyObject *, int __pyx_skip_dispatch); /*proto*/
+static PyObject *__pyx_f_26image_process_utils_cython_overlap_v1(PyObject *, PyObject *, PyObject *, int __pyx_skip_dispatch); /*proto*/
 static PyObject *__pyx_f_26image_process_utils_cython_overlap_v2(PyObject *, PyObject *, PyObject *, int __pyx_skip_dispatch); /*proto*/
 #define __Pyx_MODULE_NAME "image_process_utils_cython"
 extern int __pyx_module_is_main_image_process_utils_cython;
@@ -1387,7 +1387,7 @@ static PyObject *__pyx_n_s_read_method;
 static PyObject *__pyx_n_s_size;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_pf_26image_process_utils_cython_gray_to_binary(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_image); /* proto */
-static PyObject *__pyx_pf_26image_process_utils_cython_2overlap(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_image1, PyObject *__pyx_v_image2, PyObject *__pyx_v_read_method); /* proto */
+static PyObject *__pyx_pf_26image_process_utils_cython_2overlap_v1(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_image1, PyObject *__pyx_v_image2, PyObject *__pyx_v_read_method); /* proto */
 static PyObject *__pyx_pf_26image_process_utils_cython_4overlap_v2(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_image1, PyObject *__pyx_v_image2, PyObject *__pyx_v_read_method); /* proto */
 static PyObject *__pyx_float_0_2;
 static PyObject *__pyx_int_0;
@@ -1595,7 +1595,7 @@ static PyObject *__pyx_f_26image_process_utils_cython_gray_to_binary(PyObject *_
  * 
  *     return binary             # <<<<<<<<<<<<<<
  * 
- * cpdef overlap(image1,image2,read_method):
+ * cpdef overlap_v1(image1,image2,read_method):
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_binary);
@@ -1669,13 +1669,13 @@ static PyObject *__pyx_pf_26image_process_utils_cython_gray_to_binary(CYTHON_UNU
 /* "image_process_utils_cython.pyx":20
  *     return binary
  * 
- * cpdef overlap(image1,image2,read_method):             # <<<<<<<<<<<<<<
+ * cpdef overlap_v1(image1,image2,read_method):             # <<<<<<<<<<<<<<
  *     W,H = image2.size
  *     black_background = (0, 0, 0, 255)
  */
 
-static PyObject *__pyx_pw_26image_process_utils_cython_3overlap(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_f_26image_process_utils_cython_overlap(PyObject *__pyx_v_image1, PyObject *__pyx_v_image2, PyObject *__pyx_v_read_method, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_26image_process_utils_cython_3overlap_v1(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_26image_process_utils_cython_overlap_v1(PyObject *__pyx_v_image1, PyObject *__pyx_v_image2, PyObject *__pyx_v_read_method, CYTHON_UNUSED int __pyx_skip_dispatch) {
   PyObject *__pyx_v_W = NULL;
   PyObject *__pyx_v_H = NULL;
   PyObject *__pyx_v_black_background = NULL;
@@ -1702,11 +1702,11 @@ static PyObject *__pyx_f_26image_process_utils_cython_overlap(PyObject *__pyx_v_
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("overlap", 0);
+  __Pyx_RefNannySetupContext("overlap_v1", 0);
 
   /* "image_process_utils_cython.pyx":21
  * 
- * cpdef overlap(image1,image2,read_method):
+ * cpdef overlap_v1(image1,image2,read_method):
  *     W,H = image2.size             # <<<<<<<<<<<<<<
  *     black_background = (0, 0, 0, 255)
  *     #white_mask = (255, 255, 255, 255)
@@ -1765,7 +1765,7 @@ static PyObject *__pyx_f_26image_process_utils_cython_overlap(PyObject *__pyx_v_
   __pyx_t_3 = 0;
 
   /* "image_process_utils_cython.pyx":22
- * cpdef overlap(image1,image2,read_method):
+ * cpdef overlap_v1(image1,image2,read_method):
  *     W,H = image2.size
  *     black_background = (0, 0, 0, 255)             # <<<<<<<<<<<<<<
  *     #white_mask = (255, 255, 255, 255)
@@ -2211,7 +2211,7 @@ static PyObject *__pyx_f_26image_process_utils_cython_overlap(PyObject *__pyx_v_
   /* "image_process_utils_cython.pyx":20
  *     return binary
  * 
- * cpdef overlap(image1,image2,read_method):             # <<<<<<<<<<<<<<
+ * cpdef overlap_v1(image1,image2,read_method):             # <<<<<<<<<<<<<<
  *     W,H = image2.size
  *     black_background = (0, 0, 0, 255)
  */
@@ -2224,7 +2224,7 @@ static PyObject *__pyx_f_26image_process_utils_cython_overlap(PyObject *__pyx_v_
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_10);
   __Pyx_XDECREF(__pyx_t_13);
-  __Pyx_AddTraceback("image_process_utils_cython.overlap", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("image_process_utils_cython.overlap_v1", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_W);
@@ -2241,8 +2241,8 @@ static PyObject *__pyx_f_26image_process_utils_cython_overlap(PyObject *__pyx_v_
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_26image_process_utils_cython_3overlap(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_26image_process_utils_cython_3overlap(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_26image_process_utils_cython_3overlap_v1(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_26image_process_utils_cython_3overlap_v1(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_image1 = 0;
   PyObject *__pyx_v_image2 = 0;
   PyObject *__pyx_v_read_method = 0;
@@ -2251,7 +2251,7 @@ static PyObject *__pyx_pw_26image_process_utils_cython_3overlap(PyObject *__pyx_
   int __pyx_clineno = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("overlap (wrapper)", 0);
+  __Pyx_RefNannySetupContext("overlap_v1 (wrapper)", 0);
   {
     static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_image1,&__pyx_n_s_image2,&__pyx_n_s_read_method,0};
     PyObject* values[3] = {0,0,0};
@@ -2277,17 +2277,17 @@ static PyObject *__pyx_pw_26image_process_utils_cython_3overlap(PyObject *__pyx_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_image2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("overlap", 1, 3, 3, 1); __PYX_ERR(0, 20, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("overlap_v1", 1, 3, 3, 1); __PYX_ERR(0, 20, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_read_method)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("overlap", 1, 3, 3, 2); __PYX_ERR(0, 20, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("overlap_v1", 1, 3, 3, 2); __PYX_ERR(0, 20, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "overlap") < 0)) __PYX_ERR(0, 20, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "overlap_v1") < 0)) __PYX_ERR(0, 20, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -2302,29 +2302,29 @@ static PyObject *__pyx_pw_26image_process_utils_cython_3overlap(PyObject *__pyx_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("overlap", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 20, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("overlap_v1", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 20, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("image_process_utils_cython.overlap", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("image_process_utils_cython.overlap_v1", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_26image_process_utils_cython_2overlap(__pyx_self, __pyx_v_image1, __pyx_v_image2, __pyx_v_read_method);
+  __pyx_r = __pyx_pf_26image_process_utils_cython_2overlap_v1(__pyx_self, __pyx_v_image1, __pyx_v_image2, __pyx_v_read_method);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_26image_process_utils_cython_2overlap(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_image1, PyObject *__pyx_v_image2, PyObject *__pyx_v_read_method) {
+static PyObject *__pyx_pf_26image_process_utils_cython_2overlap_v1(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_image1, PyObject *__pyx_v_image2, PyObject *__pyx_v_read_method) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("overlap", 0);
+  __Pyx_RefNannySetupContext("overlap_v1", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_26image_process_utils_cython_overlap(__pyx_v_image1, __pyx_v_image2, __pyx_v_read_method, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 20, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_26image_process_utils_cython_overlap_v1(__pyx_v_image1, __pyx_v_image2, __pyx_v_read_method, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 20, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -2333,7 +2333,7 @@ static PyObject *__pyx_pf_26image_process_utils_cython_2overlap(CYTHON_UNUSED Py
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("image_process_utils_cython.overlap", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("image_process_utils_cython.overlap_v1", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2991,7 +2991,7 @@ static PyObject *__pyx_pf_26image_process_utils_cython_4overlap_v2(CYTHON_UNUSED
 
 static PyMethodDef __pyx_methods[] = {
   {"gray_to_binary", (PyCFunction)__pyx_pw_26image_process_utils_cython_1gray_to_binary, METH_O, 0},
-  {"overlap", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_26image_process_utils_cython_3overlap, METH_VARARGS|METH_KEYWORDS, 0},
+  {"overlap_v1", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_26image_process_utils_cython_3overlap_v1, METH_VARARGS|METH_KEYWORDS, 0},
   {"overlap_v2", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_26image_process_utils_cython_5overlap_v2, METH_VARARGS|METH_KEYWORDS, 0},
   {0, 0, 0, 0}
 };
@@ -3074,7 +3074,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
   /* "image_process_utils_cython.pyx":22
- * cpdef overlap(image1,image2,read_method):
+ * cpdef overlap_v1(image1,image2,read_method):
  *     W,H = image2.size
  *     black_background = (0, 0, 0, 255)             # <<<<<<<<<<<<<<
  *     #white_mask = (255, 255, 255, 255)

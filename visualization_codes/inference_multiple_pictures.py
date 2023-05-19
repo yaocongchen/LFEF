@@ -1,5 +1,6 @@
 from visualization_codes.inference import smoke_semantic
-import visualization_codes.image_process_utils as image_process
+# import visualization_codes.image_process_utils as image_process
+import visualization_codes.testcpy.image_process_utils_cython as image_process
 import torch
 import torchvision
 import os
@@ -120,7 +121,7 @@ def image_overlap(input_image,i,names):
     img1=img1.resize(imgSize)
     img2=img2.resize(imgSize)
 
-    blendImage = image_process.overlap(img1,img2,read_method = "PIL_RGBA")
+    blendImage = image_process.overlap_v2(img1,img2,read_method = "PIL_RGBA")
 
     # Display image 顯示影像
     #blendImage.show()

@@ -17,7 +17,7 @@ cpdef gray_to_binary(image):
 
     return binary
 
-cpdef overlap(image1,image2,read_method):
+cpdef overlap_v1(image1,image2,read_method):
     W,H = image2.size
     black_background = (0, 0, 0, 255)
     #white_mask = (255, 255, 255, 255)
