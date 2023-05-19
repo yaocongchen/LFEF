@@ -9,6 +9,7 @@ import time
 import utils
 from tqdm import tqdm
 from torch.utils.data import DataLoader
+from models import erfnet
 
 def folders_and_files_name():
     # Set save folder and file name 設定存檔資料夾與存檔名稱  
@@ -29,6 +30,14 @@ def folders_and_files_name():
 
 # Main function 主函式 
 def smoke_segmentation(device,names):
+    model = erfnet.Net(1).to(device)
+    model.load_state_dict(torch.load(args['model_path']))
+
+    model.eval()
+
+    time_train = []
+    i=0
+
     testing_data = utils.dataset.DataLoaderSegmentation(args['test_images'],
                                                 args['test_masks'],mode = 'test')
     testing_data_loader = DataLoader(testing_data ,batch_size= args['batch_size'], shuffle = True, num_workers =args['num_workers'], pin_memory = True, drop_last=True)
@@ -39,7 +48,7 @@ def smoke_segmentation(device,names):
         img_image = img_image.to(device)
         mask_image = mask_image.to(device)
 
-        output = smoke_semantic(img_image,args['model_path'],device)
+        output = smoke_semantic(img_image,model,device,time_train,i)
         count += 1
         torchvision.utils.save_image(torch.cat((mask_image,output),0),"./" + names["smoke_semantic_dir_name"] + "/" + names["smoke_semantic_image_name"]  + f"{count}.jpg")
 
