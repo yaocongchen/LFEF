@@ -7,12 +7,36 @@ import sys
 from torchvision import transforms
 sys.path.append("..")
 from models import erfnet
+import time
 
-def smoke_semantic(input_image,model_path,device):
-	model = erfnet.Net(1).to(device)
-	model.load_state_dict(torch.load(model_path))     
-	model.eval()
-	output = model(input_image)   # Import model 導進模型
+def smoke_semantic(input_image,model,device,time_train,i):
+
+
+	start_time = time.time()
+
+	with torch.no_grad():
+		output = model(input_image)   # Import model 導進模型
+
+	if (device == torch.device('cuda')):
+		torch.cuda.synchronize()    #wait for cuda to finish (cuda is asynchronous!)
+
+	if i!=0:
+		fwt = time.time() - start_time
+		time_train.append(fwt)
+		mean_time = sum(time_train) / len(time_train) 
+		print ("Forward time per img: %.3f (Mean: %.3f)" % (fwt, mean_time))
+		print("Model_FPS: %.1f (Mean:%.1f)" % ( 1/fwt, 1 /mean_time))
+
+	#time_end = time.time()
+	#spend_time = int(time_end-time_start) 
+	# time_min = spend_time // 60 
+	# time_sec = spend_time % 60
+	#print('totally cost:',f"{time_min}m {time_sec}s")
+	#print(total_image)
+
+	# Calculate FPS
+	#print("Model_FPS: {:.1f}".format(1/(time_end-time_start)))
+
 	return output
 
 if __name__ == "__main__":

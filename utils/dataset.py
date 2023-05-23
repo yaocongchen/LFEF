@@ -120,7 +120,7 @@ class DataLoaderSegmentation(data.Dataset):
         out_rgb = torch.from_numpy(c_img).float()
         out_mask = torch.from_numpy(c_mask).float()
 
-        return out_rgb.permute(2,0,1), out_mask.permute(2,0,1)
+        return out_rgb.permute(2,0,1).contiguous(), out_mask.permute(2,0,1).contiguous()
 
     def __len__(self):
         return len(self.data_dict)
