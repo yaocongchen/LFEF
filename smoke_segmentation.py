@@ -43,11 +43,11 @@ def smoke_segmentation(device):
             inference_single_picture.smoke_segmentation(args['source'],model,device,names,time_train,i)
         elif extension in ['.mp4', '.avi']:
             binary_mode = True
-            blend_image = True
+            blend_image = False
             inference_video.smoke_segmentation(args['source'],model,device,binary_mode,blend_image,args["save_video"],args['show_video'],time_train,i)
         elif root in ['0']:    #camera
             binary_mode = True
-            blend_image = True
+            blend_image = False
             inference_video.smoke_segmentation(args['source'],model,device,binary_mode,blend_image,args["save_video"],args['show_video'],time_train,i)
             
 if __name__ == "__main__":

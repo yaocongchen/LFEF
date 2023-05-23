@@ -110,6 +110,9 @@ def train_epoch(model,training_data_loader,device,optimizer,epoch):
     model.train()
     cudnn.benchmark= True
     count=0
+    epoch_loss = []
+    epoch_miou = []
+
     # Training loop 訓練迴圈 
     pbar = tqdm((training_data_loader),total=len(training_data_loader))
     #for iteration,(img_image, mask_image) in enumerate(training_data_loader):
@@ -129,13 +132,19 @@ def train_epoch(model,training_data_loader,device,optimizer,epoch):
         acc = utils.metrics.acc_miou(output,mask_image)
 
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(),0.1)
+        torch.nn.utils.clip_grad_norm_(model.parameters(),0.1)   #梯度裁減(避免梯度爆炸或消失) 0.1為閥值
         optimizer.step()
 
+        epoch_loss.append(loss.item())
+        epoch_miou.append(acc.item())
+
+        average_epoch_loss_train = sum(epoch_loss) / len(epoch_loss)
+        average_epoch_miou_train = sum(epoch_miou) / len(epoch_miou)
+
         pbar.set_description(f"trian_epoch [{epoch}/{args['epochs']}]")
-        pbar.set_postfix(train_loss=loss.item(),train_acc=acc.item())
+        pbar.set_postfix(train_loss=average_epoch_loss_train,train_acc=average_epoch_miou_train)
         if args["wandb_name"]!="no":
-            wandb.log({"train_loss": loss.item(),"train_acc": acc.item()})
+            wandb.log({"train_loss": average_epoch_loss_train,"train_acc": average_epoch_miou_train})
 
         # Graphical archive of the epoch test set 
         # epoch 測試集中的圖示化存檔
@@ -148,6 +157,10 @@ def valid_epoch(model,validation_data_loader,device,epoch):
     # Validation loop 驗證迴圈
     count=0
     model.eval()
+
+    epoch_loss = []
+    epoch_miou = []
+
     pbar = tqdm((validation_data_loader),total=len(validation_data_loader))
     for img_image,mask_image in pbar:
         img_image = img_image.to(device)
@@ -159,11 +172,17 @@ def valid_epoch(model,validation_data_loader,device,epoch):
         loss = utils.loss.CustomLoss(output, mask_image)
         acc = utils.metrics.acc_miou(output,mask_image)
 
+        epoch_loss.append(loss.item())
+        epoch_miou.append(acc.item())
+
+        average_epoch_loss_valid = sum(epoch_loss) / len(epoch_loss)
+        average_epoch_miou_valid = sum(epoch_miou) / len(epoch_miou)
+
         pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
-        pbar.set_postfix(val_loss=loss.item(),val_acc=acc.item())
-        
+        pbar.set_postfix(val_loss=average_epoch_loss_valid,val_acc=average_epoch_miou_valid)
+ 
         if args["wandb_name"]!="no":
-            wandb.log({"val_loss": loss.item(),"val_acc": acc.item()})
+            wandb.log({"val_loss": average_epoch_loss_valid,"val_acc": average_epoch_miou_valid})
 
         # Graphical archive of the epoch test set 
         # epoch 測試集中的圖示化存檔
