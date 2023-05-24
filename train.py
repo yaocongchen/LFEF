@@ -110,8 +110,9 @@ def train_epoch(model,training_data_loader,device,optimizer,epoch):
     model.train()
     cudnn.benchmark= True
     count=0
-    epoch_loss = []
-    epoch_miou = []
+    n_element =0
+    mean_loss =0
+    mean_acc =0
 
     # Training loop 訓練迴圈 
     pbar = tqdm((training_data_loader),total=len(training_data_loader))
@@ -135,16 +136,14 @@ def train_epoch(model,training_data_loader,device,optimizer,epoch):
         torch.nn.utils.clip_grad_norm_(model.parameters(),0.1)   #梯度裁減(避免梯度爆炸或消失) 0.1為閥值
         optimizer.step()
 
-        epoch_loss.append(loss.item())
-        epoch_miou.append(acc.item())
-
-        average_epoch_loss_train = sum(epoch_loss) / len(epoch_loss)
-        average_epoch_miou_train = sum(epoch_miou) / len(epoch_miou)
+        n_element += 1
+        mean_loss += (loss.item() - mean_loss) / n_element
+        mean_acc += (acc.item() - mean_acc) / n_element
 
         pbar.set_description(f"trian_epoch [{epoch}/{args['epochs']}]")
-        pbar.set_postfix(train_loss=average_epoch_loss_train,train_acc=average_epoch_miou_train)
+        pbar.set_postfix(train_loss=mean_loss,train_acc=mean_acc)
         if args["wandb_name"]!="no":
-            wandb.log({"train_loss": average_epoch_loss_train,"train_acc": average_epoch_miou_train})
+            wandb.log({"train_loss": mean_loss,"train_acc": mean_acc})
 
         # Graphical archive of the epoch test set 
         # epoch 測試集中的圖示化存檔
@@ -156,10 +155,11 @@ def train_epoch(model,training_data_loader,device,optimizer,epoch):
 def valid_epoch(model,validation_data_loader,device,epoch):
     # Validation loop 驗證迴圈
     count=0
-    model.eval()
+    n_element =0
+    mean_loss =0
+    mean_acc =0
 
-    epoch_loss = []
-    epoch_miou = []
+    model.eval()
 
     pbar = tqdm((validation_data_loader),total=len(validation_data_loader))
     for img_image,mask_image in pbar:
@@ -172,17 +172,15 @@ def valid_epoch(model,validation_data_loader,device,epoch):
         loss = utils.loss.CustomLoss(output, mask_image)
         acc = utils.metrics.acc_miou(output,mask_image)
 
-        epoch_loss.append(loss.item())
-        epoch_miou.append(acc.item())
-
-        average_epoch_loss_valid = sum(epoch_loss) / len(epoch_loss)
-        average_epoch_miou_valid = sum(epoch_miou) / len(epoch_miou)
+        n_element += 1
+        mean_loss += (loss.item() - mean_loss) / n_element
+        mean_acc += (acc.item() - mean_acc) / n_element
 
         pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
-        pbar.set_postfix(val_loss=average_epoch_loss_valid,val_acc=average_epoch_miou_valid)
- 
+        pbar.set_postfix(val_loss=mean_loss,val_acc=mean_acc)
+
         if args["wandb_name"]!="no":
-            wandb.log({"val_loss": average_epoch_loss_valid,"val_acc": average_epoch_miou_valid})
+            wandb.log({"val_loss": mean_loss,"val_acc": mean_acc})
 
         # Graphical archive of the epoch test set 
         # epoch 測試集中的圖示化存檔
@@ -191,7 +189,7 @@ def valid_epoch(model,validation_data_loader,device,epoch):
             os.makedirs("./validation_data_captures/")
         torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" +str(count)+".jpg")
 
-def train():
+def main():
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
     # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
@@ -276,11 +274,11 @@ if __name__=="__main__":
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Imag/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Mask/",  help="path to mask")
     
-    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/" , help="path to hazy training images")
-    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",  help="path to mask")
+    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/" , help="path to hazy training images")
+    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",  help="path to mask")
 
-    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
-    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
+    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
+    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
     
     ap.add_argument('-bs','--batch_size',type=int, default = 32, help="set batch_size")
     ap.add_argument('-nw','--num_workers' ,type=int,default = 1 , help="set num_workers")
@@ -295,7 +293,7 @@ if __name__=="__main__":
 
     args = vars(ap.parse_args())  #Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
 
-    train()
+    main()
     
     wandb.finish()
     # if args["wandb_name"]!="no":
