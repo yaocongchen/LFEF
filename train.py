@@ -148,16 +148,16 @@ def train_epoch(model,training_data_loader,device,optimizer,epoch):
         # Graphical archive of the epoch test set 
         # epoch 測試集中的圖示化存檔
         count +=1
-        if not os.path.exists("./training_data_captures/"):
-            os.makedirs("./training_data_captures/")
-        torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
+        # if not epoch % 5: 
+        #     torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
 
 def valid_epoch(model,validation_data_loader,device,epoch):
     # Validation loop 驗證迴圈
     count=0
-    n_element =0
-    mean_loss =0
-    mean_acc =0
+    n_element = 0
+    mean_loss = 0
+    mean_acc = 0
+    save_mean_acc = 0
 
     model.eval()
 
@@ -185,9 +185,12 @@ def valid_epoch(model,validation_data_loader,device,epoch):
         # Graphical archive of the epoch test set 
         # epoch 測試集中的圖示化存檔
         count +=1
-        if not os.path.exists("./validation_data_captures/"):
-            os.makedirs("./validation_data_captures/")
-        torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" +str(count)+".jpg")
+        if not epoch % 5: 
+            torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" +str(count)+".jpg")
+            if mean_acc > save_mean_acc:
+                state = model.state_dict()
+                torch.save(state, args['save_dir'] + 'best' +  '.pth')
+        save_mean_acc = mean_acc
 
 def main():
     check_have_GPU()
@@ -231,6 +234,11 @@ def main():
     if args["wandb_name"]!="no":
         wandb_information(model_size,flops,params,model)
         
+    # if not os.path.exists("./training_data_captures/"):
+    #         os.makedirs("./training_data_captures/")
+    if not os.path.exists("./validation_data_captures/"):
+        os.makedirs("./validation_data_captures/")
+        
     time_start = time.time()      # Training start time 訓練開始時間
 
     for epoch in range(start_epoch, args['epochs']+1):
@@ -265,8 +273,8 @@ if __name__=="__main__":
 
     ap = argparse.ArgumentParser()
     
-    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
-    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
+    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
+    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
 
     # ap.add_argument('-ti', '--train_images',default="C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/images/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/masks/",  help="path to mask")
@@ -274,8 +282,8 @@ if __name__=="__main__":
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Imag/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Mask/",  help="path to mask")
     
-    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/" , help="path to hazy training images")
-    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",  help="path to mask")
+    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/" , help="path to hazy training images")
+    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",  help="path to mask")
 
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
