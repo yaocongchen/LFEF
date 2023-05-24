@@ -267,8 +267,8 @@ if __name__=="__main__":
 
     ap = argparse.ArgumentParser()
     
-    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
-    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
+    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
+    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
 
     # ap.add_argument('-ti', '--train_images',default="C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/images/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/masks/",  help="path to mask")
@@ -279,10 +279,10 @@ if __name__=="__main__":
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",  help="path to mask")
 
-    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
-    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
+    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
+    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
     
-    ap.add_argument('-bs','--batch_size',type=int, default = 2, help="set batch_size")
+    ap.add_argument('-bs','--batch_size',type=int, default = 32, help="set batch_size")
     ap.add_argument('-nw','--num_workers' ,type=int,default = 1 , help="set num_workers")
     ap.add_argument('-e', '--epochs', type = int , default=150,  help="number of epochs for training")
     ap.add_argument('-lr', '--learning_rate', type = float ,default=0.0001, help="learning rate for training")

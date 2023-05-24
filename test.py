@@ -35,6 +35,10 @@ def smoke_segmentation(device,names):
 
     model.eval()
 
+    # Calculation model size parameter amount and calculation amount
+    # 計算模型大小、參數量與計算量
+    utils.metrics.Calculate(model)
+
     epoch_loss = []
     epoch_miou = []
     time_train = []
