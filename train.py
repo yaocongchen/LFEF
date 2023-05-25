@@ -144,7 +144,6 @@ def train_epoch(model,training_data_loader,device,optimizer,epoch):
 
 def valid_epoch(model,validation_data_loader,device,epoch):
     # Validation loop 驗證迴圈
-    count=0
     n_element = 0
     mean_loss = 0
     mean_acc = 0
@@ -172,15 +171,10 @@ def valid_epoch(model,validation_data_loader,device,epoch):
         if args["wandb_name"]!="no":
             wandb.log({"val_loss": mean_loss,"val_acc": mean_acc})
 
-        # Graphical archive of the epoch test set 
-        # epoch 測試集中的圖示化存檔
-        count +=1
-        if not epoch % 5: 
-            torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" +str(count)+".jpg")
-
-    return mean_loss,mean_acc
+    return mean_loss,mean_acc,mask_image,output
 
 def main():
+    count=0
     save_mean_acc = 0
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
@@ -243,7 +237,7 @@ def main():
         
         train_epoch(model,training_data_loader,device,optimizer,epoch)
         torch.cuda.empty_cache()    #刪除不需要的變數
-        mean_loss,mean_acc = valid_epoch(model,validation_data_loader,device,epoch)
+        mean_loss,mean_acc,mask_image,output = valid_epoch(model,validation_data_loader,device,epoch)
 
         # Save model 模型存檔
 
@@ -256,16 +250,29 @@ def main():
                 'loss': mean_loss,
                 'acc':mean_acc,
                 }
+        
         torch.save(state, args['save_dir'] + 'last_checkpoint' +  '.pth')
         torch.save(model.state_dict(), args['save_dir'] + 'last' +  '.pth')
-        model.state_dict()
+        count +=1
+        torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" + "last_" + str(count)+".jpg")
+
         #torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
         if args["wandb_name"]!="no":
+            wandb.save(args['save_dir'] + 'last_checkpoint' +  '.pth')
             wandb.save(args['save_dir'] + 'last' +  '.pth')
+            # Graphical archive of the epoch test set 
+            # epoch 測試集中的圖示化存檔
+            wandb.log({"last": wandb.Image("./validation_data_captures/" + "last_" + str(count)+".jpg")})
 
         if mean_acc > save_mean_acc:
             torch.save(state, args['save_dir'] + 'best_checkpoint' +  '.pth')
-            torch.save(model.state_dict(), args['save_dir'] + 'best' +  '.pth')
+            torch.save(model.state_dict(), args['save_dir'] + 'best' +  '.pth') 
+            torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" + "best" + str(count)+".jpg")
+
+            if args["wandb_name"]!="no":
+                wandb.save(args['save_dir'] + 'best_checkpoint' +  '.pth')
+                wandb.save(args['save_dir'] + 'best' +  '.pth')
+                wandb.log({"best": wandb.Image("./validation_data_captures/" + "best" + str(count)+".jpg")})
             save_mean_acc = mean_acc
             #torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best' +  '.onnx', verbose=False)
 
