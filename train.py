@@ -187,10 +187,10 @@ def valid_epoch(model,validation_data_loader,device,epoch):
         count +=1
         if not epoch % 5: 
             torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" +str(count)+".jpg")
-            if mean_acc > save_mean_acc:
-                state = model.state_dict()
-                torch.save(state, args['save_dir'] + 'best' +  '.pth')
-        save_mean_acc = mean_acc
+        if mean_acc > save_mean_acc:
+            state = model.state_dict()
+            torch.save(state, args['save_dir'] + 'best' +  '.pth')
+            save_mean_acc = mean_acc
 
 def main():
     check_have_GPU()
