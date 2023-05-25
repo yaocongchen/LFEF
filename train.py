@@ -247,8 +247,8 @@ def main():
 
         # Save model 模型存檔
 
-        model_file_name = args['save_dir'] + 'model_' + str(epoch) + '.pth'
-        model_file_nameonnx = args['save_dir'] + 'onnxmodel_' + str(epoch) + '.onnx'
+        # model_file_name = args['save_dir'] + 'model_' + str(epoch) + '.pth'
+        # model_file_nameonnx = args['save_dir'] + 'onnxmodel_' + str(epoch) + '.onnx'
         state = {   
                 'epoch': epoch, 
                 'model_state_dict': model.state_dict(),
@@ -256,20 +256,29 @@ def main():
                 'loss': mean_loss,
                 'acc':mean_acc,
                 }
-        
-        if mean_acc > save_mean_acc:
-            torch.save(state, args['save_dir'] + 'best' +  '.pth')
-            save_mean_acc = mean_acc   
-        if epoch > args['epochs'] - 10 :
-            torch.save(state, model_file_name)
-            #torch.onnx.export(model, onnx_img_image, model_file_nameonnx, verbose=False)
-        elif not epoch % 20:
-            torch.save(state, model_file_name)
-            #torch.onnx.export(model, onnx_img_image, model_file_nameonnx, verbose=False)
+        torch.save(state, args['save_dir'] + 'last_checkpoint' +  '.pth')
+        torch.save(model.state_dict(), args['save_dir'] + 'last' +  '.pth')
+        model.state_dict()
+        #torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
+        if args["wandb_name"]!="no":
+            wandb.save(args['save_dir'] + 'last' +  '.pth')
 
-    torch.save(state, args['save_dir'] + 'final' +  '.pth')
-    wandb.save(args['save_dir'] + 'final' +  '.pth')
-    #torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'final' +  '.onnx', verbose=False)
+        if mean_acc > save_mean_acc:
+            torch.save(state, args['save_dir'] + 'best_checkpoint' +  '.pth')
+            torch.save(model.state_dict(), args['save_dir'] + 'best' +  '.pth')
+            save_mean_acc = mean_acc
+            #torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best' +  '.onnx', verbose=False)
+
+    #     if epoch > args['epochs'] - 10 :
+    #         torch.save(state, model_file_name)
+    #         #torch.onnx.export(model, onnx_img_image, model_file_nameonnx, verbose=False)
+    #     elif not epoch % 20:
+    #         torch.save(state, model_file_name)
+    #         #torch.onnx.export(model, onnx_img_image, model_file_nameonnx, verbose=False)
+
+    # torch.save(state, args['save_dir'] + 'final' +  '.pth')
+    # wandb.save(args['save_dir'] + 'final' +  '.pth')
+    # #torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'final' +  '.onnx', verbose=False)
 
     # Calculation of end time end elapsed time 
     # 計算結束時間與花費時間     
@@ -301,7 +310,7 @@ if __name__=="__main__":
     ap.add_argument('-nw','--num_workers' ,type=int,default = 1 , help="set num_workers")
     ap.add_argument('-e', '--epochs', type = int , default=150,  help="number of epochs for training")
     ap.add_argument('-lr', '--learning_rate', type = float ,default=0.0001, help="learning rate for training")
-    ap.add_argument('-savedir','--save_dir', default= "./checkpoint/", help = "directory to save the model snapshot")
+    ap.add_argument('-savedir','--save_dir', default= "./trained_models/", help = "directory to save the model snapshot")
     ap.add_argument('-device' ,default='GPU' , help =  "running on CPU or GPU")
     ap.add_argument('-gpus', type= str ,default = "0" , help = "defualt GPU devices(0,1)")
     ap.add_argument('-resume',type= str ,default= "/home/yaocong/Experimental/My_pytorch_model/checkpoint/model_1.pth", 
