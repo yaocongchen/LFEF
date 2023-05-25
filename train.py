@@ -50,15 +50,6 @@ def set_save_dir_names():
     if not os.path.exists(args['save_dir']):
         os.makedirs(args['save_dir'])
 
-def checkpoint_training(model):
-    if os.path.isfile(args['resume']):    # There is a specified file in the path 路徑中有指定檔案
-        checkpoint = torch.load(args['resume'])
-        start_epoch = checkpoint['epoch']
-        model.load_state_dict(checkpoint['model'])
-        print("=====> load checkpoint '{}' (epoch {})".format(args['resume'], checkpoint['epoch']))
-    else:
-        print("=====> no checkpoint found at '{}'".format(args['resume']))
-
 def wandb_information(model_size,flops,params,model):
     wandb.init(
         # set the wandb project where this run will be logged
@@ -110,8 +101,9 @@ def train_epoch(model,training_data_loader,device,optimizer,epoch):
     model.train()
     cudnn.benchmark= True
     count=0
-    epoch_loss = []
-    epoch_miou = []
+    n_element =0
+    mean_loss =0
+    mean_acc =0
 
     # Training loop 訓練迴圈 
     pbar = tqdm((training_data_loader),total=len(training_data_loader))
@@ -135,31 +127,29 @@ def train_epoch(model,training_data_loader,device,optimizer,epoch):
         torch.nn.utils.clip_grad_norm_(model.parameters(),0.1)   #梯度裁減(避免梯度爆炸或消失) 0.1為閥值
         optimizer.step()
 
-        epoch_loss.append(loss.item())
-        epoch_miou.append(acc.item())
-
-        average_epoch_loss_train = sum(epoch_loss) / len(epoch_loss)
-        average_epoch_miou_train = sum(epoch_miou) / len(epoch_miou)
+        n_element += 1
+        mean_loss += (loss.item() - mean_loss) / n_element
+        mean_acc += (acc.item() - mean_acc) / n_element
 
         pbar.set_description(f"trian_epoch [{epoch}/{args['epochs']}]")
-        pbar.set_postfix(train_loss=average_epoch_loss_train,train_acc=average_epoch_miou_train)
+        pbar.set_postfix(train_loss=mean_loss,train_acc=mean_acc)
         if args["wandb_name"]!="no":
-            wandb.log({"train_loss": average_epoch_loss_train,"train_acc": average_epoch_miou_train})
+            wandb.log({"train_loss": mean_loss,"train_acc": mean_acc})
 
         # Graphical archive of the epoch test set 
         # epoch 測試集中的圖示化存檔
         count +=1
-        if not os.path.exists("./training_data_captures/"):
-            os.makedirs("./training_data_captures/")
-        torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
+        # if not epoch % 5: 
+        #     torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
 
 def valid_epoch(model,validation_data_loader,device,epoch):
     # Validation loop 驗證迴圈
     count=0
-    model.eval()
+    n_element = 0
+    mean_loss = 0
+    mean_acc = 0
 
-    epoch_loss = []
-    epoch_miou = []
+    model.eval()
 
     pbar = tqdm((validation_data_loader),total=len(validation_data_loader))
     for img_image,mask_image in pbar:
@@ -172,26 +162,26 @@ def valid_epoch(model,validation_data_loader,device,epoch):
         loss = utils.loss.CustomLoss(output, mask_image)
         acc = utils.metrics.acc_miou(output,mask_image)
 
-        epoch_loss.append(loss.item())
-        epoch_miou.append(acc.item())
-
-        average_epoch_loss_valid = sum(epoch_loss) / len(epoch_loss)
-        average_epoch_miou_valid = sum(epoch_miou) / len(epoch_miou)
+        n_element += 1
+        mean_loss += (loss.item() - mean_loss) / n_element
+        mean_acc += (acc.item() - mean_acc) / n_element
 
         pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
-        pbar.set_postfix(val_loss=average_epoch_loss_valid,val_acc=average_epoch_miou_valid)
- 
+        pbar.set_postfix(val_loss=mean_loss,val_acc=mean_acc)
+
         if args["wandb_name"]!="no":
-            wandb.log({"val_loss": average_epoch_loss_valid,"val_acc": average_epoch_miou_valid})
+            wandb.log({"val_loss": mean_loss,"val_acc": mean_acc})
 
         # Graphical archive of the epoch test set 
         # epoch 測試集中的圖示化存檔
         count +=1
-        if not os.path.exists("./validation_data_captures/"):
-            os.makedirs("./validation_data_captures/")
-        torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" +str(count)+".jpg")
+        if not epoch % 5: 
+            torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" +str(count)+".jpg")
 
-def train():
+    return mean_loss,mean_acc
+
+def main():
+    save_mean_acc = 0
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
     # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
@@ -227,11 +217,25 @@ def train():
 
     # Checkpoint training 斷點訓練      
     if args['resume']:
-        checkpoint_training(model)
+        if os.path.isfile(args['resume']):    # There is a specified file in the path 路徑中有指定檔案
+            checkpoint = torch.load(args['resume'])     
+            model.load_state_dict(checkpoint['model_state_dict'])
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            start_epoch = checkpoint['epoch']
+            mean_loss = checkpoint['loss']
+            mean_acc = checkpoint['acc']
+            print("=====> load checkpoint '{}' (epoch {})".format(args['resume'], checkpoint['epoch']))
+        else:
+            print("=====> no checkpoint found at '{}'".format(args['resume']))
 
     #wandb.ai
     if args["wandb_name"]!="no":
         wandb_information(model_size,flops,params,model)
+        
+    # if not os.path.exists("./training_data_captures/"):
+    #         os.makedirs("./training_data_captures/")
+    if not os.path.exists("./validation_data_captures/"):
+        os.makedirs("./validation_data_captures/")
         
     time_start = time.time()      # Training start time 訓練開始時間
 
@@ -239,12 +243,23 @@ def train():
         
         train_epoch(model,training_data_loader,device,optimizer,epoch)
         torch.cuda.empty_cache()    #刪除不需要的變數
-        valid_epoch(model,validation_data_loader,device,epoch)
+        mean_loss,mean_acc = valid_epoch(model,validation_data_loader,device,epoch)
 
-        # Save model 模型存檔              
+        # Save model 模型存檔
+
         model_file_name = args['save_dir'] + 'model_' + str(epoch) + '.pth'
         model_file_nameonnx = args['save_dir'] + 'onnxmodel_' + str(epoch) + '.onnx'
-        state = model.state_dict()
+        state = {   
+                'epoch': epoch, 
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': mean_loss,
+                'acc':mean_acc,
+                }
+        
+        if mean_acc > save_mean_acc:
+            torch.save(state, args['save_dir'] + 'best' +  '.pth')
+            save_mean_acc = mean_acc   
         if epoch > args['epochs'] - 10 :
             torch.save(state, model_file_name)
             #torch.onnx.export(model, onnx_img_image, model_file_nameonnx, verbose=False)
@@ -276,11 +291,11 @@ if __name__=="__main__":
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Imag/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Mask/",  help="path to mask")
     
-    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/" , help="path to hazy training images")
-    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",  help="path to mask")
+    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/" , help="path to hazy training images")
+    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",  help="path to mask")
 
-    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
-    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
+    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
+    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
     
     ap.add_argument('-bs','--batch_size',type=int, default = 32, help="set batch_size")
     ap.add_argument('-nw','--num_workers' ,type=int,default = 1 , help="set num_workers")
@@ -295,7 +310,7 @@ if __name__=="__main__":
 
     args = vars(ap.parse_args())  #Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
 
-    train()
+    main()
     
     wandb.finish()
     # if args["wandb_name"]!="no":
