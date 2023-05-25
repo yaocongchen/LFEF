@@ -50,18 +50,6 @@ def set_save_dir_names():
     if not os.path.exists(args['save_dir']):
         os.makedirs(args['save_dir'])
 
-def checkpoint_training(model):
-    if os.path.isfile(args['resume']):    # There is a specified file in the path 路徑中有指定檔案
-        checkpoint = torch.load(args['resume'])
-        start_epoch = checkpoint['epoch']
-        model.load_state_dict(checkpoint['model'])
-        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        epoch = checkpoint['epoch']
-        loss = checkpoint['loss']
-        print("=====> load checkpoint '{}' (epoch {})".format(args['resume'], checkpoint['epoch']))
-    else:
-        print("=====> no checkpoint found at '{}'".format(args['resume']))
-
 def wandb_information(model_size,flops,params,model):
     wandb.init(
         # set the wandb project where this run will be logged
