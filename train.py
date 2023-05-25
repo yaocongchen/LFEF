@@ -55,6 +55,9 @@ def checkpoint_training(model):
         checkpoint = torch.load(args['resume'])
         start_epoch = checkpoint['epoch']
         model.load_state_dict(checkpoint['model'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        epoch = checkpoint['epoch']
+        loss = checkpoint['loss']
         print("=====> load checkpoint '{}' (epoch {})".format(args['resume'], checkpoint['epoch']))
     else:
         print("=====> no checkpoint found at '{}'".format(args['resume']))
@@ -157,7 +160,6 @@ def valid_epoch(model,validation_data_loader,device,epoch):
     n_element = 0
     mean_loss = 0
     mean_acc = 0
-    save_mean_acc = 0
 
     model.eval()
 
@@ -187,12 +189,11 @@ def valid_epoch(model,validation_data_loader,device,epoch):
         count +=1
         if not epoch % 5: 
             torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" +str(count)+".jpg")
-        if mean_acc > save_mean_acc:
-            state = model.state_dict()
-            torch.save(state, args['save_dir'] + 'best' +  '.pth')
-            save_mean_acc = mean_acc
+
+    return mean_loss,mean_acc
 
 def main():
+    save_mean_acc = 0
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
     # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
@@ -228,7 +229,16 @@ def main():
 
     # Checkpoint training 斷點訓練      
     if args['resume']:
-        checkpoint_training(model)
+        if os.path.isfile(args['resume']):    # There is a specified file in the path 路徑中有指定檔案
+            checkpoint = torch.load(args['resume'])     
+            model.load_state_dict(checkpoint['model_state_dict'])
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            start_epoch = checkpoint['epoch']
+            mean_loss = checkpoint['loss']
+            mean_acc = checkpoint['acc']
+            print("=====> load checkpoint '{}' (epoch {})".format(args['resume'], checkpoint['epoch']))
+        else:
+            print("=====> no checkpoint found at '{}'".format(args['resume']))
 
     #wandb.ai
     if args["wandb_name"]!="no":
@@ -245,12 +255,23 @@ def main():
         
         train_epoch(model,training_data_loader,device,optimizer,epoch)
         torch.cuda.empty_cache()    #刪除不需要的變數
-        valid_epoch(model,validation_data_loader,device,epoch)
+        mean_loss,mean_acc = valid_epoch(model,validation_data_loader,device,epoch)
 
-        # Save model 模型存檔              
+        # Save model 模型存檔
+
         model_file_name = args['save_dir'] + 'model_' + str(epoch) + '.pth'
         model_file_nameonnx = args['save_dir'] + 'onnxmodel_' + str(epoch) + '.onnx'
-        state = model.state_dict()
+        state = {   
+                'epoch': epoch, 
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': mean_loss,
+                'acc':mean_acc,
+                }
+        
+        if mean_acc > save_mean_acc:
+            torch.save(state, args['save_dir'] + 'best' +  '.pth')
+            save_mean_acc = mean_acc   
         if epoch > args['epochs'] - 10 :
             torch.save(state, model_file_name)
             #torch.onnx.export(model, onnx_img_image, model_file_nameonnx, verbose=False)
@@ -273,8 +294,8 @@ if __name__=="__main__":
 
     ap = argparse.ArgumentParser()
     
-    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
-    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
+    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
+    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
 
     # ap.add_argument('-ti', '--train_images',default="C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/images/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/masks/",  help="path to mask")
@@ -282,8 +303,8 @@ if __name__=="__main__":
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Imag/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Mask/",  help="path to mask")
     
-    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/" , help="path to hazy training images")
-    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",  help="path to mask")
+    ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/" , help="path to hazy training images")
+    ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",  help="path to mask")
 
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
