@@ -25,7 +25,7 @@ def smoke_semantic(input_image,model,device,time_train,i):
 		time_train.append(fwt)
 		mean_time = sum(time_train) / len(time_train) 
 		print ("Forward time per img: %.3f (Mean: %.3f)" % (fwt, mean_time))
-		print("Model_FPS: %.1f (Mean:%.1f)" % ( 1/fwt, 1 /mean_time))
+		print("Forward_Time_FPS: %.1f (Mean:%.1f)" % ( 1/fwt, 1 /mean_time))
 
 	#time_end = time.time()
 	#spend_time = int(time_end-time_start) 
