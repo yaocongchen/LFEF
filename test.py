@@ -9,7 +9,7 @@ import time
 import utils
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from models import CGNet
+from models import lednet
 import wandb
 
 def folders_and_files_name():
@@ -49,7 +49,7 @@ def wandb_information(model_size,flops,params):
 
 # Main function 主函式 
 def smoke_segmentation(device,names):
-    model = CGNet.Context_Guided_Network().to(device)
+    model = lednet.Net(1).to(device)
     model.load_state_dict(torch.load(args['model_path']))
 
     model.eval()
@@ -136,7 +136,6 @@ if __name__ == "__main__":
     # Calculate the total implement time 計算總執行時間
     time_start = time.time()
     wandb_time_total = smoke_segmentation(device,names)
-    time.sleep(2)
     time_end = time.time()
     total_image = len(os.listdir(args["test_images"]))
 
