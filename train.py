@@ -268,13 +268,15 @@ def main():
             wandb.log({"last_output": wandb.Image("./validation_data_captures/" + "last_output_" + ".jpg")})
 
         if mean_acc > save_mean_acc:
+            print("best_loss: %.3f , best_acc: %.3f" % (mean_loss,mean_acc))
             torch.save(state, args['save_dir'] + 'best_checkpoint' +  '.pth')
             torch.save(model.state_dict(), args['save_dir'] + 'best' +  '.pth') 
             #torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" + "best" + str(count)+".jpg")
             torchvision.utils.save_image(mask_image, "./validation_data_captures/" + "best_mask_image_" + ".jpg")
             torchvision.utils.save_image(output, "./validation_data_captures/" + "best_output_" + ".jpg")
-
+            
             if args["wandb_name"]!="no":
+                wandb.log({"best_loss": mean_loss,"best_acc": mean_acc})
                 wandb.save(args['save_dir'] + 'best_checkpoint' +  '.pth')
                 wandb.save(args['save_dir'] + 'best' +  '.pth')
                 #wandb.log({"best": wandb.Image("./validation_data_captures/" + "best" + ".jpg")})
