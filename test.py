@@ -53,7 +53,6 @@ def smoke_segmentation(device,names):
     model.load_state_dict(torch.load(args['model_path']))
 
     model.eval()
-    #wandb.ai
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
@@ -61,7 +60,7 @@ def smoke_segmentation(device,names):
     model_size = c.get_model_size()
     flops,params = c.get_params()
 
-    
+    #wandb.ai
     if args["wandb_name"]!="no":
         wandb_time_start1 = time.time()
         wandb_information(model_size,flops,params)
@@ -74,8 +73,7 @@ def smoke_segmentation(device,names):
     time_train = []
     i=0
     
-    testing_data = utils.dataset.DataLoaderSegmentation(args['test_images'],
-                                                args['test_masks'],mode = 'test')
+    testing_data = utils.dataset.DataLoaderSegmentation(args['test_images'],args['test_masks'],mode = 'test')
     testing_data_loader = DataLoader(testing_data ,batch_size= args['batch_size'], shuffle = True, num_workers =args['num_workers'], pin_memory = True, drop_last=True)
 
     count=1
