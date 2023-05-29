@@ -9,7 +9,7 @@ import time
 import utils
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from models import CGNet
+from models import DSS
 import wandb
 
 def folders_and_files_name():
@@ -49,11 +49,10 @@ def wandb_information(model_size,flops,params):
 
 # Main function 主函式 
 def smoke_segmentation(device,names):
-    model = CGNet.Context_Guided_Network().to(device)
+    model = DSS.DSS().to(device)
     model.load_state_dict(torch.load(args['model_path']))
 
     model.eval()
-    #wandb.ai
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
@@ -61,7 +60,7 @@ def smoke_segmentation(device,names):
     model_size = c.get_model_size()
     flops,params = c.get_params()
 
-    
+    #wandb.ai
     if args["wandb_name"]!="no":
         wandb_time_start1 = time.time()
         wandb_information(model_size,flops,params)
@@ -74,8 +73,7 @@ def smoke_segmentation(device,names):
     time_train = []
     i=0
     
-    testing_data = utils.dataset.DataLoaderSegmentation(args['test_images'],
-                                                args['test_masks'],mode = 'test')
+    testing_data = utils.dataset.DataLoaderSegmentation(args['test_images'],args['test_masks'],mode = 'test')
     testing_data_loader = DataLoader(testing_data ,batch_size= args['batch_size'], shuffle = True, num_workers =args['num_workers'], pin_memory = True, drop_last=True)
 
     count=1
@@ -138,7 +136,6 @@ if __name__ == "__main__":
     # Calculate the total implement time 計算總執行時間
     time_start = time.time()
     wandb_time_total = smoke_segmentation(device,names)
-    time.sleep(2)
     time_end = time.time()
     total_image = len(os.listdir(args["test_images"]))
 
