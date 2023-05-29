@@ -205,6 +205,7 @@ def main():
 
     # Import optimizer導入優化器   
     optimizer = torch.optim.Adam(model.parameters(), lr=float(args['learning_rate']), weight_decay=0.0001)
+    #model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
 
     start_epoch = 1     # Initial epoch 初始epoch值
 
