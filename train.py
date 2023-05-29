@@ -205,6 +205,7 @@ def main():
 
     # Import optimizer導入優化器   
     optimizer = torch.optim.Adam(model.parameters(), lr=float(args['learning_rate']), weight_decay=0.0001)
+    #model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
 
     start_epoch = 1     # Initial epoch 初始epoch值
 
@@ -321,8 +322,8 @@ if __name__=="__main__":
 
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
-    
-    ap.add_argument('-bs','--batch_size',type=int, default = 32, help="set batch_size")
+
+    ap.add_argument('-bs','--batch_size',type=int, default = 4, help="set batch_size")
     ap.add_argument('-nw','--num_workers' ,type=int,default = 1 , help="set num_workers")
     ap.add_argument('-e', '--epochs', type = int , default=150,  help="number of epochs for training")
     ap.add_argument('-lr', '--learning_rate', type = float ,default=0.0001, help="learning rate for training")
