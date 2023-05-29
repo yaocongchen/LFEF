@@ -9,7 +9,7 @@ import time
 import utils
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from models import DSS
+from models import lednet
 import wandb
 
 def folders_and_files_name():
@@ -49,7 +49,7 @@ def wandb_information(model_size,flops,params):
 
 # Main function 主函式 
 def smoke_segmentation(device,names):
-    model = DSS.DSS().to(device)
+    model = lednet.Net(1).to(device)
     model.load_state_dict(torch.load(args['model_path']))
 
     model.eval()
