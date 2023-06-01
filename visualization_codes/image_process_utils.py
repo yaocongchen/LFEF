@@ -1,5 +1,5 @@
 from PIL import Image
-import time
+
 
 def gray_to_binary(image):
 

@@ -1,4 +1,3 @@
-from visualization_codes.inference import smoke_semantic
 import torch
 import torchvision
 import os
@@ -9,8 +8,10 @@ import time
 import utils
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from models import lightssd
 import wandb
+
+from visualization_codes.inference import smoke_semantic
+from models import lightssd
 
 def folders_and_files_name():
     # Set save folder and file name 設定存檔資料夾與存檔名稱  

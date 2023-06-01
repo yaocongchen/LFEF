@@ -2,6 +2,7 @@ import torch
 import argparse
 import os
 import time
+
 from visualization_codes import inference_single_picture,inference_multiple_pictures,inference_video
 from models import erfnet
 

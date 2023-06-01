@@ -1,16 +1,16 @@
-from visualization_codes.inference import smoke_semantic
 import torch
 import torchvision
 import os
 import argparse
 import time
 import shutil
-import time
-import utils
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from models import DSS
 import wandb
+
+import utils
+from models import erfnet
+from visualization_codes.inference import smoke_semantic
 
 def folders_and_files_name():
     # Set save folder and file name 設定存檔資料夾與存檔名稱  
@@ -49,7 +49,7 @@ def wandb_information(model_size,flops,params):
 
 # Main function 主函式 
 def smoke_segmentation(device,names):
-    model = DSS.DSS().to(device)
+    model = erfnet.Net(1).to(device)
     model.load_state_dict(torch.load(args['model_path']))
 
     model.eval()
@@ -118,10 +118,10 @@ if __name__ == "__main__":
     
     ap = argparse.ArgumentParser()
     #ap.add_argument("-td", "--test_directory",required=True, help="path to test images directory")
-    # ap.add_argument('-ti', '--test_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/img/" , help="path to hazy training images")
-    # ap.add_argument('-tm', '--test_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/mask/",  help="path to mask") 
-    ap.add_argument('-ti', '--test_images',default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/test/img/" , help="path to hazy training images")
-    ap.add_argument('-tm', '--test_masks',default= "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/test/gt_/",  help="path to mask")
+    ap.add_argument('-ti', '--test_images',default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/img/" , help="path to hazy training images")
+    ap.add_argument('-tm', '--test_masks',default= "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/mask/",  help="path to mask") 
+    # ap.add_argument('-ti', '--test_images',default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/test/img/" , help="path to hazy training images")
+    # ap.add_argument('-tm', '--test_masks',default= "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/test/gt_/",  help="path to mask")
     ap.add_argument('-bs','--batch_size',type=int, default = 8, help="set batch_size")
     ap.add_argument('-nw','--num_workers' ,type=int,default = 1 , help="set num_workers")   
     ap.add_argument('-m','--model_path' ,required=True, help="load model path")

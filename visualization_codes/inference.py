@@ -5,9 +5,10 @@ from torchvision.io import read_image
 from zmq import device
 import sys
 from torchvision import transforms
+import time
+
 sys.path.append("..")
 from models import erfnet
-import time
 
 def smoke_semantic(input_image,model,device,time_train,i):
 
