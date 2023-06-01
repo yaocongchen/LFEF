@@ -1,6 +1,5 @@
 from PIL import Image
 
-
 def gray_to_binary(image):
 
     gray = image.convert('L')
