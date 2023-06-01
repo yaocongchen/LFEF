@@ -11,14 +11,12 @@ from visualization_codes.inference import smoke_semantic
 # import visualization_codes.image_process_utils as image_process
 import visualization_codes.process_utils_cython_version.image_process_utils_cython as image_process
 
-
 def timeit(func):
     def warp(*args, **kwargs):
         start = time.time()
         func(*args, **kwargs)
         print(f"{func.__name__} time cost: {time.time()- start}")
     return warp
-
 
 def files_name():
     # Set archive name 設定存檔名稱
