@@ -4,7 +4,6 @@ import os
 import argparse
 import time
 import shutil
-import time
 import utils
 from tqdm import tqdm
 from torch.utils.data import DataLoader
