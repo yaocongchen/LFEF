@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-
 alpha = 0.5 
 lambda_reg = 0.01
 
