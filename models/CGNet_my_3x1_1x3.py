@@ -6,12 +6,13 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchinfo import summary
 
 __all__ = ["Context_Guided_Network"]
 # Filter out variables, functions, and classes that other programs don't need or don't want when running cmd "from CGNet import *"
 
 
-class ConvBNPReLU(nn.Module):
+class ConvBNPReLU_1(nn.Module):
     def __init__(self, nIn, nOut, kSize, stride=1):
         """
         args:
@@ -42,6 +43,54 @@ class ConvBNPReLU(nn.Module):
         output = self.conv(input)
         output = self.bn(output)
         output = self.act(output)
+        return output
+
+
+class ConvBNPReLU(nn.Module):
+    def __init__(self, nIn, nOut):
+        """
+        args:
+            nIn: number of input channels
+            nOut: number of output channels
+            kSize: kernel size
+            stride: stride rate for down-sampling. Default is 1
+        """
+        super().__init__()
+
+        self.conv3x1_1 = nn.Conv2d(
+            nIn, nIn, (3, 1), stride=1, padding=(1, 0), bias=True
+        )
+
+        self.conv1x3_1 = nn.Conv2d(
+            nIn, nOut, (1, 3), stride=1, padding=(0, 1), bias=True
+        )
+
+        self.bn_nIn3 = nn.BatchNorm2d(nIn, eps=1e-03)
+        self.act_nIn3 = nn.PReLU(nIn)
+        self.bn_nIn32 = nn.BatchNorm2d(nOut, eps=1e-03)
+        self.act_nIn32 = nn.PReLU(nOut)
+        self.avgpl = nn.AvgPool2d(kernel_size=3, stride=1, padding=1)
+        self.maxgpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+        # self.conv3x3 = nn.Conv2d(nOut, nOut, kernel_size=3, stride=2, padding=0)
+
+    def forward(self, input):
+        """
+        args:
+           input: input feature map
+           return: transformed feature map
+        """
+
+        output = self.conv3x1_1(input)
+        output = self.bn_nIn3(output)
+        output = self.act_nIn3(output)
+        output = self.conv1x3_1(output)
+        output = self.bn_nIn32(output)
+        output = self.act_nIn32(output)
+        out_avgpl = self.avgpl(output)
+        out_maxpl = self.avgpl(output)
+        output = out_avgpl + out_maxpl
+        # output = self.conv3x3(output)
+
         return output
 
 
@@ -258,7 +307,7 @@ class ContextGuidedBlock_Down(nn.Module):
            nOut: the channel of output feature map, and nOut=2*nIn
         """
         super().__init__()
-        self.conv1x1 = ConvBNPReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
+        self.conv1x1 = ConvBNPReLU(nIn, nOut)  #  size/2, channel: nIn--->nOut
 
         self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
         self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate)
@@ -294,7 +343,7 @@ class ContextGuidedBlock(nn.Module):
         """
         super().__init__()
         n = int(nOut / 2)
-        self.conv1x1 = ConvBNPReLU(
+        self.conv1x1 = ConvBNPReLU_1(
             nIn, n, 1, 1
         )  # 1x1 Conv is employed to reduce the computation
         self.F_loc = ChannelWiseConv(n, n, 3, 1)  # local feature
@@ -334,12 +383,12 @@ class InputInjection(nn.Module):
         return input
 
 
-class Context_Guided_Network(nn.Module):
+class Net(nn.Module):
     """
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
 
-    def __init__(self, classes=19, M=3, N=21, dropout_flag=False):
+    def __init__(self, classes=1, M=3, N=21, dropout_flag=False):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
@@ -347,9 +396,9 @@ class Context_Guided_Network(nn.Module):
           N: the number of blocks in stage 3
         """
         super().__init__()
-        self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
-        self.level1_1 = ConvBNPReLU(32, 32, 3, 1)
-        self.level1_2 = ConvBNPReLU(32, 32, 3, 1)
+        self.level1_0 = ConvBNPReLU(3, 32)  # feature map size divided 2, 1/2
+        self.level1_1 = ConvBNPReLU(32, 32)
+        self.level1_2 = ConvBNPReLU(32, 32)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
@@ -408,12 +457,14 @@ class Context_Guided_Network(nn.Module):
         output0 = self.level1_0(input)
         output0 = self.level1_1(output0)
         output0 = self.level1_2(output0)
+        output0 = F.interpolate(output0, size=(128, 128), mode="bilinear")
         inp1 = self.sample1(input)
         inp2 = self.sample2(input)
 
         # stage 2
         output0_cat = self.b1(torch.cat([output0, inp1], 1))
         output1_0 = self.level2_0(output0_cat)  # down-sampled
+        output1_0 = F.interpolate(output1_0, size=(64, 64), mode="bilinear")
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -421,6 +472,7 @@ class Context_Guided_Network(nn.Module):
             else:
                 output1 = layer(output1)
 
+        output1 = F.interpolate(output1, size=(64, 64), mode="bilinear")
         output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
 
         # stage 3
@@ -441,3 +493,11 @@ class Context_Guided_Network(nn.Module):
             classifier, input.size()[2:], mode="bilinear", align_corners=False
         )  # Upsample score map, factor=8
         return out
+
+
+if __name__ == "__main__":
+    model = Net()
+    x = torch.randn(16, 3, 256, 256)
+    output = model(x)
+    print(output.shape)
+    summary(model, input_size=(16, 3, 256, 256))

@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 import wandb
 
 import utils
-from models import erfnet
+import models.mynet2 as network_model
 from visualization_codes.inference import smoke_semantic
 
 
@@ -54,7 +54,7 @@ def wandb_information(model_size, flops, params):
 
 # Main function 主函式
 def smoke_segmentation(device, names):
-    model = erfnet.Net(1).to(device)
+    model = network_model.Net(1).to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
     model.eval()

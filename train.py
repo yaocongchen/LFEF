@@ -13,7 +13,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.erfnet as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_my as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 onnx_img_image = []
@@ -155,6 +155,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
         count += 1
         # if not epoch % 5:
         #     torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
+    return mask_image, output
 
 
 def valid_epoch(model, validation_data_loader, device, epoch):
@@ -197,7 +198,7 @@ def main():
     cudnn.enabled = True
 
     # Model import 模型導入
-    model = network_model.Net(1)
+    model = network_model.Net()
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
@@ -266,15 +267,17 @@ def main():
     if args["wandb_name"] != "no":
         wandb_information(model_size, flops, params, model)
 
-    # if not os.path.exists("./training_data_captures/"):
-    #         os.makedirs("./training_data_captures/")
+    if not os.path.exists("./training_data_captures/"):
+        os.makedirs("./training_data_captures/")
     if not os.path.exists("./validation_data_captures/"):
         os.makedirs("./validation_data_captures/")
 
     time_start = time.time()  # Training start time 訓練開始時間
 
     for epoch in range(start_epoch, args["epochs"] + 1):
-        train_epoch(model, training_data_loader, device, optimizer, epoch)
+        mask_image_train, output_train = train_epoch(
+            model, training_data_loader, device, optimizer, epoch
+        )
         torch.cuda.empty_cache()  # 刪除不需要的變數
         mean_loss, mean_acc, mask_image, output = valid_epoch(
             model, validation_data_loader, device, epoch
@@ -294,6 +297,13 @@ def main():
 
         torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
         torch.save(model.state_dict(), args["save_dir"] + "last" + ".pth")
+
+        torchvision.utils.save_image(
+            mask_image_train, "./training_data_captures/" + "last_mask_image_" + ".jpg"
+        )
+        torchvision.utils.save_image(
+            output_train, "./training_data_captures/" + "last_output_" + ".jpg"
+        )
 
         # torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" + "last_" + ".jpg")
         torchvision.utils.save_image(
@@ -457,7 +467,7 @@ if __name__ == "__main__":
     #     help="path to mask",
     # )
 
-    ap.add_argument("-bs", "--batch_size", type=int, default=2, help="set batch_size")
+    ap.add_argument("-bs", "--batch_size", type=int, default=8, help="set batch_size")
     ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
     ap.add_argument(
         "-e", "--epochs", type=int, default=150, help="number of epochs for training"
@@ -480,7 +490,7 @@ if __name__ == "__main__":
     ap.add_argument(
         "-resume",
         type=str,
-        default="/home/yaocong/Experimental/My_pytorch_model/checkpoint/model_1.pth",
+        default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint.pth",
         help="use this file to load last checkpoint for continuing training",
     )  # Use this flag to load last checkpoint for training
     ap.add_argument(
