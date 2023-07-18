@@ -116,8 +116,8 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
     # Training loop 訓練迴圈
     pbar = tqdm((training_data_loader), total=len(training_data_loader))
     # for iteration,(img_image, mask_image) in enumerate(training_data_loader):
-    for img_image, mask_image in pbar:
-        img_image = img_image.to(device)
+    for RGB_image, mask_image in pbar:
+        img_image = RGB_image.to(device)
         mask_image = mask_image.to(device)
         onnx_img_image = img_image
 
@@ -155,7 +155,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
         count += 1
         # if not epoch % 5:
         #     torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
-    return mask_image, output
+    return RGB_image, mask_image, output
 
 
 def valid_epoch(model, validation_data_loader, device, epoch):
@@ -167,8 +167,8 @@ def valid_epoch(model, validation_data_loader, device, epoch):
     model.eval()
 
     pbar = tqdm((validation_data_loader), total=len(validation_data_loader))
-    for img_image, mask_image in pbar:
-        img_image = img_image.to(device)
+    for RGB_image, mask_image in pbar:
+        img_image = RGB_image.to(device)
         mask_image = mask_image.to(device)
 
         with torch.no_grad():
@@ -187,7 +187,7 @@ def valid_epoch(model, validation_data_loader, device, epoch):
         if args["wandb_name"] != "no":
             wandb.log({"val_loss": mean_loss, "val_acc": mean_acc})
 
-    return mean_loss, mean_acc, mask_image, output
+    return mean_loss, mean_acc, RGB_image, mask_image, output
 
 
 def main():
@@ -275,11 +275,11 @@ def main():
     time_start = time.time()  # Training start time 訓練開始時間
 
     for epoch in range(start_epoch, args["epochs"] + 1):
-        mask_image_train, output_train = train_epoch(
+        RGB_image_train, mask_image_train, output_train = train_epoch(
             model, training_data_loader, device, optimizer, epoch
         )
         torch.cuda.empty_cache()  # 刪除不需要的變數
-        mean_loss, mean_acc, mask_image, output = valid_epoch(
+        mean_loss, mean_acc, RGB_image, mask_image, output = valid_epoch(
             model, validation_data_loader, device, epoch
         )
 
@@ -298,20 +298,30 @@ def main():
         torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
         torch.save(model.state_dict(), args["save_dir"] + "last" + ".pth")
 
-        torchvision.utils.save_image(
-            mask_image_train, "./training_data_captures/" + "last_mask_image_" + ".jpg"
-        )
-        torchvision.utils.save_image(
-            output_train, "./training_data_captures/" + "last_output_" + ".jpg"
-        )
+        if args["save_train_image"] != "no":
+            torchvision.utils.save_image(
+                RGB_image_train,
+                "./training_data_captures/" + "last_RGB_image_" + ".jpg",
+            )
+            torchvision.utils.save_image(
+                mask_image_train,
+                "./training_data_captures/" + "last_mask_image_" + ".jpg",
+            )
+            torchvision.utils.save_image(
+                output_train, "./training_data_captures/" + "last_output_" + ".jpg"
+            )
 
-        # torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" + "last_" + ".jpg")
-        torchvision.utils.save_image(
-            mask_image, "./validation_data_captures/" + "last_mask_image_" + ".jpg"
-        )
-        torchvision.utils.save_image(
-            output, "./validation_data_captures/" + "last_output_" + ".jpg"
-        )
+        if args["save_validation_image_last"] != "no":
+            # torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" + "last_" + ".jpg")
+            torchvision.utils.save_image(
+                RGB_image, "./validation_data_captures/" + "last_RGB_image_" + ".jpg"
+            )
+            torchvision.utils.save_image(
+                mask_image, "./validation_data_captures/" + "last_mask_image_" + ".jpg"
+            )
+            torchvision.utils.save_image(
+                output, "./validation_data_captures/" + "last_output_" + ".jpg"
+            )
 
         # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
         if args["wandb_name"] != "no":
@@ -320,20 +330,29 @@ def main():
             # Graphical archive of the epoch test set
             # epoch 測試集中的圖示化存檔
             # wandb.log({"last": wandb.Image("./validation_data_captures/" + "last_" + ".jpg")})
-            wandb.log(
-                {
-                    "last_mask_image": wandb.Image(
-                        "./validation_data_captures/" + "last_mask_image_" + ".jpg"
-                    )
-                }
-            )
-            wandb.log(
-                {
-                    "last_output": wandb.Image(
-                        "./validation_data_captures/" + "last_output_" + ".jpg"
-                    )
-                }
-            )
+
+            if args["save_validation_image_last"] != "no":
+                wandb.log(
+                    {
+                        "last_RGB_image": wandb.Image(
+                            "./validation_data_captures/" + "last_RGB_image_" + ".jpg"
+                        )
+                    }
+                )
+                wandb.log(
+                    {
+                        "last_mask_image": wandb.Image(
+                            "./validation_data_captures/" + "last_mask_image_" + ".jpg"
+                        )
+                    }
+                )
+                wandb.log(
+                    {
+                        "last_output": wandb.Image(
+                            "./validation_data_captures/" + "last_output_" + ".jpg"
+                        )
+                    }
+                )
 
         if mean_acc > save_mean_acc:
             print("best_loss: %.3f , best_acc: %.3f" % (mean_loss, mean_acc))
@@ -343,32 +362,52 @@ def main():
             #     torch.cat((mask_image, output), 0),
             #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
             # )
-            torchvision.utils.save_image(
-                mask_image, "./validation_data_captures/" + "best_mask_image_" + ".jpg"
-            )
-            torchvision.utils.save_image(
-                output, "./validation_data_captures/" + "best_output_" + ".jpg"
-            )
+
+            if args["save_validation_image_bast"] != "no":
+                torchvision.utils.save_image(
+                    RGB_image,
+                    "./validation_data_captures/" + "best_RGB_image_" + ".jpg",
+                )
+                torchvision.utils.save_image(
+                    mask_image,
+                    "./validation_data_captures/" + "best_mask_image_" + ".jpg",
+                )
+                torchvision.utils.save_image(
+                    output, "./validation_data_captures/" + "best_output_" + ".jpg"
+                )
 
             if args["wandb_name"] != "no":
                 wandb.log({"best_loss": mean_loss, "best_acc": mean_acc})
                 wandb.save(args["save_dir"] + "best_checkpoint" + ".pth")
                 wandb.save(args["save_dir"] + "best" + ".pth")
                 # wandb.log({"best": wandb.Image("./validation_data_captures/" + "best" + ".jpg")})
-                wandb.log(
-                    {
-                        "best_mask_image": wandb.Image(
-                            "./validation_data_captures/" + "best_mask_image_" + ".jpg"
-                        )
-                    }
-                )
-                wandb.log(
-                    {
-                        "best_output": wandb.Image(
-                            "./validation_data_captures/" + "best_output_" + ".jpg"
-                        )
-                    }
-                )
+
+                if args["save_validation_image_bast"] != "no":
+                    wandb.log(
+                        {
+                            "best_RGB_image": wandb.Image(
+                                "./validation_data_captures/"
+                                + "best_RGB_image_"
+                                + ".jpg"
+                            )
+                        }
+                    )
+                    wandb.log(
+                        {
+                            "best_mask_image": wandb.Image(
+                                "./validation_data_captures/"
+                                + "best_mask_image_"
+                                + ".jpg"
+                            )
+                        }
+                    )
+                    wandb.log(
+                        {
+                            "best_output": wandb.Image(
+                                "./validation_data_captures/" + "best_output_" + ".jpg"
+                            )
+                        }
+                    )
             save_mean_acc = mean_acc
     #         torch.onnx.export(
     #             model,
@@ -441,18 +480,18 @@ if __name__ == "__main__":
     #     help="path to mask",
     # )
 
-    ap.add_argument(
-        "-ti",
-        "--train_images",
-        default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/",
-        help="path to hazy training images",
-    )
-    ap.add_argument(
-        "-tm",
-        "--train_masks",
-        default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",
-        help="path to mask",
-    )
+    # ap.add_argument(
+    #     "-ti",
+    #     "--train_images",
+    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--train_masks",
+    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",
+    #     help="path to mask",
+    # )
 
     # ap.add_argument(
     #     "-ti",
@@ -466,6 +505,19 @@ if __name__ == "__main__":
     #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
     #     help="path to mask",
     # )
+
+    ap.add_argument(
+        "-ti",
+        "--train_images",
+        default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_image/",
+        help="path to hazy training images",
+    )
+    ap.add_argument(
+        "-tm",
+        "--train_masks",
+        default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_mask/",
+        help="path to mask",
+    )
 
     ap.add_argument("-bs", "--batch_size", type=int, default=8, help="set batch_size")
     ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
@@ -500,7 +552,27 @@ if __name__ == "__main__":
         default="no",
         help="wandb test name,but 'no' is not use wandb",
     )
-
+    ap.add_argument(
+        "-sti",
+        "--save_train_image",
+        type=str,
+        default="no",
+        help="wandb test name,but 'no' is not use wandb",
+    )
+    ap.add_argument(
+        "-svi",
+        "--save_validation_image_last",
+        type=str,
+        default="no",
+        help="wandb test name,but 'no' is not use wandb",
+    )
+    ap.add_argument(
+        "-svib",
+        "--save_validation_image_bast",
+        type=str,
+        default="no",
+        help="wandb test name,but 'no' is not use wandb",
+    )
     args = vars(
         ap.parse_args()
     )  # Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值

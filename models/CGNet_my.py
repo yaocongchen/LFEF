@@ -473,10 +473,10 @@ class Net(nn.Module):
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
-                nn.Dropout2d(0.1, False), Conv(256, classes, 1, 1)
+                nn.Dropout2d(0.1, False), nn.Conv2d(96, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(256, classes, 1, 1))
+            self.classifier = nn.Sequential(nn.Conv2d(96, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -491,9 +491,16 @@ class Net(nn.Module):
                         m.bias.data.zero_()
 
         self.db = Detail_Branch(3, 128)
-        self.conv1x1_32_32 = nn.Conv2d(32, 32, kernel_size=(1, 1), stride=1)
-        self.conv1x1_64_32 = nn.Conv2d(64, 32, kernel_size=(1, 1), stride=1)
-        self.conv1x1_128_32 = nn.Conv2d(128, 32, kernel_size=(1, 1), stride=1)
+        self.conv1x1_67_32 = nn.Conv2d(67, 32, kernel_size=(1, 1), stride=1)
+        self.conv1x1_195_32 = nn.Conv2d(195, 32, kernel_size=(1, 1), stride=1)
+        self.conv1x1_384_32 = nn.Conv2d(384, 32, kernel_size=(1, 1), stride=1)
+        self.upsample_128 = nn.Upsample(
+            size=(128, 128), mode="bilinear", align_corners=True
+        )
+        self.upsample_256 = nn.Upsample(
+            size=(256, 256), mode="bilinear", align_corners=True
+        )
+        # self.conv1x1_96_32 = nn.Conv2d(96, 1, kernel_size=(1, 1), stride=1)
 
     def forward(self, input):
         """
@@ -514,7 +521,7 @@ class Net(nn.Module):
         # stage 2
         output0_cat = self.b1(torch.cat([output0, inp1], 1))
         output0_cat_stack_1 = torch.cat([output0_cat, stack_1], 1)
-        cat_conv_1 = self.conv1x1_32_32(output0_cat_stack_1)
+        cat_conv_1 = self.conv1x1_67_32(output0_cat_stack_1)
 
         output1_0 = self.level2_0(output0_cat)  # down-sampled
 
@@ -526,7 +533,7 @@ class Net(nn.Module):
 
         output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
         output1_cat_stack_2 = torch.cat([output1_cat, stack_2], 1)
-        cat_conv_2 = self.conv1x1_128_32(output1_cat_stack_2)
+        cat_conv_2 = self.conv1x1_195_32(output1_cat_stack_2)
 
         # stage 3
         output2_0 = self.level3_0(output1_cat)  # down-sampled
@@ -538,16 +545,22 @@ class Net(nn.Module):
 
         output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2], 1))
         output2_cat_stack_3 = torch.cat([output2_cat, stack_3], 1)
-        cat_conv_3 = self.conv1x1_32_32(output2_cat_stack_3)
+        cat_conv_3 = self.conv1x1_384_32(output2_cat_stack_3)
+
+        # upsample_1 = self.upsample(cat_conv_1)
+        upsample_2 = self.upsample_128(cat_conv_2)
+        upsample_3 = self.upsample_128(cat_conv_3)
+        output = torch.cat([cat_conv_1, upsample_2, upsample_3], 1)
+        output = self.upsample_256(output)
 
         # classifier
-        classifier = self.classifier(output2_cat)
+        output = self.classifier(output)
 
-        # upsample segmenation map ---> the input image size
-        out = F.upsample(
-            classifier, input.size()[2:], mode="bilinear", align_corners=False
-        )  # Upsample score map, factor=8
-        return out
+        # # upsample segmenation map ---> the input image size
+        # out = F.upsample(
+        #     classifier, input.size()[2:], mode="bilinear", align_corners=False
+        # )  # Upsample score map, factor=8
+        return output
 
 
 if __name__ == "__main__":

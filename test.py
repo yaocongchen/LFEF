@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 import wandb
 
 import utils
-import models.mynet2 as network_model
+import models.CGNet_my as network_model
 from visualization_codes.inference import smoke_semantic
 
 
@@ -54,7 +54,7 @@ def wandb_information(model_size, flops, params):
 
 # Main function 主函式
 def smoke_segmentation(device, names):
-    model = network_model.Net(1).to(device)
+    model = network_model.Net().to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
     model.eval()
@@ -92,8 +92,8 @@ def smoke_segmentation(device, names):
 
     count = 1
     pbar = tqdm((testing_data_loader), total=len(testing_data_loader))
-    for img_image, mask_image in pbar:
-        img_image = img_image.to(device)
+    for RGB_image, mask_image in pbar:
+        img_image = RGB_image.to(device)
         mask_image = mask_image.to(device)
 
         output = smoke_semantic(img_image, model, device, time_train, i)
@@ -103,6 +103,10 @@ def smoke_segmentation(device, names):
         #     f'./{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{count}.jpg',
         # )
 
+        torchvision.utils.save_image(
+            RGB_image,
+            f'./{names["smoke_semantic_dir_name"]}/test_RGB_image_{count}.jpg',
+        )
         torchvision.utils.save_image(
             mask_image,
             f'./{names["smoke_semantic_dir_name"]}/test_mask_image_{count}.jpg',
@@ -136,6 +140,13 @@ def smoke_segmentation(device, names):
             )
             wandb.log(
                 {
+                    "test_RGB_image": wandb.Image(
+                        f'./{names["smoke_semantic_dir_name"]}/test_RGB_image_{count}.jpg'
+                    )
+                }
+            )
+            wandb.log(
+                {
                     "test_mask_image": wandb.Image(
                         f'./{names["smoke_semantic_dir_name"]}/test_mask_image_{count}.jpg'
                     )
@@ -160,17 +171,19 @@ def smoke_segmentation(device, names):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    # ap.add_argument("-td", "--test_directory",required=True, help="path to test images directory")
+    # ap.add_argument(
+    #     "-td", "--test_directory", required=True, help="path to test images directory"
+    # )
     ap.add_argument(
         "-ti",
         "--test_images",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/img/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/img/",
         help="path to hazy training images",
     )
     ap.add_argument(
         "-tm",
         "--test_masks",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/mask/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/mask/",
         help="path to mask",
     )
     # ap.add_argument(

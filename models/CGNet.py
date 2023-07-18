@@ -6,6 +6,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchinfo import summary
 
 __all__ = ["Context_Guided_Network"]
 # Filter out variables, functions, and classes that other programs don't need or don't want when running cmd "from CGNet import *"
@@ -334,12 +335,12 @@ class InputInjection(nn.Module):
         return input
 
 
-class Context_Guided_Network(nn.Module):
+class Net(nn.Module):
     """
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
 
-    def __init__(self, classes=19, M=3, N=21, dropout_flag=False):
+    def __init__(self, classes=1, M=3, N=21, dropout_flag=False):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
@@ -441,3 +442,11 @@ class Context_Guided_Network(nn.Module):
             classifier, input.size()[2:], mode="bilinear", align_corners=False
         )  # Upsample score map, factor=8
         return out
+
+
+if __name__ == "__main__":
+    model = Context_Guided_Network()
+    x = torch.randn(16, 3, 256, 256)
+    output = model(x)
+    print(output.shape)
+    summary(model, input_size=(16, 3, 256, 256))
