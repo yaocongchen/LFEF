@@ -496,28 +496,67 @@ if __name__ == "__main__":
     # ap.add_argument(
     #     "-ti",
     #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
+    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img_npy/",
     #     help="path to hazy training images",
     # )
     # ap.add_argument(
     #     "-tm",
     #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
+    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt_npy/",
     #     help="path to mask",
     # )
 
     ap.add_argument(
         "-ti",
         "--train_images",
-        default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_image/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
         help="path to hazy training images",
     )
     ap.add_argument(
         "-tm",
         "--train_masks",
-        default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_mask/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
         help="path to mask",
     )
+
+    # ap.add_argument(
+    #     "-ti",
+    #     "--train_images",
+    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall_npy/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--train_masks",
+    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall_npy/",
+    #     help="path to mask",
+    # )
+
+    # ap.add_argument(
+    #     "-ti",
+    #     "--train_images",
+    #     default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_image/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--train_masks",
+    #     default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_mask/",
+    #     help="path to mask",
+    # )
+
+    # ap.add_argument(
+    #     "-ti",
+    #     "--train_images",
+    #     default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_image_npy/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--train_masks",
+    #     default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_mask_npy/",
+    #     help="path to mask",
+    # )
 
     ap.add_argument("-bs", "--batch_size", type=int, default=8, help="set batch_size")
     ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
