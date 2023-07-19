@@ -8,6 +8,7 @@ import random
 import cv2
 import torch.utils.data as data
 from skimage.io import imread
+from tqdm import tqdm
 
 # Random number generation 亂數產生
 
@@ -72,9 +73,6 @@ def preparing_training_data(images_dir, masks_dir):
     return train_data, validation_data, test_data
 
 
-# %%
-
-
 # Picture brightness enhancement 圖片亮度增強
 def cv2_brightness_augment(img):
     hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
@@ -86,7 +84,6 @@ def cv2_brightness_augment(img):
     return rgb_final
 
 
-# %%
 class DataLoaderSegmentation(data.Dataset):
     def __init__(self, images_dir, masks_dir, mode="train"):
         self.train_data, self.validation_data, self.test_data = preparing_training_data(
@@ -106,10 +103,14 @@ class DataLoaderSegmentation(data.Dataset):
 
     def __len__(self):
         return len(self.data_dict)
-    
+
     # Import data by index 依index匯入資料
     def __getitem__(self, index):
         images_path, masks_path = self.data_dict[index]
+
+        images_name = images_path.split("/")[-1]
+        name = images_name.split(".")[0]  # take extension 取檔名
+
         c_img = imread(images_path)
         c_img = cv2_brightness_augment(c_img)
 
@@ -128,33 +129,21 @@ class DataLoaderSegmentation(data.Dataset):
         out_mask = torch.from_numpy(c_mask).float()
 
         return (
+            name,
             out_rgb.permute(2, 0, 1).contiguous(),
             out_mask.permute(2, 0, 1).contiguous(),
         )
 
 
-
-
 if __name__ == "__main__":
-    # dataset = DataLoaderSegmentation()
-    # training_data_loader = torch.utils.data.DataLoader(
-    #     dataset, batch_size=8, shuffle=True, num_workers=4, pin_memory=True
-    # )
-    # x = iter(training_data_loader)
-    # a = x.next()
-    # print(a)
-    # %%
-    #
     testing_data = DataLoaderSegmentation(
-        "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/test/img/",
-        "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/test/gt_/",
+        "/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_image/",
+        "/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_mask/",
         mode="test",
     )
-    testing_data_loader = torch.utils.data.DataLoader(
-        testing_data,
-        batch_size=8,
-        shuffle=True,
-        num_workers=1,
-        pin_memory=True,
-        drop_last=True,
-    )
+
+    pbar = tqdm((testing_data), total=len(testing_data))
+    for name, out_rgb, out_mask in pbar:
+        # print(out_rgb.shape, out_mask.shape)
+        np.save(f"./temp/smoke_image_npy/{name}.npy", out_rgb)
+        np.save(f"./temp/smoke_mask_npy/{name}.npy", out_mask)
