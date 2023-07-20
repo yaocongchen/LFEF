@@ -3,19 +3,50 @@ import torch.nn as nn
 from ptflops import get_model_complexity_info
 
 S = nn.Sigmoid()
+L = nn.BCELoss(reduction="mean")
 
 
-def acc_miou(
+def mIoU(
     model_output, mask, smooth=1
 ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
     model_output = S(model_output)
-    intersection = torch.sum(model_output * mask)  # Calculate the intersection 算出交集
-    union = torch.sum(model_output) + torch.sum(
-        mask
+    intersection = torch.sum(
+        model_output * mask, dim=[1, 2, 3]
+    )  # Calculate the intersection 算出交集
+    union = (
+        torch.sum(model_output, dim=[1, 2, 3])
+        + torch.sum(mask, dim=[1, 2, 3])
+        - intersection
+        + 1e-6
+    )
+    return torch.mean(
+        (intersection + smooth) / (union + smooth), dim=0
+    )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
+
+
+def dice_coef(
+    model_output, mask, smooth=1
+):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
+    model_output = S(model_output)
+    intersection = torch.sum(
+        model_output * mask, dim=[1, 2, 3]
+    )  # Calculate the intersection 算出交集
+    union = torch.sum(model_output, dim=[1, 2, 3]) + torch.sum(
+        mask, dim=[1, 2, 3]
     )  # 2*Consider the overlapping part # Calculate the Dice coefficient of the model output and the real label, which is used to evaluate the performance of the binary segmentation model. The parameters model_output and mask are the model output and the real label respectively, and smooth is a constant used to avoid the case where the denominator is 0.
     return torch.mean(
-        (2.0 * intersection + smooth) / (union + smooth)
+        (2.0 * intersection + smooth) / (union + smooth), dim=0
     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
+
+
+# def dice_p_bce(in_gt, in_pred):
+#     return 1e-3 * L(in_gt, in_pred) - dice_coef(in_gt, in_pred)
+
+
+# def true_positive_rate(y_true, y_pred):
+#     return torch.sum(
+#         torch.flatten(y_true) * torch.flatten(torch.round(y_pred))
+#     ) / torch.sum(y_true)
 
 
 # def true_positive_rate(model_output,mask):  ##Calculate the true positive rate, use the torch.flatten function to flatten the model_output and mask into a one-dimensional tensor, and then convert the value of the mask to 0 or 1 through torch.round to obtain a binarized label tensor. Next, multiply the two flattened tensors to get the number of overlapping pixels, and then divide by the total number of pixels in the mask tensor to get the true positive rate. Specifically, the numerator is the intersection of the pixels predicted to be positive in the model output and the pixels marked as positive in the label, and the denominator is the number of all positive pixels in the label.
