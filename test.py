@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 import wandb
 
 import utils
-import models.CGNet_my as network_model
+import models.CGNet as network_model
 from visualization_codes.inference import smoke_semantic
 
 
@@ -75,6 +75,7 @@ def smoke_segmentation(device, names):
 
     epoch_loss = []
     epoch_miou = []
+    epoch_dice_coef = []
     time_train = []
     i = 0
 
@@ -118,16 +119,21 @@ def smoke_segmentation(device, names):
         )
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        acc = utils.metrics.acc_miou(output, mask_image)
+        miou = utils.metrics.mIoU(output, mask_image)
+        dice_coef = utils.metrics.dice_coef(output, mask_image)
 
         epoch_loss.append(loss.item())
-        epoch_miou.append(acc.item())
+        epoch_miou.append(miou.item())
+        epoch_dice_coef.append(dice_coef.item())
 
         average_epoch_loss_test = sum(epoch_loss) / len(epoch_loss)
         average_epoch_miou_test = sum(epoch_miou) / len(epoch_miou)
+        average_epoch_dice_coef_test = sum(epoch_dice_coef) / len(epoch_dice_coef)
 
         pbar.set_postfix(
-            test_loss=average_epoch_loss_test, test_acc=average_epoch_miou_test
+            test_loss=average_epoch_loss_test,
+            test_miou=average_epoch_miou_test,
+            test_dice_coef=average_epoch_dice_coef_test,
         )
 
         if args["wandb_name"] != "no":
@@ -135,7 +141,8 @@ def smoke_segmentation(device, names):
             wandb.log(
                 {
                     "test_loss": average_epoch_loss_test,
-                    "test_acc": average_epoch_miou_test,
+                    "test_miou": average_epoch_miou_test,
+                    "test_dice_coef": average_epoch_dice_coef_test,
                 }
             )
             wandb.log(

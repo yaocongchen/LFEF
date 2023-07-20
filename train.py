@@ -111,7 +111,8 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
     count = 0
     n_element = 0
     mean_loss = 0
-    mean_acc = 0
+    mean_miou = 0
+    mean_dice_coef = 0
 
     # Training loop 訓練迴圈
     pbar = tqdm((training_data_loader), total=len(training_data_loader))
@@ -133,7 +134,8 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        acc = utils.metrics.acc_miou(output, mask_image)
+        miou = utils.metrics.mIoU(output, mask_image)
+        dice_coef = utils.metrics.dice_coef(output, mask_image)
 
         loss.backward()
         torch.nn.utils.clip_grad_norm_(
@@ -143,12 +145,23 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
 
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
-        mean_acc += (acc.item() - mean_acc) / n_element
+        mean_miou += (miou.item() - mean_miou) / n_element
+        mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
 
         pbar.set_description(f"trian_epoch [{epoch}/{args['epochs']}]")
-        pbar.set_postfix(train_loss=mean_loss, train_acc=mean_acc)
+        pbar.set_postfix(
+            train_loss=mean_loss,
+            train_miou=mean_miou,
+            train_dice_coef=mean_dice_coef,
+        )
         if args["wandb_name"] != "no":
-            wandb.log({"train_loss": mean_loss, "train_acc": mean_acc})
+            wandb.log(
+                {
+                    "train_loss": mean_loss,
+                    "train_miou": mean_miou,
+                    "train_dice_coef": mean_dice_coef,
+                }
+            )
 
         # Graphical archive of the epoch test set
         # epoch 測試集中的圖示化存檔
@@ -162,7 +175,8 @@ def valid_epoch(model, validation_data_loader, device, epoch):
     # Validation loop 驗證迴圈
     n_element = 0
     mean_loss = 0
-    mean_acc = 0
+    mean_miou = 0
+    mean_dice_coef = 0
 
     model.eval()
 
@@ -175,23 +189,33 @@ def valid_epoch(model, validation_data_loader, device, epoch):
             output = model(img_image)
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        acc = utils.metrics.acc_miou(output, mask_image)
+        miou = utils.metrics.mIoU(output, mask_image)
+        dice_coef = utils.metrics.dice_coef(output, mask_image)
 
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
-        mean_acc += (acc.item() - mean_acc) / n_element
+        mean_miou += (miou.item() - mean_miou) / n_element
+        mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
 
         pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
-        pbar.set_postfix(val_loss=mean_loss, val_acc=mean_acc)
+        pbar.set_postfix(
+            val_loss=mean_loss, val_miou=mean_miou, val_dice_coef=mean_dice_coef
+        )
 
         if args["wandb_name"] != "no":
-            wandb.log({"val_loss": mean_loss, "val_acc": mean_acc})
+            wandb.log(
+                {
+                    "val_loss": mean_loss,
+                    "val_miou": mean_miou,
+                    "val_dice_coef": mean_dice_coef,
+                }
+            )
 
-    return mean_loss, mean_acc, RGB_image, mask_image, output
+    return mean_loss, mean_miou, mean_dice_coef, RGB_image, mask_image, output
 
 
 def main():
-    save_mean_acc = 0
+    save_mean_miou = 0
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
     # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
@@ -213,10 +237,10 @@ def main():
     set_save_dir_names()
 
     # Import data導入資料
-    training_data = utils.dataset.DataLoaderSegmentation(
+    training_data = utils.load_npy_dataset.DataLoaderSegmentation(
         args["train_images"], args["train_masks"]
     )
-    validation_data = utils.dataset.DataLoaderSegmentation(
+    validation_data = utils.load_npy_dataset.DataLoaderSegmentation(
         args["train_images"], args["train_masks"], mode="val"
     )
     training_data_loader = DataLoader(
@@ -254,7 +278,7 @@ def main():
             optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
             start_epoch = checkpoint["epoch"]
             mean_loss = checkpoint["loss"]
-            mean_acc = checkpoint["acc"]
+            mean_miou = checkpoint["miou"]
             print(
                 "=====> load checkpoint '{}' (epoch {})".format(
                     args["resume"], checkpoint["epoch"]
@@ -279,9 +303,14 @@ def main():
             model, training_data_loader, device, optimizer, epoch
         )
         torch.cuda.empty_cache()  # 刪除不需要的變數
-        mean_loss, mean_acc, RGB_image, mask_image, output = valid_epoch(
-            model, validation_data_loader, device, epoch
-        )
+        (
+            mean_loss,
+            mean_miou,
+            mean_dice_coef,
+            RGB_image,
+            mask_image,
+            output,
+        ) = valid_epoch(model, validation_data_loader, device, epoch)
 
         # Save model 模型存檔
 
@@ -292,7 +321,8 @@ def main():
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
             "loss": mean_loss,
-            "acc": mean_acc,
+            "miou": mean_miou,
+            "dice_coef": mean_dice_coef,
         }
 
         torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
@@ -354,8 +384,8 @@ def main():
                     }
                 )
 
-        if mean_acc > save_mean_acc:
-            print("best_loss: %.3f , best_acc: %.3f" % (mean_loss, mean_acc))
+        if mean_miou > save_mean_miou:
+            print("best_loss: %.3f , best_miou: %.3f" % (mean_loss, mean_miou))
             torch.save(state, args["save_dir"] + "best_checkpoint" + ".pth")
             torch.save(model.state_dict(), args["save_dir"] + "best" + ".pth")
             # torchvision.utils.save_image(
@@ -377,7 +407,7 @@ def main():
                 )
 
             if args["wandb_name"] != "no":
-                wandb.log({"best_loss": mean_loss, "best_acc": mean_acc})
+                wandb.log({"best_loss": mean_loss, "best_miou": mean_miou})
                 wandb.save(args["save_dir"] + "best_checkpoint" + ".pth")
                 wandb.save(args["save_dir"] + "best" + ".pth")
                 # wandb.log({"best": wandb.Image("./validation_data_captures/" + "best" + ".jpg")})
@@ -408,7 +438,7 @@ def main():
                             )
                         }
                     )
-            save_mean_acc = mean_acc
+            save_mean_miou = mean_miou
     #         torch.onnx.export(
     #             model,
     #             onnx_img_image,
@@ -493,31 +523,31 @@ if __name__ == "__main__":
     #     help="path to mask",
     # )
 
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img_npy/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt_npy/",
-    #     help="path to mask",
-    # )
-
     ap.add_argument(
         "-ti",
         "--train_images",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
+        default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img_npy/",
         help="path to hazy training images",
     )
     ap.add_argument(
         "-tm",
         "--train_masks",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
+        default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt_npy/",
         help="path to mask",
     )
+
+    # ap.add_argument(
+    #     "-ti",
+    #     "--train_images",
+    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--train_masks",
+    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
+    #     help="path to mask",
+    # )
 
     # ap.add_argument(
     #     "-ti",
