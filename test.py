@@ -7,9 +7,10 @@ import shutil
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 import wandb
+import random
 
 import utils
-import models.CGNet as network_model
+import models.erfnet as network_model
 from visualization_codes.inference import smoke_semantic
 
 
@@ -54,7 +55,7 @@ def wandb_information(model_size, flops, params):
 
 # Main function 主函式
 def smoke_segmentation(device, names):
-    model = network_model.Net().to(device)
+    model = network_model.Net(1).to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
     model.eval()
@@ -79,6 +80,9 @@ def smoke_segmentation(device, names):
     time_train = []
     i = 0
 
+    seconds = time.time()  # Random number generation 亂數產生
+    random.seed(seconds)    #使用時間秒數當亂數種子
+    
     testing_data = utils.dataset.DataLoaderSegmentation(
         args["test_images"], args["test_masks"], mode="test"
     )
@@ -184,15 +188,27 @@ if __name__ == "__main__":
     ap.add_argument(
         "-ti",
         "--test_images",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/img/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS02/img/",
         help="path to hazy training images",
     )
     ap.add_argument(
         "-tm",
         "--test_masks",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/mask/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS02/mask/",
         help="path to mask",
     )
+    # ap.add_argument(
+    #     "-ti",
+    #     "--test_images",
+    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--test_masks",
+    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
+    #     help="path to mask",
+    # )
     # ap.add_argument(
     #     "-ti",
     #     "--test_images",
@@ -216,6 +232,8 @@ if __name__ == "__main__":
         help="wandb test name,but 'no' is not use wandb",
     )
     args = vars(ap.parse_args())
+
+    print("test_data:",args["test_images"])
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print(f"Testing on device {device}.")
