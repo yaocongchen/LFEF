@@ -9,13 +9,8 @@ import cv2
 import torch.utils.data as data
 from skimage.io import imread
 
-# Random number generation 亂數產生
-
-random.seed(1143)
-
 # Initial parameters 初始參數
 IMG_SCALING = (1, 1)
-
 
 # Data preprocessing 資料預處理
 def preparing_training_data(images_dir, masks_dir):
@@ -27,6 +22,8 @@ def preparing_training_data(images_dir, masks_dir):
         images_dir
     )  # List the list of files in the folder (without path) ps. Using glob will not be able to read special characters, such as: ()
     mask_data = os.listdir(masks_dir)  # 列出資料夾中檔案清單(不含路徑) ps.用glob會因無法讀取特殊字元，如：（）
+
+    random.shuffle(mask_data)
 
     image_data_first_one = image_data[0]  # Get the first file in the folder 取資料夾中的第一個檔案
     extension = image_data_first_one.split(".")[1]  # take extension 取副檔名
@@ -49,7 +46,7 @@ def preparing_training_data(images_dir, masks_dir):
 
     num_of_ids = len(data_holder.keys())
     for i in range(num_of_ids):
-        if i < num_of_ids * 9 / 10:
+        if i < num_of_ids * 3 / 4:
             train_ids.append(list(data_holder.keys())[i])
         else:
             val_ids.append(list(data_holder.keys())[i])
@@ -65,9 +62,17 @@ def preparing_training_data(images_dir, masks_dir):
         # for test.py use
         test_data = train_data + validation_data
 
+    # print("train_data",train_data)
+    # print("====================================================")
+    # print("validation_data",validation_data)
+    print("test_data",test_data)
+
+    #TODO:考慮必要性
     random.shuffle(train_data)
     random.shuffle(validation_data)
     random.shuffle(test_data)
+    # print("====================================================")
+    # print("validation_data",validation_data)
 
     return train_data, validation_data, test_data
 
@@ -106,7 +111,7 @@ class DataLoaderSegmentation(data.Dataset):
 
     def __len__(self):
         return len(self.data_dict)
-    
+
     # Import data by index 依index匯入資料
     def __getitem__(self, index):
         images_path, masks_path = self.data_dict[index]
@@ -133,23 +138,28 @@ class DataLoaderSegmentation(data.Dataset):
         )
 
 
-
-
 if __name__ == "__main__":
-    # dataset = DataLoaderSegmentation()
-    # training_data_loader = torch.utils.data.DataLoader(
-    #     dataset, batch_size=8, shuffle=True, num_workers=4, pin_memory=True
-    # )
-    # x = iter(training_data_loader)
-    # a = x.next()
-    # print(a)
-    # %%
-    #
+
+    import time
+    seconds = time.time()
+    print("s",seconds)
+
+    random.seed(seconds)
+
+    print("s",seconds)
     testing_data = DataLoaderSegmentation(
-        "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/test/img/",
-        "/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/test/gt_/",
-        mode="test",
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
+        mode="train",
     )
+    random.seed(seconds)
+    print("s",seconds)
+    testing_data = DataLoaderSegmentation(
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
+        mode="val",
+    )
+
     testing_data_loader = torch.utils.data.DataLoader(
         testing_data,
         batch_size=8,

@@ -6,6 +6,7 @@ import torch.optim
 import os
 import argparse
 import time
+import random
 from tqdm import tqdm
 from torch.autograd import Variable
 import wandb
@@ -13,7 +14,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet_my as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 onnx_img_image = []
@@ -237,10 +238,16 @@ def main():
     set_save_dir_names()
 
     # Import data導入資料
-    training_data = utils.load_npy_dataset.DataLoaderSegmentation(
+    seconds = time.time()  # Random number generation 亂數產生
+    random.seed(seconds)    #使用時間秒數當亂數種子
+
+    training_data = utils.dataset.DataLoaderSegmentation(
         args["train_images"], args["train_masks"]
     )
-    validation_data = utils.load_npy_dataset.DataLoaderSegmentation(
+
+    random.seed(seconds)    #使用時間秒數當亂數種子
+    
+    validation_data = utils.dataset.DataLoaderSegmentation(
         args["train_images"], args["train_masks"], mode="val"
     )
     training_data_loader = DataLoader(
@@ -523,31 +530,31 @@ if __name__ == "__main__":
     #     help="path to mask",
     # )
 
-    ap.add_argument(
-        "-ti",
-        "--train_images",
-        default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img_npy/",
-        help="path to hazy training images",
-    )
-    ap.add_argument(
-        "-tm",
-        "--train_masks",
-        default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt_npy/",
-        help="path to mask",
-    )
-
     # ap.add_argument(
     #     "-ti",
     #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
+    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img_npy/",
     #     help="path to hazy training images",
     # )
     # ap.add_argument(
     #     "-tm",
     #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
+    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt_npy/",
     #     help="path to mask",
     # )
+
+    ap.add_argument(
+        "-ti",
+        "--train_images",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
+        help="path to hazy training images",
+    )
+    ap.add_argument(
+        "-tm",
+        "--train_masks",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
+        help="path to mask",
+    )
 
     # ap.add_argument(
     #     "-ti",
@@ -585,6 +592,19 @@ if __name__ == "__main__":
     #     "-tm",
     #     "--train_masks",
     #     default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_mask_npy/",
+    #     help="path to mask",
+    # )
+
+    # ap.add_argument(
+    #     "-ti",
+    #     "--train_images",
+    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--train_masks",
+    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
     #     help="path to mask",
     # )
 
