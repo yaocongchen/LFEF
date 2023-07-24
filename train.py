@@ -246,7 +246,7 @@ def main():
     )
 
     random.seed(seconds)    #使用時間秒數當亂數種子
-    
+
     validation_data = utils.dataset.DataLoaderSegmentation(
         args["train_images"], args["train_masks"], mode="val"
     )
@@ -269,8 +269,7 @@ def main():
 
     # Import optimizer導入優化器
     optimizer = torch.optim.Adam(
-        model.parameters(), lr=float(args["learning_rate"]), weight_decay=0.0001
-    )
+        model.parameters(), lr=float(args["learning_rate"]))
     # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
 
     start_epoch = 1  # Initial epoch 初始epoch值
