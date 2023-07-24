@@ -68,7 +68,6 @@ def wandb_information(model_size, flops, params, model):
             "FLOPs": flops,
             "Parameters": params,
             "train_images": args["train_images"],
-            "train_masks": args["train_masks"],
             "device": args["device"],
             "gpus": args["gpus"],
             "batch_size": args["batch_size"],
