@@ -65,7 +65,7 @@ def preparing_training_data(images_dir, masks_dir):
 
     # print("train_data",train_data)
     # print("====================================================")
-    # print("validation_data",validation_data)
+    # print("validation_data", validation_data)
 
     # TODO:考慮必要性
     random.shuffle(train_data)
@@ -93,10 +93,39 @@ def cv2_brightness_augment(img):
 
 # %%
 class DataLoaderSegmentation(data.Dataset):
-    def __init__(self, images_dir, masks_dir, mode="train"):
-        self.train_data, self.validation_data, self.test_data = preparing_training_data(
-            images_dir, masks_dir
+    def __init__(self, images_dir, mode="train"):
+        self.train_data = []
+        self.validation_data = []
+        self.test_data = []
+        (
+            self.train_data_H,
+            self.validation_data_H,
+            self.test_data_H,
+        ) = preparing_training_data(
+            images_dir + "smoke100k-H/smoke_image/",
+            images_dir + "smoke100k-H/smoke_mask/",
         )
+        (
+            self.train_data_L,
+            self.validation_data_L,
+            self.test_data_L,
+        ) = preparing_training_data(
+            images_dir + "smoke100k-L/smoke_image/",
+            images_dir + "smoke100k-L/smoke_mask/",
+        )
+        (
+            self.train_data_M,
+            self.validation_data_M,
+            self.test_data_M,
+        ) = preparing_training_data(
+            images_dir + "smoke100k-M/smoke_image/",
+            images_dir + "smoke100k-M/smoke_mask/",
+        )
+        self.train_data = self.train_data_H + self.train_data_L + self.train_data_M
+        self.validation_data = (
+            self.validation_data_H + self.validation_data_L + self.validation_data_M
+        )
+        self.test_data = self.test_data_H + self.test_data_L + self.test_data_M
 
         if mode == "train":
             self.data_dict = self.train_data
@@ -148,15 +177,13 @@ if __name__ == "__main__":
 
     print("s", seconds)
     testing_data = DataLoaderSegmentation(
-        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
-        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
+        "/home/yaocong/Experimental/Dataset/smoke100k_dataset/",
         mode="train",
     )
     random.seed(seconds)
     print("s", seconds)
     testing_data = DataLoaderSegmentation(
-        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
-        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
+        "/home/yaocong/Experimental/Dataset/smoke100k_dataset/",
         mode="val",
     )
 

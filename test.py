@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.erfnet as network_model
+import models.CGNet as network_model
 from visualization_codes.inference import smoke_semantic
 
 
@@ -55,7 +55,7 @@ def wandb_information(model_size, flops, params):
 
 # Main function 主函式
 def smoke_segmentation(device, names):
-    model = network_model.Net(1).to(device)
+    model = network_model.Net().to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
     model.eval()
@@ -81,8 +81,8 @@ def smoke_segmentation(device, names):
     i = 0
 
     seconds = time.time()  # Random number generation 亂數產生
-    random.seed(seconds)    #使用時間秒數當亂數種子
-    
+    random.seed(seconds)  # 使用時間秒數當亂數種子
+
     testing_data = utils.dataset.DataLoaderSegmentation(
         args["test_images"], args["test_masks"], mode="test"
     )
@@ -233,7 +233,7 @@ if __name__ == "__main__":
     )
     args = vars(ap.parse_args())
 
-    print("test_data:",args["test_images"])
+    print("test_data:", args["test_images"])
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print(f"Testing on device {device}.")
