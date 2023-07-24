@@ -65,7 +65,6 @@ def preparing_training_data(images_dir, masks_dir):
     # print("train_data",train_data)
     # print("====================================================")
     # print("validation_data",validation_data)
-    print("test_data",test_data)
 
     #TODO:考慮必要性
     random.shuffle(train_data)
