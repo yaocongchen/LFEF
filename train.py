@@ -239,13 +239,13 @@ def main():
 
     # Import data導入資料
     seconds = time.time()  # Random number generation 亂數產生
-    random.seed(seconds)    #使用時間秒數當亂數種子
+    random.seed(seconds)  # 使用時間秒數當亂數種子
 
     training_data = utils.dataset.DataLoaderSegmentation(
         args["train_images"], args["train_masks"]
     )
 
-    random.seed(seconds)    #使用時間秒數當亂數種子
+    random.seed(seconds)  # 使用時間秒數當亂數種子
 
     validation_data = utils.dataset.DataLoaderSegmentation(
         args["train_images"], args["train_masks"], mode="val"
@@ -268,8 +268,12 @@ def main():
     )
 
     # Import optimizer導入優化器
-    optimizer = torch.optim.Adam(
-        model.parameters(), lr=float(args["learning_rate"]))
+    optimizer = torch.optim.SGD(
+        model.parameters(),
+        lr=float(args["learning_rate"]),
+        momentum=0.9,
+        weight_decay=1e-5,
+    )
     # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
 
     start_epoch = 1  # Initial epoch 初始epoch值
@@ -616,7 +620,7 @@ if __name__ == "__main__":
         "-lr",
         "--learning_rate",
         type=float,
-        default=0.0001,
+        default=0.01,
         help="learning rate for training",
     )
     ap.add_argument(
