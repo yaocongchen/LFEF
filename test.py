@@ -95,6 +95,15 @@ def smoke_segmentation(device, names):
         drop_last=True,
     )
 
+    os.makedirs(
+        f'./{names["smoke_semantic_dir_name"]}/test_RGB_image'
+    )  # Create new folder 創建新的資料夾
+    os.makedirs(
+        f'./{names["smoke_semantic_dir_name"]}/test_mask_image'
+    )  # Create new folder 創建新的資料夾
+    os.makedirs(
+        f'./{names["smoke_semantic_dir_name"]}/test_output'
+    )  # Create new folder 創建新的資料夾
     count = 1
     pbar = tqdm((testing_data_loader), total=len(testing_data_loader))
     for RGB_image, mask_image in pbar:
@@ -110,16 +119,15 @@ def smoke_segmentation(device, names):
 
         torchvision.utils.save_image(
             RGB_image,
-            f'./{names["smoke_semantic_dir_name"]}/test_RGB_image_{count}.jpg',
+            f'./{names["smoke_semantic_dir_name"]}/test_RGB_image/test_RGB_image_{count}.jpg',
         )
         torchvision.utils.save_image(
             mask_image,
-            f'./{names["smoke_semantic_dir_name"]}/test_mask_image_{count}.jpg',
+            f'./{names["smoke_semantic_dir_name"]}/test_mask_image/test_mask_image_{count}.jpg',
         )
-
         torchvision.utils.save_image(
             output,
-            f'./{names["smoke_semantic_dir_name"]}/test_output_{count}.jpg',
+            f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg',
         )
 
         loss = utils.loss.CustomLoss(output, mask_image)
@@ -152,21 +160,21 @@ def smoke_segmentation(device, names):
             wandb.log(
                 {
                     "test_RGB_image": wandb.Image(
-                        f'./{names["smoke_semantic_dir_name"]}/test_RGB_image_{count}.jpg'
+                        f'./{names["smoke_semantic_dir_name"]}/test_RGB_image/test_RGB_image_{count}.jpg'
                     )
                 }
             )
             wandb.log(
                 {
                     "test_mask_image": wandb.Image(
-                        f'./{names["smoke_semantic_dir_name"]}/test_mask_image_{count}.jpg'
+                        f'./{names["smoke_semantic_dir_name"]}/test_mask_image/test_mask_image_{count}.jpg'
                     )
                 }
             )
             wandb.log(
                 {
                     "test_output": wandb.Image(
-                        f'./{names["smoke_semantic_dir_name"]}/test_output_{count}.jpg'
+                        f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg'
                     )
                 }
             )
