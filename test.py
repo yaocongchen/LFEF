@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.CGNet as network_model
+import models.erfnet as network_model
 from visualization_codes.inference import smoke_semantic
 
 
@@ -55,7 +55,7 @@ def wandb_information(model_size, flops, params):
 
 # Main function 主函式
 def smoke_segmentation(device, names):
-    model = network_model.Net().to(device)
+    model = network_model.Net(1).to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
     model.eval()
@@ -95,6 +95,15 @@ def smoke_segmentation(device, names):
         drop_last=True,
     )
 
+    os.makedirs(
+        f'./{names["smoke_semantic_dir_name"]}/test_RGB_image'
+    )  # Create new folder 創建新的資料夾
+    os.makedirs(
+        f'./{names["smoke_semantic_dir_name"]}/test_mask_image'
+    )  # Create new folder 創建新的資料夾
+    os.makedirs(
+        f'./{names["smoke_semantic_dir_name"]}/test_output'
+    )  # Create new folder 創建新的資料夾
     count = 1
     pbar = tqdm((testing_data_loader), total=len(testing_data_loader))
     for RGB_image, mask_image in pbar:
@@ -110,16 +119,15 @@ def smoke_segmentation(device, names):
 
         torchvision.utils.save_image(
             RGB_image,
-            f'./{names["smoke_semantic_dir_name"]}/test_RGB_image_{count}.jpg',
+            f'./{names["smoke_semantic_dir_name"]}/test_RGB_image/test_RGB_image_{count}.jpg',
         )
         torchvision.utils.save_image(
             mask_image,
-            f'./{names["smoke_semantic_dir_name"]}/test_mask_image_{count}.jpg',
+            f'./{names["smoke_semantic_dir_name"]}/test_mask_image/test_mask_image_{count}.jpg',
         )
-
         torchvision.utils.save_image(
             output,
-            f'./{names["smoke_semantic_dir_name"]}/test_output_{count}.jpg',
+            f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg',
         )
 
         loss = utils.loss.CustomLoss(output, mask_image)
@@ -152,21 +160,21 @@ def smoke_segmentation(device, names):
             wandb.log(
                 {
                     "test_RGB_image": wandb.Image(
-                        f'./{names["smoke_semantic_dir_name"]}/test_RGB_image_{count}.jpg'
+                        f'./{names["smoke_semantic_dir_name"]}/test_RGB_image/test_RGB_image_{count}.jpg'
                     )
                 }
             )
             wandb.log(
                 {
                     "test_mask_image": wandb.Image(
-                        f'./{names["smoke_semantic_dir_name"]}/test_mask_image_{count}.jpg'
+                        f'./{names["smoke_semantic_dir_name"]}/test_mask_image/test_mask_image_{count}.jpg'
                     )
                 }
             )
             wandb.log(
                 {
                     "test_output": wandb.Image(
-                        f'./{names["smoke_semantic_dir_name"]}/test_output_{count}.jpg'
+                        f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg'
                     )
                 }
             )
@@ -188,13 +196,13 @@ if __name__ == "__main__":
     ap.add_argument(
         "-ti",
         "--test_images",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS02/img/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/img/",
         help="path to hazy training images",
     )
     ap.add_argument(
         "-tm",
         "--test_masks",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS02/mask/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/mask/",
         help="path to mask",
     )
     # ap.add_argument(
