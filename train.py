@@ -114,7 +114,9 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
     mean_loss = 0
     mean_miou = 0
     mean_dice_coef = 0
+    mean_miou_old = 0
 
+    iouEvalVal = utils.metrics.iouEval(2)
     # Training loop 訓練迴圈
     pbar = tqdm((training_data_loader), total=len(training_data_loader))
     # for iteration,(img_image, mask_image) in enumerate(training_data_loader):
@@ -132,10 +134,12 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
 
         output = model(img_image)
 
+        iouEvalVal.addBatch(output.max(1)[1].unsqueeze(1).data,mask_image.data)
+
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        miou = utils.metrics.mIoU(output, mask_image)
+        iou_old = utils.metrics.IoU(output, mask_image)
         dice_coef = utils.metrics.dice_coef(output, mask_image)
 
         loss.backward()
@@ -144,21 +148,26 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
         )  # 梯度裁減(避免梯度爆炸或消失) 0.1為閥值
         optimizer.step()
 
+        iou = iouEvalVal.getIoU()
+
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
-        mean_miou += (miou.item() - mean_miou) / n_element
+        mean_miou_old += (iou_old.item() - mean_miou_old) / n_element
+        mean_miou += (iou.item() - mean_miou) / n_element
         mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
 
         pbar.set_description(f"trian_epoch [{epoch}/{args['epochs']}]")
         pbar.set_postfix(
             train_loss=mean_loss,
+            train_mean_miou_old=mean_miou_old,
             train_miou=mean_miou,
-            train_dice_coef=mean_dice_coef,
+            train_dice_coef = mean_dice_coef,
         )
         if args["wandb_name"] != "no":
             wandb.log(
                 {
                     "train_loss": mean_loss,
+                    "train_mean_miou_old": mean_miou_old,
                     "train_miou": mean_miou,
                     "train_dice_coef": mean_dice_coef,
                 }
@@ -176,11 +185,12 @@ def valid_epoch(model, validation_data_loader, device, epoch):
     # Validation loop 驗證迴圈
     n_element = 0
     mean_loss = 0
+    mean_miou_old = 0
     mean_miou = 0
     mean_dice_coef = 0
 
     model.eval()
-
+    iouEvalVal = utils.metrics.iouEval(2)
     pbar = tqdm((validation_data_loader), total=len(validation_data_loader))
     for RGB_image, mask_image in pbar:
         img_image = RGB_image.to(device)
@@ -189,30 +199,36 @@ def valid_epoch(model, validation_data_loader, device, epoch):
         with torch.no_grad():
             output = model(img_image)
 
+        iouEvalVal.addBatch(output.max(1)[1].unsqueeze(1).data,mask_image.data)
+
         loss = utils.loss.CustomLoss(output, mask_image)
-        miou = utils.metrics.mIoU(output, mask_image)
+        iou_old = utils.metrics.IoU(output, mask_image)
         dice_coef = utils.metrics.dice_coef(output, mask_image)
+        
+        iou= iouEvalVal.getIoU()
 
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
-        mean_miou += (miou.item() - mean_miou) / n_element
+        mean_miou_old += (iou_old.item() - mean_miou_old) / n_element       #別人研究出的算平均的方法
+        mean_miou += (iou.item() - mean_miou) / n_element       #別人研究出的算平均的方法
         mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
 
         pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
         pbar.set_postfix(
-            val_loss=mean_loss, val_miou=mean_miou, val_dice_coef=mean_dice_coef
+            val_loss=mean_loss, miou_old = mean_miou_old, val_miou=mean_miou, val_dice_coef=mean_dice_coef
         )
 
         if args["wandb_name"] != "no":
             wandb.log(
                 {
                     "val_loss": mean_loss,
+                    "miou_old": mean_miou_old,
                     "val_miou": mean_miou,
                     "val_dice_coef": mean_dice_coef,
                 }
             )
 
-    return mean_loss, mean_miou, mean_dice_coef, RGB_image, mask_image, output
+    return mean_loss,mean_miou_old ,mean_miou, mean_dice_coef, RGB_image, mask_image, output
 
 
 def main():
@@ -315,6 +331,7 @@ def main():
         torch.cuda.empty_cache()  # 刪除不需要的變數
         (
             mean_loss,
+            mean_miou_old,
             mean_miou,
             mean_dice_coef,
             RGB_image,
@@ -332,6 +349,7 @@ def main():
             "optimizer_state_dict": optimizer.state_dict(),
             "loss": mean_loss,
             "miou": mean_miou,
+            "miou_old":mean_miou_old,
             "dice_coef": mean_dice_coef,
         }
 
@@ -520,18 +538,18 @@ if __name__ == "__main__":
     #     help="path to mask",
     # )
 
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",
-    #     help="path to mask",
-    # )
+    ap.add_argument(
+        "-ti",
+        "--train_images",
+        default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/",
+        help="path to hazy training images",
+    )
+    ap.add_argument(
+        "-tm",
+        "--train_masks",
+        default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",
+        help="path to mask",
+    )
 
     # ap.add_argument(
     #     "-ti",
@@ -546,18 +564,18 @@ if __name__ == "__main__":
     #     help="path to mask",
     # )
 
-    ap.add_argument(
-        "-ti",
-        "--train_images",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
-        help="path to hazy training images",
-    )
-    ap.add_argument(
-        "-tm",
-        "--train_masks",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
-        help="path to mask",
-    )
+    # ap.add_argument(
+    #     "-ti",
+    #     "--train_images",
+    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--train_masks",
+    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
+    #     help="path to mask",
+    # )
 
     # ap.add_argument(
     #     "-ti",

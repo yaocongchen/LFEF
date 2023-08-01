@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.erfnet as network_model
+import models.lednet as network_model
 from visualization_codes.inference import smoke_semantic
 
 
@@ -75,7 +75,8 @@ def smoke_segmentation(device, names):
         wandb_time_total2_cache = 0
 
     epoch_loss = []
-    epoch_miou = []
+    epoch_iou_old = []
+    epoch_iou = []
     epoch_dice_coef = []
     time_train = []
     i = 0
@@ -104,6 +105,7 @@ def smoke_segmentation(device, names):
     os.makedirs(
         f'./{names["smoke_semantic_dir_name"]}/test_output'
     )  # Create new folder 創建新的資料夾
+    ioutestVal = utils.metrics.iouEval(2)
     count = 1
     pbar = tqdm((testing_data_loader), total=len(testing_data_loader))
     for RGB_image, mask_image in pbar:
@@ -111,6 +113,8 @@ def smoke_segmentation(device, names):
         mask_image = mask_image.to(device)
 
         output = smoke_semantic(img_image, model, device, time_train, i)
+        ioutestVal.addBatch(output.max(1)[1].unsqueeze(1).data,mask_image.data)
+
         count += 1
         # torchvision.utils.save_image(
         #     torch.cat((mask_image, output), 0),
@@ -131,19 +135,24 @@ def smoke_segmentation(device, names):
         )
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        miou = utils.metrics.mIoU(output, mask_image)
+        iou_old = utils.metrics.IoU(output, mask_image)
+        iou = ioutestVal.getIoU()
         dice_coef = utils.metrics.dice_coef(output, mask_image)
 
         epoch_loss.append(loss.item())
-        epoch_miou.append(miou.item())
+        epoch_iou_old.append(iou_old.item())
+        epoch_iou.append(iou.item())
         epoch_dice_coef.append(dice_coef.item())
 
+
         average_epoch_loss_test = sum(epoch_loss) / len(epoch_loss)
-        average_epoch_miou_test = sum(epoch_miou) / len(epoch_miou)
+        average_epoch_miou_old_test = sum(epoch_iou_old) / len(epoch_iou_old)
+        average_epoch_miou_test = sum(epoch_iou) / len(epoch_iou)
         average_epoch_dice_coef_test = sum(epoch_dice_coef) / len(epoch_dice_coef)
 
         pbar.set_postfix(
             test_loss=average_epoch_loss_test,
+            test_miou_old = average_epoch_miou_old_test,
             test_miou=average_epoch_miou_test,
             test_dice_coef=average_epoch_dice_coef_test,
         )
@@ -153,6 +162,7 @@ def smoke_segmentation(device, names):
             wandb.log(
                 {
                     "test_loss": average_epoch_loss_test,
+                    "test_old" : average_epoch_iou_old_test,
                     "test_miou": average_epoch_miou_test,
                     "test_dice_coef": average_epoch_dice_coef_test,
                 }
@@ -229,7 +239,7 @@ if __name__ == "__main__":
     #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/test/gt_/",
     #     help="path to mask",
     # )
-    ap.add_argument("-bs", "--batch_size", type=int, default=8, help="set batch_size")
+    ap.add_argument("-bs", "--batch_size", type=int, default=1, help="set batch_size")
     ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
     ap.add_argument("-m", "--model_path", required=True, help="load model path")
     ap.add_argument(

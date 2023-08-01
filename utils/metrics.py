@@ -1,15 +1,33 @@
 import torch
 import torch.nn as nn
 from ptflops import get_model_complexity_info
+import torchvision.transforms as T
+from PIL import Image
+import numpy as np
 
 S = nn.Sigmoid()
 L = nn.BCELoss(reduction="mean")
 
 
-def mIoU(
+def IoU(
     model_output, mask, smooth=1
 ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
+    torch.set_printoptions(profile="full")
+    #print(model_output)
     model_output = S(model_output)
+    # output_np = (
+    #     model_output.squeeze(0)
+    #     .mul(255)
+    #     .add_(0.5)
+    #     .clamp_(0, 255)
+    #     .permute(1, 2, 0)
+    #     .contiguous()
+    #     .to("cpu", torch.uint8)
+    #     .detach()
+    #     .numpy()
+    # )
+    # print(np.int64(output_np > 0))
+    # print(output_np)
     intersection = torch.sum(
         model_output * mask, dim=[1, 2, 3]
     )  # Calculate the intersection 算出交集
@@ -23,6 +41,76 @@ def mIoU(
         (intersection + smooth) / (union + smooth), dim=0
     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
 
+
+class iouEval:
+
+    def __init__(self, nClasses, ignoreIndex=2):
+        self.nClasses = nClasses
+        self.ignoreIndex = ignoreIndex if nClasses>ignoreIndex else -1 #if ignoreIndex is larger than nClasses, consider no ignoreIndex
+        self.reset()
+
+    def reset (self):
+        classes = self.nClasses if self.ignoreIndex==-1 else self.nClasses-1
+        self.tp = torch.zeros(classes).double()
+        self.fp = torch.zeros(classes).double()
+        self.fn = torch.zeros(classes).double()        
+
+    def addBatch(self, x, y):   #x=preds, y=targets
+        #sizes should be "batch_size x nClasses x H x W"
+        
+        #print ("X is cuda: ", x.is_cuda)
+        #print ("Y is cuda: ", y.is_cuda)
+
+        if (x.is_cuda or y.is_cuda):
+            x = x.cuda()
+            y = y.cuda()
+
+        #if size is "batch_size x 1 x H x W" scatter to onehot
+        if (x.size(1) == 1):
+            x_onehot = torch.zeros(x.size(0), self.nClasses, x.size(2), x.size(3))  
+            if x.is_cuda:
+                x_onehot = x_onehot.cuda()
+            x_onehot.scatter_(1, x, 1).float()
+        else:
+            x_onehot = x.float()
+
+        if (y.size(1) == 1):
+            y_onehot = torch.zeros(y.size(0), self.nClasses, y.size(2), y.size(3))
+            if y.is_cuda:
+                y_onehot = y_onehot.cuda()
+            test_y = torch.as_tensor(y, dtype=torch.int64)
+            y_onehot.scatter_(1, test_y, 1).float()
+        else:
+            y_onehot = y.float()
+
+        if (self.ignoreIndex != -1): 
+            ignores = y_onehot[:,self.ignoreIndex].unsqueeze(1)
+            x_onehot = x_onehot[:, :self.ignoreIndex]
+            y_onehot = y_onehot[:, :self.ignoreIndex]
+        else:
+            ignores=0
+
+        #print(type(x_onehot))
+        #print(type(y_onehot))
+        #print(x_onehot.size())
+        #print(y_onehot.size())
+        
+        tpmult = x_onehot * y_onehot    #times prediction and gt coincide is 1
+        tp = torch.sum(torch.sum(torch.sum(tpmult, dim=0, keepdim=True), dim=2, keepdim=True), dim=3, keepdim=True).squeeze()
+        fpmult = x_onehot * (1-y_onehot-ignores) #times prediction says its that class and gt says its not (subtracting cases when its ignore label!)
+        fp = torch.sum(torch.sum(torch.sum(fpmult, dim=0, keepdim=True), dim=2, keepdim=True), dim=3, keepdim=True).squeeze()
+        fnmult = (1-x_onehot) * (y_onehot) #times prediction says its not that class and gt says it is
+        fn = torch.sum(torch.sum(torch.sum(fnmult, dim=0, keepdim=True), dim=2, keepdim=True), dim=3, keepdim=True).squeeze() 
+
+        self.tp += tp.double().cpu()
+        self.fp += fp.double().cpu()
+        self.fn += fn.double().cpu()
+
+    def getIoU(self):
+        num = self.tp
+        den = self.tp + self.fp + self.fn + 1e-15
+        iou = num / den
+        return iou[0]     #returns "iou mean", "iou per class"
 
 def dice_coef(
     model_output, mask, smooth=1
