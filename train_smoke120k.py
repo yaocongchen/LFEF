@@ -166,7 +166,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
             wandb.log(
                 {
                     "train_loss": mean_loss,
-                    "train_mean_miou_old": mean_miou_old,
+                    "train_miou_old": mean_miou_old,
                     "train_miou": mean_miou,
                     "train_dice_coef": mean_dice_coef,
                 }

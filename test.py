@@ -162,7 +162,7 @@ def smoke_segmentation(device, names):
             wandb.log(
                 {
                     "test_loss": average_epoch_loss_test,
-                    "test_old" : average_epoch_iou_old_test,
+                    "test_old" : average_epoch_miou_old_test,
                     "test_miou": average_epoch_miou_test,
                     "test_dice_coef": average_epoch_dice_coef_test,
                 }
