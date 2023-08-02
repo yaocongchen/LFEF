@@ -14,7 +14,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet as network_model  # import self-written models 引入自行寫的模型
+import models.mynet as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 onnx_img_image = []
@@ -284,12 +284,20 @@ def main():
     )
 
     # Import optimizer導入優化器
-    optimizer = torch.optim.SGD(
-        model.parameters(),
-        lr=float(args["learning_rate"]),
-        momentum=0.9,
-        weight_decay=1e-5,
+
+    #先用Adam測試模型能力
+    optimizer = torch.optim.Adam(
+        model.parameters(), lr=float(args["learning_rate"]), weight_decay=0.0001
     )
+    #用SGD微調到最佳
+    # optimizer = torch.optim.SGD(
+    #     model.parameters(),
+    #     lr=float(args["learning_rate"]),
+    #     momentum=0.9,
+    #     weight_decay=1e-5,
+    # )
+
+
     # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
 
     start_epoch = 1  # Initial epoch 初始epoch值
