@@ -220,7 +220,7 @@ def valid_epoch(model, validation_data_loader, device, epoch):
             wandb.log(
                 {
                     "val_loss": mean_loss,
-                    "miou_old": mean_miou_old,
+                    "val_miou_old": mean_miou_old,
                     "val_miou": mean_miou,
                     "val_dice_coef": mean_dice_coef,
                 }
