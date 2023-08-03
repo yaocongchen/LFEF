@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.CGNet as network_model
+import models.mynet as network_model
 from visualization_codes.inference import smoke_semantic
 
 
@@ -55,7 +55,7 @@ def wandb_information(model_size, flops, params):
 
 # Main function 主函式
 def smoke_segmentation(device, names):
-    model = network_model.Net(1).to(device)
+    model = network_model.Net().to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
     model.eval()

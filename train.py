@@ -485,6 +485,7 @@ def main():
                         }
                     )
             save_mean_miou = mean_miou
+            save_mean_miou_old = mean_miou_old
     #         torch.onnx.export(
     #             model,
     #             onnx_img_image,
