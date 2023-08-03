@@ -233,6 +233,7 @@ def valid_epoch(model, validation_data_loader, device, epoch):
 
 def main():
     save_mean_miou = 0
+    save_mean_miou_old = 0
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
     # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
@@ -424,6 +425,15 @@ def main():
             print("best_loss: %.3f , best_miou: %.3f" % (mean_loss, mean_miou))
             torch.save(state, args["save_dir"] + "best_checkpoint" + ".pth")
             torch.save(model.state_dict(), args["save_dir"] + "best" + ".pth")
+            # torchvision.utils.save_image(
+            #     torch.cat((mask_image, output), 0),
+            #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
+            # )
+
+        if mean_miou_old > save_mean_miou_old:
+            print("best_loss: %.3f , best_miou_old: %.3f" % (mean_loss, mean_miou_old))
+            torch.save(state, args["save_dir"] + "best_mean_miou_old_checkpoint" + ".pth")
+            torch.save(model.state_dict(), args["save_dir"] + "best_mean_miou_old" + ".pth")
             # torchvision.utils.save_image(
             #     torch.cat((mask_image, output), 0),
             #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
