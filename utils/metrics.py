@@ -189,4 +189,3 @@ if __name__ == "__main__":
     print("x",x)
     y = torch.rand(1,1,3,3)
     print("y",y)    
-    test_iou(x,y,1)
