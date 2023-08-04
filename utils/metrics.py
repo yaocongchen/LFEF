@@ -4,30 +4,16 @@ from ptflops import get_model_complexity_info
 import torchvision.transforms as T
 from PIL import Image
 import numpy as np
+import time
+from skimage.metrics import structural_similarity
 
 S = nn.Sigmoid()
 L = nn.BCELoss(reduction="mean")
 
-
-def IoU(
-    model_output, mask, smooth=1
+def Sigmoid_IoU(
+        model_output, mask, smooth=1
 ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
-    torch.set_printoptions(profile="full")
-    #print(model_output)
     model_output = S(model_output)
-    # output_np = (
-    #     model_output.squeeze(0)
-    #     .mul(255)
-    #     .add_(0.5)
-    #     .clamp_(0, 255)
-    #     .permute(1, 2, 0)
-    #     .contiguous()
-    #     .to("cpu", torch.uint8)
-    #     .detach()
-    #     .numpy()
-    # )
-    # print(np.int64(output_np > 0))
-    # print(output_np)
     intersection = torch.sum(
         model_output * mask, dim=[1, 2, 3]
     )  # Calculate the intersection 算出交集
@@ -42,80 +28,96 @@ def IoU(
     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
 
 
-class iouEval:
+def IoU(
+    model_output, mask, smooth=1
+):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
+    torch.set_printoptions(profile="full")
+    # print("model_output:",model_output.shape)
+    output_np = (
+        model_output
+        .mul(255)
+        .add_(0.5)
+        .clamp_(0, 255)
+        .contiguous()
+        .to("cpu", torch.uint8)
+        .detach()
+        .numpy()
+    )
 
-    def __init__(self, nClasses, ignoreIndex=2):
-        self.nClasses = nClasses
-        self.ignoreIndex = ignoreIndex if nClasses>ignoreIndex else -1 #if ignoreIndex is larger than nClasses, consider no ignoreIndex
-        self.reset()
+    np.set_printoptions(threshold=np.inf)
+    output_np[output_np >= 1] = 1
+    # output_np[1< output_np] = 0
 
-    def reset (self):
-        classes = self.nClasses if self.ignoreIndex==-1 else self.nClasses-1
-        self.tp = torch.zeros(classes).double()
-        self.fp = torch.zeros(classes).double()
-        self.fn = torch.zeros(classes).double()        
+    model_output = torch.from_numpy(output_np).to("cuda").float()
 
-    def addBatch(self, x, y):   #x=preds, y=targets
-        #sizes should be "batch_size x nClasses x H x W"
-        
-        #print ("X is cuda: ", x.is_cuda)
-        #print ("Y is cuda: ", y.is_cuda)
+    intersection = torch.sum(
+        model_output * mask, dim=[1, 2, 3]
+    )  # Calculate the intersection 算出交集
+    # print("intersection",intersection)
+    # print("torch.sum(model_output, dim=[1, 2, 3]:",torch.sum(model_output, dim=[1, 2, 3]))
+    # print("torch.sum(mask, dim=[1, 2, 3]:",torch.sum(mask, dim=[1, 2, 3]))
+    union = (
+        torch.sum(model_output, dim=[1, 2, 3])
+        + torch.sum(mask, dim=[1, 2, 3])
+        - intersection
+        + 1e-6
+    )
+    # print("union",union)
+    # print("mean:",torch.mean((intersection + smooth) / (union + smooth), dim=0))
+    return torch.mean(
+        (intersection + smooth) / (union + smooth), dim=0
+    )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
 
-        if (x.is_cuda or y.is_cuda):
-            x = x.cuda()
-            y = y.cuda()
+def SSIM(model_output, mask):
+    output_np = (
+        model_output.squeeze()
+        .mul(255)
+        .add_(0.5)
+        .clamp_(0, 255)
+        .contiguous()
+        .to("cpu")
+        .detach()
+        .numpy()
+    )
 
-        #if size is "batch_size x 1 x H x W" scatter to onehot
-        if (x.size(1) == 1):
-            x_onehot = torch.zeros(x.size(0), self.nClasses, x.size(2), x.size(3))  
-            if x.is_cuda:
-                x_onehot = x_onehot.cuda()
-            x_onehot.scatter_(1, x, 1).float()
-        else:
-            x_onehot = x.float()
+    np.set_printoptions(threshold=np.inf)
+    output_np[output_np >= 1] = 1
+    # output_np[1< output_np] = 0
 
-        if (y.size(1) == 1):
-            y_onehot = torch.zeros(y.size(0), self.nClasses, y.size(2), y.size(3))
-            if y.is_cuda:
-                y_onehot = y_onehot.cuda()
-            test_y = torch.as_tensor(y, dtype=torch.int64)
-            y_onehot.scatter_(1, test_y, 1).float()
-        else:
-            y_onehot = y.float()
+    #model_output = torch.from_numpy(output_np).to("cuda")
 
-        if (self.ignoreIndex != -1): 
-            ignores = y_onehot[:,self.ignoreIndex].unsqueeze(1)
-            x_onehot = x_onehot[:, :self.ignoreIndex]
-            y_onehot = y_onehot[:, :self.ignoreIndex]
-        else:
-            ignores=0
+    mask = (
+        mask.squeeze()
+        .contiguous()
+        .to("cpu")
+        .detach()
+        .numpy()
+    )
+    # Compute SSIM between two images
+    (score, diff) = structural_similarity(output_np, mask,  data_range=1,full=True)
+    #print("Image similarity", score)
+    return score
 
-        #print(type(x_onehot))
-        #print(type(y_onehot))
-        #print(x_onehot.size())
-        #print(y_onehot.size())
-        
-        tpmult = x_onehot * y_onehot    #times prediction and gt coincide is 1
-        tp = torch.sum(torch.sum(torch.sum(tpmult, dim=0, keepdim=True), dim=2, keepdim=True), dim=3, keepdim=True).squeeze()
-        fpmult = x_onehot * (1-y_onehot-ignores) #times prediction says its that class and gt says its not (subtracting cases when its ignore label!)
-        fp = torch.sum(torch.sum(torch.sum(fpmult, dim=0, keepdim=True), dim=2, keepdim=True), dim=3, keepdim=True).squeeze()
-        fnmult = (1-x_onehot) * (y_onehot) #times prediction says its not that class and gt says it is
-        fn = torch.sum(torch.sum(torch.sum(fnmult, dim=0, keepdim=True), dim=2, keepdim=True), dim=3, keepdim=True).squeeze() 
-
-        self.tp += tp.double().cpu()
-        self.fp += fp.double().cpu()
-        self.fn += fn.double().cpu()
-
-    def getIoU(self):
-        num = self.tp
-        den = self.tp + self.fp + self.fn + 1e-15
-        iou = num / den
-        return iou[0]     #returns "iou mean", "iou per class"
 
 def dice_coef(
     model_output, mask, smooth=1
 ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
-    model_output = S(model_output)
+    output_np = (
+        model_output
+        .mul(255)
+        .add_(0.5)
+        .clamp_(0, 255)
+        .contiguous()
+        .to("cpu", torch.uint8)
+        .detach()
+        .numpy()
+    )
+
+    np.set_printoptions(threshold=np.inf)
+    output_np[output_np >= 1] = 1
+    # output_np[1< output_np] = 0
+
+    model_output = torch.from_numpy(output_np).to("cuda").float()
     intersection = torch.sum(
         model_output * mask, dim=[1, 2, 3]
     )  # Calculate the intersection 算出交集
@@ -181,3 +183,10 @@ class Calculate:
 
     def get_params(self):
         return self.params
+    
+if __name__ == "__main__":
+    x = torch.rand(1,1,3,3)
+    print("x",x)
+    y = torch.rand(1,1,3,3)
+    print("y",y)    
+    test_iou(x,y,1)
