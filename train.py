@@ -446,10 +446,13 @@ def main():
                 )
 
             if args["wandb_name"] != "no":
-                wandb.log({"best_loss": mean_loss, "best_miou": mean_miou})
+                wandb.log({"best_loss": mean_loss, "best_miou": mean_miou,"best_miou_s": mean_miou_s})
                 wandb.save(args["save_dir"] + "best_checkpoint" + ".pth")
                 wandb.save(args["save_dir"] + "best" + ".pth")
+                wandb.save(args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth")
+                wandb.save(args["save_dir"] + "best_mean_miou_s" + ".pth")
                 # wandb.log({"best": wandb.Image("./validation_data_captures/" + "best" + ".jpg")})
+
 
                 if args["save_validation_image_bast"] != "no":
                     wandb.log(
