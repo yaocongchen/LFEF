@@ -307,6 +307,9 @@ def main():
             start_epoch = checkpoint["epoch"]
             mean_loss = checkpoint["loss"]
             mean_miou = checkpoint["miou"]
+            mean_miou_s = checkpoint["miou_s"]
+            save_mean_miou = checkpoint["best_miou"]
+            save_mean_miou_s = checkpoint["best_miou_s"]
             print(
                 "=====> load checkpoint '{}' (epoch {})".format(
                     args["resume"], checkpoint["epoch"]
@@ -353,6 +356,8 @@ def main():
             "miou": mean_miou,
             "miou_s":mean_miou_s,
             "dice_coef": mean_dice_coef,
+            "best_miou":save_mean_miou,
+            "best_miou_s":save_mean_miou_s,
         }
 
         torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")

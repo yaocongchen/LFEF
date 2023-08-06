@@ -304,6 +304,9 @@ def main():
             start_epoch = checkpoint["epoch"]
             mean_loss = checkpoint["loss"]
             mean_miou = checkpoint["miou"]
+            mean_miou_s = checkpoint["miou_s"]
+            save_mean_miou = checkpoint["best_miou"]
+            save_mean_miou_s = checkpoint["best_miou_s"]
             print(
                 "=====> load checkpoint '{}' (epoch {})".format(
                     args["resume"], checkpoint["epoch"]
@@ -350,6 +353,8 @@ def main():
             "miou": mean_miou,
             "miou_s":mean_miou_s,
             "dice_coef": mean_dice_coef,
+            "best_miou":save_mean_miou,
+            "best_miou_s":save_mean_miou_s,
         }
 
         torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
@@ -420,15 +425,6 @@ def main():
             #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
             # )
 
-        if mean_miou_s > save_mean_miou_s:
-            print("best_loss: %.3f , best_miou_s: %.3f" % (mean_loss, mean_miou_s))
-            torch.save(state, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth")
-            torch.save(model.state_dict(), args["save_dir"] + "best_mean_miou_s" + ".pth")
-            # torchvision.utils.save_image(
-            #     torch.cat((mask_image, output), 0),
-            #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
-            # )
-
             if args["save_validation_image_bast"] != "no":
                 torchvision.utils.save_image(
                     RGB_image,
@@ -443,14 +439,11 @@ def main():
                 )
 
             if args["wandb_name"] != "no":
-                wandb.log({"best_loss": mean_loss, "best_miou": mean_miou,"best_miou_s": mean_miou_s})
+                wandb.log({"best_loss": mean_loss, "best_miou": mean_miou})
                 wandb.save(args["save_dir"] + "best_checkpoint" + ".pth")
                 wandb.save(args["save_dir"] + "best" + ".pth")
-                wandb.save(args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth")
-                wandb.save(args["save_dir"] + "best_mean_miou_s" + ".pth")
                 # wandb.log({"best": wandb.Image("./validation_data_captures/" + "best" + ".jpg")})
 
-                
                 if args["save_validation_image_bast"] != "no":
                     wandb.log(
                         {
@@ -478,6 +471,20 @@ def main():
                         }
                     )
             save_mean_miou = mean_miou
+
+            if mean_miou_s > save_mean_miou_s:
+                print("best_loss: %.3f , best_miou_s: %.3f" % (mean_loss, mean_miou_s))
+                torch.save(state, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth")
+                torch.save(model.state_dict(), args["save_dir"] + "best_mean_miou_s" + ".pth")
+                # torchvision.utils.save_image(
+                #     torch.cat((mask_image, output), 0),
+                #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
+                # )
+                if args["wandb_name"] != "no":
+                    wandb.log({"best_loss": mean_loss,"best_miou_s": mean_miou_s})
+                    wandb.save(args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth")
+                    wandb.save(args["save_dir"] + "best_mean_miou_s" + ".pth")
+
             save_mean_miou_s = mean_miou_s
     #         torch.onnx.export(
     #             model,
