@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.erfnet as network_model
+import models.lednet as network_model
 from visualization_codes.inference import smoke_semantic
 
 
@@ -107,7 +107,7 @@ def smoke_segmentation(device, names):
         f'./{names["smoke_semantic_dir_name"]}/test_output'
     )  # Create new folder 創建新的資料夾
 
-    count = 1
+    count = 0
     pbar = tqdm((testing_data_loader), total=len(testing_data_loader))
     for RGB_image, mask_image in pbar:
         img_image = RGB_image.to(device)
@@ -210,13 +210,13 @@ if __name__ == "__main__":
     ap.add_argument(
         "-ti",
         "--test_images",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/img/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/img/",
         help="path to hazy training images",
     )
     ap.add_argument(
         "-tm",
         "--test_masks",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/mask/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/mask/",
         help="path to mask",
     )
     # ap.add_argument(

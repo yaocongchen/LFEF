@@ -24,14 +24,13 @@ def smoke_semantic(input_image, model, device, time_train, i):
         print("Forward_Time_FPS: %.1f (Mean:%.1f)" % (1 / fwt, 1 / mean_time))
 
     # time_end = time.time()
-    # spend_time = int(time_end-time_start)
+    # spend_time = int(time_end-start_time)
     # time_min = spend_time // 60
     # time_sec = spend_time % 60
     # print('totally cost:',f"{time_min}m {time_sec}s")
-    # print(total_image)
 
-    # Calculate FPS
-    # print("Model_FPS: {:.1f}".format(1/(time_end-time_start)))
+    # #Calculate FPS
+    # print("Model_FPS: {:.1f}".format(1/(time_end-start_time)))
 
     return output
 
