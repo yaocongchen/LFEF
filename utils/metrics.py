@@ -29,7 +29,7 @@ def Sigmoid_IoU(
 
 
 def IoU(
-    model_output, mask, smooth=1
+    model_output, mask,device, smooth=1
 ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
     torch.set_printoptions(profile="full")
     # print("model_output:",model_output.shape)
@@ -48,7 +48,7 @@ def IoU(
     output_np[output_np >= 1] = 1
     # output_np[1< output_np] = 0
 
-    model_output = torch.from_numpy(output_np).to("cuda").float()
+    model_output = torch.from_numpy(output_np).to(device).float()
 
     intersection = torch.sum(
         model_output * mask, dim=[1, 2, 3]
@@ -100,7 +100,7 @@ def SSIM(model_output, mask):
 
 
 def dice_coef(
-    model_output, mask, smooth=1
+    model_output, mask,device, smooth=1
 ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
     output_np = (
         model_output
@@ -117,7 +117,7 @@ def dice_coef(
     output_np[output_np >= 1] = 1
     # output_np[1< output_np] = 0
 
-    model_output = torch.from_numpy(output_np).to("cuda").float()
+    model_output = torch.from_numpy(output_np).to(device).float()
     intersection = torch.sum(
         model_output * mask, dim=[1, 2, 3]
     )  # Calculate the intersection 算出交集

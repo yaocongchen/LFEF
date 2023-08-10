@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.lednet as network_model
+import models.erfnet as network_model
 from visualization_codes.inference import smoke_semantic
 
 

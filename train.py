@@ -136,16 +136,15 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        iou = utils.metrics.IoU(output, mask_image)
+        iou = utils.metrics.IoU(output, mask_image, device)
         iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
-        dice_coef = utils.metrics.dice_coef(output, mask_image)
+        dice_coef = utils.metrics.dice_coef(output, mask_image, device)
 
         loss.backward()
         torch.nn.utils.clip_grad_norm_(
             model.parameters(), 0.1
         )  # 梯度裁減(避免梯度爆炸或消失) 0.1為閥值
         optimizer.step()
-
 
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
@@ -158,7 +157,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
             train_loss=mean_loss,
             train_miou=mean_miou,
             train_miou_s=mean_miou_s,
-            train_dice_coef = mean_dice_coef,
+            train_dice_coef=mean_dice_coef,
         )
         if args["wandb_name"] != "no":
             wandb.log(
@@ -196,19 +195,22 @@ def valid_epoch(model, validation_data_loader, device, epoch):
             output = model(img_image)
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        iou = utils.metrics.IoU(output, mask_image)
+        iou = utils.metrics.IoU(output, mask_image, device)
         iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
-        dice_coef = utils.metrics.dice_coef(output, mask_image)
-        
+        dice_coef = utils.metrics.dice_coef(output, mask_image, device)
+
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
-        mean_miou += (iou.item() - mean_miou) / n_element       #別人研究出的算平均的方法
-        mean_miou_s += (iou_s.item() - mean_miou_s) / n_element       #別人研究出的算平均的方法
+        mean_miou += (iou.item() - mean_miou) / n_element  # 別人研究出的算平均的方法
+        mean_miou_s += (iou_s.item() - mean_miou_s) / n_element  # 別人研究出的算平均的方法
         mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
 
         pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
         pbar.set_postfix(
-            val_loss=mean_loss, val_miou_s = mean_miou_s, val_miou=mean_miou, val_dice_coef=mean_dice_coef
+            val_loss=mean_loss,
+            val_miou_s=mean_miou_s,
+            val_miou=mean_miou,
+            val_dice_coef=mean_dice_coef,
         )
 
         if args["wandb_name"] != "no":
@@ -221,7 +223,15 @@ def valid_epoch(model, validation_data_loader, device, epoch):
                 }
             )
 
-    return mean_loss,mean_miou_s,mean_miou, mean_dice_coef, RGB_image, mask_image, output
+    return (
+        mean_loss,
+        mean_miou_s,
+        mean_miou,
+        mean_dice_coef,
+        RGB_image,
+        mask_image,
+        output,
+    )
 
 
 def main():
@@ -279,7 +289,7 @@ def main():
 
     # Import optimizer導入優化器
 
-    #先用Adam測試模型能力
+    # 先用Adam測試模型能力
     optimizer = torch.optim.Adam(
         model.parameters(), lr=float(args["learning_rate"]), weight_decay=0.0001
     )
@@ -290,7 +300,6 @@ def main():
     #     momentum=0.9,
     #     weight_decay=1e-5,
     # )
-
 
     # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
 
@@ -354,10 +363,10 @@ def main():
             "optimizer_state_dict": optimizer.state_dict(),
             "loss": mean_loss,
             "miou": mean_miou,
-            "miou_s":mean_miou_s,
+            "miou_s": mean_miou_s,
             "dice_coef": mean_dice_coef,
-            "best_miou":save_mean_miou,
-            "best_miou_s":save_mean_miou_s,
+            "best_miou": save_mean_miou,
+            "best_miou_s": save_mean_miou_s,
         }
 
         torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
@@ -477,15 +486,21 @@ def main():
 
             if mean_miou_s > save_mean_miou_s:
                 print("best_loss: %.3f , best_miou_s: %.3f" % (mean_loss, mean_miou_s))
-                torch.save(state, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth")
-                torch.save(model.state_dict(), args["save_dir"] + "best_mean_miou_s" + ".pth")
+                torch.save(
+                    state, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
+                )
+                torch.save(
+                    model.state_dict(), args["save_dir"] + "best_mean_miou_s" + ".pth"
+                )
                 # torchvision.utils.save_image(
                 #     torch.cat((mask_image, output), 0),
                 #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
                 # )
                 if args["wandb_name"] != "no":
-                    wandb.log({"best_loss": mean_loss,"best_miou_s": mean_miou_s})
-                    wandb.save(args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth")
+                    wandb.log({"best_loss": mean_loss, "best_miou_s": mean_miou_s})
+                    wandb.save(
+                        args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
+                    )
                     wandb.save(args["save_dir"] + "best_mean_miou_s" + ".pth")
 
             save_mean_miou_s = mean_miou_s
