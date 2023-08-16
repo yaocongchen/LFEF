@@ -58,18 +58,26 @@ class Detail_Branch(nn.Module):
         self.AttenTrans_1 = AttnTrans(in_chs, 16)
         self.AttenTrans_2 = AttnTrans(16, 16)
         self.AttenTrans_3 = AttnTrans(16, 32)
+        # self.bn_32 = nn.BatchNorm2d(32, eps=1e-3)
+        self.relu_32 = nn.ReLU(32)
 
         self.AttenTrans_4 = AttnTrans(32, 32)
         self.AttenTrans_5 = AttnTrans(32, 32)
         self.AttenTrans_6 = AttnTrans(32, 64)
+        # self.bn_64 = nn.BatchNorm2d(64, eps=1e-3)
+        self.relu_64 = nn.ReLU(64)
 
         self.AttenTrans_7 = AttnTrans(64, 64)
         self.AttenTrans_8 = AttnTrans(64, 64)
         self.AttenTrans_9 = AttnTrans(64, 128)
+        self.bn_128 = nn.BatchNorm2d(128, eps=1e-3)
+        self.relu_128 = nn.ReLU(128)
 
         self.AttenTrans_10 = AttnTrans(128, 128)
         self.AttenTrans_11 = AttnTrans(128, 128)
         self.AttenTrans_12 = AttnTrans(128, out_chs)
+        # self.bn_256 = nn.BatchNorm2d(out_chs, eps=1e-3)
+        self.relu_256 = nn.ReLU(out_chs)
 
         self.maxpl = nn.MaxPool2d(2, stride=2)
         self.avgpl = nn.AvgPool2d(2, stride=2)
@@ -78,6 +86,8 @@ class Detail_Branch(nn.Module):
         output = self.AttenTrans_1(input)
         output = self.AttenTrans_2(output)
         output = self.AttenTrans_3(output)
+        output = self.bn_32(output)
+        output = self.relu_32(output)
         max_pl = self.maxpl(output)
         avg_pl = self.avgpl(output)
         stack_1 = max_pl + avg_pl
@@ -85,6 +95,8 @@ class Detail_Branch(nn.Module):
         output = self.AttenTrans_4(stack_1)
         output = self.AttenTrans_5(output)
         output = self.AttenTrans_6(output)
+        output = self.bn_64(output)
+        output = self.relu_64(output)    
         max_pl = self.maxpl(output)
         avg_pl = self.avgpl(output)
         stack_2 = max_pl + avg_pl
@@ -92,6 +104,8 @@ class Detail_Branch(nn.Module):
         output = self.AttenTrans_7(stack_2)
         output = self.AttenTrans_8(output)
         output = self.AttenTrans_9(output)
+        output = self.bn_128(output)
+        output = self.relu_128(output)
         max_pl = self.maxpl(output)
         avg_pl = self.avgpl(output)
         stack_3 = max_pl + avg_pl
@@ -99,6 +113,8 @@ class Detail_Branch(nn.Module):
         output = self.AttenTrans_10(stack_3)
         output = self.AttenTrans_11(output)
         output = self.AttenTrans_12(output)
+        output = self.bn_256(output)
+        output = self.relu_256(output)
         max_pl = self.maxpl(output)
         avg_pl = self.avgpl(output)
         stack_4 = max_pl + avg_pl
