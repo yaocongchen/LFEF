@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchinfo import summary
 
-__all__ = ["Context_Guided_Network"]
+__all__ = ["Net"]
 # Filter out variables, functions, and classes that other programs don't need or don't want when running cmd "from CGNet import *"
 
 
@@ -22,31 +22,34 @@ class AttnTrans(nn.Module):
 
         self.conv1_1 = nn.Conv2d(in_chs, in_chs, (1, 1), stride=1, bias=True)
         # TODO: NO use upsample
-        # self.upsamp = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
+        self.upsamp = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
 
         # self.upsamp = nn.Upsample(size = (28,28),mode ='bilinear',align_corners = True)
         self.conv1_1f = nn.Conv2d(in_chs, out_chs, (1, 1), stride=1, bias=True)
 
     def forward(self, input):
         # Channel Avg
-        channel_avg = torch.mean(input, dim=1)
-        channel_avg = channel_avg.unsqueeze(1)
-        channel_avg = self.conv7_7(channel_avg)
-        channel_avg = self.myrelu(channel_avg)
-        channel_avg = self.conv7_7(channel_avg)
-        channel_avg = self.mysigmoid(channel_avg)
+        spatial_Attention = torch.mean(input, dim=1)
+        spatial_Attention = spatial_Attention.unsqueeze(1)
+        spatial_Attention = self.conv7_7(spatial_Attention)
+        spatial_Attention = self.myrelu(spatial_Attention)
+        spatial_Attention = self.conv7_7(spatial_Attention)
+        spatial_Attention = self.mysigmoid(spatial_Attention)
         # spatial Avg
-        spatial_avg = torch.mean(input, dim=[2, 3])
-        spatial_avg = spatial_avg.unsqueeze(2)
-        spatial_avg = spatial_avg.unsqueeze(3)
-        spatial_avg = self.conv1_1(spatial_avg)
-        spatial_avg = self.myrelu(spatial_avg)
-        spatial_avg = self.conv1_1(spatial_avg)
-        spatial_avg = self.mysigmoid(spatial_avg)
+        channel_Attention = torch.mean(input, dim=[2, 3])
+        channel_Attention = channel_Attention.unsqueeze(2)
+        channel_Attention = channel_Attention.unsqueeze(3)
+        channel_Attention = self.conv1_1(channel_Attention)
+        channel_Attention = self.myrelu(channel_Attention)
+        channel_Attention = self.conv1_1(channel_Attention)
+        channel_Attention = self.mysigmoid(channel_Attention)
 
-        output = input * channel_avg
-        output = output * spatial_avg
-        # output = self.upsamp(output)
+        output = input * spatial_Attention
+        output = output * channel_Attention
+        output = self.upsamp(output)
+        # torch.set_printoptions(profile="full")
+        # print(output)
+
         output = self.conv1_1f(output)
 
         return output
@@ -58,13 +61,13 @@ class Detail_Branch(nn.Module):
         self.AttenTrans_1 = AttnTrans(in_chs, 16)
         self.AttenTrans_2 = AttnTrans(16, 16)
         self.AttenTrans_3 = AttnTrans(16, 32)
-        # self.bn_32 = nn.BatchNorm2d(32, eps=1e-3)
+        self.bn_32 = nn.BatchNorm2d(32, eps=1e-3)
         self.relu_32 = nn.ReLU(32)
 
         self.AttenTrans_4 = AttnTrans(32, 32)
         self.AttenTrans_5 = AttnTrans(32, 32)
         self.AttenTrans_6 = AttnTrans(32, 64)
-        # self.bn_64 = nn.BatchNorm2d(64, eps=1e-3)
+        self.bn_64 = nn.BatchNorm2d(64, eps=1e-3)
         self.relu_64 = nn.ReLU(64)
 
         self.AttenTrans_7 = AttnTrans(64, 64)
@@ -76,7 +79,7 @@ class Detail_Branch(nn.Module):
         self.AttenTrans_10 = AttnTrans(128, 128)
         self.AttenTrans_11 = AttnTrans(128, 128)
         self.AttenTrans_12 = AttnTrans(128, out_chs)
-        # self.bn_256 = nn.BatchNorm2d(out_chs, eps=1e-3)
+        self.bn_256 = nn.BatchNorm2d(out_chs, eps=1e-3)
         self.relu_256 = nn.ReLU(out_chs)
 
         self.maxpl = nn.MaxPool2d(2, stride=2)
@@ -87,37 +90,38 @@ class Detail_Branch(nn.Module):
         output = self.AttenTrans_2(output)
         output = self.AttenTrans_3(output)
         output = self.bn_32(output)
-        output = self.relu_32(output)
-        max_pl = self.maxpl(output)
-        avg_pl = self.avgpl(output)
-        stack_1 = max_pl + avg_pl
+        stack_1 = self.relu_32(output)
+        # max_pl = self.maxpl(output)
+        # avg_pl = self.avgpl(output)
+        # stack_1 = max_pl + avg_pl
 
         output = self.AttenTrans_4(stack_1)
         output = self.AttenTrans_5(output)
         output = self.AttenTrans_6(output)
         output = self.bn_64(output)
-        output = self.relu_64(output)    
-        max_pl = self.maxpl(output)
-        avg_pl = self.avgpl(output)
-        stack_2 = max_pl + avg_pl
+        stack_2 = self.relu_64(output)
+        # max_pl = self.maxpl(output)
+        # avg_pl = self.avgpl(output)
+        # stack_2 = max_pl + avg_pl
 
         output = self.AttenTrans_7(stack_2)
         output = self.AttenTrans_8(output)
         output = self.AttenTrans_9(output)
         output = self.bn_128(output)
-        output = self.relu_128(output)
-        max_pl = self.maxpl(output)
-        avg_pl = self.avgpl(output)
-        stack_3 = max_pl + avg_pl
+        stack_3 = self.relu_128(output)
+        # max_pl = self.maxpl(output)
+        # avg_pl = self.avgpl(output)
+        # stack_3 = max_pl + avg_pl
 
         output = self.AttenTrans_10(stack_3)
         output = self.AttenTrans_11(output)
         output = self.AttenTrans_12(output)
         output = self.bn_256(output)
-        output = self.relu_256(output)
-        max_pl = self.maxpl(output)
-        avg_pl = self.avgpl(output)
-        stack_4 = max_pl + avg_pl
+        stack_4 = self.relu_256(output)
+        # max_pl = self.maxpl(output)
+        # avg_pl = self.avgpl(output)
+        # stack_4 = max_pl + avg_pl
+        # print(stack_4)
 
         return stack_1, stack_2, stack_3, stack_4
 
@@ -273,6 +277,7 @@ class Net(nn.Module):
         )
 
         self.conv_to_1 = nn.Conv2d(592, 1, (3, 3), stride=1, padding=1, bias=True)
+        self.conv_to_1_1 = nn.Conv2d(256, 1, (3, 3), stride=1, padding=1, bias=True)
 
     def forward(self, input):
         """
@@ -326,7 +331,10 @@ class Net(nn.Module):
         output = self.conv_to_1(output)
         # stage 2
 
-        return output
+        stack_4 = self.upsample_256(stack_4)
+
+        stack_4 = self.conv_to_1_1(stack_4)
+        return stack_4
 
 
 if __name__ == "__main__":

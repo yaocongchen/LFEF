@@ -14,7 +14,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.mynet as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_my_test as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 onnx_img_image = []
@@ -575,18 +575,18 @@ if __name__ == "__main__":
     #     help="path to mask",
     # )
 
-    ap.add_argument(
-        "-ti",
-        "--train_images",
-        default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/",
-        help="path to hazy training images",
-    )
-    ap.add_argument(
-        "-tm",
-        "--train_masks",
-        default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",
-        help="path to mask",
-    )
+    # ap.add_argument(
+    #     "-ti",
+    #     "--train_images",
+    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--train_masks",
+    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",
+    #     help="path to mask",
+    # )
 
     # ap.add_argument(
     #     "-ti",
@@ -601,18 +601,18 @@ if __name__ == "__main__":
     #     help="path to mask",
     # )
 
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
-    #     help="path to mask",
-    # )
+    ap.add_argument(
+        "-ti",
+        "--train_images",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
+        help="path to hazy training images",
+    )
+    ap.add_argument(
+        "-tm",
+        "--train_masks",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
+        help="path to mask",
+    )
 
     # ap.add_argument(
     #     "-ti",

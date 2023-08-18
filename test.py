@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.erfnet as network_model
+import models.CGNet_my_test as network_model
 from visualization_codes.inference import smoke_semantic
 
 
@@ -135,9 +135,9 @@ def smoke_segmentation(device, names):
         )
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        iou= utils.metrics.IoU(output, mask_image)
+        iou = utils.metrics.IoU(output, mask_image, device)
         iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
-        dice_coef = utils.metrics.dice_coef(output, mask_image)
+        dice_coef = utils.metrics.dice_coef(output, mask_image, device)
         SSIM = utils.metrics.SSIM(output, mask_image)
 
         epoch_loss.append(loss.item())
@@ -154,10 +154,10 @@ def smoke_segmentation(device, names):
 
         pbar.set_postfix(
             test_loss=average_epoch_loss_test,
-            test_miou = average_epoch_miou_test,
-            test_miou_s = average_epoch_miou_s_test,
+            test_miou=average_epoch_miou_test,
+            test_miou_s=average_epoch_miou_s_test,
             test_dice_coef=average_epoch_dice_coef_test,
-            test_mSSIM = average_epoch_epoch_mSSIM_test,
+            test_mSSIM=average_epoch_epoch_mSSIM_test,
         )
 
         if args["wandb_name"] != "no":
@@ -165,10 +165,10 @@ def smoke_segmentation(device, names):
             wandb.log(
                 {
                     "test_loss": average_epoch_loss_test,
-                    "test_old" : average_epoch_miou_s_test,
+                    "test_old": average_epoch_miou_s_test,
                     "test_miou": average_epoch_miou_test,
                     "test_dice_coef": average_epoch_dice_coef_test,
-                    "test_mSSIM" : average_epoch_epoch_mSSIM_test,
+                    "test_mSSIM": average_epoch_epoch_mSSIM_test,
                 }
             )
             wandb.log(
