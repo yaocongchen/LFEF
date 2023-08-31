@@ -135,9 +135,9 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        iou = utils.metrics.IoU(output, mask_image)
+        iou = utils.metrics.IoU(output, mask_image, device)
         iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
-        dice_coef = utils.metrics.dice_coef(output, mask_image)
+        dice_coef = utils.metrics.dice_coef(output, mask_image, device)
 
         loss.backward()
         torch.nn.utils.clip_grad_norm_(
@@ -194,9 +194,9 @@ def valid_epoch(model, validation_data_loader, device, epoch):
             output = model(img_image)
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        iou = utils.metrics.IoU(output, mask_image)
+        iou = utils.metrics.IoU(output, mask_image, device)
         iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
-        dice_coef = utils.metrics.dice_coef(output, mask_image)
+        dice_coef = utils.metrics.dice_coef(output, mask_image, device)
 
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
