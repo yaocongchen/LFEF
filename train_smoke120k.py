@@ -14,7 +14,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.mynet as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_add_sem_cam as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 onnx_img_image = []

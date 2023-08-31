@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.CGNet_add_sem_cam_ as network_model
+import models.CGNet_add_sem_cam as network_model
 from visualization_codes.inference import smoke_semantic
 
 
@@ -82,7 +82,7 @@ def smoke_segmentation(device, names):
     time_train = []
     i = 0
 
-    testing_data = utils.dataset_test.DataLoaderSegmentation(
+    testing_data = utils.dataset_for_test.DataLoaderSegmentation(
         args["test_images"], args["test_masks"], mode="test"
     )
     testing_data_loader = DataLoader(
