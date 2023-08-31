@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.CGNet_my_test as network_model
+import models.CGNet_add_sem_cam_ as network_model
 from visualization_codes.inference import smoke_semantic
 
 
@@ -37,7 +37,7 @@ def folders_and_files_name():
 def wandb_information(model_size, flops, params):
     wandb.init(
         # set the wandb project where this run will be logged
-        project="lightssd-project",
+        project="lightssd-project-test",
         name=args["wandb_name"],
         # track hyperparameters and run metadata
         config={
@@ -55,7 +55,7 @@ def wandb_information(model_size, flops, params):
 
 # Main function 主函式
 def smoke_segmentation(device, names):
-    model = network_model.Net(1).to(device)
+    model = network_model.Net().to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
     model.eval()
@@ -82,16 +82,13 @@ def smoke_segmentation(device, names):
     time_train = []
     i = 0
 
-    seconds = time.time()  # Random number generation 亂數產生
-    random.seed(seconds)  # 使用時間秒數當亂數種子
-
-    testing_data = utils.dataset.DataLoaderSegmentation(
+    testing_data = utils.dataset_test.DataLoaderSegmentation(
         args["test_images"], args["test_masks"], mode="test"
     )
     testing_data_loader = DataLoader(
         testing_data,
         batch_size=args["batch_size"],
-        shuffle=True,
+        shuffle=False,
         num_workers=args["num_workers"],
         pin_memory=True,
         drop_last=True,
@@ -165,7 +162,7 @@ def smoke_segmentation(device, names):
             wandb.log(
                 {
                     "test_loss": average_epoch_loss_test,
-                    "test_old": average_epoch_miou_s_test,
+                    "test_miou_s": average_epoch_miou_s_test,
                     "test_miou": average_epoch_miou_test,
                     "test_dice_coef": average_epoch_dice_coef_test,
                     "test_mSSIM": average_epoch_epoch_mSSIM_test,
@@ -210,13 +207,13 @@ if __name__ == "__main__":
     ap.add_argument(
         "-ti",
         "--test_images",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/img/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/img/",
         help="path to hazy training images",
     )
     ap.add_argument(
         "-tm",
         "--test_masks",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/mask/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/mask/",
         help="path to mask",
     )
     # ap.add_argument(

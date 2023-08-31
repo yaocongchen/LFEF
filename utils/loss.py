@@ -9,8 +9,8 @@ L = nn.BCELoss(reduction="mean")
 
 
 def CustomLoss(model_output, mask):
-    l1_loss = L(S(model_output), mask)
+    loss_1 = L(S(model_output), mask)
 
-    total_loss = l1_loss
+    total_loss = loss_1
 
     return total_loss

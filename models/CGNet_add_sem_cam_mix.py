@@ -351,7 +351,7 @@ class SEM(nn.Module):
         self.maxpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
 
         self.conv11_130 = nn.Sequential(
-            nn.Conv2d(in_ch - 1, in_ch, kernel_size=(1, 1), padding="same"),
+            nn.Conv2d(65, in_ch, kernel_size=(1, 1), padding="same"),
             nn.BatchNorm2d(in_ch),
         )
 
@@ -368,7 +368,7 @@ class SEM(nn.Module):
         f20 = F.relu(out)
         f21 = self.avgpl(f20)
         f22 = self.maxpl(f20)
-        f23 = torch.cat((f21, f22), dim=1)
+        f23 = f21 + f22
         out = self.conv11_130(f23)
         f27 = F.relu(out)
 
@@ -449,6 +449,31 @@ class FFM(nn.Module):
         f33 = f32 * f18
 
         return f33
+
+
+class DownUnit(nn.Module):
+    def __init__(self, in_chs, out_chs):
+        super().__init__()
+
+        self.conv1 = nn.Conv2d(
+            in_chs, out_chs - in_chs, kernel_size=3, stride=2, padding=1
+        )
+        self.maxpl = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
+        self.prelu = nn.PReLU()
+        self.batch_norm = nn.BatchNorm2d(out_chs - in_chs)
+
+    def forward(self, x):
+        main = self.conv1(x)
+        main = self.batch_norm(main)
+
+        ext = self.maxpl(x)
+        # Concatenate branche
+        out = torch.cat((main, ext), dim=1)
+
+        # Apply batch normalization
+        out = self.prelu(out)
+
+        return out
 
 
 class Net(nn.Module):

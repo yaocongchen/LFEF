@@ -14,7 +14,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet_my_test as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_add_sem_cam as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 onnx_img_image = []
@@ -60,7 +60,7 @@ def set_save_dir_names():
 def wandb_information(model_size, flops, params, model):
     wandb.init(
         # set the wandb project where this run will be logged
-        project="lightssd-project",
+        project="lightssd-project-train",
         name=args["wandb_name"],
         # track hyperparameters and run metadata
         config={
@@ -339,7 +339,7 @@ def main():
     time_start = time.time()  # Training start time 訓練開始時間
 
     for epoch in range(start_epoch, args["epochs"] + 1):
-        RGB_image_train, mask_image_train, output_train = train_epoch(
+        train_RGB_image, train_mask_image, train_output = train_epoch(
             model, training_data_loader, device, optimizer, epoch
         )
         torch.cuda.empty_cache()  # 刪除不需要的變數
@@ -374,15 +374,15 @@ def main():
 
         if args["save_train_image"] != "no":
             torchvision.utils.save_image(
-                RGB_image_train,
+                train_RGB_image,
                 "./training_data_captures/" + "last_RGB_image_" + ".jpg",
             )
             torchvision.utils.save_image(
-                mask_image_train,
+                train_mask_image,
                 "./training_data_captures/" + "last_mask_image_" + ".jpg",
             )
             torchvision.utils.save_image(
-                output_train, "./training_data_captures/" + "last_output_" + ".jpg"
+                train_output, "./training_data_captures/" + "last_output_" + ".jpg"
             )
 
         if args["save_validation_image_last"] != "no":
@@ -404,6 +404,29 @@ def main():
             # Graphical archive of the epoch test set
             # epoch 測試集中的圖示化存檔
             # wandb.log({"last": wandb.Image("./validation_data_captures/" + "last_" + ".jpg")})
+
+            if args["save_train_image"] != "no":
+                wandb.log(
+                    {
+                        "train_RGB_image": wandb.Image(
+                            "./training_data_captures/" + "last_RGB_image_" + ".jpg"
+                        )
+                    }
+                )
+                wandb.log(
+                    {
+                        "train_mask_image": wandb.Image(
+                            "./training_data_captures/" + "last_mask_image_" + ".jpg"
+                        )
+                    }
+                )
+                wandb.log(
+                    {
+                        "train_output": wandb.Image(
+                            "./training_data_captures/" + "last_output_" + ".jpg"
+                        )
+                    }
+                )
 
             if args["save_validation_image_last"] != "no":
                 wandb.log(
