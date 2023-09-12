@@ -14,6 +14,33 @@ __all__ = ["Context_Guided_Network"]
 k = 2
 
 
+def split(x):
+    c = int(x.size()[1])
+    c1 = round(c * 0.5)
+    x1 = x[
+        :, :c1, :, :
+    ].contiguous()  # contiguous: the memory location remains unchanged
+    x2 = x[:, c1:, :, :].contiguous()  # contiguous：記憶體位置不變
+
+    return x1, x2
+
+
+def channel_shuffle(x, groups):
+    batchsize, num_channels, height, width = x.data.size()
+
+    channels_per_group = num_channels // groups
+
+    # reshape (torch)
+    x = x.view(batchsize, groups, channels_per_group, height, width)
+
+    x = torch.transpose(x, 1, 2).contiguous()  # Transpose 轉置
+
+    # flatten
+    x = x.view(batchsize, -1, height, width)
+
+    return x
+
+
 class ConvBNPReLU(nn.Module):
     def __init__(self, nIn, nOut, kSize, stride=1):
         """
@@ -249,6 +276,49 @@ class FGlo(nn.Module):
         return x * y
 
 
+class CSSAM(nn.Module):
+    def __init__(self, in_ch, out_ch, dilation):
+        super().__init__()
+        in_ch_2 = in_ch // 2
+        self.conv31 = nn.Conv2d(
+            in_ch_2, in_ch_2, kernel_size=(3, 1), padding="same", dilation=dilation
+        )
+        self.conv13 = nn.Conv2d(
+            in_ch_2, in_ch_2, kernel_size=(1, 3), padding="same", dilation=dilation
+        )
+        self.batch_norm_2 = nn.BatchNorm2d(in_ch_2)
+
+        self.conv11 = nn.Conv2d(in_ch, out_ch, kernel_size=(1, 1), padding="same")
+        self.maxpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+        self.batch_norm = nn.BatchNorm2d(out_ch)
+        self.mysigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        x1, x2 = split(x)
+        out31 = self.conv31(x1)
+        out31norm = self.batch_norm_2(out31)
+        out13 = self.conv13(out31norm)
+        out13norm = self.batch_norm_2(out13)
+        out13normre = F.relu(out13norm)
+
+        out13 = self.conv13(x2)
+        out13norm = self.batch_norm_2(out13)
+        out31 = self.conv31(out13norm)
+        out31norm = self.batch_norm_2(out31)
+        out31normre = F.relu(out31norm)
+        out11cat = self.conv11(torch.cat((out13normre, out31normre), dim=1))
+
+        outmp = self.maxpl(x)
+        outmp11 = self.conv11(outmp)
+        outmp11norm = self.batch_norm(outmp11)
+        outmp11normsgm = self.mysigmoid(outmp11norm)
+
+        Ewp = out11cat * outmp11normsgm
+        Ews = out11cat + Ewp
+
+        return channel_shuffle(Ews, 2)
+
+
 class ContextGuidedBlock_Down(nn.Module):
     """
     the size of feature map divided 2, (H,W,C)---->(H/2, W/2, 2C)
@@ -415,7 +485,7 @@ class CAM(nn.Module):
 
         f11 = self.conv11_ckin_cout(f10)
         batchsize, num_channels, HW = f11.data.size()
-        f11 = f11.view(batchsize, num_channels, 32, 32)
+        f11 = f11.view(batchsize, num_channels, 8, 8)
         f12 = self.conv33_cin_cout(f11)
 
         f13 = f11 + f12
@@ -435,8 +505,8 @@ class FFM(nn.Module):
         self.upsamp = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
 
         self.conv11_in192_out128 = nn.Sequential(
-            nn.Conv2d(387, out_ch, kernel_size=(1, 1), padding="same"),
-            nn.InstanceNorm2d(out_ch),
+            nn.Conv2d(291, out_ch, kernel_size=(1, 1), padding="same"),
+            nn.BatchNorm2d(out_ch),
             nn.ReLU(),
         )
 
@@ -489,36 +559,58 @@ class Net(nn.Module):
           N: the number of blocks in stage 3
         """
         super().__init__()
-        self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
-        self.level1_1 = ConvBNPReLU(32, 32, 3, 1)
-        self.level1_2 = ConvBNPReLU(32, 32, 3, 1)
+        self.level1_0 = ConvBNPReLU(3, 8, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_1 = ConvBNPReLU(8, 8, 3, 1)
+        self.level1_2 = ConvBNPReLU(8, 8, 3, 1)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
+        self.sample3 = InputInjection(3)  # down-sample for Input Injection, factor=8
+        self.sample4 = InputInjection(4)  # down-sample for Input Injiection, factor=4
 
-        self.b1 = BNPReLU(32 + 3)
+        self.b1 = BNPReLU(8 + 3)
 
         # stage 2
-        self.level2_0 = ContextGuidedBlock_Down(
-            32 + 3, 64, dilation_rate=2, reduction=8
-        )
+        self.level2_0 = ContextGuidedBlock_Down(8 + 3, 16, dilation_rate=2, reduction=8)
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
             self.level2.append(
-                ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
+                ContextGuidedBlock(16, 16, dilation_rate=2, reduction=8)
             )  # CG block
-        self.bn_prelu_2 = BNPReLU(128 + 3)
+        self.bn_prelu_2 = BNPReLU(32 + 3)
 
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
-            128 + 3, 128, dilation_rate=4, reduction=16
+            32 + 3, 32, dilation_rate=4, reduction=16
         )
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
             self.level3.append(
-                ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
+                ContextGuidedBlock(32, 32, dilation_rate=4, reduction=16)
             )  # CG block
-        self.bn_prelu_3 = BNPReLU(256)
+        self.bn_prelu_3 = BNPReLU(64 + 3)
+
+        # stage 4
+        self.level4_0 = ContextGuidedBlock_Down(
+            64 + 3, 64, dilation_rate=8, reduction=32
+        )
+        self.level4 = nn.ModuleList()
+        for i in range(0, N - 1):
+            self.level4.append(
+                ContextGuidedBlock(64, 64, dilation_rate=8, reduction=32)
+            )  # CG block
+        self.bn_prelu_4 = BNPReLU(128 + 3)
+
+        # stage 5
+        self.level5_0 = ContextGuidedBlock_Down(
+            128 + 3, 128, dilation_rate=16, reduction=64
+        )
+        self.level5 = nn.ModuleList()
+        for i in range(0, N - 1):
+            self.level5.append(
+                ContextGuidedBlock(128, 128, dilation_rate=16, reduction=64)
+            )  # CG block
+        self.bn_prelu_5 = BNPReLU(256)
 
         if dropout_flag:
             print("have droput layer")
@@ -540,7 +632,7 @@ class Net(nn.Module):
                     if m.bias is not None:
                         m.bias.data.zero_()
 
-        self.sem = SEM(131, 128)
+        self.sem = SEM(35, 128)
         self.cam = CAM(256, 256)
         self.ffm = FFM(256, 256)
 
@@ -561,6 +653,9 @@ class Net(nn.Module):
         output0 = self.level1_2(output0)
         inp1 = self.sample1(input)
         inp2 = self.sample2(input)
+
+        inp3 = self.sample3(input)
+        inp4 = self.sample4(input)
 
         # stage 2
         output0_cat = self.b1(torch.cat([output0, inp1], 1))
@@ -587,13 +682,37 @@ class Net(nn.Module):
                 output2 = layer(output2)
 
         output2_cat = self.bn_prelu_3(
-            torch.cat([output2_0, output2], 1)
+            torch.cat([output2_0, output2, inp3], 1)
         )  # torch.Size([16, 128, 32, 32])
 
-        f13 = self.cam(output2_cat)
+        # stage 4
+        output3_0 = self.level4_0(output2_cat)  # down-sampled
+        for i, layer in enumerate(self.level4):
+            if i == 0:
+                output3 = layer(output3_0)
+            else:
+                output3 = layer(output3)
+
+        output3_cat = self.bn_prelu_4(
+            torch.cat([output3_0, output3, inp4], 1)
+        )  # torch.Size([16, 128, 32, 32])
+
+        # stage 5
+        output4_0 = self.level5_0(output3_cat)  # down-sampled
+        for i, layer in enumerate(self.level5):
+            if i == 0:
+                output4 = layer(output4_0)
+            else:
+                output4 = layer(output4)
+
+        output4_cat = self.bn_prelu_5(
+            torch.cat([output4_0, output4], 1)
+        )  # torch.Size([16, 128, 32, 32])
+
+        f13 = self.cam(output4_cat)
         # f13 = self.conv1_1_CAM(f13)  # torch.Size([16, 128, 32, 32])
 
-        f33 = self.ffm(f29, f13, output2_cat)
+        f33 = self.ffm(f29, f13, output4_cat)
 
         # classifier
         classifier = self.classifier(f33)

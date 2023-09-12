@@ -702,7 +702,7 @@ if __name__ == "__main__":
         "-lr",
         "--learning_rate",
         type=float,
-        default=0.0001,
+        default=0.005,
         help="learning rate for training",
     )
     ap.add_argument(

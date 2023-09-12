@@ -8,11 +8,11 @@ from visualization_codes import (
     inference_multiple_pictures,
     inference_video,
 )
-from models import erfnet
+import models.CGNet_add_sem_cam_ as network_model  # import self-written models 引入自行寫的模型
 
 
 def smoke_segmentation(device):
-    model = erfnet.Net(1).to(device)
+    model = network_model.Net(1).to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
     model.eval()

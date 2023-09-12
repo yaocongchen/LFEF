@@ -219,6 +219,18 @@ if __name__ == "__main__":
     # ap.add_argument(
     #     "-ti",
     #     "--test_images",
+    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/120k/img/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--test_masks",
+    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/120k/gt/",
+    #     help="path to mask",
+    # )
+    # ap.add_argument(
+    #     "-ti",
+    #     "--test_images",
     #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/t/img/",
     #     help="path to hazy training images",
     # )
