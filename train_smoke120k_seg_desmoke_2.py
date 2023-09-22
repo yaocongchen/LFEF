@@ -576,7 +576,7 @@ def main():
                 output, "./validation_data_captures/" + "last_output_" + ".jpg"
             )
             torchvision.utils.save_image(
-                smoke_area, "./validation_data_captures/" + "smoke_area_image_" + ".jpg"
+                smoke_area, "./validation_data_captures/" + "smoke_area_" + ".jpg"
             )
             torchvision.utils.save_image(
                 gb_area, "./validation_data_captures/" + "gb_area_" + ".jpg"
