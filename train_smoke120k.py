@@ -4,6 +4,7 @@ import torchvision
 import torch.backends.cudnn as cudnn
 import torch.optim
 import os
+import configparser
 import argparse
 import time
 import random
@@ -16,6 +17,8 @@ from torch.utils.data import DataLoader
 # import self-written modules
 import models.CGNet_add_sem_cam as network_model  # import self-written models 引入自行寫的模型
 import utils
+
+CONFIG_FILE = "import_dataset_path.cfg"
 
 onnx_img_image = []
 
@@ -57,7 +60,7 @@ def set_save_dir_names():
         os.makedirs(args["save_dir"])
 
 
-def wandb_information(model_size, flops, params, model):
+def wandb_information(model_size, flops, params, model,train_images):
     wandb.init(
         # set the wandb project where this run will be logged
         project="lightssd-project-train",
@@ -67,7 +70,7 @@ def wandb_information(model_size, flops, params, model):
             "Model_size": model_size,
             "FLOPs": flops,
             "Parameters": params,
-            "train_images": args["train_images"],
+            "train_images": train_images,
             "device": args["device"],
             "gpus": args["gpus"],
             "batch_size": args["batch_size"],
@@ -234,6 +237,14 @@ def valid_epoch(model, validation_data_loader, device, epoch):
 
 
 def main():
+    config = configparser.ConfigParser()
+    config.read(CONFIG_FILE)
+
+    if args["train_images"] != None:
+        train_images = args["train_images"]
+    else:
+        train_images = config.get(args["dataset_path"],"train_images")
+
     save_mean_miou = 0
     save_mean_miou_s = 0
     check_have_GPU()
@@ -260,12 +271,12 @@ def main():
     seconds = time.time()  # Random number generation 亂數產生
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    training_data = utils.dataset_smoke120k.DataLoaderSegmentation(args["train_images"])
+    training_data = utils.dataset_smoke120k.DataLoaderSegmentation(train_images)
 
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
     validation_data = utils.dataset_smoke120k.DataLoaderSegmentation(
-        args["train_images"], mode="val"
+        train_images, mode="val"
     )
     training_data_loader = DataLoader(
         training_data,
@@ -326,7 +337,7 @@ def main():
 
     # wandb.ai
     if args["wandb_name"] != "no":
-        wandb_information(model_size, flops, params, model)
+        wandb_information(model_size, flops, params, model,train_images)
 
     if not os.path.exists("./training_data_captures/"):
         os.makedirs("./training_data_captures/")
@@ -554,6 +565,18 @@ def main():
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "-dataset",
+        "--dataset_path",
+        default="Host_smoke120k_H_L_M",
+        help="use dataset path",
+    )
+    # smoke120k
+    ap.add_argument(
+        "-ti",
+        "--train_images",
+        help="path to hazy training images",
+    )
 
     # ap.add_argument(
     #     "-ti",
@@ -686,12 +709,12 @@ if __name__ == "__main__":
     # )
 
     # smoke120k
-    ap.add_argument(
-        "-ti",
-        "--train_images",
-        default="/home/yaocong/Experimental/Dataset/smoke100k_dataset/",
-        help="path to hazy training images",
-    )
+    # ap.add_argument(
+    #     "-ti",
+    #     "--train_images",
+    #     default="/home/yaocong/Experimental/Dataset/smoke100k_dataset/",
+    #     help="path to hazy training images",
+    # )
 
     ap.add_argument("-bs", "--batch_size", type=int, default=8, help="set batch_size")
     ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
