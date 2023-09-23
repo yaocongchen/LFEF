@@ -4,6 +4,7 @@ import torchvision
 import torch.backends.cudnn as cudnn
 import torch.optim
 import os
+import configparser
 import argparse
 import time
 import random
@@ -16,6 +17,8 @@ from torch.utils.data import DataLoader
 # import self-written modules
 import models.CGNet_add_sem_cam as network_model  # import self-written models 引入自行寫的模型
 import utils
+
+CONFIG_FILE = "import_dataset_path.cfg"
 
 onnx_img_image = []
 
@@ -57,7 +60,7 @@ def set_save_dir_names():
         os.makedirs(args["save_dir"])
 
 
-def wandb_information(model_size, flops, params, model):
+def wandb_information(model_size, flops, params, model,train_images,train_masks):
     wandb.init(
         # set the wandb project where this run will be logged
         project="lightssd-project-train",
@@ -67,8 +70,8 @@ def wandb_information(model_size, flops, params, model):
             "Model_size": model_size,
             "FLOPs": flops,
             "Parameters": params,
-            "train_images": args["train_images"],
-            "train_masks": args["train_masks"],
+            "train_images": train_images,
+            "train_masks": train_masks,
             "device": args["device"],
             "gpus": args["gpus"],
             "batch_size": args["batch_size"],
@@ -234,7 +237,17 @@ def valid_epoch(model, validation_data_loader, device, epoch):
     )
 
 
-def main():
+def main():    
+    config = configparser.ConfigParser()
+    config.read(CONFIG_FILE)
+
+    if (args["train_images"] != None) and (args["train_masks"] != None):
+        train_images = args["train_images"]
+        train_masks = args["train_masks"] 
+    else:
+        train_images = config.get(args["dataset_path"],"train_images")
+        train_masks = config.get(args["dataset_path"],"train_masks")
+
     save_mean_miou = 0
     save_mean_miou_s = 0
     check_have_GPU()
@@ -262,13 +275,13 @@ def main():
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
     training_data = utils.dataset.DataLoaderSegmentation(
-        args["train_images"], args["train_masks"]
+        train_images, train_masks
     )
 
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
     validation_data = utils.dataset.DataLoaderSegmentation(
-        args["train_images"], args["train_masks"], mode="val"
+        train_images, train_masks, mode="val"
     )
     training_data_loader = DataLoader(
         training_data,
@@ -329,7 +342,7 @@ def main():
 
     # wandb.ai
     if args["wandb_name"] != "no":
-        wandb_information(model_size, flops, params, model)
+        wandb_information(model_size, flops, params, model,train_images,train_masks)
 
     if not os.path.exists("./training_data_captures/"):
         os.makedirs("./training_data_captures/")
@@ -558,6 +571,23 @@ def main():
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "-dataset",
+        "--dataset_path",
+        default="Host_SYN70K",
+        help="use dataset path",
+    )
+
+    # ap.add_argument(
+    #     "-ti",
+    #     "--train_images",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--train_masks",
+    #     help="path to mask",
+    # )
 
     # ap.add_argument(
     #     "-ti",
@@ -624,18 +654,18 @@ if __name__ == "__main__":
     #     help="path to mask",
     # )
 
-    ap.add_argument(
-        "-ti",
-        "--train_images",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
-        help="path to hazy training images",
-    )
-    ap.add_argument(
-        "-tm",
-        "--train_masks",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
-        help="path to mask",
-    )
+    # ap.add_argument(
+    #     "-ti",
+    #     "--train_images",
+    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--train_masks",
+    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
+    #     help="path to mask",
+    # )
 
     # ap.add_argument(
     #     "-ti",
