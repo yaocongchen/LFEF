@@ -4,6 +4,7 @@ import torchvision
 import torch.backends.cudnn as cudnn
 import torch.optim
 import os
+import configparser
 import argparse
 import time
 import random
@@ -20,7 +21,7 @@ import torch.multiprocessing as mp
 # import self-written modules
 import models.erfnet as network_model  # import self-written models 引入自行寫的模型
 import utils
-
+CONFIG_FILE = "import_dataset_path.cfg"
 onnx_img_image = []
 
 
@@ -64,7 +65,7 @@ def check_number_of_GPUs(model,rank,world_size,args):
         model = model.cpu()  # use cpu data parallel
         device = torch.device("cpu")
 
-    return device
+    return model, device
 
 
 def set_save_dir_names(args):
@@ -73,18 +74,18 @@ def set_save_dir_names(args):
         os.makedirs(args["save_dir"])
 
 
-def wandb_information(model_size, flops, params, model,args):
+def wandb_information(model_size, flops, params, model,args,train_images,train_masks):
     wandb.init(
         # set the wandb project where this run will be logged
-        project="lightssd-project",
+        project="lightssd-project-train",
         name=args["wandb_name"],
         # track hyperparameters and run metadata
         config={
             "Model_size": model_size,
             "FLOPs": flops,
             "Parameters": params,
-            "train_images": args["train_images"],
-            "train_masks": args["train_masks"],
+            "train_images": train_images,
+            "train_masks": train_masks,
             "device": args["device"],
             "gpus": args["gpus"],
             "batch_size": args["batch_size"],
@@ -241,6 +242,16 @@ def valid_epoch(model, validation_data_loader, device, epoch ,args,rank):
 
 
 def main(rank,world_size, args={}):
+    config = configparser.ConfigParser()
+    config.read(CONFIG_FILE)
+
+    if (args["train_images"] != None) and (args["train_masks"] != None):
+        train_images = args["train_images"]
+        train_masks = args["train_masks"] 
+    else:
+        train_images = config.get(args["dataset_path"],"train_images")
+        train_masks = config.get(args["dataset_path"],"train_masks")
+
     save_mean_miou = 0
     save_mean_miou_s = 0
     # print("rank:",rank)
@@ -262,7 +273,7 @@ def main(rank,world_size, args={}):
 
     # Set up the device for training
     # 設定用於訓練之裝置
-    device = check_number_of_GPUs(model,rank,world_size,args)
+    model, device = check_number_of_GPUs(model,rank,world_size,args)
 
     set_save_dir_names(args)
 
@@ -271,13 +282,13 @@ def main(rank,world_size, args={}):
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
     training_data = utils.dataset.DataLoaderSegmentation(
-        args["train_images"], args["train_masks"],rank
+        train_images, train_masks,rank
     )
 
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
     validation_data = utils.dataset.DataLoaderSegmentation(
-        args["train_images"], args["train_masks"], rank,mode="val",
+        train_images, train_masks, rank,mode="val",
     )
     if torch.cuda.device_count() > 1:
         train_sampler = torch.utils.data.distributed.DistributedSampler(training_data)
@@ -320,7 +331,7 @@ def main(rank,world_size, args={}):
 
     # Import optimizer導入優化器
 
-    #先用Adam測試模型能力
+    # 先用Adam測試模型能力
     optimizer = torch.optim.Adam(
         model.parameters(), lr=float(args["learning_rate"]), weight_decay=0.0001
     )
@@ -331,7 +342,6 @@ def main(rank,world_size, args={}):
     #     momentum=0.9,
     #     weight_decay=1e-5,
     # )
-
 
     # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
 
@@ -605,9 +615,24 @@ def cleanup():
     dist.destory_process_group()
 
 if __name__=="__main__":
-
     ap = argparse.ArgumentParser()
-    
+    ap.add_argument(
+        "-dataset",
+        "--dataset_path",
+        default="Host_SYN70K",
+        help="use dataset path",
+    )
+
+    ap.add_argument(
+        "-ti",
+        "--train_images",
+        help="path to hazy training images",
+    )
+    ap.add_argument(
+        "-tm",
+        "--train_masks",
+        help="path to mask",
+    )
     # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
 
@@ -620,8 +645,8 @@ if __name__=="__main__":
     # ap.add_argument('-ti', '--train_images',default="/home/m11013017/private/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/m11013017/private/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",  help="path to mask")
 
-    ap.add_argument('-ti', '--train_images',default="/home/m11013017/private/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
-    ap.add_argument('-tm', '--train_masks',default= "/home/m11013017/private/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
+    # ap.add_argument('-ti', '--train_images',default="/home/m11013017/private/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
+    # ap.add_argument('-tm', '--train_masks',default= "/home/m11013017/private/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
 
     # ap.add_argument('-ti', '--train_images',default="/home/m11013017/private/Dataset/smoke120k_dataset/smoke_image/" , help="path to hazy training images")
     # ap.add_argument('-tm', '--train_masks',default= "/home/m11013017/private/Dataset/smoke120k_dataset/smoke_mask/",  help="path to mask")

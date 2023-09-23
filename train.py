@@ -51,7 +51,7 @@ def check_number_of_GPUs(model):
         model = model.cpu()  # use cpu data parallel
         device = torch.device("cpu")
 
-    return device
+    return model, device
 
 
 def set_save_dir_names():
@@ -237,7 +237,7 @@ def valid_epoch(model, validation_data_loader, device, epoch):
     )
 
 
-def main():    
+def main():
     config = configparser.ConfigParser()
     config.read(CONFIG_FILE)
 
@@ -266,7 +266,7 @@ def main():
 
     # Set up the device for training
     # 設定用於訓練之裝置
-    device = check_number_of_GPUs(model)
+    model, device = check_number_of_GPUs(model)
 
     set_save_dir_names()
 
@@ -578,146 +578,16 @@ if __name__ == "__main__":
         help="use dataset path",
     )
 
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/images/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/masks/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Imag/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Mask/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img_npy/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt_npy/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall_npy/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall_npy/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_image/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_mask/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_image_npy/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_mask_npy/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
-    #     help="path to mask",
-    # )
+    ap.add_argument(
+        "-ti",
+        "--train_images",
+        help="path to hazy training images",
+    )
+    ap.add_argument(
+        "-tm",
+        "--train_masks",
+        help="path to mask",
+    )
 
     ap.add_argument("-bs", "--batch_size", type=int, default=8, help="set batch_size")
     ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
