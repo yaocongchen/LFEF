@@ -451,6 +451,7 @@ def main():
             mean_loss_ms = checkpoint["loss_ms"]
             mean_miou = checkpoint["miou"]
             mean_miou_s = checkpoint["miou_s"]
+            mean_dice_coef = checkpoint["dice_coef"]
             save_mean_miou = checkpoint["best_miou"]
             save_mean_miou_s = checkpoint["best_miou_s"]
             print(
@@ -550,6 +551,7 @@ def main():
             "loss_ms": mean_loss_ms,
             "miou": mean_miou,
             "miou_s": mean_miou_s,
+            "dice_coef": mean_dice_coef,
             "best_miou": save_mean_miou,
             "best_miou_s": save_mean_miou_s,
         }
