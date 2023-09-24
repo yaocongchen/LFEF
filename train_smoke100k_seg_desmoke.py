@@ -470,10 +470,6 @@ def main():
             optimizer_md.load_state_dict(checkpoint["optimizer_md_state_dict"])
             start_epoch = checkpoint["epoch"]
             mean_loss_md = checkpoint["loss_md"]
-            mean_miou = checkpoint["miou"]
-            mean_miou_s = checkpoint["miou_s"]
-            save_mean_miou = checkpoint["best_miou"]
-            save_mean_miou_s = checkpoint["best_miou_s"]      #TODO:loss
             print(
                 "=====> load checkpoint '{}' (epoch {})".format(
                     args["resume_md"], checkpoint["epoch"]
@@ -554,7 +550,6 @@ def main():
             "loss_ms": mean_loss_ms,
             "miou": mean_miou,
             "miou_s": mean_miou_s,
-            "dice_coef": mean_dice_coef,
             "best_miou": save_mean_miou,
             "best_miou_s": save_mean_miou_s,
         }
@@ -563,11 +558,6 @@ def main():
             "model_desmoke_state_dict": model_desmoke.state_dict(),
             "optimizer_md_state_dict": optimizer_md.state_dict(),
             "loss_md": mean_loss_md,
-            "miou": mean_miou,
-            "miou_s": mean_miou_s,
-            "dice_coef": mean_dice_coef,
-            "best_miou": save_mean_miou,
-            "best_miou_s": save_mean_miou_s,
         }
         torch.save(state_ms, args["save_dir"] + "last_ms_checkpoint" + ".pth")
         torch.save(state_md, args["save_dir"] + "last_md_checkpoint" + ".pth")
