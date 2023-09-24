@@ -346,6 +346,7 @@ def valid_epoch(
         RGB_image,
         mask_image,
         output_seg,
+        mean_loss_md,
         smoke_area,
         gb_area,
         output_desmoke_area,
@@ -447,7 +448,7 @@ def main():
             model_segment.load_state_dict(checkpoint["model_segment_state_dict"])
             optimizer_ms.load_state_dict(checkpoint["optimizer_ms_state_dict"])
             start_epoch = checkpoint["epoch"]
-            mean_loss = checkpoint["loss"]
+            mean_loss_ms = checkpoint["loss_ms"]
             mean_miou = checkpoint["miou"]
             mean_miou_s = checkpoint["miou_s"]
             save_mean_miou = checkpoint["best_miou"]
@@ -468,11 +469,11 @@ def main():
             model_desmoke.load_state_dict(checkpoint["model_desmoke_state_dict"])
             optimizer_md.load_state_dict(checkpoint["optimizer_md_state_dict"])
             start_epoch = checkpoint["epoch"]
-            mean_loss = checkpoint["loss"]
+            mean_loss_md = checkpoint["loss_md"]
             mean_miou = checkpoint["miou"]
             mean_miou_s = checkpoint["miou_s"]
             save_mean_miou = checkpoint["best_miou"]
-            save_mean_miou_s = checkpoint["best_miou_s"]
+            save_mean_miou_s = checkpoint["best_miou_s"]      #TODO:loss
             print(
                 "=====> load checkpoint '{}' (epoch {})".format(
                     args["resume_md"], checkpoint["epoch"]
@@ -522,13 +523,14 @@ def main():
         )
         torch.cuda.empty_cache()  # 刪除不需要的變數
         (
-            mean_loss,
+            mean_loss_ms,
             mean_miou_s,
             mean_miou,
             mean_dice_coef,
             RGB_image,
             mask_image,
             output,
+            mean_loss_md,
             smoke_area,
             gb_area,
             output_desmoke_area,
@@ -549,7 +551,7 @@ def main():
             "epoch": epoch,
             "model_segment_state_dict": model_segment.state_dict(),
             "optimizer_ms_state_dict": optimizer_ms.state_dict(),
-            "loss": mean_loss,
+            "loss_ms": mean_loss_ms,
             "miou": mean_miou,
             "miou_s": mean_miou_s,
             "dice_coef": mean_dice_coef,
@@ -560,7 +562,7 @@ def main():
             "epoch": epoch,
             "model_desmoke_state_dict": model_desmoke.state_dict(),
             "optimizer_md_state_dict": optimizer_md.state_dict(),
-            "loss": mean_loss,
+            "loss_md": mean_loss_md,
             "miou": mean_miou,
             "miou_s": mean_miou_s,
             "dice_coef": mean_dice_coef,
@@ -718,7 +720,7 @@ def main():
                 )
 
         if mean_miou > save_mean_miou:
-            print("best_loss: %.3f , best_miou: %.3f" % (mean_loss, mean_miou))
+            print("best_loss: %.3f , best_miou: %.3f" % (mean_loss_ms, mean_miou))
             torch.save(state_ms, args["save_dir"] + "best_checkpoint" + ".pth")
             torch.save(model_segment.state_dict(), args["save_dir"] + "best" + ".pth")
             # torchvision.utils.save_image(
@@ -740,7 +742,7 @@ def main():
                 )
 
             if args["wandb_name"] != "no":
-                wandb.log({"best_loss": mean_loss, "best_miou": mean_miou})
+                wandb.log({"best_loss": mean_loss_ms, "best_miou": mean_miou})
                 wandb.save(args["save_dir"] + "best_checkpoint" + ".pth")
                 wandb.save(args["save_dir"] + "best" + ".pth")
                 # wandb.log({"best": wandb.Image("./validation_data_captures/" + "best" + ".jpg")})
@@ -774,7 +776,7 @@ def main():
             save_mean_miou = mean_miou
 
             if mean_miou_s > save_mean_miou_s:
-                print("best_loss: %.3f , best_miou_s: %.3f" % (mean_loss, mean_miou_s))
+                print("best_loss: %.3f , best_miou_s: %.3f" % (mean_loss_ms, mean_miou_s))
                 torch.save(
                     state_ms, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
                 )
@@ -787,7 +789,7 @@ def main():
                 #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
                 # )
                 if args["wandb_name"] != "no":
-                    wandb.log({"best_loss": mean_loss, "best_miou_s": mean_miou_s})
+                    wandb.log({"best_loss": mean_loss_ms, "best_miou_s": mean_miou_s})
                     wandb.save(
                         args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
                     )
@@ -861,13 +863,13 @@ if __name__ == "__main__":
     ap.add_argument(
         "-resume_ms",
         type=str,
-        default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint.pth",
+        default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_ms_checkpoint.pth",
         help="use this file to load last checkpoint for continuing training",
     )  # Use this flag to load last checkpoint for training
     ap.add_argument(
         "-resume_md",
         type=str,
-        default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint.pth",
+        default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_md_checkpoint.pth",
         help="use this file to load last checkpoint for continuing training",
     )  # Use this flag to load last checkpoint for training
     ap.add_argument(
