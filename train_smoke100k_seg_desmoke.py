@@ -438,14 +438,33 @@ def main():
     start_epoch = 1  # Initial epoch 初始epoch值
 
     # Checkpoint training 斷點訓練
-    if args["resume"]:
+    if args["resume_ms"]:
         if os.path.isfile(
-            args["resume"]
+            args["resume_ms"]
         ):  # There is a specified file in the path 路徑中有指定檔案
-            checkpoint = torch.load(args["resume"])
+            checkpoint = torch.load(args["resume_ms"])
             model_segment.load_state_dict(checkpoint["model_segment_state_dict"])
-            model_desmoke.load_state_dict(checkpoint["model_desmoke_state_dict"])
             optimizer_ms.load_state_dict(checkpoint["optimizer_ms_state_dict"])
+            start_epoch = checkpoint["epoch"]
+            mean_loss = checkpoint["loss"]
+            mean_miou = checkpoint["miou"]
+            mean_miou_s = checkpoint["miou_s"]
+            save_mean_miou = checkpoint["best_miou"]
+            save_mean_miou_s = checkpoint["best_miou_s"]
+            print(
+                "=====> load checkpoint '{}' (epoch {})".format(
+                    args["resume_ms"], checkpoint["epoch"]
+                )
+            )
+        else:
+            print("=====> no checkpoint found at '{}'".format(args["resume_ms"]))
+
+    if args["resume_md"]:
+        if os.path.isfile(
+            args["resume_md"]
+        ):  # There is a specified file in the path 路徑中有指定檔案
+            checkpoint = torch.load(args["resume_md"])
+            model_desmoke.load_state_dict(checkpoint["model_desmoke_state_dict"])
             optimizer_md.load_state_dict(checkpoint["optimizer_md_state_dict"])
             start_epoch = checkpoint["epoch"]
             mean_loss = checkpoint["loss"]
@@ -455,11 +474,11 @@ def main():
             save_mean_miou_s = checkpoint["best_miou_s"]
             print(
                 "=====> load checkpoint '{}' (epoch {})".format(
-                    args["resume"], checkpoint["epoch"]
+                    args["resume_md"], checkpoint["epoch"]
                 )
             )
         else:
-            print("=====> no checkpoint found at '{}'".format(args["resume"]))
+            print("=====> no checkpoint found at '{}'".format(args["resume_md"]))
 
     # wandb.ai
     if args["wandb_name"] != "no":
@@ -547,8 +566,8 @@ def main():
             "best_miou": save_mean_miou,
             "best_miou_s": save_mean_miou_s,
         }
-        torch.save(state_ms, args["save_dir"] + "last_checkpoint_ms" + ".pth")
-        torch.save(state_md, args["save_dir"] + "last_checkpoint_md" + ".pth")
+        torch.save(state_ms, args["save_dir"] + "last_ms_checkpoint" + ".pth")
+        torch.save(state_md, args["save_dir"] + "last_md_checkpoint" + ".pth")
         torch.save(model_segment.state_dict(), args["save_dir"] + "last_ms" + ".pth")
         torch.save(model_desmoke.state_dict(), args["save_dir"] + "last_md" + ".pth")
 
@@ -600,9 +619,9 @@ def main():
 
         # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
         if args["wandb_name"] != "no":
-            wandb.save(args["save_dir"] + "last_checkpoint_ms" + ".pth")
+            wandb.save(args["save_dir"] + "last_ms_checkpoint" + ".pth")
             wandb.save(args["save_dir"] + "last_ms" + ".pth")
-            wandb.save(args["save_dir"] + "last_checkpoint_md" + ".pth")
+            wandb.save(args["save_dir"] + "last_md_checkpoint" + ".pth")
             wandb.save(args["save_dir"] + "last_md" + ".pth")
             # Graphical archive of the epoch test set
             # epoch 測試集中的圖示化存檔
@@ -839,7 +858,13 @@ if __name__ == "__main__":
     ap.add_argument("-device", default="GPU", help="running on CPU or GPU")
     ap.add_argument("-gpus", type=str, default="0", help="defualt GPU devices(0,1)")
     ap.add_argument(
-        "-resume",
+        "-resume_ms",
+        type=str,
+        default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint.pth",
+        help="use this file to load last checkpoint for continuing training",
+    )  # Use this flag to load last checkpoint for training
+    ap.add_argument(
+        "-resume_md",
         type=str,
         default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint.pth",
         help="use this file to load last checkpoint for continuing training",
