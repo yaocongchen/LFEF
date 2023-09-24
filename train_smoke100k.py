@@ -568,7 +568,7 @@ if __name__ == "__main__":
     ap.add_argument(
         "-dataset",
         "--dataset_path",
-        default="Host_smoke120k_H_L_M",
+        default="Host_Smoke100k_H_L_M",
         help="use dataset path",
     )
     # smoke120k
