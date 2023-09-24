@@ -547,10 +547,10 @@ def main():
             "best_miou": save_mean_miou,
             "best_miou_s": save_mean_miou_s,
         }
-        torch.save(state_ms, args["save_dir"] + "last_checkpoint" + ".pth")
-        torch.save(state_md, args["save_dir"] + "last_checkpoint" + ".pth")
-        torch.save(model_segment.state_dict(), args["save_dir"] + "last" + ".pth")
-        torch.save(model_desmoke.state_dict(), args["save_dir"] + "last" + ".pth")
+        torch.save(state_ms, args["save_dir"] + "last_checkpoint_ms" + ".pth")
+        torch.save(state_md, args["save_dir"] + "last_checkpoint_md" + ".pth")
+        torch.save(model_segment.state_dict(), args["save_dir"] + "last_ms" + ".pth")
+        torch.save(model_desmoke.state_dict(), args["save_dir"] + "last_md" + ".pth")
 
         if args["save_train_image"] != "no":
             torchvision.utils.save_image(
@@ -600,8 +600,10 @@ def main():
 
         # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
         if args["wandb_name"] != "no":
-            wandb.save(args["save_dir"] + "last_checkpoint" + ".pth")
-            wandb.save(args["save_dir"] + "last" + ".pth")
+            wandb.save(args["save_dir"] + "last_checkpoint_ms" + ".pth")
+            wandb.save(args["save_dir"] + "last_ms" + ".pth")
+            wandb.save(args["save_dir"] + "last_checkpoint_md" + ".pth")
+            wandb.save(args["save_dir"] + "last_md" + ".pth")
             # Graphical archive of the epoch test set
             # epoch 測試集中的圖示化存檔
             # wandb.log({"last": wandb.Image("./validation_data_captures/" + "last_" + ".jpg")})
