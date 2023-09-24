@@ -91,7 +91,8 @@ def wandb_information(
             "epochs": args["epochs"],
             "learning_rate": args["learning_rate"],
             "save_dir": args["save_dir"],
-            "resume": args["resume"],
+            "resume_ms": args["resume_ms"],
+            "resume_md": args["resume_md"], 
         },
     )
 
