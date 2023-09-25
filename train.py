@@ -60,7 +60,7 @@ def set_save_dir_names():
         os.makedirs(args["save_dir"])
 
 
-def wandb_information(model_size, flops, params, model,train_images,train_masks):
+def wandb_information(model_size, flops, params, model, train_images, train_masks):
     wandb.init(
         # set the wandb project where this run will be logged
         project="lightssd-project-train",
@@ -243,10 +243,10 @@ def main():
 
     if (args["train_images"] != None) and (args["train_masks"] != None):
         train_images = args["train_images"]
-        train_masks = args["train_masks"] 
+        train_masks = args["train_masks"]
     else:
-        train_images = config.get(args["dataset_path"],"train_images")
-        train_masks = config.get(args["dataset_path"],"train_masks")
+        train_images = config.get(args["dataset_path"], "train_images")
+        train_masks = config.get(args["dataset_path"], "train_masks")
 
     save_mean_miou = 0
     save_mean_miou_s = 0
@@ -274,9 +274,7 @@ def main():
     seconds = time.time()  # Random number generation 亂數產生
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    training_data = utils.dataset.DataLoaderSegmentation(
-        train_images, train_masks
-    )
+    training_data = utils.dataset.DataLoaderSegmentation(train_images, train_masks)
 
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
@@ -342,7 +340,7 @@ def main():
 
     # wandb.ai
     if args["wandb_name"] != "no":
-        wandb_information(model_size, flops, params, model,train_images,train_masks)
+        wandb_information(model_size, flops, params, model, train_images, train_masks)
 
     if not os.path.exists("./training_data_captures/"):
         os.makedirs("./training_data_captures/")
@@ -574,7 +572,7 @@ if __name__ == "__main__":
     ap.add_argument(
         "-dataset",
         "--dataset_path",
-        default="Host_SYN70K",
+        default="Host_SSD",
         help="use dataset path",
     )
 
