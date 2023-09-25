@@ -4,6 +4,7 @@ import torchvision
 import torch.backends.cudnn as cudnn
 import torch.optim
 import os
+import configparser
 import argparse
 import time
 import random
@@ -14,8 +15,10 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_add_sem_cam as network_model  # import self-written models 引入自行寫的模型
 import utils
+
+CONFIG_FILE = "import_dataset_path.cfg"
 
 onnx_img_image = []
 
@@ -48,7 +51,7 @@ def check_number_of_GPUs(model):
         model = model.cpu()  # use cpu data parallel
         device = torch.device("cpu")
 
-    return device
+    return model, device
 
 
 def set_save_dir_names():
@@ -57,17 +60,17 @@ def set_save_dir_names():
         os.makedirs(args["save_dir"])
 
 
-def wandb_information(model_size, flops, params, model):
+def wandb_information(model_size, flops, params, model, train_images):
     wandb.init(
         # set the wandb project where this run will be logged
-        project="lightssd-project",
+        project="lightssd-project-train",
         name=args["wandb_name"],
         # track hyperparameters and run metadata
         config={
             "Model_size": model_size,
             "FLOPs": flops,
             "Parameters": params,
-            "train_images": args["train_images"],
+            "train_images": train_images,
             "device": args["device"],
             "gpus": args["gpus"],
             "batch_size": args["batch_size"],
@@ -113,6 +116,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
     mean_loss = 0
     mean_miou = 0
     mean_dice_coef = 0
+    mean_miou_s = 0
 
     # Training loop 訓練迴圈
     pbar = tqdm((training_data_loader), total=len(training_data_loader))
@@ -134,8 +138,9 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        miou = utils.metrics.mIoU(output, mask_image)
-        dice_coef = utils.metrics.dice_coef(output, mask_image)
+        iou = utils.metrics.IoU(output, mask_image, device)
+        iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
+        dice_coef = utils.metrics.dice_coef(output, mask_image, device)
 
         loss.backward()
         torch.nn.utils.clip_grad_norm_(
@@ -145,13 +150,15 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
 
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
-        mean_miou += (miou.item() - mean_miou) / n_element
+        mean_miou += (iou.item() - mean_miou) / n_element
+        mean_miou_s += (iou_s.item() - mean_miou_s) / n_element
         mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
 
         pbar.set_description(f"trian_epoch [{epoch}/{args['epochs']}]")
         pbar.set_postfix(
             train_loss=mean_loss,
             train_miou=mean_miou,
+            train_miou_s=mean_miou_s,
             train_dice_coef=mean_dice_coef,
         )
         if args["wandb_name"] != "no":
@@ -159,13 +166,14 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
                 {
                     "train_loss": mean_loss,
                     "train_miou": mean_miou,
+                    "train_miou_s": mean_miou_s,
                     "train_dice_coef": mean_dice_coef,
                 }
             )
 
         # Graphical archive of the epoch test set
         # epoch 測試集中的圖示化存檔
-        count += 1
+        # count += 1
         # if not epoch % 5:
         #     torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
     return RGB_image, mask_image, output
@@ -177,9 +185,9 @@ def valid_epoch(model, validation_data_loader, device, epoch):
     mean_loss = 0
     mean_miou = 0
     mean_dice_coef = 0
+    mean_miou_s = 0
 
     model.eval()
-
     pbar = tqdm((validation_data_loader), total=len(validation_data_loader))
     for RGB_image, mask_image in pbar:
         img_image = RGB_image.to(device)
@@ -189,17 +197,22 @@ def valid_epoch(model, validation_data_loader, device, epoch):
             output = model(img_image)
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        miou = utils.metrics.mIoU(output, mask_image)
-        dice_coef = utils.metrics.dice_coef(output, mask_image)
+        iou = utils.metrics.IoU(output, mask_image, device)
+        iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
+        dice_coef = utils.metrics.dice_coef(output, mask_image, device)
 
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
-        mean_miou += (miou.item() - mean_miou) / n_element
+        mean_miou += (iou.item() - mean_miou) / n_element  # 別人研究出的算平均的方法
+        mean_miou_s += (iou_s.item() - mean_miou_s) / n_element  # 別人研究出的算平均的方法
         mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
 
         pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
         pbar.set_postfix(
-            val_loss=mean_loss, val_miou=mean_miou, val_dice_coef=mean_dice_coef
+            val_loss=mean_loss,
+            val_miou_s=mean_miou_s,
+            val_miou=mean_miou,
+            val_dice_coef=mean_dice_coef,
         )
 
         if args["wandb_name"] != "no":
@@ -207,15 +220,33 @@ def valid_epoch(model, validation_data_loader, device, epoch):
                 {
                     "val_loss": mean_loss,
                     "val_miou": mean_miou,
+                    "val_miou_s": mean_miou_s,
                     "val_dice_coef": mean_dice_coef,
                 }
             )
 
-    return mean_loss, mean_miou, mean_dice_coef, RGB_image, mask_image, output
+    return (
+        mean_loss,
+        mean_miou_s,
+        mean_miou,
+        mean_dice_coef,
+        RGB_image,
+        mask_image,
+        output,
+    )
 
 
 def main():
+    config = configparser.ConfigParser()
+    config.read(CONFIG_FILE)
+
+    if args["train_images"] != None:
+        train_images = args["train_images"]
+    else:
+        train_images = config.get(args["dataset_path"], "train_images")
+
     save_mean_miou = 0
+    save_mean_miou_s = 0
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
     # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
@@ -232,7 +263,7 @@ def main():
 
     # Set up the device for training
     # 設定用於訓練之裝置
-    device = check_number_of_GPUs(model)
+    model, device = check_number_of_GPUs(model)
 
     set_save_dir_names()
 
@@ -240,12 +271,12 @@ def main():
     seconds = time.time()  # Random number generation 亂數產生
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    training_data = utils.dataset_smoke120k.DataLoaderSegmentation(args["train_images"])
+    training_data = utils.dataset_smoke100k.DataLoaderSegmentation(train_images)
 
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    validation_data = utils.dataset_smoke120k.DataLoaderSegmentation(
-        args["train_images"], mode="val"
+    validation_data = utils.dataset_smoke100k.DataLoaderSegmentation(
+        train_images, mode="val"
     )
     training_data_loader = DataLoader(
         training_data,
@@ -265,7 +296,19 @@ def main():
     )
 
     # Import optimizer導入優化器
-    optimizer = torch.optim.Adam(model.parameters(), lr=float(args["learning_rate"]))
+
+    # 先用Adam測試模型能力
+    optimizer = torch.optim.Adam(
+        model.parameters(), lr=float(args["learning_rate"]), weight_decay=0.0001
+    )
+    # 用SGD微調到最佳
+    # optimizer = torch.optim.SGD(
+    #     model.parameters(),
+    #     lr=float(args["learning_rate"]),
+    #     momentum=0.9,
+    #     weight_decay=1e-5,
+    # )
+
     # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
 
     start_epoch = 1  # Initial epoch 初始epoch值
@@ -281,6 +324,9 @@ def main():
             start_epoch = checkpoint["epoch"]
             mean_loss = checkpoint["loss"]
             mean_miou = checkpoint["miou"]
+            mean_miou_s = checkpoint["miou_s"]
+            save_mean_miou = checkpoint["best_miou"]
+            save_mean_miou_s = checkpoint["best_miou_s"]
             print(
                 "=====> load checkpoint '{}' (epoch {})".format(
                     args["resume"], checkpoint["epoch"]
@@ -291,7 +337,7 @@ def main():
 
     # wandb.ai
     if args["wandb_name"] != "no":
-        wandb_information(model_size, flops, params, model)
+        wandb_information(model_size, flops, params, model, train_images)
 
     if not os.path.exists("./training_data_captures/"):
         os.makedirs("./training_data_captures/")
@@ -301,12 +347,13 @@ def main():
     time_start = time.time()  # Training start time 訓練開始時間
 
     for epoch in range(start_epoch, args["epochs"] + 1):
-        RGB_image_train, mask_image_train, output_train = train_epoch(
+        train_RGB_image, train_mask_image, train_output = train_epoch(
             model, training_data_loader, device, optimizer, epoch
         )
         torch.cuda.empty_cache()  # 刪除不需要的變數
         (
             mean_loss,
+            mean_miou_s,
             mean_miou,
             mean_dice_coef,
             RGB_image,
@@ -324,7 +371,10 @@ def main():
             "optimizer_state_dict": optimizer.state_dict(),
             "loss": mean_loss,
             "miou": mean_miou,
+            "miou_s": mean_miou_s,
             "dice_coef": mean_dice_coef,
+            "best_miou": save_mean_miou,
+            "best_miou_s": save_mean_miou_s,
         }
 
         torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
@@ -332,15 +382,15 @@ def main():
 
         if args["save_train_image"] != "no":
             torchvision.utils.save_image(
-                RGB_image_train,
+                train_RGB_image,
                 "./training_data_captures/" + "last_RGB_image_" + ".jpg",
             )
             torchvision.utils.save_image(
-                mask_image_train,
+                train_mask_image,
                 "./training_data_captures/" + "last_mask_image_" + ".jpg",
             )
             torchvision.utils.save_image(
-                output_train, "./training_data_captures/" + "last_output_" + ".jpg"
+                train_output, "./training_data_captures/" + "last_output_" + ".jpg"
             )
 
         if args["save_validation_image_last"] != "no":
@@ -363,6 +413,28 @@ def main():
             # epoch 測試集中的圖示化存檔
             # wandb.log({"last": wandb.Image("./validation_data_captures/" + "last_" + ".jpg")})
 
+            if args["save_train_image"] != "no":
+                wandb.log(
+                    {
+                        "train_RGB_image": wandb.Image(
+                            "./training_data_captures/" + "last_RGB_image_" + ".jpg"
+                        )
+                    }
+                )
+                wandb.log(
+                    {
+                        "train_mask_image": wandb.Image(
+                            "./training_data_captures/" + "last_mask_image_" + ".jpg"
+                        )
+                    }
+                )
+                wandb.log(
+                    {
+                        "train_output": wandb.Image(
+                            "./training_data_captures/" + "last_output_" + ".jpg"
+                        )
+                    }
+                )
             if args["save_validation_image_last"] != "no":
                 wandb.log(
                     {
@@ -441,6 +513,27 @@ def main():
                         }
                     )
             save_mean_miou = mean_miou
+
+            if mean_miou_s > save_mean_miou_s:
+                print("best_loss: %.3f , best_miou_s: %.3f" % (mean_loss, mean_miou_s))
+                torch.save(
+                    state, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
+                )
+                torch.save(
+                    model.state_dict(), args["save_dir"] + "best_mean_miou_s" + ".pth"
+                )
+                # torchvision.utils.save_image(
+                #     torch.cat((mask_image, output), 0),
+                #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
+                # )
+                if args["wandb_name"] != "no":
+                    wandb.log({"best_loss": mean_loss, "best_miou_s": mean_miou_s})
+                    wandb.save(
+                        args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
+                    )
+                    wandb.save(args["save_dir"] + "best_mean_miou_s" + ".pth")
+
+            save_mean_miou_s = mean_miou_s
     #         torch.onnx.export(
     #             model,
     #             onnx_img_image,
@@ -472,142 +565,16 @@ def main():
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/images/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/masks/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Imag/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Mask/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img_npy/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt_npy/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall_npy/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/gt_blendall_npy/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_image/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_mask/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_image_npy/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_mask_npy/",
-    #     help="path to mask",
-    # )
-
-    # ap.add_argument(
-    #     "-ti",
-    #     "--train_images",
-    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--train_masks",
-    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
-    #     help="path to mask",
-    # )
-
-    # smoke120k
+    ap.add_argument(
+        "-dataset",
+        "--dataset_path",
+        default="Host_Smoke100k_H_L_M",
+        help="use dataset path",
+    )
+    # smoke100k
     ap.add_argument(
         "-ti",
         "--train_images",
-        default="/home/yaocong/Experimental/Dataset/smoke100k_dataset/",
         help="path to hazy training images",
     )
 
@@ -620,7 +587,7 @@ if __name__ == "__main__":
         "-lr",
         "--learning_rate",
         type=float,
-        default=0.0001,
+        default=0.005,
         help="learning rate for training",
     )
     ap.add_argument(

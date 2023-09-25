@@ -13,13 +13,14 @@ from torch.autograd import Variable
 import wandb
 import torch.onnx
 from torch.utils.data import DataLoader
+import numpy as np
 
 # import self-written modules
-import models.CGNet_add_sem_cam as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_add_sem_cam as segment_model  # import self-written models 引入自行寫的模型
+import models.lightdehazeNet as desmoke_model
 import utils
 
 CONFIG_FILE = "import_dataset_path.cfg"
-
 onnx_img_image = []
 
 
@@ -60,18 +61,30 @@ def set_save_dir_names():
         os.makedirs(args["save_dir"])
 
 
-def wandb_information(model_size, flops, params, model,train_images,train_masks):
+def wandb_information(
+    model_size_cs,
+    flops_cs,
+    params_cs,
+    model_size_cd,
+    flops_cd,
+    params_cd,
+    model_segment,
+    model_desmoke,
+    train_images,
+):
     wandb.init(
         # set the wandb project where this run will be logged
         project="lightssd-project-train",
         name=args["wandb_name"],
         # track hyperparameters and run metadata
         config={
-            "Model_size": model_size,
-            "FLOPs": flops,
-            "Parameters": params,
+            "Model_size_segment": model_size_cs,
+            "FLOPs_segment": flops_cs,
+            "Parameters_segment": params_cs,
+            "Model_size_desmoke": model_size_cd,
+            "FLOPs_desmoke": flops_cd,
+            "Parameters_desmoke": params_cd,
             "train_images": train_images,
-            "train_masks": train_masks,
             "device": args["device"],
             "gpus": args["gpus"],
             "batch_size": args["batch_size"],
@@ -79,7 +92,8 @@ def wandb_information(model_size, flops, params, model,train_images,train_masks)
             "epochs": args["epochs"],
             "learning_rate": args["learning_rate"],
             "save_dir": args["save_dir"],
-            "resume": args["resume"],
+            "resume_ms": args["resume_ms"],
+            "resume_md": args["resume_md"],
         },
     )
 
@@ -89,7 +103,8 @@ def wandb_information(model_size, flops, params, model,train_images,train_masks)
     # wandb.config.architecture = "resnet"
 
     # Log gradients and model parameters
-    wandb.watch(model)
+    wandb.watch(model_segment)
+    wandb.watch(model_desmoke)
 
 
 def time_processing(spend_time):
@@ -109,22 +124,35 @@ def time_processing(spend_time):
     return time_dict
 
 
-def train_epoch(model, training_data_loader, device, optimizer, epoch):
-    model.train()
+def train_epoch(
+    model_segment,
+    model_desmoke,
+    training_data_loader,
+    device_ms,
+    device_md,
+    optimizer_ms,
+    optimizer_md,
+    epoch,
+):
+    model_segment.train()
+    model_desmoke.train()
     cudnn.benchmark = True
-    count = 0
+    # count = 0
     n_element = 0
-    mean_loss = 0
+
+    mean_loss_ms = 0
     mean_miou = 0
     mean_dice_coef = 0
     mean_miou_s = 0
 
+    mean_loss_md = 0
+
     # Training loop 訓練迴圈
     pbar = tqdm((training_data_loader), total=len(training_data_loader))
     # for iteration,(img_image, mask_image) in enumerate(training_data_loader):
-    for RGB_image, mask_image in pbar:
-        img_image = RGB_image.to(device)
-        mask_image = mask_image.to(device)
+    for RGB_image, mask_image, bg_image in pbar:
+        img_image = RGB_image.to(device_ms)
+        mask_image = mask_image.to(device_ms)
         onnx_img_image = img_image
 
         img_image = Variable(
@@ -134,106 +162,195 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
             mask_image, requires_grad=True
         )  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
 
-        output = model(img_image)
+        output_seg = model_segment(img_image)
 
-        optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
+        optimizer_ms.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
-        loss = utils.loss.CustomLoss(output, mask_image)
-        iou = utils.metrics.IoU(output, mask_image, device)
-        iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
-        dice_coef = utils.metrics.dice_coef(output, mask_image, device)
+        loss_ms = utils.loss.CustomLoss(output_seg, mask_image)
+        iou = utils.metrics.IoU(output_seg, mask_image, device_ms)
+        iou_s = utils.metrics.Sigmoid_IoU(output_seg, mask_image)
+        dice_coef = utils.metrics.dice_coef(output_seg, mask_image, device_ms)
 
-        loss.backward()
+        loss_ms.backward(retain_graph=True)  # (retain_graph=True)保留中間參數
+
         torch.nn.utils.clip_grad_norm_(
-            model.parameters(), 0.1
+            model_segment.parameters(), 0.1
         )  # 梯度裁減(避免梯度爆炸或消失) 0.1為閥值
-        optimizer.step()
+        optimizer_ms.step()
 
-        n_element += 1
-        mean_loss += (loss.item() - mean_loss) / n_element
+        n_element += 1  # seg & desmoke共用
+
+        mean_loss_ms += (loss_ms.item() - mean_loss_ms) / n_element
         mean_miou += (iou.item() - mean_miou) / n_element
         mean_miou_s += (iou_s.item() - mean_miou_s) / n_element
         mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
 
+        ##########################          desmoke             ####################################
+        output_seg_np = (
+            output_seg.mul(255)
+            .add_(0.5)
+            .clamp_(0, 255)
+            .contiguous()
+            .to("cpu", torch.uint8)
+            .detach()
+            .numpy()
+        )
+
+        output_seg_np[output_seg_np >= 1] = 1
+        # output_np[1< output_np] = 0
+
+        model_output = torch.from_numpy(output_seg_np).to(device_md).float()
+        smoke_area = model_output * img_image.to(device_md)
+        gb_area = model_output * bg_image.to(device_md)
+
+        smoke_area = smoke_area.to(device_md)
+        gb_area = gb_area.to(device_md)
+
+        smoke_area = Variable(
+            smoke_area, requires_grad=True
+        )  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
+        gb_area = Variable(
+            gb_area, requires_grad=True
+        )  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
+
+        output_desmoke_area = model_desmoke(smoke_area)
+
+        optimizer_md.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
+
+        loss_md = utils.loss_desmoke.CustomLoss(output_desmoke_area, gb_area)
+
+        loss_md.backward()
+        torch.nn.utils.clip_grad_norm_(
+            model_desmoke.parameters(), 0.1
+        )  # 梯度裁減(避免梯度爆炸或消失) 0.1為閥值
+        optimizer_md.step()
+
+        mean_loss_md += (loss_md.item() - mean_loss_md) / n_element
+
         pbar.set_description(f"trian_epoch [{epoch}/{args['epochs']}]")
         pbar.set_postfix(
-            train_loss=mean_loss,
+            train_loss_ms=mean_loss_ms,
             train_miou=mean_miou,
             train_miou_s=mean_miou_s,
             train_dice_coef=mean_dice_coef,
+            train_loss_md=mean_loss_md,
         )
         if args["wandb_name"] != "no":
             wandb.log(
                 {
-                    "train_loss": mean_loss,
+                    "train_loss_ms": mean_loss_ms,
                     "train_miou": mean_miou,
                     "train_miou_s": mean_miou_s,
                     "train_dice_coef": mean_dice_coef,
+                    "train_loss_md": mean_loss_md,
                 }
             )
-
         # Graphical archive of the epoch test set
         # epoch 測試集中的圖示化存檔
-        count += 1
+        # count += 1
         # if not epoch % 5:
         #     torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
-    return RGB_image, mask_image, output
+    return RGB_image, mask_image, output_seg, smoke_area, gb_area, output_desmoke_area
 
 
-def valid_epoch(model, validation_data_loader, device, epoch):
+def valid_epoch(
+    model_segment,
+    model_desmoke,
+    validation_data_loader,
+    device_ms,
+    device_md,
+    epoch,
+):
     # Validation loop 驗證迴圈
     n_element = 0
-    mean_loss = 0
+    mean_loss_ms = 0
     mean_miou = 0
     mean_dice_coef = 0
     mean_miou_s = 0
+    mean_loss_md = 0
 
-    model.eval()
+    model_segment.eval()
+    model_desmoke.eval()
     pbar = tqdm((validation_data_loader), total=len(validation_data_loader))
-    for RGB_image, mask_image in pbar:
-        img_image = RGB_image.to(device)
-        mask_image = mask_image.to(device)
+    for RGB_image, mask_image, bg_image in pbar:
+        img_image = RGB_image.to(device_ms)
+        mask_image = mask_image.to(device_ms)
 
         with torch.no_grad():
-            output = model(img_image)
+            output_seg = model_segment(img_image)
 
-        loss = utils.loss.CustomLoss(output, mask_image)
-        iou = utils.metrics.IoU(output, mask_image, device)
-        iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
-        dice_coef = utils.metrics.dice_coef(output, mask_image, device)
+        loss_ms = utils.loss.CustomLoss(output_seg, mask_image)
+        iou = utils.metrics.IoU(output_seg, mask_image, device_ms)
+        iou_s = utils.metrics.Sigmoid_IoU(output_seg, mask_image)
+        dice_coef = utils.metrics.dice_coef(output_seg, mask_image, device_ms)
 
         n_element += 1
-        mean_loss += (loss.item() - mean_loss) / n_element
-        mean_miou += (iou.item() - mean_miou) / n_element  # 別人研究出的算平均的方法
-        mean_miou_s += (iou_s.item() - mean_miou_s) / n_element  # 別人研究出的算平均的方法
+
+        mean_loss_ms += (loss_ms.item() - mean_loss_ms) / n_element
+        mean_miou += (iou.item() - mean_miou) / n_element
+        mean_miou_s += (iou_s.item() - mean_miou_s) / n_element
         mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
+
+        ##########################          desmoke             ####################################
+        output_seg_np = (
+            output_seg.mul(255)
+            .add_(0.5)
+            .clamp_(0, 255)
+            .contiguous()
+            .to("cpu", torch.uint8)
+            .detach()
+            .numpy()
+        )
+
+        output_seg_np[output_seg_np >= 1] = 1
+        # output_np[1< output_np] = 0
+
+        model_output = torch.from_numpy(output_seg_np).to(device_md).float()
+        smoke_area = model_output * img_image.to(device_md)
+        gb_area = model_output * bg_image.to(device_md)
+
+        smoke_area = smoke_area.to(device_md)
+        gb_area = gb_area.to(device_md)
+
+        with torch.no_grad():
+            output_desmoke_area = model_desmoke(smoke_area)
+
+        loss_md = utils.loss_desmoke.CustomLoss(output_desmoke_area, gb_area)
+
+        mean_loss_md += (loss_md.item() - mean_loss_md) / n_element
 
         pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
         pbar.set_postfix(
-            val_loss=mean_loss,
+            val_loss=mean_loss_ms,
             val_miou_s=mean_miou_s,
             val_miou=mean_miou,
             val_dice_coef=mean_dice_coef,
+            val_loss_md=mean_loss_md,
         )
 
         if args["wandb_name"] != "no":
             wandb.log(
                 {
-                    "val_loss": mean_loss,
+                    "val_loss": mean_loss_ms,
                     "val_miou": mean_miou,
                     "val_miou_s": mean_miou_s,
                     "val_dice_coef": mean_dice_coef,
+                    "val_loss_md": mean_loss_md,
                 }
             )
 
     return (
-        mean_loss,
+        mean_loss_ms,
         mean_miou_s,
         mean_miou,
         mean_dice_coef,
         RGB_image,
         mask_image,
-        output,
+        output_seg,
+        mean_loss_md,
+        smoke_area,
+        gb_area,
+        output_desmoke_area,
     )
 
 
@@ -241,12 +358,10 @@ def main():
     config = configparser.ConfigParser()
     config.read(CONFIG_FILE)
 
-    if (args["train_images"] != None) and (args["train_masks"] != None):
+    if args["train_images"] != None:
         train_images = args["train_images"]
-        train_masks = args["train_masks"] 
     else:
-        train_images = config.get(args["dataset_path"],"train_images")
-        train_masks = config.get(args["dataset_path"],"train_masks")
+        train_images = config.get(args["dataset_path"], "train_images")
 
     save_mean_miou = 0
     save_mean_miou_s = 0
@@ -256,17 +371,21 @@ def main():
     cudnn.enabled = True
 
     # Model import 模型導入
-    model = network_model.Net()
-
+    model_segment = segment_model.Net()
+    model_desmoke = desmoke_model.Net()
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
-    c = utils.metrics.Calculate(model)
-    model_size = c.get_model_size()
-    flops, params = c.get_params()
+    cs = utils.metrics.Calculate(model_segment)
+    model_size_cs = cs.get_model_size()
+    flops_cs, params_cs = cs.get_params()
+    cd = utils.metrics.Calculate(model_desmoke)
+    model_size_cd = cd.get_model_size()
+    flops_cd, params_cd = cd.get_params()
 
     # Set up the device for training
     # 設定用於訓練之裝置
-    model, device = check_number_of_GPUs(model)
+    model_segment, device_ms = check_number_of_GPUs(model_segment)
+    model_desmoke, device_md = check_number_of_GPUs(model_desmoke)
 
     set_save_dir_names()
 
@@ -274,14 +393,14 @@ def main():
     seconds = time.time()  # Random number generation 亂數產生
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    training_data = utils.dataset.DataLoaderSegmentation(
-        train_images, train_masks
+    training_data = utils.dataset_smoke100k_seg_desmoke.DataLoaderSegmentation(
+        train_images
     )
 
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    validation_data = utils.dataset.DataLoaderSegmentation(
-        train_images, train_masks, mode="val"
+    validation_data = utils.dataset_smoke100k_seg_desmoke.DataLoaderSegmentation(
+        train_images, mode="val"
     )
     training_data_loader = DataLoader(
         training_data,
@@ -303,8 +422,11 @@ def main():
     # Import optimizer導入優化器
 
     # 先用Adam測試模型能力
-    optimizer = torch.optim.Adam(
-        model.parameters(), lr=float(args["learning_rate"]), weight_decay=0.0001
+    optimizer_ms = torch.optim.Adam(
+        model_segment.parameters(), lr=float(args["learning_rate"]), weight_decay=0.0001
+    )
+    optimizer_md = torch.optim.Adam(
+        model_desmoke.parameters(), lr=float(args["learning_rate"]), weight_decay=0.0001
     )
     # 用SGD微調到最佳
     # optimizer = torch.optim.SGD(
@@ -319,30 +441,58 @@ def main():
     start_epoch = 1  # Initial epoch 初始epoch值
 
     # Checkpoint training 斷點訓練
-    if args["resume"]:
+    if args["resume_ms"]:
         if os.path.isfile(
-            args["resume"]
+            args["resume_ms"]
         ):  # There is a specified file in the path 路徑中有指定檔案
-            checkpoint = torch.load(args["resume"])
-            model.load_state_dict(checkpoint["model_state_dict"])
-            optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+            checkpoint = torch.load(args["resume_ms"])
+            model_segment.load_state_dict(checkpoint["model_segment_state_dict"])
+            optimizer_ms.load_state_dict(checkpoint["optimizer_ms_state_dict"])
             start_epoch = checkpoint["epoch"]
-            mean_loss = checkpoint["loss"]
+            mean_loss_ms = checkpoint["loss_ms"]
             mean_miou = checkpoint["miou"]
             mean_miou_s = checkpoint["miou_s"]
+            mean_dice_coef = checkpoint["dice_coef"]
             save_mean_miou = checkpoint["best_miou"]
             save_mean_miou_s = checkpoint["best_miou_s"]
             print(
                 "=====> load checkpoint '{}' (epoch {})".format(
-                    args["resume"], checkpoint["epoch"]
+                    args["resume_ms"], checkpoint["epoch"]
                 )
             )
         else:
-            print("=====> no checkpoint found at '{}'".format(args["resume"]))
+            print("=====> no checkpoint found at '{}'".format(args["resume_ms"]))
+
+    if args["resume_md"]:
+        if os.path.isfile(
+            args["resume_md"]
+        ):  # There is a specified file in the path 路徑中有指定檔案
+            checkpoint = torch.load(args["resume_md"])
+            model_desmoke.load_state_dict(checkpoint["model_desmoke_state_dict"])
+            optimizer_md.load_state_dict(checkpoint["optimizer_md_state_dict"])
+            start_epoch = checkpoint["epoch"]
+            mean_loss_md = checkpoint["loss_md"]
+            print(
+                "=====> load checkpoint '{}' (epoch {})".format(
+                    args["resume_md"], checkpoint["epoch"]
+                )
+            )
+        else:
+            print("=====> no checkpoint found at '{}'".format(args["resume_md"]))
 
     # wandb.ai
     if args["wandb_name"] != "no":
-        wandb_information(model_size, flops, params, model,train_images,train_masks)
+        wandb_information(
+            model_size_cs,
+            flops_cs,
+            params_cs,
+            model_size_cd,
+            flops_cd,
+            params_cd,
+            model_segment,
+            model_desmoke,
+            train_images,
+        )
 
     if not os.path.exists("./training_data_captures/"):
         os.makedirs("./training_data_captures/")
@@ -352,38 +502,70 @@ def main():
     time_start = time.time()  # Training start time 訓練開始時間
 
     for epoch in range(start_epoch, args["epochs"] + 1):
-        train_RGB_image, train_mask_image, train_output = train_epoch(
-            model, training_data_loader, device, optimizer, epoch
+        (
+            train_RGB_image,
+            train_mask_image,
+            train_output,
+            train_smoke_area,
+            train_gb_area,
+            train_desmoke_area,
+        ) = train_epoch(
+            model_segment,
+            model_desmoke,
+            training_data_loader,
+            device_ms,
+            device_md,
+            optimizer_ms,
+            optimizer_md,
+            epoch,
         )
         torch.cuda.empty_cache()  # 刪除不需要的變數
         (
-            mean_loss,
+            mean_loss_ms,
             mean_miou_s,
             mean_miou,
             mean_dice_coef,
             RGB_image,
             mask_image,
             output,
-        ) = valid_epoch(model, validation_data_loader, device, epoch)
+            mean_loss_md,
+            smoke_area,
+            gb_area,
+            output_desmoke_area,
+        ) = valid_epoch(
+            model_segment,
+            model_desmoke,
+            validation_data_loader,
+            device_ms,
+            device_md,
+            epoch,
+        )
 
         # Save model 模型存檔
 
         # model_file_name = args['save_dir'] + 'model_' + str(epoch) + '.pth'
         # model_file_nameonnx = args['save_dir'] + 'onnxmodel_' + str(epoch) + '.onnx'
-        state = {
+        state_ms = {
             "epoch": epoch,
-            "model_state_dict": model.state_dict(),
-            "optimizer_state_dict": optimizer.state_dict(),
-            "loss": mean_loss,
+            "model_segment_state_dict": model_segment.state_dict(),
+            "optimizer_ms_state_dict": optimizer_ms.state_dict(),
+            "loss_ms": mean_loss_ms,
             "miou": mean_miou,
             "miou_s": mean_miou_s,
             "dice_coef": mean_dice_coef,
             "best_miou": save_mean_miou,
             "best_miou_s": save_mean_miou_s,
         }
-
-        torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
-        torch.save(model.state_dict(), args["save_dir"] + "last" + ".pth")
+        state_md = {
+            "epoch": epoch,
+            "model_desmoke_state_dict": model_desmoke.state_dict(),
+            "optimizer_md_state_dict": optimizer_md.state_dict(),
+            "loss_md": mean_loss_md,
+        }
+        torch.save(state_ms, args["save_dir"] + "last_ms_checkpoint" + ".pth")
+        torch.save(state_md, args["save_dir"] + "last_md_checkpoint" + ".pth")
+        torch.save(model_segment.state_dict(), args["save_dir"] + "last_ms" + ".pth")
+        torch.save(model_desmoke.state_dict(), args["save_dir"] + "last_md" + ".pth")
 
         if args["save_train_image"] != "no":
             torchvision.utils.save_image(
@@ -397,6 +579,17 @@ def main():
             torchvision.utils.save_image(
                 train_output, "./training_data_captures/" + "last_output_" + ".jpg"
             )
+            torchvision.utils.save_image(
+                train_smoke_area,
+                "./training_data_captures/" + "train_smoke_area_" + ".jpg",
+            )
+            torchvision.utils.save_image(
+                train_gb_area, "./training_data_captures/" + "train_gb_area_" + ".jpg"
+            )
+            torchvision.utils.save_image(
+                train_desmoke_area,
+                "./training_data_captures/" + "train_desmoke_area_" + ".jpg",
+            )
 
         if args["save_validation_image_last"] != "no":
             # torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" + "last_" + ".jpg")
@@ -409,11 +602,23 @@ def main():
             torchvision.utils.save_image(
                 output, "./validation_data_captures/" + "last_output_" + ".jpg"
             )
+            torchvision.utils.save_image(
+                smoke_area, "./validation_data_captures/" + "smoke_area_" + ".jpg"
+            )
+            torchvision.utils.save_image(
+                gb_area, "./validation_data_captures/" + "gb_area_" + ".jpg"
+            )
+            torchvision.utils.save_image(
+                output_desmoke_area,
+                "./validation_data_captures/" + "output_desmoke_area_" + ".jpg",
+            )
 
         # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
         if args["wandb_name"] != "no":
-            wandb.save(args["save_dir"] + "last_checkpoint" + ".pth")
-            wandb.save(args["save_dir"] + "last" + ".pth")
+            wandb.save(args["save_dir"] + "last_ms_checkpoint" + ".pth")
+            wandb.save(args["save_dir"] + "last_ms" + ".pth")
+            wandb.save(args["save_dir"] + "last_md_checkpoint" + ".pth")
+            wandb.save(args["save_dir"] + "last_md" + ".pth")
             # Graphical archive of the epoch test set
             # epoch 測試集中的圖示化存檔
             # wandb.log({"last": wandb.Image("./validation_data_captures/" + "last_" + ".jpg")})
@@ -440,7 +645,27 @@ def main():
                         )
                     }
                 )
-
+                wandb.log(
+                    {
+                        "train_smoke_area": wandb.Image(
+                            "./training_data_captures/" + "train_smoke_area_" + ".jpg"
+                        )
+                    }
+                )
+                wandb.log(
+                    {
+                        "train_gb_area": wandb.Image(
+                            "./training_data_captures/" + "train_gb_area_" + ".jpg"
+                        )
+                    }
+                )
+                wandb.log(
+                    {
+                        "train_desmoke_area": wandb.Image(
+                            "./training_data_captures/" + "train_desmoke_area_" + ".jpg"
+                        )
+                    }
+                )
             if args["save_validation_image_last"] != "no":
                 wandb.log(
                     {
@@ -463,11 +688,34 @@ def main():
                         )
                     }
                 )
+                wandb.log(
+                    {
+                        "smoke_area": wandb.Image(
+                            "./validation_data_captures/" + "smoke_area_" + ".jpg"
+                        )
+                    }
+                )
+                wandb.log(
+                    {
+                        "gb_area": wandb.Image(
+                            "./validation_data_captures/" + "gb_area_" + ".jpg"
+                        )
+                    }
+                )
+                wandb.log(
+                    {
+                        "output_desmoke_area": wandb.Image(
+                            "./validation_data_captures/"
+                            + "output_desmoke_area_"
+                            + ".jpg"
+                        )
+                    }
+                )
 
         if mean_miou > save_mean_miou:
-            print("best_loss: %.3f , best_miou: %.3f" % (mean_loss, mean_miou))
-            torch.save(state, args["save_dir"] + "best_checkpoint" + ".pth")
-            torch.save(model.state_dict(), args["save_dir"] + "best" + ".pth")
+            print("best_loss: %.3f , best_miou: %.3f" % (mean_loss_ms, mean_miou))
+            torch.save(state_ms, args["save_dir"] + "best_checkpoint" + ".pth")
+            torch.save(model_segment.state_dict(), args["save_dir"] + "best" + ".pth")
             # torchvision.utils.save_image(
             #     torch.cat((mask_image, output), 0),
             #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
@@ -487,7 +735,7 @@ def main():
                 )
 
             if args["wandb_name"] != "no":
-                wandb.log({"best_loss": mean_loss, "best_miou": mean_miou})
+                wandb.log({"best_loss": mean_loss_ms, "best_miou": mean_miou})
                 wandb.save(args["save_dir"] + "best_checkpoint" + ".pth")
                 wandb.save(args["save_dir"] + "best" + ".pth")
                 # wandb.log({"best": wandb.Image("./validation_data_captures/" + "best" + ".jpg")})
@@ -521,19 +769,22 @@ def main():
             save_mean_miou = mean_miou
 
             if mean_miou_s > save_mean_miou_s:
-                print("best_loss: %.3f , best_miou_s: %.3f" % (mean_loss, mean_miou_s))
-                torch.save(
-                    state, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
+                print(
+                    "best_loss: %.3f , best_miou_s: %.3f" % (mean_loss_ms, mean_miou_s)
                 )
                 torch.save(
-                    model.state_dict(), args["save_dir"] + "best_mean_miou_s" + ".pth"
+                    state_ms, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
+                )
+                torch.save(
+                    model_segment.state_dict(),
+                    args["save_dir"] + "best_mean_miou_s" + ".pth",
                 )
                 # torchvision.utils.save_image(
                 #     torch.cat((mask_image, output), 0),
                 #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
                 # )
                 if args["wandb_name"] != "no":
-                    wandb.log({"best_loss": mean_loss, "best_miou_s": mean_miou_s})
+                    wandb.log({"best_loss": mean_loss_ms, "best_miou_s": mean_miou_s})
                     wandb.save(
                         args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
                     )
@@ -574,19 +825,14 @@ if __name__ == "__main__":
     ap.add_argument(
         "-dataset",
         "--dataset_path",
-        default="Host_SYN70K",
+        default="Host_Smoke100k_H_L_M",
         help="use dataset path",
     )
-
+    # smoke100k
     ap.add_argument(
         "-ti",
         "--train_images",
         help="path to hazy training images",
-    )
-    ap.add_argument(
-        "-tm",
-        "--train_masks",
-        help="path to mask",
     )
 
     ap.add_argument("-bs", "--batch_size", type=int, default=8, help="set batch_size")
@@ -598,7 +844,7 @@ if __name__ == "__main__":
         "-lr",
         "--learning_rate",
         type=float,
-        default=0.01,
+        default=0.005,
         help="learning rate for training",
     )
     ap.add_argument(
@@ -610,9 +856,15 @@ if __name__ == "__main__":
     ap.add_argument("-device", default="GPU", help="running on CPU or GPU")
     ap.add_argument("-gpus", type=str, default="0", help="defualt GPU devices(0,1)")
     ap.add_argument(
-        "-resume",
+        "-resume_ms",
         type=str,
-        default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint.pth",
+        default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_ms_checkpoint.pth",
+        help="use this file to load last checkpoint for continuing training",
+    )  # Use this flag to load last checkpoint for training
+    ap.add_argument(
+        "-resume_md",
+        type=str,
+        default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_md_checkpoint.pth",
         help="use this file to load last checkpoint for continuing training",
     )  # Use this flag to load last checkpoint for training
     ap.add_argument(

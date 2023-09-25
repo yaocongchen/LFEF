@@ -8,11 +8,6 @@ import random
 import cv2
 import torch.utils.data as data
 from skimage.io import imread
-from tqdm import tqdm
-
-# Random number generation 亂數產生
-
-random.seed(1143)
 
 # Initial parameters 初始參數
 IMG_SCALING = (1, 1)
@@ -28,6 +23,8 @@ def preparing_training_data(images_dir, masks_dir):
         images_dir
     )  # List the list of files in the folder (without path) ps. Using glob will not be able to read special characters, such as: ()
     mask_data = os.listdir(masks_dir)  # 列出資料夾中檔案清單(不含路徑) ps.用glob會因無法讀取特殊字元，如：（）
+
+    #random.shuffle(mask_data)
 
     image_data_first_one = image_data[0]  # Get the first file in the folder 取資料夾中的第一個檔案
     extension = image_data_first_one.split(".")[1]  # take extension 取副檔名
@@ -50,7 +47,7 @@ def preparing_training_data(images_dir, masks_dir):
 
     num_of_ids = len(data_holder.keys())
     for i in range(num_of_ids):
-        if i < num_of_ids * 9 / 10:
+        if i < num_of_ids * 4 / 5:
             train_ids.append(list(data_holder.keys())[i])
         else:
             val_ids.append(list(data_holder.keys())[i])
@@ -66,11 +63,21 @@ def preparing_training_data(images_dir, masks_dir):
         # for test.py use
         test_data = train_data + validation_data
 
-    random.shuffle(train_data)
-    random.shuffle(validation_data)
-    random.shuffle(test_data)
+    # print("train_data",train_data)
+    # print("====================================================")
+    # print("validation_data",validation_data)
+
+    # TODO:考慮必要性
+    # random.shuffle(train_data)
+    # random.shuffle(validation_data)
+    # random.shuffle(test_data)
+    # print("====================================================")
+    # print("validation_data",validation_data)
 
     return train_data, validation_data, test_data
+
+
+# %%
 
 
 # Picture brightness enhancement 圖片亮度增強
@@ -84,6 +91,7 @@ def cv2_brightness_augment(img):
     return rgb_final
 
 
+# %%
 class DataLoaderSegmentation(data.Dataset):
     def __init__(self, images_dir, masks_dir, mode="train"):
         self.train_data, self.validation_data, self.test_data = preparing_training_data(
@@ -107,10 +115,6 @@ class DataLoaderSegmentation(data.Dataset):
     # Import data by index 依index匯入資料
     def __getitem__(self, index):
         images_path, masks_path = self.data_dict[index]
-
-        images_name = images_path.split("/")[-1]
-        name = images_name.split(".")[0]  # take extension 取檔名
-
         c_img = imread(images_path)
         c_img = cv2_brightness_augment(c_img)
 
@@ -121,6 +125,7 @@ class DataLoaderSegmentation(data.Dataset):
             c_mask = cv2.resize(c_mask, (256, 256), interpolation=cv2.INTER_AREA)
             c_mask = np.reshape(c_mask, (c_mask.shape[0], c_mask.shape[1], -1))
         c_mask = c_mask > 0
+        c_mask = c_mask.astype("float32")
 
         c_img = c_img.astype("float32")  # Normalized 歸一化
         c_img = c_img / 255.0
@@ -129,21 +134,38 @@ class DataLoaderSegmentation(data.Dataset):
         out_mask = torch.from_numpy(c_mask).float()
 
         return (
-            name,
             out_rgb.permute(2, 0, 1).contiguous(),
             out_mask.permute(2, 0, 1).contiguous(),
         )
 
 
 if __name__ == "__main__":
+    import time
+
+    seconds = time.time()
+    print("s", seconds)
+
+    random.seed(seconds)
+
+    print("s", seconds)
     testing_data = DataLoaderSegmentation(
-        "/home/yaocong/Experimental/Dataset/smoke100k_dataset/smoke_image/",
-        "/home/yaocong/Experimental/Dataset/smoke100k_dataset/smoke_mask/",
-        mode="test",
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
+        mode="train",
+    )
+    random.seed(seconds)
+    print("s", seconds)
+    testing_data = DataLoaderSegmentation(
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
+        mode="val",
     )
 
-    pbar = tqdm((testing_data), total=len(testing_data))
-    for name, out_rgb, out_mask in pbar:
-        # print(out_rgb.shape, out_mask.shape)
-        np.save(f"./temp/smoke_image_npy/{name}.npy", out_rgb)
-        np.save(f"./temp/smoke_mask_npy/{name}.npy", out_mask)
+    testing_data_loader = torch.utils.data.DataLoader(
+        testing_data,
+        batch_size=8,
+        shuffle=True,
+        num_workers=1,
+        pin_memory=True,
+        drop_last=True,
+    )

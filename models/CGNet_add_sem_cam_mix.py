@@ -11,8 +11,10 @@ from torchinfo import summary
 __all__ = ["Context_Guided_Network"]
 # Filter out variables, functions, and classes that other programs don't need or don't want when running cmd "from CGNet import *"
 
+k = 2
 
-class ConvBNPReLU_1(nn.Module):
+
+class ConvBNPReLU(nn.Module):
     def __init__(self, nIn, nOut, kSize, stride=1):
         """
         args:
@@ -43,54 +45,6 @@ class ConvBNPReLU_1(nn.Module):
         output = self.conv(input)
         output = self.bn(output)
         output = self.act(output)
-        return output
-
-
-class ConvBNPReLU(nn.Module):
-    def __init__(self, nIn, nOut):
-        """
-        args:
-            nIn: number of input channels
-            nOut: number of output channels
-            kSize: kernel size
-            stride: stride rate for down-sampling. Default is 1
-        """
-        super().__init__()
-
-        self.conv3x1_1 = nn.Conv2d(
-            nIn, nIn, (3, 1), stride=1, padding=(1, 0), bias=True
-        )
-
-        self.conv1x3_1 = nn.Conv2d(
-            nIn, nOut, (1, 3), stride=1, padding=(0, 1), bias=True
-        )
-
-        self.bn_nIn3 = nn.BatchNorm2d(nIn, eps=1e-03)
-        self.act_nIn3 = nn.PReLU(nIn)
-        self.bn_nIn32 = nn.BatchNorm2d(nOut, eps=1e-03)
-        self.act_nIn32 = nn.PReLU(nOut)
-        self.avgpl = nn.AvgPool2d(kernel_size=3, stride=1, padding=1)
-        self.maxgpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
-        # self.conv3x3 = nn.Conv2d(nOut, nOut, kernel_size=3, stride=2, padding=0)
-
-    def forward(self, input):
-        """
-        args:
-           input: input feature map
-           return: transformed feature map
-        """
-
-        output = self.conv3x1_1(input)
-        output = self.bn_nIn3(output)
-        output = self.act_nIn3(output)
-        output = self.conv1x3_1(output)
-        output = self.bn_nIn32(output)
-        output = self.act_nIn32(output)
-        out_avgpl = self.avgpl(output)
-        out_maxpl = self.avgpl(output)
-        output = out_avgpl + out_maxpl
-        # output = self.conv3x3(output)
-
         return output
 
 
@@ -307,7 +261,7 @@ class ContextGuidedBlock_Down(nn.Module):
            nOut: the channel of output feature map, and nOut=2*nIn
         """
         super().__init__()
-        self.conv1x1 = ConvBNPReLU(nIn, nOut)  #  size/2, channel: nIn--->nOut
+        self.conv1x1 = ConvBNPReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
 
         self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
         self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate)
@@ -343,7 +297,7 @@ class ContextGuidedBlock(nn.Module):
         """
         super().__init__()
         n = int(nOut / 2)
-        self.conv1x1 = ConvBNPReLU_1(
+        self.conv1x1 = ConvBNPReLU(
             nIn, n, 1, 1
         )  # 1x1 Conv is employed to reduce the computation
         self.F_loc = ChannelWiseConv(n, n, 3, 1)  # local feature
@@ -383,6 +337,145 @@ class InputInjection(nn.Module):
         return input
 
 
+class SEM(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
+
+        self.conv11_64out32 = nn.Sequential(
+            nn.Conv2d(
+                in_ch, in_ch // 2, kernel_size=(1, 1), padding="same"
+            ),  # TODO:有自行除於2
+            nn.BatchNorm2d(in_ch // 2),
+        )
+        self.avgpl = nn.AvgPool2d(kernel_size=3, stride=1, padding=1)
+        self.maxpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+
+        self.conv11_130 = nn.Sequential(
+            nn.Conv2d(65, in_ch, kernel_size=(1, 1), padding="same"),
+            nn.BatchNorm2d(in_ch),
+        )
+
+        self.gavgpl = nn.AdaptiveAvgPool2d(1)
+
+        self.conv11_131 = nn.Sequential(
+            nn.Conv2d(in_ch, in_ch, kernel_size=(1, 1), padding="same"),
+            nn.BatchNorm2d(in_ch),
+        )
+        self.mysigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        out = self.conv11_64out32(x)
+        f20 = F.relu(out)
+        f21 = self.avgpl(f20)
+        f22 = self.maxpl(f20)
+        f23 = f21 + f22
+        out = self.conv11_130(f23)
+        f27 = F.relu(out)
+
+        f24 = self.gavgpl(x)
+        f25 = self.conv11_131(f24)
+        f26 = self.mysigmoid(f25)
+
+        f28 = f26 * f27
+        f29 = f28 + x
+
+        return f29
+
+
+class CAM(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
+        ck = in_ch // k
+        self.conv33_cin_cout = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, kernel_size=(3, 3), padding="same"),
+            nn.BatchNorm2d(out_ch),
+        )
+        self.conv33_cin_ckout = nn.Sequential(
+            nn.Conv2d(in_ch, ck, kernel_size=(3, 3), padding="same"), nn.BatchNorm2d(ck)
+        )
+
+        self.conv11_cin_ckout = nn.Conv1d(in_ch, ck, kernel_size=3, padding="same")
+        self.conv11_ckin_cout = nn.Conv1d(ck, in_ch, kernel_size=3, padding="same")
+        self.mysoftmax = nn.Softmax(dim=1)
+
+    def forward(self, x):
+        f4 = self.conv33_cin_cout(x)
+        batchsize, num_channels, height, width = f4.data.size()
+
+        # reshape (torch版的)
+        f5 = f4.view(-1, num_channels, height * width)
+        f6 = self.conv11_cin_ckout(f5)
+        f9 = self.mysoftmax(f6)
+
+        f7 = self.conv33_cin_ckout(x)
+        batchsize, num_channels, height, width = f7.data.size()
+        f8 = f7.view(-1, num_channels, height * width)
+
+        f10 = f9 * f8
+
+        f11 = self.conv11_ckin_cout(f10)
+        batchsize, num_channels, HW = f11.data.size()
+        f11 = f11.view(batchsize, num_channels, 32, 32)
+        f12 = self.conv33_cin_cout(f11)
+
+        f13 = f11 + f12
+
+        return f13
+
+
+class FFM(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
+
+        self.conv11 = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, kernel_size=(1, 1), padding="same"),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(),
+        )
+        self.upsamp = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
+
+        self.conv11_in192_out128 = nn.Sequential(
+            nn.Conv2d(387, out_ch, kernel_size=(1, 1), padding="same"),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(),
+        )
+
+    def forward(self, f29, f13, f18):
+        f30 = self.conv11(f13)
+        f30 = self.upsamp(f30)
+        f31 = torch.cat((f29, f30), dim=1)
+        f32 = self.conv11_in192_out128(f31)
+        f18 = self.upsamp(f18)
+        f33 = f32 * f18
+
+        return f33
+
+
+class DownUnit(nn.Module):
+    def __init__(self, in_chs, out_chs):
+        super().__init__()
+
+        self.conv1 = nn.Conv2d(
+            in_chs, out_chs - in_chs, kernel_size=3, stride=2, padding=1
+        )
+        self.maxpl = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
+        self.prelu = nn.PReLU()
+        self.batch_norm = nn.BatchNorm2d(out_chs - in_chs)
+
+    def forward(self, x):
+        main = self.conv1(x)
+        main = self.batch_norm(main)
+
+        ext = self.maxpl(x)
+        # Concatenate branche
+        out = torch.cat((main, ext), dim=1)
+
+        # Apply batch normalization
+        out = self.prelu(out)
+
+        return out
+
+
 class Net(nn.Module):
     """
     This class defines the proposed Context Guided Network (CGNet) in this work.
@@ -396,9 +489,9 @@ class Net(nn.Module):
           N: the number of blocks in stage 3
         """
         super().__init__()
-        self.level1_0 = ConvBNPReLU(3, 32)  # feature map size divided 2, 1/2
-        self.level1_1 = ConvBNPReLU(32, 32)
-        self.level1_2 = ConvBNPReLU(32, 32)
+        self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_1 = ConvBNPReLU(32, 32, 3, 1)
+        self.level1_2 = ConvBNPReLU(32, 32, 3, 1)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
@@ -447,6 +540,15 @@ class Net(nn.Module):
                     if m.bias is not None:
                         m.bias.data.zero_()
 
+        self.sem = SEM(131, 128)
+        self.cam = CAM(256, 256)
+        self.ffm = FFM(256, 256)
+
+        # self.conv1_1_CAM = nn.Sequential(
+        #     nn.Conv2d(256, 128, kernel_size=(1, 1), padding="same"),
+        #     nn.BatchNorm2d(128),
+        # )
+
     def forward(self, input):
         """
         args:
@@ -457,14 +559,12 @@ class Net(nn.Module):
         output0 = self.level1_0(input)
         output0 = self.level1_1(output0)
         output0 = self.level1_2(output0)
-        output0 = F.interpolate(output0, size=(128, 128), mode="bilinear")
         inp1 = self.sample1(input)
         inp2 = self.sample2(input)
 
         # stage 2
         output0_cat = self.b1(torch.cat([output0, inp1], 1))
         output1_0 = self.level2_0(output0_cat)  # down-sampled
-        output1_0 = F.interpolate(output1_0, size=(64, 64), mode="bilinear")
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -472,8 +572,11 @@ class Net(nn.Module):
             else:
                 output1 = layer(output1)
 
-        output1 = F.interpolate(output1, size=(64, 64), mode="bilinear")
-        output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
+        output1_cat = self.bn_prelu_2(
+            torch.cat([output1, output1_0, inp2], 1)
+        )  # torch.Size([16, 131, 64, 64])
+
+        f29 = self.sem(output1_cat)  # torch.Size([16, 131, 64, 64])
 
         # stage 3
         output2_0 = self.level3_0(output1_cat)  # down-sampled
@@ -483,10 +586,17 @@ class Net(nn.Module):
             else:
                 output2 = layer(output2)
 
-        output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2], 1))
+        output2_cat = self.bn_prelu_3(
+            torch.cat([output2_0, output2], 1)
+        )  # torch.Size([16, 128, 32, 32])
+
+        f13 = self.cam(output2_cat)
+        # f13 = self.conv1_1_CAM(f13)  # torch.Size([16, 128, 32, 32])
+
+        f33 = self.ffm(f29, f13, output2_cat)
 
         # classifier
-        classifier = self.classifier(output2_cat)
+        classifier = self.classifier(f33)
 
         # upsample segmenation map ---> the input image size
         out = F.upsample(

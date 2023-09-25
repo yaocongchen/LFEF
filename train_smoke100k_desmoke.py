@@ -15,7 +15,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet_add_sem_cam as network_model  # import self-written models 引入自行寫的模型
+import models.lightdehazeNet as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 CONFIG_FILE = "import_dataset_path.cfg"
@@ -60,7 +60,7 @@ def set_save_dir_names():
         os.makedirs(args["save_dir"])
 
 
-def wandb_information(model_size, flops, params, model,train_images,train_masks):
+def wandb_information(model_size, flops, params, model, train_images):
     wandb.init(
         # set the wandb project where this run will be logged
         project="lightssd-project-train",
@@ -71,7 +71,6 @@ def wandb_information(model_size, flops, params, model,train_images,train_masks)
             "FLOPs": flops,
             "Parameters": params,
             "train_images": train_images,
-            "train_masks": train_masks,
             "device": args["device"],
             "gpus": args["gpus"],
             "batch_size": args["batch_size"],
@@ -122,9 +121,9 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
     # Training loop 訓練迴圈
     pbar = tqdm((training_data_loader), total=len(training_data_loader))
     # for iteration,(img_image, mask_image) in enumerate(training_data_loader):
-    for RGB_image, mask_image in pbar:
+    for RGB_image, mask_image_cpu in pbar:
         img_image = RGB_image.to(device)
-        mask_image = mask_image.to(device)
+        mask_image = mask_image_cpu.to(device)
         onnx_img_image = img_image
 
         img_image = Variable(
@@ -138,7 +137,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
 
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
-        loss = utils.loss.CustomLoss(output, mask_image)
+        loss = utils.loss_desmoke.CustomLoss(output, mask_image)
         iou = utils.metrics.IoU(output, mask_image, device)
         iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         dice_coef = utils.metrics.dice_coef(output, mask_image, device)
@@ -177,7 +176,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
         count += 1
         # if not epoch % 5:
         #     torchvision.utils.save_image(torch.cat((mask_image,output),0), "./training_data_captures/" +str(count)+".jpg")
-    return RGB_image, mask_image, output
+    return RGB_image, mask_image_cpu, output
 
 
 def valid_epoch(model, validation_data_loader, device, epoch):
@@ -190,14 +189,14 @@ def valid_epoch(model, validation_data_loader, device, epoch):
 
     model.eval()
     pbar = tqdm((validation_data_loader), total=len(validation_data_loader))
-    for RGB_image, mask_image in pbar:
+    for RGB_image, mask_image_cpu in pbar:
         img_image = RGB_image.to(device)
-        mask_image = mask_image.to(device)
+        mask_image = mask_image_cpu.to(device)
 
         with torch.no_grad():
             output = model(img_image)
 
-        loss = utils.loss.CustomLoss(output, mask_image)
+        loss = utils.loss_desmoke.CustomLoss(output, mask_image)
         iou = utils.metrics.IoU(output, mask_image, device)
         iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         dice_coef = utils.metrics.dice_coef(output, mask_image, device)
@@ -232,7 +231,7 @@ def valid_epoch(model, validation_data_loader, device, epoch):
         mean_miou,
         mean_dice_coef,
         RGB_image,
-        mask_image,
+        mask_image_cpu,
         output,
     )
 
@@ -241,12 +240,10 @@ def main():
     config = configparser.ConfigParser()
     config.read(CONFIG_FILE)
 
-    if (args["train_images"] != None) and (args["train_masks"] != None):
+    if args["train_images"] != None:
         train_images = args["train_images"]
-        train_masks = args["train_masks"] 
     else:
-        train_images = config.get(args["dataset_path"],"train_images")
-        train_masks = config.get(args["dataset_path"],"train_masks")
+        train_images = config.get(args["dataset_path"], "train_images")
 
     save_mean_miou = 0
     save_mean_miou_s = 0
@@ -274,14 +271,12 @@ def main():
     seconds = time.time()  # Random number generation 亂數產生
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    training_data = utils.dataset.DataLoaderSegmentation(
-        train_images, train_masks
-    )
+    training_data = utils.dataset_smoke100k_desmoke.DataLoaderSegmentation(train_images)
 
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    validation_data = utils.dataset.DataLoaderSegmentation(
-        train_images, train_masks, mode="val"
+    validation_data = utils.dataset_smoke100k_desmoke.DataLoaderSegmentation(
+        train_images, mode="val"
     )
     training_data_loader = DataLoader(
         training_data,
@@ -342,7 +337,7 @@ def main():
 
     # wandb.ai
     if args["wandb_name"] != "no":
-        wandb_information(model_size, flops, params, model,train_images,train_masks)
+        wandb_information(model_size, flops, params, model, train_images)
 
     if not os.path.exists("./training_data_captures/"):
         os.makedirs("./training_data_captures/")
@@ -440,7 +435,6 @@ def main():
                         )
                     }
                 )
-
             if args["save_validation_image_last"] != "no":
                 wandb.log(
                     {
@@ -574,19 +568,14 @@ if __name__ == "__main__":
     ap.add_argument(
         "-dataset",
         "--dataset_path",
-        default="Host_SYN70K",
+        default="Host_Smoke100k_H_L_M",
         help="use dataset path",
     )
-
+    # smoke100k
     ap.add_argument(
         "-ti",
         "--train_images",
         help="path to hazy training images",
-    )
-    ap.add_argument(
-        "-tm",
-        "--train_masks",
-        help="path to mask",
     )
 
     ap.add_argument("-bs", "--batch_size", type=int, default=8, help="set batch_size")
@@ -598,7 +587,7 @@ if __name__ == "__main__":
         "-lr",
         "--learning_rate",
         type=float,
-        default=0.01,
+        default=0.005,
         help="learning rate for training",
     )
     ap.add_argument(

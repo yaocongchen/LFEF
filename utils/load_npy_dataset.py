@@ -33,14 +33,13 @@ def preparing_training_data(all_file_name):
             val_ids.append(list(all_file_name)[i])
 
     # for test.py use
-    train_data  = train_ids
+    train_data = train_ids
     validation_data = val_ids
     test_data = train_data + validation_data
 
     random.shuffle(train_data)
     random.shuffle(validation_data)
     random.shuffle(test_data)
-
 
     return train_data, validation_data, test_data
 
@@ -51,7 +50,6 @@ class DataLoaderSegmentation(data.Dataset):
         self.masks_dir = masks_dir
         dir_path = os.path.dirname(images_dir)
         self.all_file_name = os.listdir(dir_path)
-
 
         self.train_data, self.validation_data, self.test_data = preparing_training_data(
             self.all_file_name
@@ -70,28 +68,25 @@ class DataLoaderSegmentation(data.Dataset):
 
     def __len__(self):
         return len(self.data_dict)
-    
+
     # Import data by index 依index匯入資料
     def __getitem__(self, index):
-
         image_name = self.data_dict[index]
         out_rgb = np.load(self.images_dir + image_name)
-        out_mask= np.load(self.masks_dir + image_name)
+        out_mask = np.load(self.masks_dir + image_name)
         return out_rgb, out_mask
-
-
 
 
 if __name__ == "__main__":
     from tqdm import tqdm
 
     testing_data = DataLoaderSegmentation(
-        "/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_image/",
-        "/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_mask/",
+        "/home/yaocong/Experimental/Dataset/smoke100k_dataset/smoke_image/",
+        "/home/yaocong/Experimental/Dataset/smoke100k_dataset/smoke_mask/",
         mode="train",
     )
-    
-    # dir_path = os.path.dirname("/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_image_npy/")
+
+    # dir_path = os.path.dirname("/home/yaocong/Experimental/Dataset/smoke100k_dataset/smoke_image_npy/")
     # all_file_name = os.listdir(dir_path)
     # print(all_file_name)
     # print(len(all_file_name))
