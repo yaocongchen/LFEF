@@ -19,6 +19,7 @@ import numpy as np
 import models.CGNet_add_sem_cam as segment_model  # import self-written models 引入自行寫的模型
 import models.lightdehazeNet as desmoke_model
 import utils
+
 CONFIG_FILE = "import_dataset_path.cfg"
 onnx_img_image = []
 
@@ -69,7 +70,7 @@ def wandb_information(
     params_cd,
     model_segment,
     model_desmoke,
-    train_images
+    train_images,
 ):
     wandb.init(
         # set the wandb project where this run will be logged
@@ -92,7 +93,7 @@ def wandb_information(
             "learning_rate": args["learning_rate"],
             "save_dir": args["save_dir"],
             "resume_ms": args["resume_ms"],
-            "resume_md": args["resume_md"], 
+            "resume_md": args["resume_md"],
         },
     )
 
@@ -226,7 +227,7 @@ def train_epoch(
 
         mean_loss_md += (loss_md.item() - mean_loss_md) / n_element
 
-        pbar.set_description(f"trian_epoch_segment [{epoch}/{args['epochs']}]")
+        pbar.set_description(f"trian_epoch [{epoch}/{args['epochs']}]")
         pbar.set_postfix(
             train_loss_ms=mean_loss_ms,
             train_miou=mean_miou,
@@ -360,7 +361,7 @@ def main():
     if args["train_images"] != None:
         train_images = args["train_images"]
     else:
-        train_images = config.get(args["dataset_path"],"train_images")
+        train_images = config.get(args["dataset_path"], "train_images")
 
     save_mean_miou = 0
     save_mean_miou_s = 0
@@ -392,13 +393,13 @@ def main():
     seconds = time.time()  # Random number generation 亂數產生
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    training_data = utils.dataset_smoke120k_seg_desmoke.DataLoaderSegmentation(
+    training_data = utils.dataset_smoke100k_seg_desmoke.DataLoaderSegmentation(
         train_images
     )
 
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    validation_data = utils.dataset_smoke120k_seg_desmoke.DataLoaderSegmentation(
+    validation_data = utils.dataset_smoke100k_seg_desmoke.DataLoaderSegmentation(
         train_images, mode="val"
     )
     training_data_loader = DataLoader(
@@ -490,7 +491,7 @@ def main():
             params_cd,
             model_segment,
             model_desmoke,
-            train_images
+            train_images,
         )
 
     if not os.path.exists("./training_data_captures/"):
@@ -768,7 +769,9 @@ def main():
             save_mean_miou = mean_miou
 
             if mean_miou_s > save_mean_miou_s:
-                print("best_loss: %.3f , best_miou_s: %.3f" % (mean_loss_ms, mean_miou_s))
+                print(
+                    "best_loss: %.3f , best_miou_s: %.3f" % (mean_loss_ms, mean_miou_s)
+                )
                 torch.save(
                     state_ms, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
                 )
@@ -825,7 +828,7 @@ if __name__ == "__main__":
         default="Host_Smoke100k_H_L_M",
         help="use dataset path",
     )
-    # smoke120k
+    # smoke100k
     ap.add_argument(
         "-ti",
         "--train_images",

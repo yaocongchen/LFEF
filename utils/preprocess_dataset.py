@@ -137,8 +137,8 @@ class DataLoaderSegmentation(data.Dataset):
 
 if __name__ == "__main__":
     testing_data = DataLoaderSegmentation(
-        "/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_image/",
-        "/home/yaocong/Experimental/Dataset/smoke120k_dataset/smoke_mask/",
+        "/home/yaocong/Experimental/Dataset/smoke100k_dataset/smoke_image/",
+        "/home/yaocong/Experimental/Dataset/smoke100k_dataset/smoke_mask/",
         mode="test",
     )
 

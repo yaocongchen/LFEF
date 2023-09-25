@@ -21,6 +21,7 @@ import torch.multiprocessing as mp
 # import self-written modules
 import models.erfnet as network_model  # import self-written models 引入自行寫的模型
 import utils
+
 CONFIG_FILE = "import_dataset_path.cfg"
 onnx_img_image = []
 
@@ -36,12 +37,12 @@ def check_have_GPU(args):
             )  # 例外事件跳出
 
 
-def check_number_of_GPUs(model,rank,world_size,args):
-    #DDP backend初始化
-    #torch.cuda.set_device(local_rank)
+def check_number_of_GPUs(model, rank, world_size, args):
+    # DDP backend初始化
+    # torch.cuda.set_device(local_rank)
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "12355"
-    dist.init_process_group(backend='nccl', rank=rank, world_size=world_size)
+    dist.init_process_group(backend="nccl", rank=rank, world_size=world_size)
     torch.cuda.set_device(rank)
 
     if args["device"] == "GPU":
@@ -51,10 +52,10 @@ def check_number_of_GPUs(model,rank,world_size,args):
                 print("torch.cuda.device_count()=", torch.cuda.device_count())
             # args.gpu_nums = torch.cuda.device_count()
             # model = torch.nn.DataParallel(model).cuda()  # multi-card data parallel
-            device = torch.device("cuda",rank)
+            device = torch.device("cuda", rank)
             model = model.to(device)
-            print("gpu_rank:",rank)
-            model = DDP(model,device_ids=[rank])
+            print("gpu_rank:", rank)
+            model = DDP(model, device_ids=[rank])
 
         else:
             print("Single GPU for training")
@@ -74,7 +75,9 @@ def set_save_dir_names(args):
         os.makedirs(args["save_dir"])
 
 
-def wandb_information(model_size, flops, params, model,args,train_images,train_masks):
+def wandb_information(
+    model_size, flops, params, model, args, train_images, train_masks
+):
     wandb.init(
         # set the wandb project where this run will be logged
         project="lightssd-project-train",
@@ -123,7 +126,7 @@ def time_processing(spend_time):
     return time_dict
 
 
-def train_epoch(model, training_data_loader, device, optimizer, epoch ,args,rank):
+def train_epoch(model, training_data_loader, device, optimizer, epoch, args, rank):
     model.train()
     cudnn.benchmark = True
     count = 0
@@ -163,7 +166,6 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch ,args,rank
         )  # 梯度裁減(避免梯度爆炸或消失) 0.1為閥值
         optimizer.step()
 
-
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
         mean_miou += (iou.item() - mean_miou) / n_element
@@ -175,7 +177,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch ,args,rank
                 train_loss=mean_loss,
                 train_miou=mean_miou,
                 train_miou_s=mean_miou_s,
-                train_dice_coef = mean_dice_coef,
+                train_dice_coef=mean_dice_coef,
             )
             if args["wandb_name"] != "no":
                 wandb.log(
@@ -195,7 +197,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch ,args,rank
     return RGB_image, mask_image, output
 
 
-def valid_epoch(model, validation_data_loader, device, epoch ,args,rank):
+def valid_epoch(model, validation_data_loader, device, epoch, args, rank):
     # Validation loop 驗證迴圈
     n_element = 0
     mean_loss = 0
@@ -216,16 +218,19 @@ def valid_epoch(model, validation_data_loader, device, epoch ,args,rank):
         iou = utils.metrics.IoU(output, mask_image)
         iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         dice_coef = utils.metrics.dice_coef(output, mask_image)
-        
+
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
-        mean_miou += (iou.item() - mean_miou) / n_element       #別人研究出的算平均的方法
-        mean_miou_s += (iou_s.item() - mean_miou_s) / n_element       #別人研究出的算平均的方法
+        mean_miou += (iou.item() - mean_miou) / n_element  # 別人研究出的算平均的方法
+        mean_miou_s += (iou_s.item() - mean_miou_s) / n_element  # 別人研究出的算平均的方法
         mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
         if rank == 0:
             pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
             pbar.set_postfix(
-                val_loss=mean_loss, val_miou_s = mean_miou_s, val_miou=mean_miou, val_dice_coef=mean_dice_coef
+                val_loss=mean_loss,
+                val_miou_s=mean_miou_s,
+                val_miou=mean_miou,
+                val_dice_coef=mean_dice_coef,
             )
 
             if args["wandb_name"] != "no":
@@ -238,19 +243,27 @@ def valid_epoch(model, validation_data_loader, device, epoch ,args,rank):
                     }
                 )
 
-    return mean_loss,mean_miou_s,mean_miou, mean_dice_coef, RGB_image, mask_image, output
+    return (
+        mean_loss,
+        mean_miou_s,
+        mean_miou,
+        mean_dice_coef,
+        RGB_image,
+        mask_image,
+        output,
+    )
 
 
-def main(rank,world_size, args={}):
+def main(rank, world_size, args={}):
     config = configparser.ConfigParser()
     config.read(CONFIG_FILE)
 
     if (args["train_images"] != None) and (args["train_masks"] != None):
         train_images = args["train_images"]
-        train_masks = args["train_masks"] 
+        train_masks = args["train_masks"]
     else:
-        train_images = config.get(args["dataset_path"],"train_images")
-        train_masks = config.get(args["dataset_path"],"train_masks")
+        train_images = config.get(args["dataset_path"], "train_images")
+        train_masks = config.get(args["dataset_path"], "train_masks")
 
     save_mean_miou = 0
     save_mean_miou_s = 0
@@ -267,13 +280,13 @@ def main(rank,world_size, args={}):
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
-    c = utils.metrics.Calculate(model,rank)
+    c = utils.metrics.Calculate(model, rank)
     model_size = c.get_model_size()
     flops, params = c.get_params()
 
     # Set up the device for training
     # 設定用於訓練之裝置
-    model, device = check_number_of_GPUs(model,rank,world_size,args)
+    model, device = check_number_of_GPUs(model, rank, world_size, args)
 
     set_save_dir_names(args)
 
@@ -282,13 +295,16 @@ def main(rank,world_size, args={}):
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
     training_data = utils.dataset.DataLoaderSegmentation(
-        train_images, train_masks,rank
+        train_images, train_masks, rank
     )
 
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
     validation_data = utils.dataset.DataLoaderSegmentation(
-        train_images, train_masks, rank,mode="val",
+        train_images,
+        train_masks,
+        rank,
+        mode="val",
     )
     if torch.cuda.device_count() > 1:
         train_sampler = torch.utils.data.distributed.DistributedSampler(training_data)
@@ -300,7 +316,7 @@ def main(rank,world_size, args={}):
             num_workers=args["num_workers"],
             pin_memory=True,
             drop_last=True,
-            sampler=train_sampler
+            sampler=train_sampler,
         )
         validation_data_loader = DataLoader(
             validation_data,
@@ -309,7 +325,6 @@ def main(rank,world_size, args={}):
             num_workers=args["num_workers"],
             pin_memory=True,
             drop_last=True,
- 
         )
     else:
         training_data_loader = DataLoader(
@@ -373,7 +388,7 @@ def main(rank,world_size, args={}):
     # wandb.ai
     if rank == 0:
         if args["wandb_name"] != "no":
-            wandb_information(model_size, flops, params, model,args)
+            wandb_information(model_size, flops, params, model, args)
 
     if not os.path.exists("./training_data_captures/"):
         os.makedirs("./training_data_captures/")
@@ -389,7 +404,7 @@ def main(rank,world_size, args={}):
             continue
 
         RGB_image_train, mask_image_train, output_train = train_epoch(
-            model, training_data_loader, device, optimizer, epoch, args,rank
+            model, training_data_loader, device, optimizer, epoch, args, rank
         )
         torch.cuda.empty_cache()  # 刪除不需要的變數
         if rank == 0:
@@ -401,14 +416,13 @@ def main(rank,world_size, args={}):
                 RGB_image,
                 mask_image,
                 output,
-            ) = valid_epoch(model, validation_data_loader, device, epoch, args,rank)
+            ) = valid_epoch(model, validation_data_loader, device, epoch, args, rank)
 
         # Save model 模型存檔
 
         # model_file_name = args['save_dir'] + 'model_' + str(epoch) + '.pth'
         # model_file_nameonnx = args['save_dir'] + 'onnxmodel_' + str(epoch) + '.onnx'
         if torch.cuda.device_count() > 1:
-
             if dist.get_rank() == 0:
                 state = {
                     "epoch": epoch,
@@ -416,31 +430,30 @@ def main(rank,world_size, args={}):
                     "optimizer_state_dict": optimizer.state_dict(),
                     "loss": mean_loss,
                     "miou": mean_miou,
-                    "miou_s":mean_miou_s,
+                    "miou_s": mean_miou_s,
                     "dice_coef": mean_dice_coef,
-                    "best_miou":save_mean_miou,
-                    "best_miou_s":save_mean_miou_s,
+                    "best_miou": save_mean_miou,
+                    "best_miou_s": save_mean_miou_s,
                 }
                 torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
                 torch.save(model.state_dict(), args["save_dir"] + "last" + ".pth")
 
-        else:  
+        else:
             state = {
                 "epoch": epoch,
                 "model_state_dict": model.state_dict(),
                 "optimizer_state_dict": optimizer.state_dict(),
                 "loss": mean_loss,
                 "miou": mean_miou,
-                "miou_s":mean_miou_s,
+                "miou_s": mean_miou_s,
                 "dice_coef": mean_dice_coef,
-                "best_miou":save_mean_miou,
-                "best_miou_s":save_mean_miou_s,
+                "best_miou": save_mean_miou,
+                "best_miou_s": save_mean_miou_s,
             }
-
 
             torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
             torch.save(model.state_dict(), args["save_dir"] + "last" + ".pth")
-            
+
         if rank == 0:
             if args["save_train_image"] != "no":
                 torchvision.utils.save_image(
@@ -458,10 +471,12 @@ def main(rank,world_size, args={}):
             if args["save_validation_image_last"] != "no":
                 # torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" + "last_" + ".jpg")
                 torchvision.utils.save_image(
-                    RGB_image, "./validation_data_captures/" + "last_RGB_image_" + ".jpg"
+                    RGB_image,
+                    "./validation_data_captures/" + "last_RGB_image_" + ".jpg",
                 )
                 torchvision.utils.save_image(
-                    mask_image, "./validation_data_captures/" + "last_mask_image_" + ".jpg"
+                    mask_image,
+                    "./validation_data_captures/" + "last_mask_image_" + ".jpg",
                 )
                 torchvision.utils.save_image(
                     output, "./validation_data_captures/" + "last_output_" + ".jpg"
@@ -479,14 +494,18 @@ def main(rank,world_size, args={}):
                     wandb.log(
                         {
                             "last_RGB_image": wandb.Image(
-                                "./validation_data_captures/" + "last_RGB_image_" + ".jpg"
+                                "./validation_data_captures/"
+                                + "last_RGB_image_"
+                                + ".jpg"
                             )
                         }
                     )
                     wandb.log(
                         {
                             "last_mask_image": wandb.Image(
-                                "./validation_data_captures/" + "last_mask_image_" + ".jpg"
+                                "./validation_data_captures/"
+                                + "last_mask_image_"
+                                + ".jpg"
                             )
                         }
                     )
@@ -502,11 +521,11 @@ def main(rank,world_size, args={}):
                 print("best_loss: %.3f , best_miou: %.3f" % (mean_loss, mean_miou))
                 if torch.cuda.device_count() > 1:
                     if dist.get_rank() == 0:
-
                         torch.save(state, args["save_dir"] + "best_checkpoint" + ".pth")
-                        torch.save(model.state_dict(), args["save_dir"] + "best" + ".pth")
+                        torch.save(
+                            model.state_dict(), args["save_dir"] + "best" + ".pth"
+                        )
                 else:
-
                     torch.save(state, args["save_dir"] + "best_checkpoint" + ".pth")
                     torch.save(model.state_dict(), args["save_dir"] + "best" + ".pth")
                 # torchvision.utils.save_image(
@@ -555,29 +574,48 @@ def main(rank,world_size, args={}):
                         wandb.log(
                             {
                                 "best_output": wandb.Image(
-                                    "./validation_data_captures/" + "best_output_" + ".jpg"
+                                    "./validation_data_captures/"
+                                    + "best_output_"
+                                    + ".jpg"
                                 )
                             }
                         )
                 save_mean_miou = mean_miou
 
                 if mean_miou_s > save_mean_miou_s:
-                    print("best_loss: %.3f , best_miou_s: %.3f" % (mean_loss, mean_miou_s))
+                    print(
+                        "best_loss: %.3f , best_miou_s: %.3f" % (mean_loss, mean_miou_s)
+                    )
 
                     if torch.cuda.device_count() > 1:
                         if dist.get_rank() == 0:
-                            torch.save(state, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth")
-                            torch.save(model.state_dict(), args["save_dir"] + "best_mean_miou_s" + ".pth")
+                            torch.save(
+                                state,
+                                args["save_dir"]
+                                + "best_mean_miou_s_checkpoint"
+                                + ".pth",
+                            )
+                            torch.save(
+                                model.state_dict(),
+                                args["save_dir"] + "best_mean_miou_s" + ".pth",
+                            )
                 else:
-                    torch.save(state, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth")
-                    torch.save(model.state_dict(), args["save_dir"] + "best_mean_miou_s" + ".pth")
+                    torch.save(
+                        state, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
+                    )
+                    torch.save(
+                        model.state_dict(),
+                        args["save_dir"] + "best_mean_miou_s" + ".pth",
+                    )
                     # torchvision.utils.save_image(
                     #     torch.cat((mask_image, output), 0),
                     #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
                     # )
                     if args["wandb_name"] != "no":
-                        wandb.log({"best_loss": mean_loss,"best_miou_s": mean_miou_s})
-                        wandb.save(args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth")
+                        wandb.log({"best_loss": mean_loss, "best_miou_s": mean_miou_s})
+                        wandb.save(
+                            args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
+                        )
                         wandb.save(args["save_dir"] + "best_mean_miou_s" + ".pth")
 
                 save_mean_miou_s = mean_miou_s
@@ -605,16 +643,18 @@ def main(rank,world_size, args={}):
     spend_time = int(time_end - time_start)
     time_dict = time_processing(spend_time)
     print(
-    "totally cost:",
-    f"{time_dict['time_day']}d {time_dict['time_hour']}h {time_dict['time_min']}m {time_dict['time_sec']}s",
+        "totally cost:",
+        f"{time_dict['time_day']}d {time_dict['time_hour']}h {time_dict['time_min']}m {time_dict['time_sec']}s",
     )
     if torch.cuda.device_count() > 1:
         cleanup()
 
+
 def cleanup():
     dist.destory_process_group()
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "-dataset",
@@ -633,52 +673,73 @@ if __name__=="__main__":
         "--train_masks",
         help="path to mask",
     )
-    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/pytorch_model/dataset/train/images/" , help="path to hazy training images")
-    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/pytorch_model/dataset/train/masks/",  help="path to mask")
 
-    # ap.add_argument('-ti', '--train_images',default="C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/images/" , help="path to hazy training images")
-    # ap.add_argument('-tm', '--train_masks',default= "C:/Users/user/OneDrive/桌面/speed_smoke_segmentation/dataset/train/masks/",  help="path to mask")
+    ap.add_argument("-bs", "--batch_size", type=int, default=32, help="set batch_size")
+    ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
+    ap.add_argument(
+        "-e", "--epochs", type=int, default=150, help="number of epochs for training"
+    )
+    ap.add_argument(
+        "-lr",
+        "--learning_rate",
+        type=float,
+        default=0.005,
+        help="learning rate for training",
+    )
+    ap.add_argument(
+        "-savedir",
+        "--save_dir",
+        default="./trained_models/",
+        help="directory to save the model snapshot",
+    )
+    ap.add_argument("-device", default="GPU", help="running on CPU or GPU")
+    ap.add_argument("-gpus", type=str, default="0", help="defualt GPU devices(0,1)")
+    ap.add_argument(
+        "-resume",
+        type=str,
+        default="/home/yaocong/Experimental/My_pytorch_model/checkpoint/model_1.pth",
+        help="use this file to load last checkpoint for continuing training",
+    )  # Use this flag to load last checkpoint for training
+    ap.add_argument(
+        "-wn",
+        "--wandb_name",
+        type=str,
+        default="no",
+        help="wandb test name,but 'no' is not use wandb",
+    )
 
-    # ap.add_argument('-ti', '--train_images',default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Imag/" , help="path to hazy training images")
-    # ap.add_argument('-tm', '--train_masks',default= "/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Additional/Mask/",  help="path to mask")
-    
-    # ap.add_argument('-ti', '--train_images',default="/home/m11013017/private/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/img/" , help="path to hazy training images")
-    # ap.add_argument('-tm', '--train_masks',default= "/home/m11013017/private/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/train/gt/",  help="path to mask")
+    ap.add_argument(
+        "-sti",
+        "--save_train_image",
+        type=str,
+        default="no",
+        help="wandb test name,but 'no' is not use wandb",
+    )
+    ap.add_argument(
+        "-svi",
+        "--save_validation_image_last",
+        type=str,
+        default="no",
+        help="wandb test name,but 'no' is not use wandb",
+    )
+    ap.add_argument(
+        "-svib",
+        "--save_validation_image_bast",
+        type=str,
+        default="no",
+        help="wandb test name,but 'no' is not use wandb",
+    )
 
-    # ap.add_argument('-ti', '--train_images',default="/home/m11013017/private/Dataset/SYN70K_dataset/training_data/blendall/" , help="path to hazy training images")
-    # ap.add_argument('-tm', '--train_masks',default= "/home/m11013017/private/Dataset/SYN70K_dataset/training_data/gt_blendall/",  help="path to mask")
-
-    # ap.add_argument('-ti', '--train_images',default="/home/m11013017/private/Dataset/smoke120k_dataset/smoke_image/" , help="path to hazy training images")
-    # ap.add_argument('-tm', '--train_masks',default= "/home/m11013017/private/Dataset/smoke120k_dataset/smoke_mask/",  help="path to mask")
-    
-    ap.add_argument('-bs','--batch_size',type=int, default = 32, help="set batch_size")
-    ap.add_argument('-nw','--num_workers' ,type=int,default = 1 , help="set num_workers")
-    ap.add_argument('-e', '--epochs', type = int , default=150,  help="number of epochs for training")
-    ap.add_argument('-lr', '--learning_rate', type = float ,default=0.005, help="learning rate for training")
-    ap.add_argument('-savedir','--save_dir', default= "./trained_models/", help = "directory to save the model snapshot")
-    ap.add_argument('-device' ,default='GPU' , help =  "running on CPU or GPU")
-    ap.add_argument('-gpus', type= str ,default = "0" , help = "defualt GPU devices(0,1)")
-    ap.add_argument('-resume',type= str ,default= "/home/yaocong/Experimental/My_pytorch_model/checkpoint/model_1.pth", 
-                        help = "use this file to load last checkpoint for continuing training")    #Use this flag to load last checkpoint for training
-    ap.add_argument('-wn','--wandb_name',type = str ,default = "no" ,help = "wandb test name,but 'no' is not use wandb")
-
-    ap.add_argument('-sti','--save_train_image',type = str ,default = "no" ,help = "wandb test name,but 'no' is not use wandb")
-    ap.add_argument('-svi','--save_validation_image_last',type = str ,default = "no" ,help = "wandb test name,but 'no' is not use wandb")
-    ap.add_argument('-svib','--save_validation_image_bast',type = str ,default = "no" ,help = "wandb test name,but 'no' is not use wandb")
-
-    args = vars(ap.parse_args())  #Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
-    #print(args)
+    args = vars(
+        ap.parse_args()
+    )  # Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
+    # print(args)
     if torch.cuda.device_count() > 1:
         world_size = 2
-        mp.spawn(
-        main, 
-        args=(world_size, args),
-        nprocs=world_size,
-        join=True
-    )
+        mp.spawn(main, args=(world_size, args), nprocs=world_size, join=True)
     else:
         main()
-    
+
     wandb.finish()
     # if args["wandb_name"]!="no":
     #     # Define sweep config
@@ -693,7 +754,7 @@ if __name__=="__main__":
     #             'lr' : {'max':0.1,'min':0.0001}
     #         }
     #     }
-        
+
     #     #Initialize sweep by passing in config. (Optional) Provide a name of the project.
     #     sweep_id = wandb.sweep(sweep= sweep_configuration,project='lightssd-project')
     #     wandb.agent(sweep_id, function=train(args), count=10)
