@@ -567,12 +567,14 @@ def main():
     )
 
 
+sds
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "-dataset",
         "--dataset_path",
-        default="Host_SSD",
+        default="Host_SYN70K",
         help="use dataset path",
     )
 
