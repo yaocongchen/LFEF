@@ -567,8 +567,6 @@ def main():
     )
 
 
-sds
-
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument(
