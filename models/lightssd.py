@@ -268,14 +268,13 @@ class GCP(nn.Module):
             nn.Conv2d(in_ch, out_ch, kernel_size=(1, 1), padding="same"),
             nn.BatchNorm2d(out_ch),
         )
-        self.mysoftmax = nn.Softmax(dim=1)
+        self.mysoftmax = nn.Sigmoid()
 
     def forward(self, x):
         f14 = self.gcp(x)
         f15 = self.conv11_in256_out128(f14)
         f16 = self.gavgpl(f15)
-        f16 = self.conv11_in128_out128(f16)
-        f17 = F.relu(f16)
+        f17 = self.conv11_in128_out128(f16)
         f18 = self.mysoftmax(f17)
 
         return f18
@@ -325,7 +324,7 @@ class Net(nn.Module):
         f19 = self.seghead(f3)
         f34 = self.seghead(f33)
 
-        return f19, f34
+        return f34 ,f19
 
 
 if __name__ == "__main__":
