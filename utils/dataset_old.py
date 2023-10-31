@@ -14,7 +14,7 @@ IMG_SCALING = (1, 1)
 
 
 # Data preprocessing 資料預處理
-def preparing_training_data(images_dir, masks_dir, bgs_dir):
+def preparing_training_data(images_dir, masks_dir):
     train_data = []
     validation_data = []
     test_data = []
@@ -55,21 +55,17 @@ def preparing_training_data(images_dir, masks_dir, bgs_dir):
     for id_ in list(data_holder.keys()):
         if id_ in train_ids:
             for hazy_image in data_holder[id_]:
-                train_data.append(
-                    [images_dir + id_, masks_dir + hazy_image, bgs_dir + hazy_image]
-                )
+                train_data.append([images_dir + id_, masks_dir + hazy_image])
         else:
             for hazy_image in data_holder[id_]:
-                validation_data.append(
-                    [images_dir + id_, masks_dir + hazy_image, bgs_dir + hazy_image]
-                )
+                validation_data.append([images_dir + id_, masks_dir + hazy_image])
 
         # for test.py use
         test_data = train_data + validation_data
 
     # print("train_data",train_data)
     # print("====================================================")
-    # print("validation_data", validation_data)
+    # print("validation_data",validation_data)
 
     # TODO:考慮必要性
     random.shuffle(train_data)
@@ -97,42 +93,10 @@ def cv2_brightness_augment(img):
 
 # %%
 class DatasetSegmentation(data.Dataset):
-    def __init__(self, images_dir, mode="train"):
-        self.train_data = []
-        self.validation_data = []
-        self.test_data = []
-        (
-            self.train_data_H,
-            self.validation_data_H,
-            self.test_data_H,
-        ) = preparing_training_data(
-            images_dir + "smoke100k-H/smoke_image/",
-            images_dir + "smoke100k-H/smoke_mask/",
-            images_dir + "smoke100k-H/smoke_free_image/",
+    def __init__(self, images_dir, masks_dir, mode="train"):
+        self.train_data, self.validation_data, self.test_data = preparing_training_data(
+            images_dir, masks_dir
         )
-        (
-            self.train_data_L,
-            self.validation_data_L,
-            self.test_data_L,
-        ) = preparing_training_data(
-            images_dir + "smoke100k-L/smoke_image/",
-            images_dir + "smoke100k-L/smoke_mask/",
-            images_dir + "smoke100k-L/smoke_free_image/",
-        )
-        (
-            self.train_data_M,
-            self.validation_data_M,
-            self.test_data_M,
-        ) = preparing_training_data(
-            images_dir + "smoke100k-M/smoke_image/",
-            images_dir + "smoke100k-M/smoke_mask/",
-            images_dir + "smoke100k-M/smoke_free_image/",
-        )
-        self.train_data = self.train_data_H + self.train_data_L + self.train_data_M
-        self.validation_data = (
-            self.validation_data_H + self.validation_data_L + self.validation_data_M
-        )
-        self.test_data = self.test_data_H + self.test_data_L + self.test_data_M
 
         if mode == "train":
             self.data_dict = self.train_data
@@ -150,34 +114,28 @@ class DatasetSegmentation(data.Dataset):
 
     # Import data by index 依index匯入資料
     def __getitem__(self, index):
-        images_path, masks_path, bgs_path = self.data_dict[index]
+        images_path, masks_path = self.data_dict[index]
         c_img = imread(images_path)
         c_img = cv2_brightness_augment(c_img)
 
         c_mask = imread(masks_path)
-        bg_img = imread(bgs_path)
 
         if IMG_SCALING is not None:
             c_img = cv2.resize(c_img, (256, 256), interpolation=cv2.INTER_AREA)  # 插值
             c_mask = cv2.resize(c_mask, (256, 256), interpolation=cv2.INTER_AREA)
-            bg_img = cv2.resize(bg_img, (256, 256), interpolation=cv2.INTER_AREA)
             c_mask = np.reshape(c_mask, (c_mask.shape[0], c_mask.shape[1], -1))
         c_mask = c_mask > 0
+        c_mask = c_mask.astype("float32")
 
         c_img = c_img.astype("float32")  # Normalized 歸一化
         c_img = c_img / 255.0
 
-        bg_img = bg_img.astype("float32")  # Normalized 歸一化
-        bg_img = bg_img / 255.0
-
         out_rgb = torch.from_numpy(c_img).float()
         out_mask = torch.from_numpy(c_mask).float()
-        out_bg = torch.from_numpy(bg_img).float()
 
         return (
             out_rgb.permute(2, 0, 1).contiguous(),
             out_mask.permute(2, 0, 1).contiguous(),
-            out_bg.permute(2, 0, 1).contiguous(),
         )
 
 
@@ -191,13 +149,15 @@ if __name__ == "__main__":
 
     print("s", seconds)
     testing_data = DatasetSegmentation(
-        "/home/yaocong/Experimental/Dataset/smoke100k_dataset/",
-        mode="train",
+        "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data_add_dataset/blendall",
+        "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data_add_dataset/gt_blendall",
     )
+
     random.seed(seconds)
     print("s", seconds)
     testing_data = DatasetSegmentation(
-        "/home/yaocong/Experimental/Dataset/smoke100k_dataset/",
+        "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data_add_dataset/blendall",
+        "/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data_add_dataset/gt_blendall",
         mode="val",
     )
 

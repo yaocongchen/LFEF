@@ -24,7 +24,7 @@ def preparing_training_data(images_dir, masks_dir):
     )  # List the list of files in the folder (without path) ps. Using glob will not be able to read special characters, such as: ()
     mask_data = os.listdir(masks_dir)  # 列出資料夾中檔案清單(不含路徑) ps.用glob會因無法讀取特殊字元，如：（）
 
-    #random.shuffle(mask_data)
+    # random.shuffle(mask_data)
 
     image_data_first_one = image_data[0]  # Get the first file in the folder 取資料夾中的第一個檔案
     extension = image_data_first_one.split(".")[1]  # take extension 取副檔名
@@ -92,7 +92,7 @@ def cv2_brightness_augment(img):
 
 
 # %%
-class DataLoaderSegmentation(data.Dataset):
+class DatasetSegmentation(data.Dataset):
     def __init__(self, images_dir, masks_dir, mode="train"):
         self.train_data, self.validation_data, self.test_data = preparing_training_data(
             images_dir, masks_dir
@@ -148,14 +148,14 @@ if __name__ == "__main__":
     random.seed(seconds)
 
     print("s", seconds)
-    testing_data = DataLoaderSegmentation(
+    testing_data = DatasetSegmentation(
         "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
         "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
         mode="train",
     )
     random.seed(seconds)
     print("s", seconds)
-    testing_data = DataLoaderSegmentation(
+    testing_data = DatasetSegmentation(
         "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
         "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
         mode="val",

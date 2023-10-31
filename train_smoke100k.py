@@ -271,11 +271,11 @@ def main():
     seconds = time.time()  # Random number generation 亂數產生
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    training_data = utils.dataset_smoke100k.DataLoaderSegmentation(train_images)
+    training_data = utils.dataset_smoke100k.DatasetSegmentation(train_images)
 
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    validation_data = utils.dataset_smoke100k.DataLoaderSegmentation(
+    validation_data = utils.dataset_smoke100k.DatasetSegmentation(
         train_images, mode="val"
     )
     training_data_loader = DataLoader(

@@ -1,83 +1,15 @@
 # %%
-from sklearn.model_selection import train_test_split
-import os
-import torch
-import torch.utils.data as data
-import numpy as np
-import random
-import cv2
-import torch.utils.data as data
+from torch.utils.data import Dataset, DataLoader
 from skimage.io import imread
+from glob import glob
+import cv2
+import numpy as np
+import torch
+import random
+import os
+import time
 
-# Initial parameters 初始參數
 IMG_SCALING = (1, 1)
-
-
-# Data preprocessing 資料預處理
-def preparing_training_data(images_dir, masks_dir):
-    train_data = []
-    validation_data = []
-    test_data = []
-
-    image_data = os.listdir(
-        images_dir
-    )  # List the list of files in the folder (without path) ps. Using glob will not be able to read special characters, such as: ()
-    mask_data = os.listdir(masks_dir)  # 列出資料夾中檔案清單(不含路徑) ps.用glob會因無法讀取特殊字元，如：（）
-
-    random.shuffle(mask_data)
-
-    image_data_first_one = image_data[0]  # Get the first file in the folder 取資料夾中的第一個檔案
-    extension = image_data_first_one.split(".")[1]  # take extension 取副檔名
-
-    data_holder = {}
-
-    for m_image in mask_data:
-        # m_id_ = m_image.split("/")[-1]
-        id_ = m_image.split(".")[0]
-        i_id_ = id_ + "." + extension
-        if not i_id_ in data_holder.keys():
-            # 	data_holder[id_].append(m_image)
-            # else:
-            # m_image = m_image.split("/")[-1]
-            data_holder[i_id_] = []
-            data_holder[i_id_].append(m_image)
-
-    train_ids = []
-    val_ids = []
-
-    num_of_ids = len(data_holder.keys())
-    for i in range(num_of_ids):
-        if i < num_of_ids * 4 / 5:
-            train_ids.append(list(data_holder.keys())[i])
-        else:
-            val_ids.append(list(data_holder.keys())[i])
-
-    for id_ in list(data_holder.keys()):
-        if id_ in train_ids:
-            for hazy_image in data_holder[id_]:
-                train_data.append([images_dir + id_, masks_dir + hazy_image])
-        else:
-            for hazy_image in data_holder[id_]:
-                validation_data.append([images_dir + id_, masks_dir + hazy_image])
-
-        # for test.py use
-        test_data = train_data + validation_data
-
-    # print("train_data",train_data)
-    # print("====================================================")
-    # print("validation_data",validation_data)
-
-    # TODO:考慮必要性
-    random.shuffle(train_data)
-    random.shuffle(validation_data)
-    random.shuffle(test_data)
-    # print("====================================================")
-    # print("validation_data",validation_data)
-
-    return train_data, validation_data, test_data
-
-
-# %%
 
 
 # Picture brightness enhancement 圖片亮度增強
@@ -91,30 +23,72 @@ def cv2_brightness_augment(img):
     return rgb_final
 
 
-# %%
-class DataLoaderSegmentation(data.Dataset):
-    def __init__(self, images_dir, masks_dir, mode="train"):
-        self.train_data, self.validation_data, self.test_data = preparing_training_data(
-            images_dir, masks_dir
-        )
+class DatasetSegmentation(Dataset):
+    def __init__(
+        self,
+        images_dir,
+        masks_dir,
+        mode="train",
+    ):
+        self.images_dir = images_dir
+        self.masks_dir = masks_dir
+        self.mode = mode
 
-        if mode == "train":
-            self.data_dict = self.train_data
-            # print(self.data_dict)
-            print("Number of Training Images:", len(self.train_data))
-        elif mode == "val":
-            self.data_dict = self.validation_data
-            print("Number of Validation Images:", len(self.validation_data))
-        elif mode == "test":
-            self.data_dict = self.test_data
-            print("Number of test Images:", len(self.test_data))
+        image_data = os.listdir(
+            images_dir
+        )  # List the list of files in the folder (without path) ps. Using glob will not be able to read special characters, such as: ()
+
+        image_data_first_one = image_data[
+            0
+        ]  # Get the first file in the folder 取資料夾中的第一個檔案
+        self.image_extension = image_data_first_one.split(".")[1]  # take extension 取副檔名
+
+        mask_data = os.listdir(masks_dir)  # 列出資料夾中檔案清單(不含路徑) ps.用glob會因無法讀取特殊字元，如：（）
+
+        mask_data_first_one = mask_data[
+            0
+        ]  # Get the first file in the folder 取資料夾中的第一個檔案
+        self.mask_extension = mask_data_first_one.split(".")[1]  # take extension 取副檔名
+
+        x = glob(f"{images_dir}/*.{self.image_extension}")
+
+        # random.shuffle(x)
+
+        def split_list(lst, ratio=0.8):
+            split_index = int(len(lst) * ratio)
+            return lst[:split_index], lst[split_index:]
+
+        self.train_x, self.val_x = split_list(x)
+        self.test_x = self.train_x + self.val_x
+
+        if self.mode == "train":
+            print("Number of Training Images:", len(self.train_x))
+        elif self.mode == "val":
+            print("Number of Validation Images:", len(self.val_x))
+        elif self.mode == "test":
+            print("Number of test Images:", len(self.test_x))
 
     def __len__(self):
-        return len(self.data_dict)
+        return len(self.train_x)
 
-    # Import data by index 依index匯入資料
     def __getitem__(self, index):
-        images_path, masks_path = self.data_dict[index]
+        if self.mode == "train":
+            filename = self.train_x[index].split("/")[-1].split(".")[0]
+            y = f"{self.masks_dir}/{filename}.{self.mask_extension}"
+            images_path = self.train_x[index]
+
+        elif self.mode == "val":
+            filename = self.val_x[index].split("/")[-1].split(".")[0]
+            y = f"{self.masks_dir}/{filename}.{self.mask_extension}"
+            images_path = self.val_x[index]
+
+        elif self.mode == "test":
+            filename = self.test_x[index].split("/")[-1].split(".")[0]
+            y = f"{self.masks_dir}/{filename}.{self.mask_extension}"
+            images_path = self.test_x[index]
+
+        masks_path = y
+
         c_img = imread(images_path)
         c_img = cv2_brightness_augment(c_img)
 
@@ -140,32 +114,36 @@ class DataLoaderSegmentation(data.Dataset):
 
 
 if __name__ == "__main__":
-    import time
-
-    seconds = time.time()
-    print("s", seconds)
-
-    random.seed(seconds)
-
-    print("s", seconds)
-    testing_data = DataLoaderSegmentation(
-        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
-        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
-        mode="train",
+    training_data = DatasetSegmentation(
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img",
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt",
     )
-    random.seed(seconds)
-    print("s", seconds)
-    testing_data = DataLoaderSegmentation(
-        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/",
-        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/",
+    print("train:", training_data.train_x)
+
+    validation_data = DatasetSegmentation(
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img",
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt",
         mode="val",
     )
+    print("val:", validation_data.val_x)
 
-    testing_data_loader = torch.utils.data.DataLoader(
-        testing_data,
-        batch_size=8,
-        shuffle=True,
-        num_workers=1,
-        pin_memory=True,
-        drop_last=True,
+    test_data = DatasetSegmentation(
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img",
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt",
+        mode="test",
     )
+    print("test:", test_data.test_x)
+
+    # testing_data_loader = DataLoader(
+    #     training_data,
+    #     batch_size=8,
+    #     shuffle=True,
+    #     num_workers=1,
+    #     pin_memory=True,
+    #     drop_last=True,
+    # )
+    # ds = DatasetSegmentation()
+    # dsl = DataLoader(ds, batch_size=1, shuffle=True)
+    # fn, o_rgb, o_mask = next(iter(dsl))
+    # print(o_rgb.shape)
+    # print(o_mask.shape)
