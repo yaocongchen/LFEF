@@ -96,7 +96,7 @@ def cv2_brightness_augment(img):
 
 
 # %%
-class DataLoaderSegmentation(data.Dataset):
+class DatasetSegmentation(data.Dataset):
     def __init__(self, images_dir, mode="train"):
         self.train_data = []
         self.validation_data = []
@@ -190,13 +190,13 @@ if __name__ == "__main__":
     random.seed(seconds)
 
     print("s", seconds)
-    testing_data = DataLoaderSegmentation(
+    testing_data = DatasetSegmentation(
         "/home/yaocong/Experimental/Dataset/smoke100k_dataset/",
         mode="train",
     )
     random.seed(seconds)
     print("s", seconds)
-    testing_data = DataLoaderSegmentation(
+    testing_data = DatasetSegmentation(
         "/home/yaocong/Experimental/Dataset/smoke100k_dataset/",
         mode="val",
     )

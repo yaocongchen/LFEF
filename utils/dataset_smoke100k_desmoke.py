@@ -10,7 +10,7 @@ import torch.utils.data as data
 from skimage.io import imread
 
 # Initial parameters 初始參數
-IMG_SCALING = (1,1)
+IMG_SCALING = (1, 1)
 
 
 # Data preprocessing 資料預處理
@@ -92,7 +92,7 @@ def cv2_brightness_augment(img):
 
 
 # %%
-class DataLoaderSegmentation(data.Dataset):
+class DatasetSegmentation(data.Dataset):
     def __init__(self, images_dir, mode="train"):
         self.train_data = []
         self.validation_data = []
@@ -153,7 +153,7 @@ class DataLoaderSegmentation(data.Dataset):
             c_img = cv2.resize(c_img, (256, 256), interpolation=cv2.INTER_AREA)  # 插值
             c_mask = cv2.resize(c_mask, (256, 256), interpolation=cv2.INTER_AREA)
             c_mask = np.reshape(c_mask, (c_mask.shape[0], c_mask.shape[1], -1))
-        #c_mask = c_mask > 0
+        # c_mask = c_mask > 0
 
         c_img = c_img.astype("float32")  # Normalized 歸一化
         c_img = c_img / 255.0
@@ -179,13 +179,13 @@ if __name__ == "__main__":
     random.seed(seconds)
 
     print("s", seconds)
-    testing_data = DataLoaderSegmentation(
+    testing_data = DatasetSegmentation(
         "/home/m11013017/private/Dataset/smoke100k_dataset/",
         mode="train",
     )
     random.seed(seconds)
     print("s", seconds)
-    testing_data = DataLoaderSegmentation(
+    testing_data = DatasetSegmentation(
         "/home/m11013017/private/Dataset/smoke100k_dataset/",
         mode="val",
     )

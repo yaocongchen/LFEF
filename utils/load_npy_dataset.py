@@ -44,7 +44,7 @@ def preparing_training_data(all_file_name):
     return train_data, validation_data, test_data
 
 
-class DataLoaderSegmentation(data.Dataset):
+class DatasetSegmentation(data.Dataset):
     def __init__(self, images_dir, masks_dir, mode="train"):
         self.images_dir = images_dir
         self.masks_dir = masks_dir
@@ -80,7 +80,7 @@ class DataLoaderSegmentation(data.Dataset):
 if __name__ == "__main__":
     from tqdm import tqdm
 
-    testing_data = DataLoaderSegmentation(
+    testing_data = DatasetSegmentation(
         "/home/yaocong/Experimental/Dataset/smoke100k_dataset/smoke_image/",
         "/home/yaocong/Experimental/Dataset/smoke100k_dataset/smoke_mask/",
         mode="train",
