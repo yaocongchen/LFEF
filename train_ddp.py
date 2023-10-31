@@ -294,13 +294,11 @@ def main(rank, world_size, args={}):
     seconds = time.time()  # Random number generation 亂數產生
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    training_data = utils.dataset.DataLoaderSegmentation(
-        train_images, train_masks, rank
-    )
+    training_data = utils.dataset.DatasetSegmentation(train_images, train_masks, rank)
 
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    validation_data = utils.dataset.DataLoaderSegmentation(
+    validation_data = utils.dataset.DatasetSegmentation(
         train_images,
         train_masks,
         rank,

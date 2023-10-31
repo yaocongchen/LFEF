@@ -15,7 +15,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet_add_sem_cam as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_2 as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 CONFIG_FILE = "import_dataset_path.cfg"
@@ -138,7 +138,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
 
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
-        loss = utils.loss.CustomLoss(output, mask_image)
+        loss = utils.loss.CustomLoss(output, mask_image, device)
         iou = utils.metrics.IoU(output, mask_image, device)
         iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         dice_coef = utils.metrics.dice_coef(output, mask_image, device)
@@ -197,7 +197,7 @@ def valid_epoch(model, validation_data_loader, device, epoch):
         with torch.no_grad():
             output = model(img_image)
 
-        loss = utils.loss.CustomLoss(output, mask_image)
+        loss = utils.loss.CustomLoss(output, mask_image, device)
         iou = utils.metrics.IoU(output, mask_image, device)
         iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         dice_coef = utils.metrics.dice_coef(output, mask_image, device)
@@ -274,11 +274,11 @@ def main():
     seconds = time.time()  # Random number generation 亂數產生
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    training_data = utils.dataset.DataLoaderSegmentation(train_images, train_masks)
+    training_data = utils.dataset.DatasetSegmentation(train_images, train_masks)
 
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
-    validation_data = utils.dataset.DataLoaderSegmentation(
+    validation_data = utils.dataset.DatasetSegmentation(
         train_images, train_masks, mode="val"
     )
     training_data_loader = DataLoader(
@@ -302,7 +302,7 @@ def main():
 
     # 先用Adam測試模型能力
     optimizer = torch.optim.Adam(
-        model.parameters(), lr=float(args["learning_rate"]), weight_decay=0.0001
+        model.parameters(), lr=float(args["learning_rate"]), weight_decay=0.001
     )
     # 用SGD微調到最佳
     # optimizer = torch.optim.SGD(

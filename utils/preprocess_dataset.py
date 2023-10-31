@@ -84,7 +84,7 @@ def cv2_brightness_augment(img):
     return rgb_final
 
 
-class DataLoaderSegmentation(data.Dataset):
+class DatasetSegmentation(data.Dataset):
     def __init__(self, images_dir, masks_dir, mode="train"):
         self.train_data, self.validation_data, self.test_data = preparing_training_data(
             images_dir, masks_dir
@@ -136,7 +136,7 @@ class DataLoaderSegmentation(data.Dataset):
 
 
 if __name__ == "__main__":
-    testing_data = DataLoaderSegmentation(
+    testing_data = DatasetSegmentation(
         "/home/yaocong/Experimental/Dataset/smoke100k_dataset/smoke_image/",
         "/home/yaocong/Experimental/Dataset/smoke100k_dataset/smoke_mask/",
         mode="test",
