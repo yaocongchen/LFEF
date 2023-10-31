@@ -61,7 +61,7 @@ class DownUnit(nn.Module):
 
 
 class CSSAM(nn.Module):
-    def __init__(self, in_ch, out_ch, dilation):
+    def __init__(self, in_ch, out_ch, dropprob, dilation):
         super().__init__()
         in_ch_2 = in_ch // 2
         self.conv31 = nn.Conv2d(
@@ -76,6 +76,7 @@ class CSSAM(nn.Module):
         self.maxpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
         self.batch_norm = nn.BatchNorm2d(out_ch)
         self.mysigmoid = nn.Sigmoid()
+        self.dropout = nn.Dropout2d(dropprob)
 
     def forward(self, x):
         x1, x2 = split(x)
@@ -93,12 +94,16 @@ class CSSAM(nn.Module):
         out11cat = self.conv11(torch.cat((out13normre, out31normre), dim=1))
 
         outmp = self.maxpl(x)
+
         outmp11 = self.conv11(outmp)
         outmp11norm = self.batch_norm(outmp11)
         outmp11normsgm = self.mysigmoid(outmp11norm)
 
         Ewp = out11cat * outmp11normsgm
         Ews = out11cat + Ewp
+
+        if self.dropout.p != 0:
+            Ews = self.dropout(Ews)
 
         return channel_shuffle(Ews, 2)
 
@@ -107,15 +112,15 @@ class AEM(nn.Module):
     def __init__(self):
         super().__init__()
         self.du1 = DownUnit(in_chs=3, out_chs=32)
-        self.stage1_CSSAM_dt1 = CSSAM(in_ch=32, out_ch=32, dilation=1)
+        self.stage1_CSSAM_dt1 = CSSAM(in_ch=32, out_ch=32, dropprob=0.3, dilation=1)
         self.du2 = DownUnit(in_chs=32, out_chs=64)
-        self.stage2_CSSAM_dt1 = CSSAM(in_ch=64, out_ch=64, dilation=1)
+        self.stage2_CSSAM_dt1 = CSSAM(in_ch=64, out_ch=64, dropprob=0.3, dilation=1)
         self.du3 = DownUnit(in_chs=64, out_chs=128)
-        self.stage3_CSSAM_dt1 = CSSAM(in_ch=128, out_ch=128, dilation=1)
-        self.stage3_CSSAM_dt2 = CSSAM(in_ch=128, out_ch=128, dilation=2)
-        self.stage3_CSSAM_dt5 = CSSAM(in_ch=128, out_ch=128, dilation=5)
-        self.stage3_CSSAM_dt9 = CSSAM(in_ch=128, out_ch=128, dilation=9)
-        self.stage3_CSSAM_dt17 = CSSAM(in_ch=128, out_ch=128, dilation=17)
+        self.stage3_CSSAM_dt1 = CSSAM(in_ch=128, out_ch=128, dropprob=0.3, dilation=1)
+        self.stage3_CSSAM_dt2 = CSSAM(in_ch=128, out_ch=128, dropprob=0.3, dilation=2)
+        self.stage3_CSSAM_dt5 = CSSAM(in_ch=128, out_ch=128, dropprob=0.3, dilation=5)
+        self.stage3_CSSAM_dt9 = CSSAM(in_ch=128, out_ch=128, dropprob=0.3, dilation=9)
+        self.stage3_CSSAM_dt17 = CSSAM(in_ch=128, out_ch=128, dropprob=0.3, dilation=17)
 
     def forward(self, x):
         # stage1
@@ -324,7 +329,7 @@ class Net(nn.Module):
         f19 = self.seghead(f3)
         f34 = self.seghead(f33)
 
-        return f34 ,f19
+        return f34, f19
 
 
 if __name__ == "__main__":

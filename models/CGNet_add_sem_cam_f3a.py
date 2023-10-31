@@ -482,6 +482,28 @@ class DownUnit(nn.Module):
         return out
 
 
+class F3A(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
+        # self.avgpool = nn.AdaptiveAvgPool2d()
+        # self.maxpool = nn.AdaptiveMaxPool2d()
+        self.conv_w = nn.Sequential(
+            nn.Conv2d(in_ch * 2, 1, (3, 3), stride=1, padding=1, bias=True),
+            nn.Sigmoid(),
+        )
+
+    def forward(self, input):
+        # avgpl = self.avgpool(input)
+        avgpl = F.adaptive_avg_pool2d(input, (input.shape[2], input.shape[3]))
+        maxpl = F.adaptive_avg_pool2d(input, (input.shape[2], input.shape[3]))
+        # maxpl = self.maxpool(input)
+        mixpool = torch.cat([avgpl, maxpl], 1)
+        output = self.conv_w(mixpool)
+        output = output.expand(-1, input.shape[1], -1, -1).contiguous()
+        output = input * output
+        return output
+
+
 class Net(nn.Module):
     """
     This class defines the proposed Context Guided Network (CGNet) in this work.
@@ -551,6 +573,9 @@ class Net(nn.Module):
             nn.BatchNorm2d(256),
             nn.ReLU(),
         )
+        self.f3a = F3A(3, 256)
+        self.f3a_w = F3A(256, 256)
+        self.f3a_h = F3A(256, 256)
 
         self.sem = SEM(64, 128)
         self.cam = CAM(128, 128)
@@ -567,8 +592,17 @@ class Net(nn.Module):
             input: Receives the input RGB image
             return: segmentation map
         """
-        # stage 1
-        output0 = self.level1_0(input)
+        # stage
+        f3A_c = self.f3a(input)
+        input_w = input.permute(0, 3, 2, 1)
+        f3A_w = self.f3a_w(input_w)
+        f3A_w = f3A_w.permute(0, 3, 2, 1)
+        input_h = input.permute(0, 2, 1, 3)
+        f3A_h = self.f3a_h(input_h)
+        f3A_h = f3A_h.permute(0, 2, 1, 3)
+        f3A_output = f3A_c + f3A_w + f3A_h
+
+        output0 = self.level1_0(f3A_output)
         output0 = self.level1_1(output0)
         output0 = self.level1_2(output0)
         inp1 = self.sample1(input)
