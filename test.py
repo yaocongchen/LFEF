@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.CGNet_add_sem_cam as network_model
+import models.CGNet_2_erfnet31_13 as network_model
 from visualization_codes.inference import smoke_semantic
 
 
@@ -55,7 +55,7 @@ def wandb_information(model_size, flops, params):
 
 # Main function 主函式
 def smoke_segmentation(device, names):
-    model = network_model.Net().to(device)
+    model = network_model.Net(1).to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
     model.eval()
@@ -82,7 +82,7 @@ def smoke_segmentation(device, names):
     time_train = []
     i = 0
 
-    testing_data = utils.dataset_for_test.DataLoaderSegmentation(
+    testing_data = utils.dataset_for_test.DatasetSegmentation(
         args["test_images"], args["test_masks"], mode="test"
     )
     testing_data_loader = DataLoader(
@@ -131,7 +131,7 @@ def smoke_segmentation(device, names):
             f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg',
         )
 
-        loss = utils.loss.CustomLoss(output, mask_image)
+        loss = utils.loss.CustomLoss(output, mask_image, device)
         iou = utils.metrics.IoU(output, mask_image, device)
         iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         dice_coef = utils.metrics.dice_coef(output, mask_image, device)
@@ -216,6 +216,18 @@ if __name__ == "__main__":
         default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/mask/",
         help="path to mask",
     )
+    # ap.add_argument(
+    #     "-ti",
+    #     "--test_images",
+    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Imag/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--test_masks",
+    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Mask/",
+    #     help="path to mask",
+    # )
     # ap.add_argument(
     #     "-ti",
     #     "--test_images",
