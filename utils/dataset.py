@@ -63,29 +63,21 @@ class DatasetSegmentation(Dataset):
 
         if self.mode == "train":
             print("Number of Training Images:", len(self.train_x))
+            self.data_dict = self.train_x
         elif self.mode == "val":
             print("Number of Validation Images:", len(self.val_x))
+            self.data_dict = self.val_x
         elif self.mode == "test":
             print("Number of test Images:", len(self.test_x))
+            self.data_dict = self.test_x
 
     def __len__(self):
-        return len(self.train_x)
+            return len(self.data_dict)
 
     def __getitem__(self, index):
-        if self.mode == "train":
-            filename = self.train_x[index].split("/")[-1].split(".")[0]
-            y = f"{self.masks_dir}/{filename}.{self.mask_extension}"
-            images_path = self.train_x[index]
-
-        elif self.mode == "val":
-            filename = self.val_x[index].split("/")[-1].split(".")[0]
-            y = f"{self.masks_dir}/{filename}.{self.mask_extension}"
-            images_path = self.val_x[index]
-
-        elif self.mode == "test":
-            filename = self.test_x[index].split("/")[-1].split(".")[0]
-            y = f"{self.masks_dir}/{filename}.{self.mask_extension}"
-            images_path = self.test_x[index]
+        filename = self.data_dict[index].split("/")[-1].split(".")[0]
+        y = f"{self.masks_dir}/{filename}.{self.mask_extension}"
+        images_path = self.data_dict[index]
 
         masks_path = y
 
@@ -118,6 +110,7 @@ if __name__ == "__main__":
         "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img",
         "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt",
     )
+
     print("train:", training_data.train_x)
 
     validation_data = DatasetSegmentation(
@@ -134,14 +127,22 @@ if __name__ == "__main__":
     )
     print("test:", test_data.test_x)
 
-    # testing_data_loader = DataLoader(
-    #     training_data,
-    #     batch_size=8,
-    #     shuffle=True,
-    #     num_workers=1,
-    #     pin_memory=True,
-    #     drop_last=True,
-    # )
+    training_data_loader = DataLoader(
+        training_data,
+        batch_size=8,
+        shuffle=True,
+        num_workers=1,
+        pin_memory=True,
+        drop_last=True,
+    )
+    validation_data_loader = DataLoader(
+        validation_data,
+        batch_size=8,
+        shuffle=True,
+        num_workers=1,
+        pin_memory=True,
+        drop_last=True,
+    )
     # ds = DatasetSegmentation()
     # dsl = DataLoader(ds, batch_size=1, shuffle=True)
     # fn, o_rgb, o_mask = next(iter(dsl))

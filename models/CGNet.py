@@ -438,14 +438,14 @@ class Net(nn.Module):
         classifier = self.classifier(output2_cat)
 
         # upsample segmenation map ---> the input image size
-        out = F.upsample(
+        out = F.interpolate(
             classifier, input.size()[2:], mode="bilinear", align_corners=False
         )  # Upsample score map, factor=8
         return out
 
 
 if __name__ == "__main__":
-    model = Context_Guided_Network()
+    model = Net()
     x = torch.randn(16, 3, 256, 256)
     output = model(x)
     print(output.shape)
