@@ -82,7 +82,7 @@ def smoke_segmentation(device, names):
     time_train = []
     i = 0
 
-    testing_data = utils.dataset_for_test.DatasetSegmentation(
+    testing_data = utils.dataset.DatasetSegmentation(
         args["test_images"], args["test_masks"], mode="test"
     )
     testing_data_loader = DataLoader(

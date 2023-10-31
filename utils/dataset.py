@@ -59,10 +59,14 @@ class DatasetSegmentation(Dataset):
             return lst[:split_index], lst[split_index:]
 
         self.train_x, self.val_x = split_list(x)
+        self.test_x = self.train_x + self.val_x
+
         if self.mode == "train":
             print("Number of Training Images:", len(self.train_x))
-        else:
+        elif self.mode == "val":
             print("Number of Validation Images:", len(self.val_x))
+        elif self.mode == "test":
+            print("Number of test Images:", len(self.test_x))
 
     def __len__(self):
         return len(self.train_x)
@@ -71,13 +75,17 @@ class DatasetSegmentation(Dataset):
         if self.mode == "train":
             filename = self.train_x[index].split("/")[-1].split(".")[0]
             y = f"{self.masks_dir}/{filename}.{self.mask_extension}"
-
             images_path = self.train_x[index]
-        else:
+
+        elif self.mode == "val":
             filename = self.val_x[index].split("/")[-1].split(".")[0]
             y = f"{self.masks_dir}/{filename}.{self.mask_extension}"
-
             images_path = self.val_x[index]
+
+        elif self.mode == "test":
+            filename = self.test_x[index].split("/")[-1].split(".")[0]
+            y = f"{self.masks_dir}/{filename}.{self.mask_extension}"
+            images_path = self.test_x[index]
 
         masks_path = y
 
@@ -106,32 +114,34 @@ class DatasetSegmentation(Dataset):
 
 
 if __name__ == "__main__":
-    seconds = time.time()
-    print("s", seconds)
-
-    random.seed(seconds)
-    print("s", seconds)
-
     training_data = DatasetSegmentation(
         "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img",
         "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt",
     )
     print("train:", training_data.train_x)
-    print("s", seconds)
+
     validation_data = DatasetSegmentation(
         "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img",
         "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt",
         mode="val",
     )
     print("val:", validation_data.val_x)
-    testing_data_loader = DataLoader(
-        training_data,
-        batch_size=8,
-        shuffle=True,
-        num_workers=1,
-        pin_memory=True,
-        drop_last=True,
+
+    test_data = DatasetSegmentation(
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img",
+        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt",
+        mode="test",
     )
+    print("test:", test_data.test_x)
+
+    # testing_data_loader = DataLoader(
+    #     training_data,
+    #     batch_size=8,
+    #     shuffle=True,
+    #     num_workers=1,
+    #     pin_memory=True,
+    #     drop_last=True,
+    # )
     # ds = DatasetSegmentation()
     # dsl = DataLoader(ds, batch_size=1, shuffle=True)
     # fn, o_rgb, o_mask = next(iter(dsl))
