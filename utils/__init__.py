@@ -1,7 +1,7 @@
 # init
 import utils.dataset
 import utils.dataset_smoke100k
-import utils.dataset_for_test  # don't del
+import utils.dataset_for_test_old  # don't del
 import utils.dataset_smoke100k_desmoke
 import utils.dataset_smoke100k_seg_desmoke
 
@@ -13,7 +13,7 @@ import utils.metrics
 
 dataset = utils.dataset
 dataset_smoke100k = utils.dataset_smoke100k
-dataset_for_test = utils.dataset_for_test
+dataset_for_test = utils.dataset_for_test_old
 dataset_smoke100k_desmoke = utils.dataset_smoke100k_desmoke
 dataset_smoke100k_seg_desmoke = utils.dataset_smoke100k_seg_desmoke
 
