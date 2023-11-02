@@ -23,6 +23,11 @@ def cv2_brightness_augment(img):
     return rgb_final
 
 
+def split_list(lst, ratio=0.8):
+    split_index = int(len(lst) * ratio)
+    return lst[:split_index], lst[split_index:]
+
+
 class DatasetSegmentation(Dataset):
     def __init__(
         self,
@@ -54,10 +59,6 @@ class DatasetSegmentation(Dataset):
 
         # random.shuffle(x)
 
-        def split_list(lst, ratio=0.8):
-            split_index = int(len(lst) * ratio)
-            return lst[:split_index], lst[split_index:]
-
         self.train_x, self.val_x = split_list(x)
         self.test_x = self.train_x + self.val_x
 
@@ -72,7 +73,7 @@ class DatasetSegmentation(Dataset):
             self.data_dict = self.test_x
 
     def __len__(self):
-            return len(self.data_dict)
+        return len(self.data_dict)
 
     def __getitem__(self, index):
         filename = self.data_dict[index].split("/")[-1].split(".")[0]
