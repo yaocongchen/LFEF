@@ -166,7 +166,7 @@ def train_epoch(
 
         optimizer_ms.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
-        loss_ms = utils.loss.CustomLoss(output_seg, mask_image)
+        loss_ms = utils.loss.CustomLoss(output_seg, mask_image, device_ms)
         iou = utils.metrics.IoU(output_seg, mask_image, device_ms)
         iou_s = utils.metrics.Sigmoid_IoU(output_seg, mask_image)
         dice_coef = utils.metrics.dice_coef(output_seg, mask_image, device_ms)
@@ -279,7 +279,7 @@ def valid_epoch(
         with torch.no_grad():
             output_seg = model_segment(img_image)
 
-        loss_ms = utils.loss.CustomLoss(output_seg, mask_image)
+        loss_ms = utils.loss.CustomLoss(output_seg, mask_image, device_ms)
         iou = utils.metrics.IoU(output_seg, mask_image, device_ms)
         iou_s = utils.metrics.Sigmoid_IoU(output_seg, mask_image)
         dice_coef = utils.metrics.dice_coef(output_seg, mask_image, device_ms)
