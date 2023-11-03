@@ -604,7 +604,7 @@ if __name__ == "__main__":
         "-wd",
         "--weight_decay",
         type=float,
-        default=0.00001,
+        default=0.0001,
         help="weight decay for training",
     )
     ap.add_argument(
