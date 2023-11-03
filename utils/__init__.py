@@ -13,11 +13,11 @@ import utils.metrics
 
 dataset = utils.dataset
 dataset_smoke100k = utils.dataset_smoke100k
-dataset_for_test = utils.dataset_for_test_old
+#dataset_for_test = utils.dataset_for_test_old
 dataset_smoke100k_desmoke = utils.dataset_smoke100k_desmoke
 dataset_smoke100k_seg_desmoke = utils.dataset_smoke100k_seg_desmoke
 
-load_npy_dataset = utils.load_npy_dataset
+#load_npy_dataset = utils.load_npy_dataset
 loss = utils.loss
 two_loss = utils.two_loss
 loss_desmoke = utils.loss_desmoke
