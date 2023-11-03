@@ -76,5 +76,3 @@ def CustomLoss(model_output, mask,device):
     total_loss = loss_1
 
     return total_loss
-
-    dfdfd
