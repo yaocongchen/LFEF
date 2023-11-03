@@ -15,13 +15,15 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet_2_erfnet31_13_2 as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13 as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 CONFIG_FILE = "import_dataset_path.cfg"
 
 onnx_img_image = []
 
+model_name = str(network_model)
+print("model_name:", model_name)
 
 def check_have_GPU():
     # Check have GPU device 確認是否有GPU裝置
@@ -67,6 +69,7 @@ def wandb_information(model_size, flops, params, model, train_images, train_mask
         name=args["wandb_name"],
         # track hyperparameters and run metadata
         config={
+            "Model_name": model_name,
             "Model_size": model_size,
             "FLOPs": flops,
             "Parameters": params,
@@ -78,14 +81,12 @@ def wandb_information(model_size, flops, params, model, train_images, train_mask
             "num_workers": args["num_workers"],
             "epochs": args["epochs"],
             "learning_rate": args["learning_rate"],
+            "weight_decay": args["weight_decay"],
             "save_dir": args["save_dir"],
             "resume": args["resume"],
         },
     )
 
-    wandb.config.epochs = args["epochs"]
-    wandb.config.batch_size = args["batch_size"]
-    wandb.config.learning_rate = args["learning_rate"]
     # wandb.config.architecture = "resnet"
 
     # Log gradients and model parameters
@@ -302,7 +303,7 @@ def main():
 
     # 先用Adam測試模型能力
     optimizer = torch.optim.Adam(
-        model.parameters(), lr=float(args["learning_rate"]), weight_decay=0.001
+        model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
     )
     # 用SGD微調到最佳
     # optimizer = torch.optim.SGD(
@@ -598,6 +599,13 @@ if __name__ == "__main__":
         type=float,
         default=0.001,
         help="learning rate for training",
+    )    
+    ap.add_argument(
+        "-wd",
+        "--weight_decay",
+        type=float,
+        default=0.0001,
+        help="weight decay for training",
     )
     ap.add_argument(
         "-savedir",
