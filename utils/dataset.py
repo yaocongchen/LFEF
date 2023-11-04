@@ -7,6 +7,7 @@ import numpy as np
 import torch
 import random
 import os
+import platform
 import time
 
 IMG_SCALING = (1, 1)
@@ -76,7 +77,10 @@ class DatasetSegmentation(Dataset):
         return len(self.data_dict)
 
     def __getitem__(self, index):
-        filename = self.data_dict[index].split("/")[-1].split(".")[0]
+        if platform.system() == "Linux":
+            filename = self.data_dict[index].split("/")[-1].split(".")[0]
+        elif platform.system() == "Windows":
+            filename = self.data_dict[index].split("\\")[-1].split(".")[0]
         y = f"{self.masks_dir}/{filename}.{self.mask_extension}"
         images_path = self.data_dict[index]
 
