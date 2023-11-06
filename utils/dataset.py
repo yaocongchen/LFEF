@@ -148,6 +148,11 @@ if __name__ == "__main__":
         pin_memory=True,
         drop_last=True,
     )
+
+    for iteration,(img_image, mask_image) in enumerate(training_data_loader):
+        print(img_image.shape)
+        print(mask_image.shape)
+        print(iteration)
     # ds = DatasetSegmentation()
     # dsl = DataLoader(ds, batch_size=1, shuffle=True)
     # fn, o_rgb, o_mask = next(iter(dsl))
