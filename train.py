@@ -257,7 +257,7 @@ def main():
     cudnn.enabled = True
 
     # Model import 模型導入
-    model = network_model.Net()
+    model = network_model.Net(1)
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
