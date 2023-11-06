@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.CGNet as network_model
+import models.CGNet_2_erfnet31_13 as network_model
 from visualization_codes.inference import smoke_semantic
 
 
