@@ -525,6 +525,7 @@ class Net(nn.Module):
 
         # classifier
         classifier = self.classifier(output2_cat)
+        classifier = self.simgoid(classifier)
 
         # upsample segmenation map ---> the input image size
         out = F.interpolate(
