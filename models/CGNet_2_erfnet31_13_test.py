@@ -437,19 +437,33 @@ class Net(nn.Module):
         self.bn_prelu_2 = BNPReLU(128 + 3)
 
         self.global_avgpool = nn.AdaptiveAvgPool2d(1)
-        self.conv_1_1_bn_sigmoid = nn.Sequential(nn.Conv2d(64, 128 +3,(1,1) ,stride=1, padding=0), nn.BatchNorm2d(128+3),nn.Sigmoid())
+        self.conv_1_1_bn_sigmoid = nn.Sequential(nn.Conv2d(64, 128+3,(1,1) ,stride=1, padding=0), nn.BatchNorm2d(128+3),nn.Sigmoid())
         self.simgoid = nn.Sigmoid()
+        self.avgpool_s2 = nn.AvgPool2d(3, stride=2,padding=1)
+        self.maxpool_s2 = nn.MaxPool2d(3, stride=2,padding=1)
 
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
             128 + 3, 128, dilation_rate=4, reduction=16
         )
+
+        k = 2
+        ck = 128 // k
+        self.conv3_3_bn_128_128_relu = nn.Sequential(nn.Conv2d(128, 128, (3,3), stride= 1, padding=1), nn.BatchNorm2d(128),nn.ReLU())
+        self.conv1d_128_ck = nn.Conv1d(128, ck, kernel_size=3, stride= 1, padding="same")
+
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
             self.level3.append(
                 ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
             )  # CG block
         self.bn_prelu_3 = BNPReLU(256)
+
+
+        self.conv3_3_bn_256_ck_relu = nn.Sequential(nn.Conv2d(256, ck, (3,3), stride= 1, padding=1), nn.BatchNorm2d(ck),nn.ReLU())
+        self.conv1d_ck_128_bn_relu = nn.Sequential(nn.Conv1d(ck, 128 +3, kernel_size=3, stride= 1, padding="same"), nn.BatchNorm1d(128+3),nn.ReLU())
+
+        self.conv3_3_bn_131_256_bn_sigmoid = nn.Sequential(nn.Conv2d(131, 256,(3,3) ,stride=1, padding=1), nn.BatchNorm2d(256),nn.Sigmoid()) 
 
         if dropout_flag:
             print("have droput layer")
@@ -507,24 +521,49 @@ class Net(nn.Module):
 
         sem = sem1 * sem2
 
-        sem = self.simgoid(sem)
-
-
         output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
 
-        output1_cat_sem = sem * output1_cat
+        output1_cat_sem = sem + output1_cat
         # stage 3
         output2_0 = self.level3_0(output1_cat_sem)  # down-sampled
+
+        output2_0_cam = self.conv3_3_bn_128_128_relu(output2_0)
+        batchsize, num_channels, height, width = output2_0_cam .data.size()
+
+        #reshape
+        output2_0_cam  = output2_0_cam.view(-1, num_channels, height * width)
+        output2_0_cam  = self.conv1d_128_ck(output2_0_cam)
+        output2_0_cam  = self.simgoid(output2_0_cam)
+
         for i, layer in enumerate(self.level3):
             if i == 0:
                 output2 = layer(output2_0)
             else:
                 output2 = layer(output2)
 
+
         output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2], 1))
 
+        output2_cat_cam = self.conv3_3_bn_256_ck_relu(output2_cat)
+        batchsize, num_channels, height, width = output2_cat_cam.data.size()
+        output2_cat_cam = output2_cat_cam.view(-1, num_channels, height * width)
+
+        cam = output2_0_cam * output2_cat_cam
+        cam = self.conv1d_ck_128_bn_relu(cam)
+        batchsize, num_channels, HW = cam.data.size()
+        cam = cam.view(batchsize, num_channels, 32, 32)
+        
+        sem = self.simgoid(sem)
+        sem_avgpool = self.avgpool_s2(sem)
+        sem_maxpool = self.maxpool_s2(sem)
+        sem = sem_avgpool * 0.5 + sem_maxpool * 0.5
+        sem_cam = sem + cam
+        
+        sem_cam = self.conv3_3_bn_131_256_bn_sigmoid(sem_cam)
+        output2_cat_sem_cam = output2_cat * sem_cam
+
         # classifier
-        classifier = self.classifier(output2_cat)
+        classifier = self.classifier(output2_cat_sem_cam)
         
         # upsample segmenation map ---> the input image size
         out = F.interpolate(
