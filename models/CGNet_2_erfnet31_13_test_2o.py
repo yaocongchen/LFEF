@@ -555,7 +555,7 @@ class Net(nn.Module):
         sem = self.simgoid(sem)
         sem_avgpool = self.avgpool_s2(sem)
         sem_maxpool = self.maxpool_s2(sem)
-        sem = sem_avgpool * 0.5 + sem_maxpool * 0.5
+        sem = sem_avgpool + sem_maxpool
         sem_cam = sem + cam
         
         sem_cam = self.conv3_3_bn_131_256_bn_sigmoid(sem_cam)
