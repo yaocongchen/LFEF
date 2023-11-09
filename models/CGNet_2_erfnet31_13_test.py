@@ -523,9 +523,8 @@ class Net(nn.Module):
 
         output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
 
-        output1_cat_sem = sem + output1_cat
         # stage 3
-        output2_0 = self.level3_0(output1_cat_sem)  # down-sampled
+        output2_0 = self.level3_0(output1_cat)  # down-sampled
 
         output2_0_cam = self.conv3_3_bn_128_128_relu(output2_0)
         batchsize, num_channels, height, width = output2_0_cam .data.size()
@@ -563,13 +562,21 @@ class Net(nn.Module):
         output2_cat_sem_cam = output2_cat * sem_cam
 
         # classifier
-        classifier = self.classifier(output2_cat_sem_cam)
+        classifier = self.classifier(output2_cat)
         
         # upsample segmenation map ---> the input image size
         out = F.interpolate(
             classifier, input.size()[2:], mode="bilinear", align_corners=False
         )  # Upsample score map, factor=8
-        return out
+                # classifier
+
+        classifier2 = self.classifier(output2_cat_sem_cam)
+        
+        # upsample segmenation map ---> the input image size
+        out2 = F.interpolate(
+            classifier2, input.size()[2:], mode="bilinear", align_corners=False
+        )  # Upsample score map, factor=8
+        return out ,out2
 
 
 if __name__ == "__main__":
