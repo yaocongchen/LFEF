@@ -64,6 +64,7 @@ def set_save_dir_names():
 
 def wandb_information(model_size, flops, params, model, train_images, train_masks):
     wandb.init(
+        # Initialize wandb 初始化wandb
         # set the wandb project where this run will be logged
         project="lightssd-project-train",
         name=args["wandb_name"],
