@@ -87,7 +87,7 @@ class DatasetSegmentation(Dataset):
         masks_path = y
 
         c_img = imread(images_path)
-        c_img = cv2_brightness_augment(c_img)
+        # c_img = cv2_brightness_augment(c_img)
 
         c_mask = imread(masks_path)
 

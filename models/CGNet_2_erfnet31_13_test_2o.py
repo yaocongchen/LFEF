@@ -437,8 +437,8 @@ class Net(nn.Module):
         self.bn_prelu_2 = BNPReLU(128 + 3)
 
         self.global_avgpool = nn.AdaptiveAvgPool2d(1)
-        self.conv_1_1_bn_sigmoid = nn.Sequential(nn.Conv2d(64, 128+3,(1,1) ,stride=1, padding=0), nn.BatchNorm2d(128+3),nn.Sigmoid())
-        self.simgoid = nn.Sigmoid()
+        self.conv_1_1_bn = nn.Sequential(nn.Conv2d(64, 128+3,(1,1) ,stride=1, padding=0), nn.BatchNorm2d(128+3))
+        # self.simgoid = nn.Sigmoid()
         self.avgpool_s2 = nn.AvgPool2d(3, stride=2,padding=1)
         self.maxpool_s2 = nn.MaxPool2d(3, stride=2,padding=1)
 
@@ -463,7 +463,7 @@ class Net(nn.Module):
         self.conv3_3_bn_256_ck_relu = nn.Sequential(nn.Conv2d(256, ck, (3,3), stride= 1, padding=1), nn.BatchNorm2d(ck),nn.ReLU())
         self.conv1d_ck_128_bn_relu = nn.Sequential(nn.Conv1d(ck, 128 +3, kernel_size=3, stride= 1, padding="same"), nn.BatchNorm1d(128+3),nn.ReLU())
 
-        self.conv3_3_bn_131_256_bn_sigmoid = nn.Sequential(nn.Conv2d(131, 256,(3,3) ,stride=1, padding=1), nn.BatchNorm2d(256),nn.Sigmoid()) 
+        self.conv3_3_bn_131_256_bn = nn.Sequential(nn.Conv2d(131, 256,(3,3) ,stride=1, padding=1), nn.BatchNorm2d(256)) 
 
         if dropout_flag:
             print("have droput layer")
@@ -517,7 +517,7 @@ class Net(nn.Module):
                 output1 = layer(output1)
 
         sem2 = self.global_avgpool(output1)
-        sem2 = self.conv_1_1_bn_sigmoid(sem2)
+        sem2 = self.conv_1_1_bn(sem2)
 
         sem = sem1 * sem2
 
@@ -532,7 +532,7 @@ class Net(nn.Module):
         #reshape
         output2_0_cam  = output2_0_cam.view(-1, num_channels, height * width)
         output2_0_cam  = self.conv1d_128_ck(output2_0_cam)
-        output2_0_cam  = self.simgoid(output2_0_cam)
+        # output2_0_cam  = self.simgoid(output2_0_cam)
 
         for i, layer in enumerate(self.level3):
             if i == 0:
@@ -552,13 +552,13 @@ class Net(nn.Module):
         batchsize, num_channels, HW = cam.data.size()
         cam = cam.view(batchsize, num_channels, 32, 32)
         
-        sem = self.simgoid(sem)
+        # sem = self.simgoid(sem)
         sem_avgpool = self.avgpool_s2(sem)
         sem_maxpool = self.maxpool_s2(sem)
         sem = sem_avgpool + sem_maxpool
         sem_cam = sem + cam
         
-        sem_cam = self.conv3_3_bn_131_256_bn_sigmoid(sem_cam)
+        sem_cam = self.conv3_3_bn_131_256_bn(sem_cam)
         output2_cat_sem_cam = output2_cat * sem_cam
 
         # classifier
@@ -582,6 +582,6 @@ class Net(nn.Module):
 if __name__ == "__main__":
     model = Net()
     x = torch.randn(16, 3, 256, 256)
-    output = model(x)
+    output,output2 = model(x)
     print(output.shape)
     summary(model, input_size=(16, 3, 256, 256))
