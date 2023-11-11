@@ -584,4 +584,6 @@ if __name__ == "__main__":
     x = torch.randn(16, 3, 256, 256)
     output,output2 = model(x)
     print(output.shape)
-    summary(model, input_size=(16, 3, 256, 256))
+    summary(model, input_data = x , verbose=0)
+    
+    # summary(model, input_data = x , verbose=1)
