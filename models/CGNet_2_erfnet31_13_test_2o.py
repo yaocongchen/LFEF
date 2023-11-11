@@ -586,4 +586,3 @@ if __name__ == "__main__":
     print(output.shape)
     summary(model, input_data = x , verbose=0)
     
-    # summary(model, input_data = x , verbose=1)
