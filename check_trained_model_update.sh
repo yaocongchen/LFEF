@@ -19,6 +19,7 @@ function check_update(){
         echo "local folder $local_folder_name is newer than remote folder $remote_folder_name"
         echo "copying $local_folder_name to $remote_folder_name"
         scp -r $local_folder_path $remote_folder_path
+        sshpass -p 'stuhy79680' scp -r $local_folder_path $remote_folder_path
     else
         echo "local folder $local_folder_name is older than remote folder $remote_folder_name"
         echo "do nothing"
