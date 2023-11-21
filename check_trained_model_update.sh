@@ -25,4 +25,4 @@ function check_update(){
     fi
 }
 
-check_update "/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_3113_dilated" "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/" "140.125.35.199" "yaocong"
+check_update "trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_3113_dilated" "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/" "140.125.35.199" "yaocong"
