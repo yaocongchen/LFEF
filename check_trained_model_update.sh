@@ -13,8 +13,8 @@ function check_update(){
     local local_folder_path=$folder
     local local_folder_name=${local_folder_path##*/}
     local remote_folder_name=${remote_folder_path##*/}
-    local local_folder_time=$(stat -c %Y $local_folder_path)
-    local remote_folder_time=$(ssh $remote_user@$remote_ip stat -c %Y $remote_folder)
+    local local_folder_time=$(stat -c %Y $local_folder_path/bs64e150/last.pth)
+    local remote_folder_time=$(ssh $remote_user@$remote_ip stat -c %Y $remote_folder/bs64e150/last.pth)
     if [ $local_folder_time -gt $remote_folder_time ]; then
         echo "local folder $local_folder_name is newer than remote folder $remote_folder_name"
         echo "copying $local_folder_name to $remote_folder_name"
@@ -25,4 +25,4 @@ function check_update(){
     fi
 }
 
-check_update "trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_3113_dilated" "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_3113_dilated" "140.125.35.199" "yaocong"
+check_update "trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_3113_dilated" "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_3113_dilated/" "140.125.35.199" "yaocong"
