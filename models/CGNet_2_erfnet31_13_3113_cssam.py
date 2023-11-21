@@ -329,11 +329,6 @@ class ContextGuidedBlock_Down(nn.Module):
         super().__init__()
         self.conv1x1 = ConvBNPReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
 
-        self.maxpl = nn.MaxPool2d((3, 3), stride=2, padding=1) 
-        self.conv11 =nn.Conv2d(nIn, 4*nOut, (1, 1), stride=1, padding=(0, 0), bias=False)  
-        self.bn = nn.BatchNorm2d(nOut, eps=1e-3)
-        self.sigmoid = nn.Sigmoid()
-
         self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
         self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 0.3 ,1, dilation_rate)
         self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 0.3 , 1, dilation_rate * 2)
@@ -347,10 +342,6 @@ class ContextGuidedBlock_Down(nn.Module):
 
     def forward(self, input):
         output = self.conv1x1(input)
-        maxpl = self.maxpl(input)
-        maxpl = self.conv11(maxpl)
-        maxpl = self.bn(maxpl)
-
         loc = self.F_loc(output)
         sur = self.F_sur(output)
         sur_4 = self.F_sur_4(output)
@@ -359,9 +350,7 @@ class ContextGuidedBlock_Down(nn.Module):
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
-        maxpl_mul_joi_feat = maxpl * joi_feat
-
-        joi_feat = self.bn(maxpl_mul_joi_feat)
+        joi_feat = self.bn(joi_feat)
         joi_feat = self.act(joi_feat)
         joi_feat = self.reduce(joi_feat)  # channel= nOut
 
