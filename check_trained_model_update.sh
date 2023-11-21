@@ -19,11 +19,10 @@ function check_update(){
         echo "local folder $local_folder_name is newer than remote folder $remote_folder_name"
         echo "copying $local_folder_name to $remote_folder_name"
         scp -r $local_folder_path $remote_folder_path
-        sshpass -p 'stuhy79680' scp -r $local_folder_path $remote_folder_path
     else
         echo "local folder $local_folder_name is older than remote folder $remote_folder_name"
         echo "do nothing"
     fi
 }
-sshpass -p 'stuhy79680' scp -r $local_folder_path $remote_folder_path
+
 check_update "trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_3113_dilated" "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/" "140.125.35.199" "yaocong"
