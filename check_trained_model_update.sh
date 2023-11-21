@@ -1,4 +1,4 @@
-#check inside /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_3113_dilated files are updated or not
+#check inside /speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_3113_dilated files are updated or not
 # if updated, copy the folder to yaocong@140.125.35.199:/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/
 # if not, do nothing
 #Usage: bash check_trained_model_update.sh
@@ -25,4 +25,4 @@ function check_update(){
     fi
 }
 
-check_update "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_3113_dilated" "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/" "140.125.35.199" "yaocong"
+check_update "/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_3113_dilated" "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/" "140.125.35.199" "yaocong"
