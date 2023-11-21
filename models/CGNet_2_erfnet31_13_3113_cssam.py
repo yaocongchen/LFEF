@@ -262,6 +262,8 @@ class ChannelWiseDilatedConv(nn.Module):
         self.mysigmoid = nn.Sigmoid()
         self.dropout = nn.Dropout2d(dropprob)
 
+        self.batch_norm_nIn = nn.BatchNorm2d(nIn, eps=1e-03)
+
 
     def forward(self, input):
         """
@@ -286,7 +288,17 @@ class ChannelWiseDilatedConv(nn.Module):
         x1_cat_x2_conv11 = self.batch_norm_nOut(x1_cat_x2_conv11)
         x1_cat_x2_conv11 = F.relu(x1_cat_x2_conv11)
 
-        output = channel_shuffle(x1_cat_x2_conv11, 2)
+        res_x = self.maxpl(input)
+        res_x = self.conv11(res_x)
+        res_x = self.batch_norm_nIn(res_x)
+        res_x = self.mysigmoid(res_x)
+
+        res_x = x1_cat_x2_conv11 * res_x
+
+        x1_cat_x2_conv11_add_res_x = x1_cat_x2_conv11 + res_x
+
+
+        output = channel_shuffle(x1_cat_x2_conv11_add_res_x, 2)
 
         return output
 
@@ -329,10 +341,12 @@ class ContextGuidedBlock_Down(nn.Module):
 
         self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
         self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 0.3 ,1, dilation_rate)
+        self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 0.3 , 1, dilation_rate * 2)
+        self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 0.3 ,1, dilation_rate * 4)
 
-        self.bn = nn.BatchNorm2d(2 * nOut, eps=1e-3)
-        self.act = nn.PReLU(2 * nOut)
-        self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+        self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
+        self.act = nn.PReLU(4 * nOut)
+        self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.F_glo = FGlo(nOut, reduction)
 
@@ -340,8 +354,10 @@ class ContextGuidedBlock_Down(nn.Module):
         output = self.conv1x1(input)
         loc = self.F_loc(output)
         sur = self.F_sur(output)
+        sur_4 = self.F_sur_4(output)
+        sur_8 = self.F_sur_8(output)
 
-        joi_feat = torch.cat([loc, sur], 1)  #  the joint feature
+        joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
         joi_feat = self.bn(joi_feat)
