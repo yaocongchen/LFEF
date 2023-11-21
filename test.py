@@ -13,6 +13,8 @@ import utils
 import models.CGNet_2_erfnet31_13_3113_dilated as network_model
 from visualization_codes.inference import smoke_semantic
 
+model_name = str(network_model)
+print("model_name:", model_name)
 
 def folders_and_files_name():
     # Set save folder and file name 設定存檔資料夾與存檔名稱
@@ -41,6 +43,7 @@ def wandb_information(model_size, flops, params):
         name=args["wandb_name"],
         # track hyperparameters and run metadata
         config={
+            "Model": model_name,
             "Model_size": model_size,
             "FLOPs": flops,
             "Parameters": params,
@@ -55,7 +58,7 @@ def wandb_information(model_size, flops, params):
 
 # Main function 主函式
 def smoke_segmentation(device, names):
-    model = network_model.Net(1).to(device)
+    model = network_model.Net().to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
     model.eval()
