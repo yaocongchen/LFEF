@@ -14,7 +14,7 @@ function check_update(){
     local local_folder_name=${local_folder_path##*/}
     local remote_folder_name=${remote_folder_path##*/}
     local local_folder_time=$(stat -c %Y $local_folder_path)
-    local remote_folder_time=$(ssh $remote_user@$remote_ip stat -c %Y $remote_folder_path)
+    local remote_folder_time=$(ssh $remote_user@$remote_ip stat -c %Y $remote_folder)
     if [ $local_folder_time -gt $remote_folder_time ]; then
         echo "local folder $local_folder_name is newer than remote folder $remote_folder_name"
         echo "copying $local_folder_name to $remote_folder_name"
