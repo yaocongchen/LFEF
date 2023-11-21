@@ -509,7 +509,7 @@ class Net(nn.Module):
         # stage 1
         output0 = self.level1_0(input)
         output0 = self.level1_1(output0)
-        output0 = self.level1_2(output0)
+        # output0 = self.level1_2(output0)
         inp1 = self.sample1(input)
         inp2 = self.sample2(input)
 
