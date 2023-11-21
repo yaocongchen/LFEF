@@ -330,9 +330,9 @@ class ContextGuidedBlock_Down(nn.Module):
         self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
         self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 0.3 ,1, dilation_rate)
 
-        self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
-        self.act = nn.PReLU(4 * nOut)
-        self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+        self.bn = nn.BatchNorm2d(2 * nOut, eps=1e-3)
+        self.act = nn.PReLU(2 * nOut)
+        self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.F_glo = FGlo(nOut, reduction)
 
