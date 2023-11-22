@@ -17,8 +17,8 @@ IMG_SCALING = (1, 1)
 def cv2_brightness_augment(img):
     hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
     v = hsv[:, :, 2]
-    seed = random.uniform(0.5, 1.2)
-    v = ((v / 255.0) * seed) * 255.0
+    # seed = random.uniform(0.5, 1.2)
+    v = ((v / 255.0) * 1.5) * 255.0
     hsv[:, :, 2] = np.array(np.clip(v, 0, 255), dtype=np.uint8)
     rgb_final = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
     return rgb_final
@@ -87,7 +87,7 @@ class DatasetSegmentation(Dataset):
         masks_path = y
 
         c_img = imread(images_path)
-        # c_img = cv2_brightness_augment(c_img)
+        c_img = cv2_brightness_augment(c_img)
 
         c_mask = imread(masks_path)
 
