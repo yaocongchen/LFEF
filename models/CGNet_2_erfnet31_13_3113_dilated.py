@@ -439,7 +439,7 @@ class Net(nn.Module):
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
 
-    def __init__(self, classes=1, M=3, N=2, dropout_flag=False):
+    def __init__(self, classes=1, M=2, N=3, dropout_flag=False):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
