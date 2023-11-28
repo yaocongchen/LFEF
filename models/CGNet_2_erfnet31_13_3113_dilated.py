@@ -302,9 +302,9 @@ class ContextGuidedBlock_Down(nn.Module):
         self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 2)
         self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 4)
 
-        self.bn = nn.BatchNorm2d(2 * nOut, eps=1e-3)
-        self.act = nn.PReLU(2 * nOut)
-        self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+        self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
+        self.act = nn.PReLU(4 * nOut)
+        self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.F_glo = FGlo(nOut, reduction)
 
@@ -312,10 +312,10 @@ class ContextGuidedBlock_Down(nn.Module):
         output = self.conv1x1(input)
         loc = self.F_loc(output)
         sur = self.F_sur(output)
-        # sur_4 = self.F_sur_4(output)
-        # sur_8 = self.F_sur_8(output)
+        sur_4 = self.F_sur_4(output)
+        sur_8 = self.F_sur_8(output)
 
-        joi_feat = torch.cat([loc, sur], 1)  #  the joint feature
+        joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
         joi_feat = self.bn(joi_feat)
