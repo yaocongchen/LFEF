@@ -9,7 +9,7 @@ from skimage.metrics import structural_similarity
 
 S = nn.Sigmoid()
 L = nn.BCELoss(reduction="mean")
-
+from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
 
 def Sigmoid_IoU(
     model_output, mask, smooth=1
@@ -69,7 +69,8 @@ def IoU(
     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
 
 
-def SSIM(model_output, mask):
+def ssim_val(model_output, mask):
+    # model_output = S(model_output)
     output_np = (
         model_output.squeeze()
         .mul(255)
@@ -81,11 +82,11 @@ def SSIM(model_output, mask):
         .numpy()
     )
 
-    # np.set_printoptions(threshold=np.inf)
-    # output_np[output_np >= 1] = 1
-    # output_np[1< output_np] = 0
+    # # np.set_printoptions(threshold=np.inf)
+    # # output_np[output_np >= 1] = 1
+    # # output_np[1< output_np] = 0
 
-    # model_output = torch.from_numpy(output_np).to("cuda")
+    # # model_output = torch.from_numpy(output_np).to("cuda")
 
     mask = (mask.squeeze()
         .mul(255)
@@ -96,8 +97,9 @@ def SSIM(model_output, mask):
         .detach()
         .numpy()
     )
-    # Compute SSIM between two images
+    # # Compute SSIM between two images
     msssim, grad,s = structural_similarity(output_np, mask, gradient=True,data_range=1, full=True)
+    # msssim = ssim(model_output, mask, data_range=1, size_average=True)
     # print("Image similarity", score)
     return msssim
 

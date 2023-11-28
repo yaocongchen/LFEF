@@ -138,7 +138,7 @@ def smoke_segmentation(device, names):
         iou = utils.metrics.IoU(output, mask_image, device)
         iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         dice_coef = utils.metrics.dice_coef(output, mask_image, device)
-        SSIM = utils.metrics.SSIM(output, mask_image)
+        SSIM = utils.metrics.ssim_val(output, mask_image)
 
         epoch_loss.append(loss.item())
         epoch_iou.append(iou.item())
