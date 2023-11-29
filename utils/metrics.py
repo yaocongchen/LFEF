@@ -81,8 +81,9 @@ def ssim_val(model_output, mask):
         .numpy()
     )
 
-    np.set_printoptions(threshold=np.inf)
-    output_np[output_np >= 1] = 1
+    # np.set_printoptions(threshold=np.inf)
+    # output_np[output_np >= 1] = 1
+    
     # output_np[1< output_np] = 0
 
     # # model_output = torch.from_numpy(output_np).to("cuda")

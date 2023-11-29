@@ -66,7 +66,7 @@ def IoU(
         (intersection + smooth) / (union + smooth), dim=0
     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
 
-def SSIM(model_output, mask):
+def ssim_val(model_output, mask):
     output_np = (
         model_output.squeeze()
         .mul(255)
@@ -78,8 +78,9 @@ def SSIM(model_output, mask):
         .numpy()
     )
 
-    np.set_printoptions(threshold=np.inf)
-    output_np[output_np >= 1] = 1
+    # np.set_printoptions(threshold=np.inf)
+    # output_np[output_np >= 1] = 1
+
     # output_np[1< output_np] = 0
 
     # model_output = torch.from_numpy(output_np).to("cuda")
@@ -95,21 +96,21 @@ def SSIM(model_output, mask):
         .numpy()
     )
     # Compute SSIM between two images
-    (score, diff) = structural_similarity(output_np, mask, data_range=1, full=True)
+    msssim, grad,s = structural_similarity(output_np, mask, gradient=True,data_range=1, full=True)
     # print("Image similarity", score)
 
-    return score
+    return msssim
 def CustomLoss(model_output, mask,device):
     # s_iou = Sigmoid_IoU(model_output,mask)
     iou = IoU(model_output,mask,device)
 
-    # ssim = SSIM(model_output,mask)
+    my_ssim = ssim_val(model_output,mask)
 
     loss_1 = L(S(model_output), mask)
 
 
-    # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - ssim) * (alpha/2)
-    total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha)
+    total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - my_ssim) * (alpha/2)
+    # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha)
     # total_loss = loss_1
 
     return total_loss
