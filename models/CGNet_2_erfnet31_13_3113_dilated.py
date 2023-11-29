@@ -499,7 +499,7 @@ class Net(nn.Module):
                     if m.bias is not None:
                         m.bias.data.zero_()
         
-        self.my_simgoid = nn.Sigmoid()
+        # self.my_simgoid = nn.Sigmoid()
 
     def forward(self, input):
         """

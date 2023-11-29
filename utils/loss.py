@@ -105,7 +105,7 @@ def CustomLoss(model_output, mask,device):
 
     # ssim = SSIM(model_output,mask)
 
-    loss_1 = L(model_output, mask)
+    loss_1 = L(S(model_output), mask)
 
 
     # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - ssim) * (alpha/2)

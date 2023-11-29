@@ -33,6 +33,7 @@ def IoU(
     model_output, mask, device, smooth=1
 ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
     torch.set_printoptions(profile="full")
+    model_output = S(model_output)
     # print("model_output:",model_output.shape)
     output_np = (
         model_output.mul(255)
