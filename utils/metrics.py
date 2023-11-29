@@ -70,7 +70,7 @@ def IoU(
 
 
 def ssim_val(model_output, mask):
-    # model_output = S(model_output)
+
     output_np = (
         model_output.squeeze()
         .mul(255)
@@ -99,7 +99,10 @@ def ssim_val(model_output, mask):
     )
     # # Compute SSIM between two images
     msssim, grad,s = structural_similarity(output_np, mask, gradient=True,data_range=1, full=True)
+
+    # model_output = S(model_output)
     # msssim = ssim(model_output, mask, data_range=1, size_average=True)
+    
     # print("Image similarity", score)
     return msssim
 
