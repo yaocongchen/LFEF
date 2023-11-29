@@ -207,30 +207,30 @@ if __name__ == "__main__":
     # ap.add_argument(
     #     "-td", "--test_directory", required=True, help="path to test images directory"
     # )
-    # ap.add_argument(
-    #     "-ti",
-    #     "--test_images",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/img/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--test_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/mask/",
-    #     help="path to mask",
-    # )
     ap.add_argument(
         "-ti",
         "--test_images",
-        default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Imag/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/img/",
         help="path to hazy training images",
     )
     ap.add_argument(
         "-tm",
         "--test_masks",
-        default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Mask/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/mask/",
         help="path to mask",
     )
+    # ap.add_argument(
+    #     "-ti",
+    #     "--test_images",
+    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Imag/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--test_masks",
+    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Mask/",
+    #     help="path to mask",
+    # )
     # ap.add_argument(
     #     "-ti",
     #     "--test_images",
