@@ -84,7 +84,16 @@ def SSIM(model_output, mask):
 
     # model_output = torch.from_numpy(output_np).to("cuda")
 
-    mask = mask.squeeze().contiguous().to("cpu").detach().numpy()
+    # mask = mask.squeeze().contiguous().to("cpu").detach().numpy()
+    mask = (mask.squeeze()
+        .mul(255)
+        .add_(0.5)
+        .clamp_(0, 255)
+        .contiguous()
+        .to("cpu")
+        .detach()
+        .numpy()
+    )
     # Compute SSIM between two images
     (score, diff) = structural_similarity(output_np, mask, data_range=1, full=True)
     # print("Image similarity", score)
