@@ -68,9 +68,7 @@ def IoU(
         (intersection + smooth) / (union + smooth), dim=0
     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
 
-
 def ssim_val(model_output, mask):
-
     output_np = (
         model_output.squeeze()
         .mul(255)
@@ -82,9 +80,9 @@ def ssim_val(model_output, mask):
         .numpy()
     )
 
-    # # np.set_printoptions(threshold=np.inf)
-    # # output_np[output_np >= 1] = 1
-    # # output_np[1< output_np] = 0
+    np.set_printoptions(threshold=np.inf)
+    output_np[output_np >= 1] = 1
+    # output_np[1< output_np] = 0
 
     # # model_output = torch.from_numpy(output_np).to("cuda")
 
