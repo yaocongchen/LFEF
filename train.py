@@ -535,7 +535,7 @@ def main():
                 torch.save(
                     model.state_dict(), args["save_dir"] + "best_mean_miou_s" + ".pth"
                 )
-                torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best_mean_miou_s' +  '.onnx', verbose=False)
+                # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best_mean_miou_s' +  '.onnx', verbose=False)
                 # torchvision.utils.save_image(
                 #     torch.cat((mask_image, output), 0),
                 #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
