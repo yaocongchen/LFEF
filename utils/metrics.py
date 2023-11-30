@@ -70,6 +70,7 @@ def IoU(
     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
 
 def ssim_val(model_output, mask):
+    model_output = S(model_output)
     # output_np = (
     #     model_output.squeeze()
     #     .mul(255)
