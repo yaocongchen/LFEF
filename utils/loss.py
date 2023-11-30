@@ -122,7 +122,7 @@ def CustomLoss(model_output, mask,device):
     # s_iou = Sigmoid_IoU(model_output,mask)
     iou = IoU(model_output,mask,device)
 
-    my_ssim = ssim_val(model_output,mask)
+    # my_ssim = ssim_val(model_output,mask)
 
     loss_1 = L(S(model_output), mask)
 
