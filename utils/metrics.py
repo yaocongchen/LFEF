@@ -51,6 +51,8 @@ def IoU(
 
     model_output = torch.from_numpy(output_np).to(device).float()
 
+    # model_output = S(model_output)
+
     intersection = torch.sum(
         model_output * mask, dim=[1, 2, 3]
     )  # Calculate the intersection 算出交集
