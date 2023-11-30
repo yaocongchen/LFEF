@@ -31,24 +31,36 @@ L = nn.BCELoss(reduction="mean")
 def IoU(
     model_output, mask, device, smooth=1
 ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
-    torch.set_printoptions(profile="full")
-    # print("model_output:",model_output.shape)
-    output_np = (
+    
+#==============================================================================================================#
+    model_output = (
         model_output.mul(255)
         .add_(0.5)
         .clamp_(0, 255)
-        .contiguous()
-        .to("cpu", torch.uint8)
-        .detach()
-        .numpy()
     )
 
-    np.set_printoptions(threshold=np.inf)
-    output_np[output_np >= 1] = 1
-    # output_np[1< output_np] = 0
+    model_output = (model_output > 0.5).float()
+#==============================================================================================================#
 
-    model_output = torch.from_numpy(output_np).to(device).float()
+############################################################################################################################
+    # torch.set_printoptions(profile="full")
+    # # print("model_output:",model_output.shape)
+    # output_np = (
+    #     model_output.mul(255)
+    #     .add_(0.5)
+    #     .clamp_(0, 255)
+    #     .contiguous()
+    #     .to("cpu", torch.uint8)
+    #     .detach()
+    #     .numpy()
+    # )
 
+    # np.set_printoptions(threshold=np.inf)
+    # output_np[output_np >= 1] = 1
+    # # output_np[1< output_np] = 0
+
+    # model_output = torch.from_numpy(output_np).to(device).float()
+############################################################################################################################
     intersection = torch.sum(
         model_output * mask, dim=[1, 2, 3]
     )  # Calculate the intersection 算出交集

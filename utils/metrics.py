@@ -32,25 +32,38 @@ def Sigmoid_IoU(
 def IoU(
     model_output, mask, device, smooth=1
 ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
-    torch.set_printoptions(profile="full")
     # model_output = S(model_output)
     # print("model_output:",model_output.shape)
-    output_np = (
+#==============================================================================================================#
+    model_output = (
         model_output.mul(255)
         .add_(0.5)
         .clamp_(0, 255)
-        .contiguous()
-        .to("cpu", torch.uint8)
-        .detach()
-        .numpy()
     )
 
-    np.set_printoptions(threshold=np.inf)
-    output_np[output_np >= 1] = 1
-    # output_np[1< output_np] = 0
+    model_output = (model_output > 0.5).float()
+#==============================================================================================================#
 
-    model_output = torch.from_numpy(output_np).to(device).float()
+############################################################################################################################
+    # torch.set_printoptions(profile="full")
+    # # model_output = S(model_output)
+    # # print("model_output:",model_output.shape)
+    # output_np = (
+    #     model_output.mul(255)
+    #     .add_(0.5)
+    #     .clamp_(0, 255)
+    #     .contiguous()
+    #     .to("cpu", torch.uint8)
+    #     .detach()
+    #     .numpy()
+    # )
 
+    # np.set_printoptions(threshold=np.inf)
+    # output_np[output_np >= 1] = 1
+    # # output_np[1< output_np] = 0
+
+    # model_output = torch.from_numpy(output_np).to(device).float()
+#############################################################################################################
     # model_output = S(model_output)
 
     intersection = torch.sum(
@@ -72,7 +85,7 @@ def IoU(
     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
 
 def ssim_val(model_output, mask):
-    model_output = S(model_output)
+    # model_output = S(model_output)
     # output_np = (
     #     model_output.squeeze()
     #     .mul(255)
