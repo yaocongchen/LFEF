@@ -439,7 +439,7 @@ class Net(nn.Module):
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
 
-    def __init__(self, classes=1, M=3, N=3, dropout_flag=False):
+    def __init__(self, classes=1, M=3, N=12, dropout_flag=False):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
@@ -450,7 +450,7 @@ class Net(nn.Module):
 
         self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 0.03, 1)
-        # self.level1_2 = non_bottleneck_1d(32, 0.03, 2)
+        self.level1_2 = non_bottleneck_1d(32, 0.03, 2)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
@@ -511,7 +511,7 @@ class Net(nn.Module):
         # stage 1
         output0 = self.level1_0(input)
         output0 = self.level1_1(output0)
-        # output0 = self.level1_2(output0)
+        output0 = self.level1_2(output0)
         inp1 = self.sample1(input)
         inp2 = self.sample2(input)
 

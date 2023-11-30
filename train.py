@@ -127,7 +127,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
     for RGB_image, mask_image in pbar:
         img_image = RGB_image.to(device)
         mask_image = mask_image.to(device)
-        onnx_img_image = img_image
+        # onnx_img_image = img_image
 
         img_image = Variable(
             img_image, requires_grad=True
@@ -195,6 +195,7 @@ def valid_epoch(model, validation_data_loader, device, epoch):
     for RGB_image, mask_image in pbar:
         img_image = RGB_image.to(device)
         mask_image = mask_image.to(device)
+        onnx_img_image = img_image
 
         with torch.no_grad():
             output = model(img_image)
@@ -236,6 +237,7 @@ def valid_epoch(model, validation_data_loader, device, epoch):
         RGB_image,
         mask_image,
         output,
+        onnx_img_image,
     )
 
 
@@ -364,6 +366,7 @@ def main():
             RGB_image,
             mask_image,
             output,
+            onnx_img_image,
         ) = valid_epoch(model, validation_data_loader, device, epoch)
 
         # Save model 模型存檔
@@ -384,6 +387,7 @@ def main():
 
         torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
         torch.save(model.state_dict(), args["save_dir"] + "last" + ".pth")
+        torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
 
         if args["save_train_image"] != "no":
             torchvision.utils.save_image(
@@ -410,10 +414,11 @@ def main():
                 output, "./validation_data_captures/" + "last_output_" + ".jpg"
             )
 
-        # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
+
         if args["wandb_name"] != "no":
             wandb.save(args["save_dir"] + "last_checkpoint" + ".pth")
             wandb.save(args["save_dir"] + "last" + ".pth")
+            wandb.save(args['save_dir'] + 'last' +  '.onnx')
             # Graphical archive of the epoch test set
             # epoch 測試集中的圖示化存檔
             # wandb.log({"last": wandb.Image("./validation_data_captures/" + "last_" + ".jpg")})
@@ -468,6 +473,7 @@ def main():
             print("best_loss: %.3f , best_miou: %.3f" % (mean_loss, mean_miou))
             torch.save(state, args["save_dir"] + "best_checkpoint" + ".pth")
             torch.save(model.state_dict(), args["save_dir"] + "best" + ".pth")
+            torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best' +  '.onnx', verbose=False)
             # torchvision.utils.save_image(
             #     torch.cat((mask_image, output), 0),
             #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
@@ -490,6 +496,7 @@ def main():
                 wandb.log({"best_loss": mean_loss, "best_miou": mean_miou})
                 wandb.save(args["save_dir"] + "best_checkpoint" + ".pth")
                 wandb.save(args["save_dir"] + "best" + ".pth")
+                wandb.save(args['save_dir'] + 'best' +  '.onnx')
                 # wandb.log({"best": wandb.Image("./validation_data_captures/" + "best" + ".jpg")})
 
                 if args["save_validation_image_bast"] != "no":
@@ -528,6 +535,7 @@ def main():
                 torch.save(
                     model.state_dict(), args["save_dir"] + "best_mean_miou_s" + ".pth"
                 )
+                torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best_mean_miou_s' +  '.onnx', verbose=False)
                 # torchvision.utils.save_image(
                 #     torch.cat((mask_image, output), 0),
                 #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
@@ -538,14 +546,10 @@ def main():
                         args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
                     )
                     wandb.save(args["save_dir"] + "best_mean_miou_s" + ".pth")
+                    wandb.save(args['save_dir'] + 'best_mean_miou_s' +  '.onnx')
 
             save_mean_miou_s = mean_miou_s
-    #         torch.onnx.export(
-    #             model,
-    #             onnx_img_image,
-    #             args["save_dir"] + "best" + ".onnx",
-    #             verbose=False,
-    #         )
+
 
     #     if epoch > args["epochs"] - 10:
     #         torch.save(state, model_file_name)
