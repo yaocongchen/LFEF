@@ -387,7 +387,7 @@ def main():
 
         torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
         torch.save(model.state_dict(), args["save_dir"] + "last" + ".pth")
-        torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False,dynamic_axes={"input": {0: "batch_size"}, "output": {0: "batch_size"}})
+        torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
 
         if args["save_train_image"] != "no":
             torchvision.utils.save_image(
@@ -473,7 +473,7 @@ def main():
             print("best_loss: %.3f , best_miou: %.3f" % (mean_loss, mean_miou))
             torch.save(state, args["save_dir"] + "best_checkpoint" + ".pth")
             torch.save(model.state_dict(), args["save_dir"] + "best" + ".pth")
-            torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best' +  '.onnx', verbose=False,dynamic_axes={"input": {0: "batch_size"}, "output": {0: "batch_size"}})
+            torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best' +  '.onnx', verbose=False)
             # torchvision.utils.save_image(
             #     torch.cat((mask_image, output), 0),
             #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
@@ -535,7 +535,7 @@ def main():
                 torch.save(
                     model.state_dict(), args["save_dir"] + "best_mean_miou_s" + ".pth"
                 )
-                torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best_mean_miou_s' +  '.onnx', verbose=False,dynamic_axes={"input": {0: "batch_size"}, "output": {0: "batch_size"}})
+                torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best_mean_miou_s' +  '.onnx', verbose=False)
                 # torchvision.utils.save_image(
                 #     torch.cat((mask_image, output), 0),
                 #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
