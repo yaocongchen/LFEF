@@ -214,8 +214,8 @@ def valid_epoch(model, validation_data_loader, device, epoch):
         pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
         pbar.set_postfix(
             val_loss=mean_loss,
-            # val_miou_s=mean_miou_s,
             val_miou=mean_miou,
+            # val_miou_s=mean_miou_s,
             # val_dice_coef=mean_dice_coef,
         )
 
@@ -231,8 +231,8 @@ def valid_epoch(model, validation_data_loader, device, epoch):
 
     return (
         mean_loss,
-        # mean_miou_s,
         mean_miou,
+        # mean_miou_s,
         # mean_dice_coef,
         RGB_image,
         mask_image,
@@ -360,8 +360,8 @@ def main():
         torch.cuda.empty_cache()  # 刪除不需要的變數
         (
             mean_loss,
-            # mean_miou_s,
             mean_miou,
+            # mean_miou_s,
             # mean_dice_coef,
             RGB_image,
             mask_image,
