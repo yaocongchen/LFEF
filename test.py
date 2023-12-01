@@ -78,9 +78,9 @@ def smoke_segmentation(device, names):
         wandb_time_total2_cache = 0
 
     epoch_loss = []
-    epoch_iou_s = []
     epoch_iou = []
-    epoch_dice_coef = []
+    # epoch_iou_s = []
+    # epoch_dice_coef = []
     epoch_SSIM = []
     time_train = []
     i = 0
@@ -136,27 +136,27 @@ def smoke_segmentation(device, names):
 
         loss = utils.loss.CustomLoss(output, mask_image, device)
         iou = utils.metrics.IoU(output, mask_image, device)
-        iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
-        dice_coef = utils.metrics.dice_coef(output, mask_image, device)
+        # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
+        # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
         SSIM = utils.metrics.ssim_val(output, mask_image)
 
         epoch_loss.append(loss.item())
         epoch_iou.append(iou.item())
-        epoch_iou_s.append(iou_s.item())
-        epoch_dice_coef.append(dice_coef.item())
+        # epoch_iou_s.append(iou_s.item())
+        # epoch_dice_coef.append(dice_coef.item())
         epoch_SSIM.append(SSIM.item())
 
         average_epoch_loss_test = sum(epoch_loss) / len(epoch_loss)
         average_epoch_miou_test = sum(epoch_iou) / len(epoch_iou)
-        average_epoch_miou_s_test = sum(epoch_iou_s) / len(epoch_iou_s)
-        average_epoch_dice_coef_test = sum(epoch_dice_coef) / len(epoch_dice_coef)
+        # average_epoch_miou_s_test = sum(epoch_iou_s) / len(epoch_iou_s)
+        # average_epoch_dice_coef_test = sum(epoch_dice_coef) / len(epoch_dice_coef)
         average_epoch_epoch_mSSIM_test = sum(epoch_SSIM) / len(epoch_SSIM)
 
         pbar.set_postfix(
             test_loss=average_epoch_loss_test,
             test_miou=average_epoch_miou_test,
-            test_miou_s=average_epoch_miou_s_test,
-            test_dice_coef=average_epoch_dice_coef_test,
+            # test_miou_s=average_epoch_miou_s_test,
+            # test_dice_coef=average_epoch_dice_coef_test,
             test_mSSIM=average_epoch_epoch_mSSIM_test,
         )
 
@@ -165,9 +165,9 @@ def smoke_segmentation(device, names):
             wandb.log(
                 {
                     "test_loss": average_epoch_loss_test,
-                    "test_miou_s": average_epoch_miou_s_test,
                     "test_miou": average_epoch_miou_test,
-                    "test_dice_coef": average_epoch_dice_coef_test,
+                    # "test_miou_s": average_epoch_miou_s_test,
+                    # "test_dice_coef": average_epoch_dice_coef_test,
                     "test_mSSIM": average_epoch_epoch_mSSIM_test,
                 }
             )
