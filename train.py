@@ -416,9 +416,9 @@ def main():
 
 
         if args["wandb_name"] != "no":
-            wandb.save(args["save_dir"] + "last_checkpoint" + ".pth", base_path="./a/")
-            wandb.save(args["save_dir"] + "last" + ".pth", base_path="./b/")
-            wandb.save(args['save_dir'] + 'last' +  '.onnx', base_path="./c/")
+            wandb.save(args["save_dir"] + "last_checkpoint" + ".pth", base_path="./")
+            wandb.save(args["save_dir"] + "last" + ".pth", base_path="./")
+            wandb.save(args['save_dir'] + 'last' +  '.onnx', base_path="./")
             # Graphical archive of the epoch test set
             # epoch 測試集中的圖示化存檔
             # wandb.log({"last": wandb.Image("./validation_data_captures/" + "last_" + ".jpg")})
