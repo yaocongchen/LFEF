@@ -231,9 +231,9 @@ def valid_epoch(model, validation_data_loader, device, epoch):
 
     return (
         mean_loss,
-        mean_miou_s,
+        # mean_miou_s,
         mean_miou,
-        mean_dice_coef,
+        # mean_dice_coef,
         RGB_image,
         mask_image,
         output,
@@ -253,7 +253,7 @@ def main():
         train_masks = config.get(args["dataset_path"], "train_masks")
 
     save_mean_miou = 0
-    save_mean_miou_s = 0
+    # save_mean_miou_s = 0
     check_have_GPU()
     # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
     # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
@@ -331,9 +331,9 @@ def main():
             start_epoch = checkpoint["epoch"]
             mean_loss = checkpoint["loss"]
             mean_miou = checkpoint["miou"]
-            mean_miou_s = checkpoint["miou_s"]
+            # mean_miou_s = checkpoint["miou_s"]
             save_mean_miou = checkpoint["best_miou"]
-            save_mean_miou_s = checkpoint["best_miou_s"]
+            # save_mean_miou_s = checkpoint["best_miou_s"]
             print(
                 "=====> load checkpoint '{}' (epoch {})".format(
                     args["resume"], checkpoint["epoch"]
@@ -360,9 +360,9 @@ def main():
         torch.cuda.empty_cache()  # 刪除不需要的變數
         (
             mean_loss,
-            mean_miou_s,
+            # mean_miou_s,
             mean_miou,
-            mean_dice_coef,
+            # mean_dice_coef,
             RGB_image,
             mask_image,
             output,
@@ -379,10 +379,10 @@ def main():
             "optimizer_state_dict": optimizer.state_dict(),
             "loss": mean_loss,
             "miou": mean_miou,
-            "miou_s": mean_miou_s,
-            "dice_coef": mean_dice_coef,
+            # "miou_s": mean_miou_s,
+            # "dice_coef": mean_dice_coef,
             "best_miou": save_mean_miou,
-            "best_miou_s": save_mean_miou_s,
+            # "best_miou_s": save_mean_miou_s,
         }
 
         torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
