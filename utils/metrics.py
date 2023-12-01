@@ -9,7 +9,7 @@ from skimage.metrics import structural_similarity
 
 S = nn.Sigmoid()
 L = nn.BCELoss(reduction="mean")
-
+from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
 
 def Sigmoid_IoU(
     model_output, mask, smooth=1
@@ -32,23 +32,39 @@ def Sigmoid_IoU(
 def IoU(
     model_output, mask, device, smooth=1
 ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
-    torch.set_printoptions(profile="full")
+    # model_output = S(model_output)
     # print("model_output:",model_output.shape)
-    output_np = (
+#==============================================================================================================#
+    model_output = (
         model_output.mul(255)
         .add_(0.5)
         .clamp_(0, 255)
-        .contiguous()
-        .to("cpu", torch.uint8)
-        .detach()
-        .numpy()
     )
 
-    np.set_printoptions(threshold=np.inf)
-    output_np[output_np >= 1] = 1
-    # output_np[1< output_np] = 0
+    model_output = (model_output > 0.5).float()
+#==============================================================================================================#
 
-    model_output = torch.from_numpy(output_np).to(device).float()
+############################################################################################################################
+    # torch.set_printoptions(profile="full")
+    # # model_output = S(model_output)
+    # # print("model_output:",model_output.shape)
+    # output_np = (
+    #     model_output.mul(255)
+    #     .add_(0.5)
+    #     .clamp_(0, 255)
+    #     .contiguous()
+    #     .to("cpu", torch.uint8)
+    #     .detach()
+    #     .numpy()
+    # )
+
+    # np.set_printoptions(threshold=np.inf)
+    # output_np[output_np >= 1] = 1
+    # # output_np[1< output_np] = 0
+
+    # model_output = torch.from_numpy(output_np).to(device).float()
+#############################################################################################################
+    # model_output = S(model_output)
 
     intersection = torch.sum(
         model_output * mask, dim=[1, 2, 3]
@@ -68,30 +84,42 @@ def IoU(
         (intersection + smooth) / (union + smooth), dim=0
     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
 
+def ssim_val(model_output, mask):
 
-def SSIM(model_output, mask):
-    output_np = (
-        model_output.squeeze()
-        .mul(255)
+    # model_output = (
+    #     model_output.squeeze()
+    #     .mul(255)
+    #     .add_(0.5)
+    #     .clamp_(0, 255)
+    #     .contiguous()
+    #     .to("cpu")
+    #     .detach()
+    #     .numpy()
+    # )
+
+    # model_output = (model_output > 0.5)
+    # # print("model_output",model_output)
+    # mask = (mask.squeeze()
+    #     .contiguous()
+    #     .to("cpu")
+    #     .detach()
+    #     .numpy()
+    # )
+    # # print("mask",mask)
+    # # # Compute SSIM between two images
+    # msssim = structural_similarity(model_output, mask,data_range=1,win_size=11,win_sigma=1.5,size_average=True,k1=0.01,k2=0.03,gaussian_weights=True)
+
+
+    model_output = (
+        model_output.mul(255)
         .add_(0.5)
         .clamp_(0, 255)
-        .contiguous()
-        .to("cpu")
-        .detach()
-        .numpy()
     )
 
-    np.set_printoptions(threshold=np.inf)
-    output_np[output_np >= 1] = 1
-    # output_np[1< output_np] = 0
-
-    # model_output = torch.from_numpy(output_np).to("cuda")
-
-    mask = mask.squeeze().contiguous().to("cpu").detach().numpy()
-    # Compute SSIM between two images
-    (score, diff) = structural_similarity(output_np, mask, data_range=1, full=True)
-    # print("Image similarity", score)
-    return score
+    model_output = (model_output > 0.5).float()
+    msssim = ssim(model_output, mask, data_range=1)
+    
+    return msssim
 
 
 def dice_coef(

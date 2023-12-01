@@ -14,14 +14,14 @@ IMG_SCALING = (1, 1)
 
 
 # Picture brightness enhancement 圖片亮度增強
-def cv2_brightness_augment(img):
-    hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-    v = hsv[:, :, 2]
-    seed = random.uniform(0.5, 1.2)
-    v = ((v / 255.0) * seed) * 255.0
-    hsv[:, :, 2] = np.array(np.clip(v, 0, 255), dtype=np.uint8)
-    rgb_final = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
-    return rgb_final
+# def cv2_brightness_augment(img):
+#     hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+#     v = hsv[:, :, 2]
+#     # seed = random.uniform(0.5, 1.2)
+#     v = ((v / 255.0) * 1.2) * 255.0
+#     hsv[:, :, 2] = np.array(np.clip(v, 0, 255), dtype=np.uint8)
+#     rgb_final = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+#     return rgb_final
 
 
 def split_list(lst, ratio=0.8):
@@ -87,7 +87,7 @@ class DatasetSegmentation(Dataset):
         masks_path = y
 
         c_img = imread(images_path)
-        c_img = cv2_brightness_augment(c_img)
+        # c_img = cv2_brightness_augment(c_img)
 
         c_mask = imread(masks_path)
 
@@ -148,6 +148,11 @@ if __name__ == "__main__":
         pin_memory=True,
         drop_last=True,
     )
+
+    for iteration,(img_image, mask_image) in enumerate(training_data_loader):
+        print(img_image.shape)
+        print(mask_image.shape)
+        print(iteration)
     # ds = DatasetSegmentation()
     # dsl = DataLoader(ds, batch_size=1, shuffle=True)
     # fn, o_rgb, o_mask = next(iter(dsl))
