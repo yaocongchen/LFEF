@@ -118,8 +118,8 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
     n_element = 0
     mean_loss = 0
     mean_miou = 0
-    mean_dice_coef = 0
-    mean_miou_s = 0
+    # mean_dice_coef = 0
+    # mean_miou_s = 0
 
     # Training loop 訓練迴圈
     pbar = tqdm((training_data_loader), total=len(training_data_loader))
@@ -187,8 +187,8 @@ def valid_epoch(model, validation_data_loader, device, epoch):
     n_element = 0
     mean_loss = 0
     mean_miou = 0
-    mean_dice_coef = 0
-    mean_miou_s = 0
+    # mean_dice_coef = 0
+    # mean_miou_s = 0
 
     model.eval()
     pbar = tqdm((validation_data_loader), total=len(validation_data_loader))
@@ -416,9 +416,9 @@ def main():
 
 
         if args["wandb_name"] != "no":
-            wandb.save(args["save_dir"] + "last_checkpoint" + ".pth")
-            wandb.save(args["save_dir"] + "last" + ".pth")
-            wandb.save(args['save_dir'] + 'last' +  '.onnx')
+            wandb.save(args["save_dir"] + "last_checkpoint" + ".pth", base_path="./")
+            wandb.save(args["save_dir"] + "last" + ".pth", base_path="./")
+            wandb.save(args['save_dir'] + 'last' +  '.onnx', base_path="./")
             # Graphical archive of the epoch test set
             # epoch 測試集中的圖示化存檔
             # wandb.log({"last": wandb.Image("./validation_data_captures/" + "last_" + ".jpg")})
@@ -494,9 +494,9 @@ def main():
 
             if args["wandb_name"] != "no":
                 wandb.log({"best_loss": mean_loss, "best_miou": mean_miou})
-                wandb.save(args["save_dir"] + "best_checkpoint" + ".pth")
-                wandb.save(args["save_dir"] + "best" + ".pth")
-                wandb.save(args['save_dir'] + 'best' +  '.onnx')
+                wandb.save(args["save_dir"] + "best_checkpoint" + ".pth", base_path="./")
+                wandb.save(args["save_dir"] + "best" + ".pth", base_path="./")
+                wandb.save(args['save_dir'] + 'best' +  '.onnx', base_path="./")
                 # wandb.log({"best": wandb.Image("./validation_data_captures/" + "best" + ".jpg")})
 
                 if args["save_validation_image_bast"] != "no":
@@ -540,13 +540,13 @@ def main():
             #     #     torch.cat((mask_image, output), 0),
             #     #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
             #     # )
-            #     if args["wandb_name"] != "no":
-            #         wandb.log({"best_loss": mean_loss, "best_miou_s": mean_miou_s})
-            #         wandb.save(
-            #             args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
-            #         )
-            #         wandb.save(args["save_dir"] + "best_mean_miou_s" + ".pth")
-            #         wandb.save(args['save_dir'] + 'best_mean_miou_s' +  '.onnx')
+                # if args["wandb_name"] != "no":
+                #     wandb.log({"best_loss": mean_loss, "best_miou_s": mean_miou_s})
+                #     wandb.save(
+                #         args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth",base_path="./"
+                #     )
+                #     wandb.save(args["save_dir"] + "best_mean_miou_s" + ".pth",base_path="./")
+                #     wandb.save(args['save_dir'] + 'best_mean_miou_s' +  '.onnx', base_path="./")
 
             # save_mean_miou_s = mean_miou_s
 
