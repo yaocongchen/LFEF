@@ -143,7 +143,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
         loss = utils.loss.CustomLoss(output, mask_image, device)
         iou = utils.metrics.IoU(output, mask_image, device)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
-        dice_coef = utils.metrics.dice_coef(output, mask_image, device)
+        # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
 
         loss.backward()
         torch.nn.utils.clip_grad_norm_(
@@ -155,14 +155,14 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
         mean_loss += (loss.item() - mean_loss) / n_element
         mean_miou += (iou.item() - mean_miou) / n_element
         # mean_miou_s += (iou_s.item() - mean_miou_s) / n_element
-        mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
+        # mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
 
         pbar.set_description(f"trian_epoch [{epoch}/{args['epochs']}]")
         pbar.set_postfix(
             train_loss=mean_loss,
             train_miou=mean_miou,
             # train_miou_s=mean_miou_s,
-            train_dice_coef=mean_dice_coef,
+            # train_dice_coef=mean_dice_coef,
         )
         if args["wandb_name"] != "no":
             wandb.log(
@@ -170,7 +170,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
                     "train_loss": mean_loss,
                     "train_miou": mean_miou,
                     # "train_miou_s": mean_miou_s,
-                    "train_dice_coef": mean_dice_coef,
+                    # "train_dice_coef": mean_dice_coef,
                 }
             )
 
@@ -203,20 +203,20 @@ def valid_epoch(model, validation_data_loader, device, epoch):
         loss = utils.loss.CustomLoss(output, mask_image, device)
         iou = utils.metrics.IoU(output, mask_image, device)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
-        dice_coef = utils.metrics.dice_coef(output, mask_image, device)
+        # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
 
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
         mean_miou += (iou.item() - mean_miou) / n_element  # 別人研究出的算平均的方法
         # mean_miou_s += (iou_s.item() - mean_miou_s) / n_element  # 別人研究出的算平均的方法
-        mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
+        # mean_dice_coef += (dice_coef.item() - mean_dice_coef) / n_element
 
         pbar.set_description(f"val_epoch [{epoch}/{args['epochs']}]")
         pbar.set_postfix(
             val_loss=mean_loss,
             # val_miou_s=mean_miou_s,
             val_miou=mean_miou,
-            val_dice_coef=mean_dice_coef,
+            # val_dice_coef=mean_dice_coef,
         )
 
         if args["wandb_name"] != "no":
@@ -225,7 +225,7 @@ def valid_epoch(model, validation_data_loader, device, epoch):
                     "val_loss": mean_loss,
                     "val_miou": mean_miou,
                     # "val_miou_s": mean_miou_s,
-                    "val_dice_coef": mean_dice_coef,
+                    # "val_dice_coef": mean_dice_coef,
                 }
             )
 
