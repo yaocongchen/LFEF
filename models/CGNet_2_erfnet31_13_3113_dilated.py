@@ -288,7 +288,7 @@ class ContextGuidedBlock_Down(nn.Module):
     the size of feature map divided 2, (H,W,C)---->(H/2, W/2, 2C)
     """
 
-    def __init__(self, nIn, nOut,dropprob, dilation_rate=2, reduction=16):
+    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16):
         """
         args:
            nIn: the channel of input feature map
@@ -308,7 +308,7 @@ class ContextGuidedBlock_Down(nn.Module):
 
         self.F_glo = FGlo(nOut, reduction)
 
-        self.dropout = nn.Dropout2d(dropprob)
+        # self.dropout = nn.Dropout2d(dropprob)
 
     def forward(self, input):
         output = self.conv1x1(input)
@@ -326,8 +326,8 @@ class ContextGuidedBlock_Down(nn.Module):
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
 
-        if self.dropout.p != 0:
-            output = self.dropout(output)
+        # if self.dropout.p != 0:
+        #     output = self.dropout(output)
 
         return output
 
@@ -428,10 +428,10 @@ class non_bottleneck_1d(nn.Module):
         output = self.bn1(output)
         output = F.relu(output)
 
-        output = self.conv3x1_2(output)
-        output = F.relu(output)
-        output = self.conv1x3_2(output)
-        output = self.bn2(output)
+        # output = self.conv3x1_2(output)
+        # output = F.relu(output)
+        # output = self.conv1x3_2(output)
+        # output = self.bn2(output)
 
         if self.dropout.p != 0:
             output = self.dropout(output)
@@ -464,7 +464,7 @@ class Net(nn.Module):
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            32 + 3, 64, 0.3 ,dilation_rate=2, reduction=8
+            32 + 3, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -475,7 +475,7 @@ class Net(nn.Module):
 
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
-            128 + 3, 128,0.3, dilation_rate=4, reduction=16
+            128 + 3, 128, dilation_rate=4, reduction=16
         )
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
