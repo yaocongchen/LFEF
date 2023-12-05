@@ -15,7 +15,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_3113_dilated as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 CONFIG_FILE = "import_dataset_path.cfg"
@@ -609,7 +609,7 @@ if __name__ == "__main__":
         "-wd",
         "--weight_decay",
         type=float,
-        default=0.0001,
+        default=0.00001,
         help="weight decay for training",
     )
     ap.add_argument(
