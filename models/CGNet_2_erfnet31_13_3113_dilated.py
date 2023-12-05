@@ -302,7 +302,7 @@ class ContextGuidedBlock_Down(nn.Module):
         self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 2)
         self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 4)
 
-        # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
+        self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
         self.act = nn.PReLU(4 * nOut)
         self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
@@ -320,7 +320,7 @@ class ContextGuidedBlock_Down(nn.Module):
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
-        # joi_feat = self.bn(joi_feat)
+        joi_feat = self.bn(joi_feat)
         joi_feat = self.act(joi_feat)
         joi_feat = self.reduce(joi_feat)  # channel= nOut
 
@@ -395,7 +395,7 @@ class non_bottleneck_1d(nn.Module):
             chann, chann, (1, 3), stride=1, padding=(0, 1), bias=True
         )
 
-        # self.bn1 = nn.BatchNorm2d(chann, eps=1e-03)
+        self.bn1 = nn.BatchNorm2d(chann, eps=1e-03)
 
         self.conv3x1_2 = nn.Conv2d(
             chann,
@@ -417,7 +417,7 @@ class non_bottleneck_1d(nn.Module):
             dilation=(1, dilated),
         )
 
-        # self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
+        self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
 
         self.dropout = nn.Dropout2d(dropprob)
 
@@ -425,13 +425,13 @@ class non_bottleneck_1d(nn.Module):
         output = self.conv3x1_1(input)
         output = F.relu(output)
         output = self.conv1x3_1(output)
-        # output = self.bn1(output)
+        output = self.bn1(output)
         output = F.relu(output)
 
         output = self.conv3x1_2(output)
         output = F.relu(output)
         output = self.conv1x3_2(output)
-        # output = self.bn2(output)
+        output = self.bn2(output)
 
         if self.dropout.p != 0:
             output = self.dropout(output)
