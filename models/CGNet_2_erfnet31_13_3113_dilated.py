@@ -416,27 +416,27 @@ class non_bottleneck_1d(nn.Module):
             bias=True,
             dilation=(1, dilated),
         )
-
+        self.prelu = nn.PReLU(chann)
         self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
 
         self.dropout = nn.Dropout2d(dropprob)
 
     def forward(self, input):
         output = self.conv3x1_1(input)
-        output = F.relu(output)
+        output = self.prelu(output)
         output = self.conv1x3_1(output)
         output = self.bn1(output)
-        output = F.relu(output)
+        output = self.prelu(output)
 
         output = self.conv3x1_2(output)
-        output = F.relu(output)
+        output = self.prelu(output)
         output = self.conv1x3_2(output)
         output = self.bn2(output)
 
         if self.dropout.p != 0:
             output = self.dropout(output)
 
-        return F.relu(output + input)  # +input = identity (residual connection)
+        return self.prelu(output + input)  # +input = identity (residual connection)
 
 
 class Net(nn.Module):
