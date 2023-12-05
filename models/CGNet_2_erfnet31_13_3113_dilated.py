@@ -428,16 +428,43 @@ class non_bottleneck_1d(nn.Module):
         output = self.bn1(output)
         output = F.relu(output)
 
-        # output = self.conv3x1_2(output)
-        # output = F.relu(output)
-        # output = self.conv1x3_2(output)
-        # output = self.bn2(output)
+        output = self.conv3x1_2(output)
+        output = F.relu(output)
+        output = self.conv1x3_2(output)
+        output = self.bn2(output)
 
         if self.dropout.p != 0:
             output = self.dropout(output)
 
         return F.relu(output + input)  # +input = identity (residual connection)
 
+class non_bottleneck_1d_2(nn.Module):
+    def __init__(self, chann, dropprob):
+        super().__init__()
+
+        self.conv3x1_1 = nn.Conv2d(
+            chann, chann, (3, 1), stride=1, padding=(1, 0), bias=True
+        )
+
+        self.conv1x3_1 = nn.Conv2d(
+            chann, chann, (1, 3), stride=1, padding=(0, 1), bias=True
+        )
+
+        self.bn1 = nn.BatchNorm2d(chann, eps=1e-03)
+
+        self.dropout = nn.Dropout2d(dropprob)
+
+    def forward(self, input):
+        output = self.conv3x1_1(input)
+        output = F.relu(output)
+        output = self.conv1x3_1(output)
+        output = self.bn1(output)
+        output = F.relu(output)
+
+        if self.dropout.p != 0:
+            output = self.dropout(output)
+
+        return F.relu(output + input)  # +input = identity (residual connection)
 
 class Net(nn.Module):
     """
@@ -455,7 +482,7 @@ class Net(nn.Module):
 
         self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 0.03, 1)
-        self.level1_2 = non_bottleneck_1d(32, 0.03, 2)
+        self.level1_2 = non_bottleneck_1d_2(32, 0.03)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
