@@ -13,7 +13,7 @@ __all__ = ["Context_Guided_Network"]
 
 
 class AttnTrans(nn.Module):
-    def __init__(self, in_chs, out_chs):
+    def __init__(self, in_chs, out_chs,dropprob):
         super().__init__()
         self.conv7_7 = nn.Conv2d(1, 1, (7, 7), stride=1, padding=3, bias=True)
         self.myrelu = nn.ReLU()
@@ -26,7 +26,7 @@ class AttnTrans(nn.Module):
 
         # self.upsamp = nn.Upsample(size = (28,28),mode ='bilinear',align_corners = True)
         self.conv1_1f = nn.Conv2d(in_chs, out_chs, (1, 1), stride=1, bias=True)
-
+        self.dropout = nn.Dropout2d(dropprob)
     def forward(self, input):
         # Channel Avg
         channel_avg = torch.mean(input, dim=1)
@@ -55,17 +55,17 @@ class AttnTrans(nn.Module):
 class Detail_Branch(nn.Module):
     def __init__(self, in_chs, out_chs):
         super().__init__()
-        self.AttenTrans_1 = AttnTrans(in_chs, 32)
-        self.AttenTrans_2 = AttnTrans(32, 32)
-        self.AttenTrans_3 = AttnTrans(32, 32)
+        self.AttenTrans_1 = AttnTrans(in_chs, 32, 0.1)
+        self.AttenTrans_2 = AttnTrans(32, 32, 0.1)
+        self.AttenTrans_3 = AttnTrans(32, 32, 0.1)
 
-        self.AttenTrans_4 = AttnTrans(32, 64)
-        self.AttenTrans_5 = AttnTrans(64, 64)
-        self.AttenTrans_6 = AttnTrans(64, 64)
+        self.AttenTrans_4 = AttnTrans(32, 64, 0.1)
+        self.AttenTrans_5 = AttnTrans(64, 64, 0.1)
+        self.AttenTrans_6 = AttnTrans(64, 64, 0.1)
 
-        self.AttenTrans_7 = AttnTrans(64, 128)
-        self.AttenTrans_8 = AttnTrans(128, 128)
-        self.AttenTrans_9 = AttnTrans(128, out_chs)
+        self.AttenTrans_7 = AttnTrans(64, 128, 0.1)
+        self.AttenTrans_8 = AttnTrans(128, 128, 0.1)
+        self.AttenTrans_9 = AttnTrans(128, out_chs,0.1)
 
         # self.AttenTrans_10 = AttnTrans(256, 512)
         # self.AttenTrans_11 = AttnTrans(512, 512)
