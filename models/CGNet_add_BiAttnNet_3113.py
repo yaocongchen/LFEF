@@ -55,17 +55,17 @@ class AttnTrans(nn.Module):
 class Detail_Branch(nn.Module):
     def __init__(self, in_chs, out_chs):
         super().__init__()
-        self.AttenTrans_1 = AttnTrans(in_chs, 32, 0.1)
-        self.AttenTrans_2 = AttnTrans(32, 32, 0.1)
-        self.AttenTrans_3 = AttnTrans(32, 32, 0.1)
+        self.AttenTrans_1 = AttnTrans(in_chs, 32, 0.03)
+        self.AttenTrans_2 = AttnTrans(32, 32, 0.03)
+        self.AttenTrans_3 = AttnTrans(32, 32, 0.03)
 
-        self.AttenTrans_4 = AttnTrans(32, 64, 0.1)
-        self.AttenTrans_5 = AttnTrans(64, 64, 0.1)
-        self.AttenTrans_6 = AttnTrans(64, 64, 0.1)
+        self.AttenTrans_4 = AttnTrans(32, 64, 0.03)
+        self.AttenTrans_5 = AttnTrans(64, 64, 0.03)
+        self.AttenTrans_6 = AttnTrans(64, 64, 0.03)
 
-        self.AttenTrans_7 = AttnTrans(64, 128, 0.1)
-        self.AttenTrans_8 = AttnTrans(128, 128, 0.1)
-        self.AttenTrans_9 = AttnTrans(128, out_chs,0.1)
+        self.AttenTrans_7 = AttnTrans(64, 128, 0.03)
+        self.AttenTrans_8 = AttnTrans(128, 128, 0.03)
+        self.AttenTrans_9 = AttnTrans(128, out_chs,0.03)
 
         # self.AttenTrans_10 = AttnTrans(256, 512)
         # self.AttenTrans_11 = AttnTrans(512, 512)
@@ -369,7 +369,7 @@ class ContextGuidedBlock_Down(nn.Module):
         self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 2)
         self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 4)
 
-        self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
+        # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
         self.act = nn.PReLU(4 * nOut)
         self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
@@ -462,7 +462,7 @@ class non_bottleneck_1d(nn.Module):
             chann, chann, (1, 3), stride=1, padding=(0, 1), bias=True
         )
 
-        self.bn1 = nn.BatchNorm2d(chann, eps=1e-03)
+        # self.bn1 = nn.BatchNorm2d(chann, eps=1e-03)
 
         self.conv3x1_2 = nn.Conv2d(
             chann,
@@ -484,7 +484,7 @@ class non_bottleneck_1d(nn.Module):
             dilation=(1, dilated),
         )
 
-        self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
+        # self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
 
         self.dropout = nn.Dropout2d(dropprob)
 
