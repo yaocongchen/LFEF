@@ -429,10 +429,11 @@ class ContextGuidedBlock(nn.Module):
         self.bn_prelu = BNPReLU(nOut)
         self.add = add
         self.F_glo = FGlo(nOut, reduction)
-        self.cssam = cssam(nOut, nOut, 3, 0.3 ,1, 2)
+        self.cssam = cssam(n, nOut, 3, 0.3 ,1, 2)
 
     def forward(self, input):
         output = self.conv1x1(input)
+        output2 = self.cssam(output)
         loc = self.F_loc(output)
         sur = self.F_sur(output)
         
@@ -443,7 +444,7 @@ class ContextGuidedBlock(nn.Module):
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
 
-        output2 = self.cssam(joi_feat)
+
         # if residual version
         if self.add:
             output = input + output + output2
