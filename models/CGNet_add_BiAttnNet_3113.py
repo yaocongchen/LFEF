@@ -387,7 +387,7 @@ class ContextGuidedBlock_Down(nn.Module):
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
-        joi_feat = self.bn(joi_feat)
+        # joi_feat = self.bn(joi_feat)
         joi_feat = self.act(joi_feat)
         joi_feat = self.reduce(joi_feat)  # channel= nOut
 
@@ -492,13 +492,13 @@ class non_bottleneck_1d(nn.Module):
         output = self.conv3x1_1(input)
         output = F.relu(output)
         output = self.conv1x3_1(output)
-        output = self.bn1(output)
+        # output = self.bn1(output)
         output = F.relu(output)
 
         output = self.conv3x1_2(output)
         output = F.relu(output)
         output = self.conv1x3_2(output)
-        output = self.bn2(output)
+        # output = self.bn2(output)
 
         if self.dropout.p != 0:
             output = self.dropout(output)
