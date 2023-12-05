@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.CGNet_2_erfnet31_13_3113_dilated as network_model
+import models.CGNet_2_erfnet31_13_3113_dilated_cssam as network_model
 from visualization_codes.inference import smoke_semantic
 
 model_name = str(network_model)
