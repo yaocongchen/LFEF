@@ -307,7 +307,7 @@ class cssam(nn.Module):
         self.dropout = nn.Dropout2d(dropprob)
 
         self.batch_norm_nIn = nn.BatchNorm2d(nIn, eps=1e-03)
-
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
         """
@@ -333,6 +333,8 @@ class cssam(nn.Module):
         x1_cat_x2_conv11 = F.relu(x1_cat_x2_conv11)
 
         output = channel_shuffle(x1_cat_x2_conv11, 2)
+
+        output = self.sigmoid(output)
 
         return output
     
