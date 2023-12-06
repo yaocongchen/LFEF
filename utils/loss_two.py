@@ -42,6 +42,6 @@ def CustomLoss(input1, input2, mask, mode):
 
     if mode == "train":
         total_loss = loss_1 + alpha * loss_2
-        return total_loss, loss_1, loss_2
+        return total_loss
     else:
         return loss_1

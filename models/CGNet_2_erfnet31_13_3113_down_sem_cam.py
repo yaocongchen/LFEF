@@ -549,16 +549,16 @@ class FFM(nn.Module):
         )
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, f29, f13, f18):
+    def forward(self, f29, f13):
         f30 = self.conv11(f13)
         f30 = self.upsamp(f30)
         f31 = torch.cat((f29, f30), dim=1)
         f32 = self.conv11_in192_out128(f31)
-        f18 = self.upsamp(f18)
-        f33 = f32 * f18
-        f33 = self.sigmoid(f33)
+        # f18 = self.upsamp(f18)
+        # f33 = f32 * f18
+        f32 = self.sigmoid(f32)
 
-        return f33
+        return f32
 
 class Net(nn.Module):
     """
@@ -677,16 +677,19 @@ class Net(nn.Module):
 
         output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2], 1))
         
-        output = self.ffm(sem_out, cam_out, output2_cat)
+        output = self.ffm(sem_out, cam_out)
         # classifier
+        classifier = self.classifier(output2_cat)
         classifier = self.classifier(output)
-
         # upsample segmenation map ---> the input image size
         out = F.interpolate(
             classifier, input.size()[2:], mode="bilinear", align_corners=False
         )  # Upsample score map, factor=8
+        out2 = F.interpolate(
+            classifier, input.size()[2:], mode="bilinear", align_corners=False
+        )
         # out = self.my_simgoid(out)
-        return out
+        return out,out2
 
 
 if __name__ == "__main__":

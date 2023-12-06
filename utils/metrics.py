@@ -30,7 +30,7 @@ def Sigmoid_IoU(
 
 
 def IoU(
-    model_output, mask, device, smooth=1
+    model_output, mask, smooth=1
 ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
     # model_output = S(model_output)
     # print("model_output:",model_output.shape)

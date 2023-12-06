@@ -7,7 +7,7 @@ import utils.dataset_smoke100k_seg_desmoke
 
 #import utils.load_npy_dataset
 import utils.loss
-import utils.two_loss
+import utils.loss_two
 import utils.loss_desmoke
 import utils.metrics
 
@@ -19,6 +19,6 @@ dataset_smoke100k_seg_desmoke = utils.dataset_smoke100k_seg_desmoke
 
 #load_npy_dataset = utils.load_npy_dataset
 loss = utils.loss
-two_loss = utils.two_loss
+two_loss = utils.loss_two
 loss_desmoke = utils.loss_desmoke
 metrics = utils.metrics
