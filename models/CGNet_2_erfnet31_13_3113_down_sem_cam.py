@@ -547,6 +547,7 @@ class FFM(nn.Module):
             nn.BatchNorm2d(out_ch),
             nn.ReLU(),
         )
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, f29, f13, f18):
         f30 = self.conv11(f13)
@@ -555,6 +556,7 @@ class FFM(nn.Module):
         f32 = self.conv11_in192_out128(f31)
         f18 = self.upsamp(f18)
         f33 = f32 * f18
+        f33 = self.sigmoid(f33)
 
         return f33
 
