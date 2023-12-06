@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.CGNet_2_erfnet31_13_3113_down_sem_cam as network_model
+import models.CGNet_2_erfnet31_13_3113_dilated as network_model
 from visualization_codes.inference import smoke_semantic
 
 model_name = str(network_model)
@@ -134,17 +134,17 @@ def smoke_segmentation(device, names):
             f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg',
         )
 
-        loss = utils.loss.CustomLoss(output, mask_image, device)
-        iou = utils.metrics.IoU(output, mask_image, device)
+        loss = utils.loss.CustomLoss(output, mask_image)
+        iou = utils.metrics.IoU(output, mask_image)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
-        SSIM = utils.metrics.ssim_val(output, mask_image)
+        customssim = utils.metrics.ssim_val(output, mask_image)
 
         epoch_loss.append(loss.item())
         epoch_iou.append(iou.item())
         # epoch_iou_s.append(iou_s.item())
         # epoch_dice_coef.append(dice_coef.item())
-        epoch_SSIM.append(SSIM.item())
+        epoch_SSIM.append(customssim.item())
 
         average_epoch_loss_test = sum(epoch_loss) / len(epoch_loss)
         average_epoch_miou_test = sum(epoch_iou) / len(epoch_iou)

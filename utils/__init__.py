@@ -19,6 +19,6 @@ dataset_smoke100k_seg_desmoke = utils.dataset_smoke100k_seg_desmoke
 
 #load_npy_dataset = utils.load_npy_dataset
 loss = utils.loss
-two_loss = utils.loss_two
+loss_two = utils.loss_two
 loss_desmoke = utils.loss_desmoke
 metrics = utils.metrics
