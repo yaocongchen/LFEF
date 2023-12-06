@@ -41,7 +41,7 @@ def CustomLoss(input1, input2, mask, mode):
     # ssim_loss = 1- SSIM(input1,mask)
 
     if mode == "train":
-        total_loss = loss_1 + alpha * loss_2
+        total_loss = alpha * loss_1 + (1-alpha) * loss_2
         return total_loss
     else:
         return loss_1
