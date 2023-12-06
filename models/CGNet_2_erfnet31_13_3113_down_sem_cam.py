@@ -574,9 +574,13 @@ class Net(nn.Module):
         """
         super().__init__()
         
-        self.down_stage1 = ConvBNPReLU(3, 3, 3, 2)  # feature map size divided 2, 1/2
-        self.down_stage2 = ConvBNPReLU(3, 6, 3, 2)  # feature map size divided 2, 1/2
-        self.down_stage3 = ConvBNPReLU(6, 12, 3, 2)  # feature map size divided 2, 1/2
+        self.down_stage1_0 = ConvBNPReLU(3, 3, 3, 2)  # feature map size divided 2, 1/2
+        self.down_stage1 = nn.Conv2d(3, 3, 3, 1, 1)  # feature map size unchanged
+        self.down_stage2_0 = ConvBNPReLU(3, 6, 3, 2)  # feature map size divided 2, 1/2
+        self.down_stage2 = nn.Conv2d(6, 6, 3, 1, 1)  # feature map size unchanged
+        self.down_stage3_0 = ConvBNPReLU(6, 12, 3, 2)  # feature map size divided 2, 1/2
+        self.down_stage3 = nn.Conv2d(12, 12, 3, 1, 1)  # feature map size unchanged
+
         self.sem = SEM(6, 6)
         self.cam = CAM(12, 6)
         self.ffm = FFM(12, 256)
@@ -642,17 +646,17 @@ class Net(nn.Module):
         """
 
         # down-sample the input image to 1/2, 1/4, 1/8
-        input = self.down_stage1(input)
-        input = self.down_stage1(input)
-        input1 = self.down_stage1(input)
-        input1 = self.down_stage2(input1)
-        input1 = self.down_stage2(input1)
-        input2_0 = self.down_stage2(input1)
-        input2 = self.down_stage3(input2_0)
-        input2 = self.down_stage3(input2)
-        input3_0 = self.down_stage3(input2)
-        sem_out = self.sem(input2_0)
-        cam_out = self.cam(input3_0)
+        input_down = self.down_stage1_0(input)
+        input_down = self.down_stage1(input_down)
+        input1_down = self.down_stage1(input_down)
+        input1_down = self.down_stage2_0(input1_down)
+        input1_down = self.down_stage2(input1_down)
+        input2_0_down = self.down_stage2(input1_down)
+        input2_down = self.down_stage3_0(input2_0_down)
+        input2_down = self.down_stage3(input2_down)
+        input3_0_down = self.down_stage3(input2_down)
+        sem_out = self.sem(input2_0_down)
+        cam_out = self.cam(input3_0_down)
 
         # stage 1
         output0 = self.level1_0(input)
