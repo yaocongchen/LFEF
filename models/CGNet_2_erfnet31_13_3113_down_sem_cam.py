@@ -260,84 +260,7 @@ class ChannelWiseDilatedConv(nn.Module):
         output = self.conv(input)
         return output
 
-class cssam(nn.Module):
-    def __init__(self, nIn, nOut, kSize, dropprob, stride=1, d=1):
-        """
-        args:
-           nIn: number of input channels
-           nOut: number of output channels, default (nIn == nOut)
-           kSize: kernel size
-           stride: optional stride rate for down-sampling
-           d: dilation rate
-        """
-        super().__init__()
-        nIn_half = int(nIn / 2)
-        padding = int((kSize - 1) / 2) * d
-        self.conv31 = nn.Conv2d(
-                nIn_half,
-                nIn_half,
-                (1, kSize),
-                stride=stride,
-                padding=(0, padding),
-                bias=False,
-                dilation=d,
-        )
-        self.conv13 = nn.Conv2d(
-                nIn_half,
-                nIn_half,
-                (kSize, 1),
-                stride=stride,
-                padding=(padding, 0),
-                bias=False,
-                dilation=d,
-        )
-        self.conv11 = nn.Conv2d(
-                nIn,
-                nOut,
-                (1, 1),
-                stride=stride,
-                padding=(0, 0),
-                bias=False,
-        )
-        self.batch_norm_nIn_half = nn.BatchNorm2d(nIn_half, eps=1e-03)
 
-        self.maxpl = nn.MaxPool2d((3, 3), stride=1, padding=1)
-        self.batch_norm_nOut = nn.BatchNorm2d(nOut, eps=1e-03)
-        self.mysigmoid = nn.Sigmoid()
-        self.dropout = nn.Dropout2d(dropprob)
-
-        self.batch_norm_nIn = nn.BatchNorm2d(nIn, eps=1e-03)
-        self.sigmoid = nn.Sigmoid()
-
-    def forward(self, input):
-        """
-        args:
-           input: input feature map
-           return: transformed feature map
-        """
-        x1, x2 = split(input)
-        x1 = self.conv31(x1)
-        x1 = self.batch_norm_nIn_half(x1)
-        x1 = self.conv13(x1)
-        x1 = self.batch_norm_nIn_half(x1)
-        x1 = F.relu(x1)
-
-        x2 = self.conv13(x2)
-        x2 = self.batch_norm_nIn_half(x2)
-        x2 = self.conv31(x2)
-        x2 = self.batch_norm_nIn_half(x2)
-        x2 = F.relu(x2)
-
-        x1_cat_x2_conv11 = self.conv11(torch.cat([x1, x2], 1))
-        x1_cat_x2_conv11 = self.batch_norm_nOut(x1_cat_x2_conv11)
-        x1_cat_x2_conv11 = F.relu(x1_cat_x2_conv11)
-
-        output = channel_shuffle(x1_cat_x2_conv11, 2)
-
-        output = self.sigmoid(output)
-
-        return output
-    
 class FGlo(nn.Module):
     """
     the FGlo class is employed to refine the joint feature of both local feature and surrounding context.
@@ -429,11 +352,9 @@ class ContextGuidedBlock(nn.Module):
         self.bn_prelu = BNPReLU(nOut)
         self.add = add
         self.F_glo = FGlo(nOut, reduction)
-        self.cssam = cssam(n, nOut, 3, 0.3 ,1, 2)
 
     def forward(self, input):
         output = self.conv1x1(input)
-        output2 = self.cssam(output)
         loc = self.F_loc(output)
         sur = self.F_sur(output)
         
@@ -443,11 +364,9 @@ class ContextGuidedBlock(nn.Module):
         joi_feat = self.bn_prelu(joi_feat)
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
-
-
         # if residual version
         if self.add:
-            output = input + output + output2
+            output = input + output
         return output
 
 
@@ -518,7 +437,126 @@ class non_bottleneck_1d(nn.Module):
             output = self.dropout(output)
 
         return self.prelu(output + input)  # +input = identity (residual connection)
+    
+#===============================SEM====================================#
+class SEM(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
 
+        self.conv11_64out32 = nn.Sequential(
+            nn.Conv2d(
+                in_ch, in_ch // 2, kernel_size=(1, 1), padding="same"
+            ),  # TODO:有自行除於2
+            nn.BatchNorm2d(in_ch // 2),
+        )
+        self.avgpl = nn.AvgPool2d(kernel_size=3, stride=1, padding=1)
+        self.maxpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+
+        self.conv11_130 = nn.Sequential(
+            nn.Conv2d(in_ch, in_ch, kernel_size=(1, 1), padding="same"),
+            nn.BatchNorm2d(in_ch),
+        )
+
+        self.gavgpl = nn.AdaptiveAvgPool2d(1)
+
+        self.conv11_131 = nn.Sequential(
+            nn.Conv2d(in_ch, in_ch, kernel_size=(1, 1), padding="same"),
+            nn.BatchNorm2d(in_ch),
+        )
+        self.mysigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        out = self.conv11_64out32(x)
+        f20 = F.relu(out)
+        f21 = self.avgpl(f20)
+        f22 = self.maxpl(f20)
+        f23 = torch.cat((f21, f22), dim=1)
+        out = self.conv11_130(f23)
+        f27 = F.relu(out)
+
+        f24 = self.gavgpl(x)
+        f25 = self.conv11_131(f24)
+        f26 = self.mysigmoid(f25)
+
+        f28 = f26 * f27
+        f29 = f28 + x
+
+        return f29 
+    
+#===============================CAM====================================#
+k=2
+class CAM(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
+        ck = in_ch // k
+        self.conv33_cin_cin = nn.Sequential(
+            nn.Conv2d(in_ch, in_ch, kernel_size=(3, 3), padding="same"),
+            nn.BatchNorm2d(in_ch),
+        )
+        self.conv33_cin_ckout = nn.Sequential(
+            nn.Conv2d(in_ch, ck, kernel_size=(3, 3), padding="same"), nn.BatchNorm2d(ck)
+        )
+
+        self.conv11_cin_ckout = nn.Conv1d(in_ch, ck, kernel_size=3, padding="same")
+        self.conv11_ckin_cout = nn.Conv1d(ck, in_ch, kernel_size=3, padding="same")
+        self.mysoftmax = nn.Softmax(dim=1)
+
+        self.conv33_cin_cout = nn.Sequential(
+            nn.Conv2d(in_ch, in_ch, kernel_size=(3, 3), padding="same"),
+            nn.BatchNorm2d(in_ch),
+        )
+
+    def forward(self, x):
+        f4 = self.conv33_cin_cin(x)
+        batchsize, num_channels, height, width = f4.data.size()
+
+        # reshape (torch版的)
+        f5 = f4.view(-1, num_channels, height * width)
+        f6 = self.conv11_cin_ckout(f5)
+        f9 = self.mysoftmax(f6)
+
+        f7 = self.conv33_cin_ckout(x)
+        batchsize, num_channels, height, width = f7.data.size()
+        f8 = f7.view(-1, num_channels, height * width)
+
+        f10 = f9 * f8
+
+        f11 = self.conv11_ckin_cout(f10)
+        batchsize, num_channels, HW = f11.data.size()
+        f11 = f11.view(batchsize, num_channels, 32, 32)
+        f12 = self.conv33_cin_cout(f11)
+
+        f13 = f11 + f12
+
+        return f13
+
+#===============================FFM====================================#
+class FFM(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
+
+        self.conv11 = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, kernel_size=(1, 1), padding="same"),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(),
+        )
+        self.upsamp = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
+
+        self.conv11_in192_out128 = nn.Sequential(
+            nn.Conv2d(262, out_ch, kernel_size=(1, 1), padding="same"),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(),
+        )
+
+    def forward(self, f29, f13, f18):
+        f30 = self.conv11(f13)
+        f30 = self.upsamp(f30)
+        f31 = torch.cat((f29, f30), dim=1)
+        f32 = self.conv11_in192_out128(f31)
+        f18 = self.upsamp(f18)
+        f33 = f32 * f18
+
+        return f33
 
 class Net(nn.Module):
     """
@@ -533,6 +571,13 @@ class Net(nn.Module):
           N: the number of blocks in stage 3
         """
         super().__init__()
+        
+        self.down_stage1 = ConvBNPReLU(3, 3, 3, 2)  # feature map size divided 2, 1/2
+        self.down_stage2 = ConvBNPReLU(3, 6, 3, 2)  # feature map size divided 2, 1/2
+        self.down_stage3 = ConvBNPReLU(6, 12, 3, 2)  # feature map size divided 2, 1/2
+        self.sem = SEM(6, 6)
+        self.cam = CAM(12, 6)
+        self.ffm = FFM(12, 256)
 
         self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 0.03, 1)
@@ -594,6 +639,13 @@ class Net(nn.Module):
             return: segmentation map
         """
 
+        # down-sample the input image to 1/2, 1/4, 1/8
+        input1 = self.down_stage1(input)
+        input2 = self.down_stage2(input1)
+        input3 = self.down_stage3(input2)
+        sem_out = self.sem(input2)
+        cam_out = self.cam(input3)
+
         # stage 1
         output0 = self.level1_0(input)
         output0 = self.level1_1(output0)
@@ -622,9 +674,10 @@ class Net(nn.Module):
                 output2 = layer(output2)
 
         output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2], 1))
-
+        
+        output = self.ffm(sem_out, cam_out, output2_cat)
         # classifier
-        classifier = self.classifier(output2_cat)
+        classifier = self.classifier(output)
 
         # upsample segmenation map ---> the input image size
         out = F.interpolate(

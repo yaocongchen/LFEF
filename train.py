@@ -15,7 +15,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet_2_erfnet31_13_3113_dilated_cssam as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_3113_down_sem_cam as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 CONFIG_FILE = "import_dataset_path.cfg"
@@ -260,7 +260,7 @@ def main():
     cudnn.enabled = True
 
     # Model import 模型導入
-    model = network_model.Net(1)
+    model = network_model.Net()
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
