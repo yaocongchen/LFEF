@@ -642,11 +642,17 @@ class Net(nn.Module):
         """
 
         # down-sample the input image to 1/2, 1/4, 1/8
+        input = self.down_stage1(input)
+        input = self.down_stage1(input)
         input1 = self.down_stage1(input)
-        input2 = self.down_stage2(input1)
-        input3 = self.down_stage3(input2)
-        sem_out = self.sem(input2)
-        cam_out = self.cam(input3)
+        input1 = self.down_stage2(input1)
+        input1 = self.down_stage2(input1)
+        input2_0 = self.down_stage2(input1)
+        input2 = self.down_stage3(input2_0)
+        input2 = self.down_stage3(input2)
+        input3_0 = self.down_stage3(input2)
+        sem_out = self.sem(input2_0)
+        cam_out = self.cam(input3_0)
 
         # stage 1
         output0 = self.level1_0(input)
