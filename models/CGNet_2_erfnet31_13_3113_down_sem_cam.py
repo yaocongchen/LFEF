@@ -529,7 +529,29 @@ class CAM(nn.Module):
         f13 = f11 + f12
 
         return f13
+#===============================GCP====================================#
+class GCP(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
+        self.avgpl = nn.AvgPool2d(kernel_size=3, stride=1, padding=1)
+        self.maxpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+        self.conv11_1 = nn.Sequential(nn.Conv2d(in_ch, out_ch, kernel_size=(1, 1), padding="same"),
+                        nn.BatchNorm2d(out_ch),
+                        nn.ReLU())
+        self.avgpl = nn.AvgPool2d(kernel_size=3, stride=1, padding=1)
+        self.conv11_2 = nn.Sequential(nn.Conv2d(out_ch, out_ch, kernel_size=(1, 1), padding="same"),
+                        nn.BatchNorm2d(out_ch),
+                        nn.Sigmoid())
+        
+    def forward(self, x):
+        f1 = self.avgpl(x)
+        f2 = self.maxpl(x)
+        f3 = f1 + f2
+        f4 = self.conv11_1(f3)
+        f5 = self.avgpl(f4)
+        f6 = self.conv11_2(f5)
 
+        return f6
 #===============================FFM====================================#
 class FFM(nn.Module):
     def __init__(self, in_ch, out_ch):
@@ -547,19 +569,20 @@ class FFM(nn.Module):
             nn.BatchNorm2d(out_ch),
             nn.ReLU(),
         )
-        self.sigmoid = nn.Sigmoid()
+        # self.sigmoid = nn.Sigmoid()
 
-    def forward(self, f29, f13):
-        f30 = self.conv11(f13)
-        f30 = self.upsamp(f30)
-        f31 = torch.cat((f29, f30), dim=1)
-        f32 = self.conv11_in192_out128(f31)
-        # f18 = self.upsamp(f18)
-        # f33 = f32 * f18
-        f32 = self.sigmoid(f32)
+    def forward(self, sem_out, cam_out, gcp_out): 
+        f1 = self.conv11(cam_out)
+        f1 = self.upsamp(f1)
+        f2 = torch.cat((sem_out, f1), dim=1)
+        f2 = self.conv11_in192_out128(f2)
+        f3 = self.upsamp(gcp_out)
+        f4 = f2 * f3
+        # f32 = self.sigmoid(f32)
 
-        return f32
+        return f4
 
+#===============================Net====================================#
 class Net(nn.Module):
     """
     This class defines the proposed Context Guided Network (CGNet) in this work.
@@ -584,6 +607,7 @@ class Net(nn.Module):
 
         self.sem = SEM(6, 6)
         self.cam = CAM(12, 6)
+        self.gcp = GCP(12, 256)
         self.ffm = FFM(12, 256)
 
         self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
@@ -658,6 +682,7 @@ class Net(nn.Module):
         input3_0_down = self.down_stage3(input2_down)
         sem_out = self.sem(input2_0_down)
         cam_out = self.cam(input3_0_down)
+        gcp_out = self.gcp(input3_0_down)
 
         # stage 1
         output0 = self.level1_0(input)
@@ -688,7 +713,7 @@ class Net(nn.Module):
 
         output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2], 1))
         
-        output = self.ffm(sem_out, cam_out)
+        output = self.ffm(sem_out, cam_out, gcp_out)
         # classifier
         classifier = self.classifier(output2_cat)
         classifier = self.classifier(output)
