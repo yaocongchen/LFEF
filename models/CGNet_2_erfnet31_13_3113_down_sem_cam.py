@@ -540,8 +540,7 @@ class GCP(nn.Module):
                         nn.ReLU())
         self.avgpl = nn.AvgPool2d(kernel_size=3, stride=1, padding=1)
         self.conv11_2 = nn.Sequential(nn.Conv2d(out_ch, out_ch, kernel_size=(1, 1), padding="same"),
-                        nn.BatchNorm2d(out_ch),
-                        nn.Sigmoid())
+                        nn.BatchNorm2d(out_ch))
         
     def forward(self, x):
         f1 = self.avgpl(x)
@@ -569,7 +568,7 @@ class FFM(nn.Module):
             nn.BatchNorm2d(out_ch),
             nn.ReLU(),
         )
-        # self.sigmoid = nn.Sigmoid()
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, sem_out, cam_out, gcp_out): 
         f1 = self.conv11(cam_out)
@@ -578,7 +577,7 @@ class FFM(nn.Module):
         f2 = self.conv11_in192_out128(f2)
         f3 = self.upsamp(gcp_out)
         f4 = f2 * f3
-        # f32 = self.sigmoid(f32)
+        f4 = self.sigmoid(f4)
 
         return f4
 
