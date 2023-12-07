@@ -3,7 +3,7 @@ import torch.nn as nn
 import numpy as np
 from skimage.metrics import structural_similarity
 
-alpha = 0.75
+alpha = 0.5
 lambda_reg = 0.01
 
 S = nn.Sigmoid()
@@ -41,7 +41,7 @@ def CustomLoss(input1, input2, mask, mode):
     # ssim_loss = 1- SSIM(input1,mask)
 
     if mode == "train":
-        total_loss = loss_2
+        total_loss = alpha * loss_1 + (1-alpha) * loss_2
         return total_loss
     else:
-        return loss_2
+        return loss_1
