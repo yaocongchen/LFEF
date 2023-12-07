@@ -3,7 +3,7 @@ import torch.nn as nn
 import numpy as np
 from skimage.metrics import structural_similarity
 
-alpha = 0.5
+alpha = 0.25
 lambda_reg = 0.01
 
 S = nn.Sigmoid()
