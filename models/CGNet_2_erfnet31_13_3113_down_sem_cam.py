@@ -516,6 +516,7 @@ class CAM(nn.Module):
         f9 = self.mysoftmax(f6)
 
         f7 = self.conv33_cin_ckout(x)
+
         batchsize, num_channels, height, width = f7.data.size()
         f8 = f7.view(-1, num_channels, height * width)
 
@@ -533,24 +534,22 @@ class CAM(nn.Module):
 class GCP(nn.Module):
     def __init__(self, in_ch, out_ch):
         super().__init__()
-        self.avgpl = nn.AvgPool2d(kernel_size=3, stride=1, padding=1)
-        self.maxpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
-        self.conv11_1 = nn.Sequential(nn.Conv2d(in_ch, out_ch, kernel_size=(1, 1), padding="same"),
-                        nn.BatchNorm2d(out_ch),
-                        nn.ReLU())
-        self.avgpl = nn.AvgPool2d(kernel_size=3, stride=1, padding=1)
-        self.conv11_2 = nn.Sequential(nn.Conv2d(out_ch, out_ch, kernel_size=(1, 1), padding="same"),
-                        nn.BatchNorm2d(out_ch))
+        self.glavgpl = nn.AdaptiveAvgPool2d(1)
+        self.glmaxpl = nn.AdaptiveMaxPool2d(1)
+        self.conv11 = nn.Sequential(
+            nn.Conv2d(in_ch*2, out_ch, kernel_size=(1, 1), padding="same"),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(),
+        )
+
         
     def forward(self, x):
-        f1 = self.avgpl(x)
-        f2 = self.maxpl(x)
-        f3 = f1 + f2
-        f4 = self.conv11_1(f3)
-        f5 = self.avgpl(f4)
-        f6 = self.conv11_2(f5)
+        f1 = self.glavgpl(x)
+        f2 = self.glmaxpl(x)
+        f3 = torch.cat((f1, f2), dim=1)
+        f4 = self.conv11(f3)
 
-        return f6
+        return f4
 #===============================FFM====================================#
 class FFM(nn.Module):
     def __init__(self, in_ch, out_ch):
