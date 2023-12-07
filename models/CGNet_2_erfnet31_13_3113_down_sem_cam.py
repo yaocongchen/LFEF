@@ -575,11 +575,12 @@ class Net(nn.Module):
         super().__init__()
         
         self.down_stage1_0 = ConvBNPReLU(3, 3, 3, 2)  # feature map size divided 2, 1/2
+        self.down_stage1 = ChannelWiseDilatedConv(3, 3, 3, 1, 1)  # feature map size unchanged
         self.down_stage1 = nn.Conv2d(3, 3, 3, 1, 1)  # feature map size unchanged
         self.down_stage2_0 = ConvBNPReLU(3, 6, 3, 2)  # feature map size divided 2, 1/2
-        self.down_stage2 = nn.Conv2d(6, 6, 3, 1, 1)  # feature map size unchanged
+        self.down_stage2 = ChannelWiseDilatedConv(6, 6, 3, 1, 1)  # feature map size unchanged
         self.down_stage3_0 = ConvBNPReLU(6, 12, 3, 2)  # feature map size divided 2, 1/2
-        self.down_stage3 = nn.Conv2d(12, 12, 3, 1, 1)  # feature map size unchanged
+        self.down_stage3 = ChannelWiseDilatedConv(12, 12, 3, 1, 1)  # feature map size unchanged
 
         self.sem = SEM(6, 6)
         self.cam = CAM(12, 6)
