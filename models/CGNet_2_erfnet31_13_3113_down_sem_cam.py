@@ -715,13 +715,13 @@ class Net(nn.Module):
         output = self.ffm(sem_out, cam_out, gcp_out)
         # classifier
         classifier = self.classifier(output2_cat)
-        classifier = self.classifier(output)
+        classifier2 = self.classifier(output)
         # upsample segmenation map ---> the input image size
         out = F.interpolate(
             classifier, input.size()[2:], mode="bilinear", align_corners=False
         )  # Upsample score map, factor=8
         out2 = F.interpolate(
-            classifier, input.size()[2:], mode="bilinear", align_corners=False
+            classifier2, input.size()[2:], mode="bilinear", align_corners=False
         )
         # out = self.my_simgoid(out)
         return out,out2
