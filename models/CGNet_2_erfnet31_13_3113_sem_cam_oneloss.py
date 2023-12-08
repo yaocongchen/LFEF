@@ -636,10 +636,10 @@ class Net(nn.Module):
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
-                nn.Dropout2d(0.1, False), Conv(256, classes, 1, 1)
+                nn.Dropout2d(0.1, False), Conv(480, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(256, classes, 1, 1))
+            self.classifier = nn.Sequential(Conv(480, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -714,16 +714,15 @@ class Net(nn.Module):
         # output2_up = self.conv11_128(output2_up)
         # output_ffm_up = self.conv11_256(output_ffm_up)
         # out = output0_up + output1_up + output2_up + output_ffm_up
-        out = self.bn_prelu_4(torch.cat([output0_up, output1_up, output2_up, output_ffm_up], 1))
-
+        output = self.bn_prelu_4(torch.cat([output0_up, output1_up, output2_up, output_ffm_up], 1))
         # classifier
-        # classifier = self.classifier(output)
+        classifier = self.classifier(output)
         # classifier2 = self.classifier(output2_cat)
 
         # upsample segmenation map ---> the input image size
-        # out = F.interpolate(
-        #     classifier, input.size()[2:], mode="bilinear", align_corners=False
-        # )  # Upsample score map, factor=8
+        out = F.interpolate(
+            classifier, input.size()[2:], mode="bilinear", align_corners=False
+        )  # Upsample score map, factor=8
         # out2 = F.interpolate(
         #     classifier2, input.size()[2:], mode="bilinear", align_corners=False
         # )
