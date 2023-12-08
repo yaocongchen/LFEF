@@ -631,13 +631,19 @@ class Net(nn.Module):
 
         self.ffm = FFM(256, 256)
 
+        self.bn_prelu_4 = BNPReLU(32+64+128+256)
+
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
+                nn.Dropout2d(0.1, False), Conv(480, classes, 1, 1)
+            )
+            self.classifier2 = nn.Sequential(
                 nn.Dropout2d(0.1, False), Conv(256, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(256, classes, 1, 1))
+            self.classifier = nn.Sequential(Conv(480, classes, 1, 1))
+            self.classifier2 = nn.Sequential(Conv(256, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -651,6 +657,8 @@ class Net(nn.Module):
                     if m.bias is not None:
                         m.bias.data.zero_()
         
+        self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
+
         # self.my_simgoid = nn.Sigmoid()
 
     def forward(self, input):
@@ -664,6 +672,7 @@ class Net(nn.Module):
         output0 = self.level1_0(input)
         output0 = self.level1_1(output0)
         output0 = self.level1_2(output0)
+        output0_up = self.upsample(output0)
         inp1 = self.sample1(input)
         inp2 = self.sample2(input)
 
@@ -677,6 +686,8 @@ class Net(nn.Module):
             else:
                 output1 = layer(output1)
 
+        output1_up = self.upsample(output1)
+
         output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
 
         sem_out = self.sem(output1_cat)
@@ -689,14 +700,21 @@ class Net(nn.Module):
             else:
                 output2 = layer(output2)
 
+        output2_up = self.upsample(output2)        
+
         output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2], 1))
 
         cam_out = self.cam(output2_cat)
         
-        output = self.ffm(sem_out, cam_out, output2_cat)
+        output_ffm = self.ffm(sem_out, cam_out, output2_cat)
+        output_ffm_up = self.upsample(output_ffm)
+
+        output = self.bn_prelu_4(torch.cat([output0_up, output1_up, output2_up, output_ffm_up], 1))
+
         # classifier
-        classifier = self.classifier(output2_cat)
-        classifier2 = self.classifier(output)
+        classifier = self.classifier(output)
+        classifier2 = self.classifier2(output2_cat)
+
         # upsample segmenation map ---> the input image size
         out = F.interpolate(
             classifier, input.size()[2:], mode="bilinear", align_corners=False
@@ -705,7 +723,7 @@ class Net(nn.Module):
             classifier2, input.size()[2:], mode="bilinear", align_corners=False
         )
         # out = self.my_simgoid(out)
-        return out2,out
+        return out,out2
 
 
 if __name__ == "__main__":
