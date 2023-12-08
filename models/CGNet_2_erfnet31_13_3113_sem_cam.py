@@ -318,7 +318,7 @@ class ContextGuidedBlock_Down(nn.Module):
         # sur_8 = self.F_sur_8(output)
 
         # joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
-        joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
+        joi_feat = torch.cat([loc, sur], 1)  #  the joint feature
 
         joi_feat = self.bn(joi_feat)
         joi_feat = self.act(joi_feat)
