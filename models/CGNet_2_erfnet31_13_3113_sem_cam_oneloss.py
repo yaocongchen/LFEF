@@ -709,11 +709,12 @@ class Net(nn.Module):
         output_ffm = self.ffm(sem_out, cam_out, output2_cat)
         output_ffm_up = self.upsample(output_ffm)
 
-        output0_up = self.conv11_32(output0_up)
-        output1_up = self.conv11_64(output1_up)
-        output2_up = self.conv11_128(output2_up)
-        output_ffm_up = self.conv11_256(output_ffm_up)
-        out = output0_up + output1_up + output2_up + output_ffm_up
+        # output0_up = self.conv11_32(output0_up)
+        # output1_up = self.conv11_64(output1_up)
+        # output2_up = self.conv11_128(output2_up)
+        # output_ffm_up = self.conv11_256(output_ffm_up)
+        # out = output0_up + output1_up + output2_up + output_ffm_up
+        out = self.bn_prelu_4(torch.cat([output0_up, output1_up, output2_up, output_ffm_up], 1))
 
         # classifier
         # classifier = self.classifier(output)
