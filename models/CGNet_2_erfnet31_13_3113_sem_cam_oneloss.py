@@ -600,6 +600,7 @@ class Net(nn.Module):
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
+        self.sample3 = InputInjection(3)
 
         self.b1 = BNPReLU(32 + 3)
 
@@ -627,9 +628,9 @@ class Net(nn.Module):
             )  # CG block
         self.bn_prelu_3 = BNPReLU(256)
 
-        self.cam = CAM(256, 12)
+        self.cam = CAM(256+3, 12)
 
-        self.ffm = FFM(256, 256)
+        self.ffm = FFM(256+3, 256)
 
         self.bn_prelu_4 = BNPReLU(32+64+128+256)
 
@@ -675,6 +676,7 @@ class Net(nn.Module):
         output0_up = self.upsample(output0)
         inp1 = self.sample1(input)
         inp2 = self.sample2(input)
+        inp3 = self.sample3(input)
 
         # stage 2
         output0_cat = self.b1(torch.cat([output0, inp1], 1))
@@ -704,7 +706,8 @@ class Net(nn.Module):
 
         output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2], 1))
 
-        cam_out = self.cam(output2_cat)
+        output2_cat_inp3 = torch.cat([output2_cat, inp3], 1)
+        cam_out = self.cam(output2_cat_inp3)
         
         output_ffm = self.ffm(sem_out, cam_out, output2_cat)
         output_ffm_up = self.upsample(output_ffm)
