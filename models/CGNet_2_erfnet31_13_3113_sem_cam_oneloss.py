@@ -562,8 +562,8 @@ class FFM(nn.Module):
         self.upsamp = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
 
         self.conv11_in192_out128 = nn.Sequential(
-            nn.Conv2d(387, out_ch, kernel_size=(1, 1), padding="same"),
-            nn.BatchNorm2d(out_ch),
+            nn.Conv2d(387, out_ch+3, kernel_size=(1, 1), padding="same"),
+            nn.BatchNorm2d(out_ch+3),
             nn.ReLU(),
         )
         self.sigmoid = nn.Sigmoid()
@@ -626,21 +626,21 @@ class Net(nn.Module):
             self.level3.append(
                 ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
             )  # CG block
-        self.bn_prelu_3 = BNPReLU(256)
+        self.bn_prelu_3 = BNPReLU(256+3)
 
         self.cam = CAM(256+3, 12)
 
         self.ffm = FFM(256+3, 256)
 
-        self.bn_prelu_4 = BNPReLU(32+64+128+256)
+        self.bn_prelu_4 = BNPReLU(4)
 
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
-                nn.Dropout2d(0.1, False), Conv(480, classes, 1, 1)
+                nn.Dropout2d(0.1, False), Conv(4, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(480, classes, 1, 1))
+            self.classifier = nn.Sequential(Conv(4, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -656,9 +656,9 @@ class Net(nn.Module):
         
         self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
         self.conv11_32 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
-        self.conv11_64 = nn.Sequential(nn.Conv2d(64, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
-        self.conv11_128 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
-        self.conv11_256 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
+        self.conv11_64 = nn.Sequential(nn.Conv2d(131, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
+        self.conv11_128 = nn.Sequential(nn.Conv2d(259, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
+        self.conv11_256 = nn.Sequential(nn.Conv2d(259, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
 
         # self.my_simgoid = nn.Sigmoid()
 
@@ -688,9 +688,9 @@ class Net(nn.Module):
             else:
                 output1 = layer(output1)
 
-        output1_up = self.upsample(output1)
-
         output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
+
+        output1_up = self.upsample(output1_cat)
 
         sem_out = self.sem(output1_cat)
 
@@ -702,20 +702,19 @@ class Net(nn.Module):
             else:
                 output2 = layer(output2)
 
-        output2_up = self.upsample(output2)        
+        output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2,inp3], 1))
 
-        output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2], 1))
+        output2_up = self.upsample(output2_cat) 
 
-        output2_cat_inp3 = torch.cat([output2_cat, inp3], 1)
-        cam_out = self.cam(output2_cat_inp3)
+        cam_out = self.cam(output2_cat)
         
         output_ffm = self.ffm(sem_out, cam_out, output2_cat)
         output_ffm_up = self.upsample(output_ffm)
 
-        # output0_up = self.conv11_32(output0_up)
-        # output1_up = self.conv11_64(output1_up)
-        # output2_up = self.conv11_128(output2_up)
-        # output_ffm_up = self.conv11_256(output_ffm_up)
+        output0_up = self.conv11_32(output0_up)
+        output1_up = self.conv11_64(output1_up)
+        output2_up = self.conv11_128(output2_up)
+        output_ffm_up = self.conv11_256(output_ffm_up)
         # out = output0_up + output1_up + output2_up + output_ffm_up
         output = self.bn_prelu_4(torch.cat([output0_up, output1_up, output2_up, output_ffm_up], 1))
         # classifier
@@ -723,14 +722,14 @@ class Net(nn.Module):
         # classifier2 = self.classifier(output2_cat)
 
         # upsample segmenation map ---> the input image size
-        out = F.interpolate(
-            classifier, input.size()[2:], mode="bilinear", align_corners=False
-        )  # Upsample score map, factor=8
+        # out = F.interpolate(
+        #     classifier, input.size()[2:], mode="bilinear", align_corners=False
+        # )  # Upsample score map, factor=8
         # out2 = F.interpolate(
         #     classifier2, input.size()[2:], mode="bilinear", align_corners=False
         # )
         # out = self.my_simgoid(out)
-        return out
+        return classifier
 
 
 if __name__ == "__main__":
