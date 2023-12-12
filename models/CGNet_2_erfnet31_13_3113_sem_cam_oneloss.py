@@ -559,10 +559,10 @@ class FFM(nn.Module):
             nn.BatchNorm2d(out_ch),
             nn.ReLU(),
         )
-        self.upsamp = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
+        self.upsamp = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
 
         self.conv11_in192_out128 = nn.Sequential(
-            nn.Conv2d(387, out_ch+3, kernel_size=(1, 1), padding="same"),
+            nn.Conv2d(291, out_ch+3, kernel_size=(1, 1), padding="same"),
             nn.BatchNorm2d(out_ch+3),
             nn.ReLU(),
         )
@@ -615,7 +615,7 @@ class Net(nn.Module):
             )  # CG block
         self.bn_prelu_2 = BNPReLU(128 + 3)
 
-        self.sem = SEM(128+3, 6)
+        self.sem = SEM(32+3, 6)
 
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
@@ -680,6 +680,8 @@ class Net(nn.Module):
 
         # stage 2
         output0_cat = self.b1(torch.cat([output0, inp1], 1))
+
+        sem_out = self.sem(output0_cat)
         output1_0 = self.level2_0(output0_cat)  # down-sampled
 
         for i, layer in enumerate(self.level2):
@@ -692,7 +694,6 @@ class Net(nn.Module):
 
         output1_up = self.upsample(output1_cat)
 
-        sem_out = self.sem(output1_cat)
 
         # stage 3
         output2_0 = self.level3_0(output1_cat)  # down-sampled
