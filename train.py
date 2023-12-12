@@ -15,7 +15,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_3113_sem_cam_oneloss as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 CONFIG_FILE = "import_dataset_path.cfg"
