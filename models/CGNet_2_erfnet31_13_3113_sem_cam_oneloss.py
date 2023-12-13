@@ -524,7 +524,7 @@ class CAM(nn.Module):
 
         f11 = self.conv11_ckin_cout(f10)
         batchsize, num_channels, HW = f11.data.size()
-        f11 = f11.view(batchsize, num_channels, 32, 32)
+        f11 = f11.view(batchsize, num_channels, 64, 64)
         f12 = self.conv33_cin_cout(f11)
 
         f13 = f11 + f12
@@ -628,9 +628,9 @@ class Net(nn.Module):
             )  # CG block
         self.bn_prelu_3 = BNPReLU(256+3)
 
-        self.cam = CAM(256+3, 12)
+        self.cam = CAM(128+3, 12)
 
-        self.ffm = FFM(256+3, 256)
+        self.ffm = FFM(128+3, 256)
 
         self.bn_prelu_4 = BNPReLU(684)
 
@@ -691,6 +691,8 @@ class Net(nn.Module):
 
         output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
 
+        cam_out = self.cam(output1_cat)
+
         # stage 3
         output2_0 = self.level3_0(output1_cat)  # down-sampled
         for i, layer in enumerate(self.level3):
@@ -701,8 +703,6 @@ class Net(nn.Module):
 
         output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2,inp3], 1))
 
-        cam_out = self.cam(output2_cat)
-        
         output_ffm = self.ffm(sem_out, cam_out, output2_cat)
 
         # output0_up = self.conv11_32(output0_cat)
