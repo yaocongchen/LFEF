@@ -632,15 +632,15 @@ class Net(nn.Module):
 
         self.ffm = FFM(256+3, 256)
 
-        self.bn_prelu_4 = BNPReLU(4)
+        self.bn_prelu_4 = BNPReLU(684)
 
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
-                nn.Dropout2d(0.1, False), Conv(4, classes, 1, 1)
+                nn.Dropout2d(0.1, False), Conv(684, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(4, classes, 1, 1))
+            self.classifier = nn.Sequential(Conv(684, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -655,7 +655,7 @@ class Net(nn.Module):
                         m.bias.data.zero_()
         
         self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        self.conv11_32 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
+        self.conv11_32 = nn.Sequential(nn.Conv2d(35, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
         self.conv11_64 = nn.Sequential(nn.Conv2d(131, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
         self.conv11_128 = nn.Sequential(nn.Conv2d(259, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
         self.conv11_256 = nn.Sequential(nn.Conv2d(259, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
@@ -673,7 +673,6 @@ class Net(nn.Module):
         output0 = self.level1_0(input)
         output0 = self.level1_1(output0)
         output0 = self.level1_2(output0)
-        output0_up = self.upsample(output0)
         inp1 = self.sample1(input)
         inp2 = self.sample2(input)
         inp3 = self.sample3(input)
@@ -692,9 +691,6 @@ class Net(nn.Module):
 
         output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
 
-        output1_up = self.upsample(output1_cat)
-
-
         # stage 3
         output2_0 = self.level3_0(output1_cat)  # down-sampled
         for i, layer in enumerate(self.level3):
@@ -705,17 +701,18 @@ class Net(nn.Module):
 
         output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2,inp3], 1))
 
-        output2_up = self.upsample(output2_cat) 
-
         cam_out = self.cam(output2_cat)
         
         output_ffm = self.ffm(sem_out, cam_out, output2_cat)
-        output_ffm_up = self.upsample(output_ffm)
 
-        output0_up = self.conv11_32(output0_up)
-        output1_up = self.conv11_64(output1_up)
-        output2_up = self.conv11_128(output2_up)
-        output_ffm_up = self.conv11_256(output_ffm_up)
+        # output0_up = self.conv11_32(output0_cat)
+        output0_up = self.upsample(output0_cat)
+        # output1_up = self.conv11_64(output1_cat)
+        output1_up = self.upsample(output1_cat)
+        # output2_up = self.conv11_128(output2_cat)
+        output2_up = self.upsample(output2_cat)
+        # output_ffm_up = self.conv11_256(output_ffm)
+        output_ffm_up = self.upsample(output_ffm)
         # out = output0_up + output1_up + output2_up + output_ffm_up
         output = self.bn_prelu_4(torch.cat([output0_up, output1_up, output2_up, output_ffm_up], 1))
         # classifier
