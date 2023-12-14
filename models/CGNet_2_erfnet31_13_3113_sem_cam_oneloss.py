@@ -625,14 +625,16 @@ class Net(nn.Module):
         for i in range(0, N - 1):
             self.level3.append(
                 ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
-            )  # CG block
+            )  # CG bloc
         self.bn_prelu_3 = BNPReLU(256+3)
 
         self.cam = CAM(128+3, 12)
 
         self.ffm = FFM(128+3, 256)
 
-        self.bn_prelu_4 = BNPReLU(684)
+        self.bn_sigmoid = nn.Sequential(
+            nn.BatchNorm2d(684, eps=1e-03), nn.Sigmoid()
+        )
 
         if dropout_flag:
             print("have droput layer")
@@ -705,16 +707,11 @@ class Net(nn.Module):
 
         output_ffm = self.ffm(sem_out, cam_out, output2_cat)
 
-        # output0_up = self.conv11_32(output0_cat)
         output0_up = self.upsample(output0_cat)
-        # output1_up = self.conv11_64(output1_cat)
         output1_up = self.upsample(output1_cat)
-        # output2_up = self.conv11_128(output2_cat)
         output2_up = self.upsample(output2_cat)
-        # output_ffm_up = self.conv11_256(output_ffm)
         output_ffm_up = self.upsample(output_ffm)
-        # out = output0_up + output1_up + output2_up + output_ffm_up
-        output = self.bn_prelu_4(torch.cat([output0_up, output1_up, output2_up, output_ffm_up], 1))
+        output = self.bn_sigmoid(torch.cat([output0_up, output1_up, output2_up, output_ffm_up], 1))
         # classifier
         classifier = self.classifier(output)
         # classifier2 = self.classifier(output2_cat)
