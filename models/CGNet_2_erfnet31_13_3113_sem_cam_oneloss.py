@@ -658,7 +658,7 @@ class Net(nn.Module):
         self.conv11_128 = nn.Sequential(nn.Conv2d(259, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
         self.conv11_256 = nn.Sequential(nn.Conv2d(259, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
 
-        self.my_simgoid = nn.Sigmoid()
+        # self.my_simgoid = nn.Sigmoid()
 
     def forward(self, input):
         """
@@ -710,7 +710,7 @@ class Net(nn.Module):
         output = torch.cat([output0_up, output1_up, output2_up, output_ffm_up], 1)
         # classifier
         classifier = self.classifier(output)
-        output = self.my_simgoid(classifier)
+        # output = self.my_simgoid(classifier)
         # classifier2 = self.classifier(output2_cat)
 
         # upsample segmenation map ---> the input image size
