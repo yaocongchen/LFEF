@@ -721,7 +721,7 @@ class Net(nn.Module):
         #     classifier2, input.size()[2:], mode="bilinear", align_corners=False
         # )
         # out = self.my_simgoid(out)
-        return output
+        return classifier
 
 
 if __name__ == "__main__":
