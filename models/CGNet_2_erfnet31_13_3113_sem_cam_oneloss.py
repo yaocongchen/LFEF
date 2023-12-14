@@ -632,10 +632,6 @@ class Net(nn.Module):
 
         self.ffm = FFM(128+3, 256)
 
-        self.bn_sigmoid = nn.Sequential(
-            nn.BatchNorm2d(684, eps=1e-03), nn.Sigmoid()
-        )
-
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
@@ -662,7 +658,7 @@ class Net(nn.Module):
         self.conv11_128 = nn.Sequential(nn.Conv2d(259, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
         self.conv11_256 = nn.Sequential(nn.Conv2d(259, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
 
-        # self.my_simgoid = nn.Sigmoid()
+        self.my_simgoid = nn.Sigmoid()
 
     def forward(self, input):
         """
@@ -711,9 +707,10 @@ class Net(nn.Module):
         output1_up = self.upsample(output1_cat)
         output2_up = self.upsample(output2_cat)
         output_ffm_up = self.upsample(output_ffm)
-        output = self.bn_sigmoid(torch.cat([output0_up, output1_up, output2_up, output_ffm_up], 1))
+        output = torch.cat([output0_up, output1_up, output2_up, output_ffm_up], 1)
         # classifier
         classifier = self.classifier(output)
+        output = self.my_simgoid(classifier)
         # classifier2 = self.classifier(output2_cat)
 
         # upsample segmenation map ---> the input image size
@@ -724,7 +721,7 @@ class Net(nn.Module):
         #     classifier2, input.size()[2:], mode="bilinear", align_corners=False
         # )
         # out = self.my_simgoid(out)
-        return classifier
+        return output
 
 
 if __name__ == "__main__":
