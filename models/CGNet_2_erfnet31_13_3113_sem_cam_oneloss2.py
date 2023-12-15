@@ -722,7 +722,7 @@ class Net(nn.Module):
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
             self.level3.append(
-                CSSAM(128, 128, dropprob=0.3, dilation=1)
+                CSSAM(128, 128, dropprob=0.3, dilation=2)
             )  # CG bloc
         self.bn_prelu_3 = BNPReLU(256+3)
 
