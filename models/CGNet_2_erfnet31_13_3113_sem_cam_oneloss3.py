@@ -694,32 +694,32 @@ class Net(nn.Module):
             self.level2.append(
                 ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
-        self.bn_prelu_2 = BNPReLU(128 + 6)
+        self.bn_prelu_2 = BNPReLU(128 + 3)
 
         self.sem = SEM(32+3, 6)
 
         # stage 3
-        self.level3_0 = CSSAM_Down(
-            128 + 6, 128, dilation=1
+        self.level3_0 = ContextGuidedBlock_Down(
+            128 + 3, 128, dilation_rate=4, reduction=16
         )
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
             self.level3.append(
-                CSSAM(128, 128, dilation=2)
+                ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
             )  # CG bloc
         self.bn_prelu_3 = BNPReLU(256+3)
 
-        self.cam = CAM(128+6, 12)
+        self.cam = CAM(128+3, 12)
 
-        self.ffm = FFM(128+6, 256)
+        self.ffm = FFM(128+3, 256)
 
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
-                nn.Dropout2d(0.1, False), Conv(687, classes, 1, 1)
+                nn.Dropout2d(0.1, False), Conv(684, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(687, classes, 1, 1))
+            self.classifier = nn.Sequential(Conv(684, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -768,7 +768,7 @@ class Net(nn.Module):
             else:
                 output1 = layer(output1)
 
-        output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2,inp2], 1))
+        output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
 
         cam_out = self.cam(output1_cat)
 
