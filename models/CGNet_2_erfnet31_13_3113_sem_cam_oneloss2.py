@@ -666,7 +666,7 @@ class Net(nn.Module):
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
 
-    def __init__(self, classes=1, M=3, N=3, dropout_flag=False):
+    def __init__(self, classes=1, M=3, dropout_flag=False):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
@@ -703,10 +703,12 @@ class Net(nn.Module):
             128 + 6, 128, dilation=1
         )
         self.level3 = nn.ModuleList()
-        for i in range(0, N - 1):
-            self.level3.append(
-                CSSAM(128, 128, dilation=2)
-            )  # CG bloc
+        self.level3=nn.Sequential(
+            CSSAM(128, 128, dilation=2),
+            CSSAM(128, 128, dilation=4),
+            CSSAM(128, 128, dilation=8),
+            CSSAM(128, 128, dilation=16),
+        )  # CG bloc
         self.bn_prelu_3 = BNPReLU(256+3)
 
         self.cam = CAM(128+6, 12)
