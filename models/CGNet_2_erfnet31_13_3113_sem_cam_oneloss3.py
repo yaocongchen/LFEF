@@ -607,16 +607,16 @@ class CSSAM_Down(nn.Module):
         out31normre = F.relu(out31norm)
         out11cat = self.conv11(torch.cat((out13normre, out31normre), dim=1))
 
-        outmp = self.maxpl(x)
+        # outmp = self.maxpl(x)
 
-        outmp11 = self.conv11(outmp)
-        outmp11norm = self.batch_norm(outmp11)
-        outmp11normsgm = self.mysigmoid(outmp11norm)
+        # outmp11 = self.conv11(outmp)
+        # outmp11norm = self.batch_norm(outmp11)
+        # outmp11normsgm = self.mysigmoid(outmp11norm)
 
-        Ewp = out11cat * outmp11normsgm
-        Ews = out11cat + Ewp
+        # Ewp = out11cat * outmp11normsgm
+        # Ews = out11cat + Ewp
 
-        return channel_shuffle(Ews, 2)
+        return channel_shuffle(out11cat, 2)
 
 class CSSAM(nn.Module):
     def __init__(self, in_ch, out_ch, dilation):
@@ -666,7 +666,7 @@ class Net(nn.Module):
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
 
-    def __init__(self, classes=1, M=3, N=3, dropout_flag=False):
+    def __init__(self, classes=1, M=3, dropout_flag=False):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
@@ -694,32 +694,34 @@ class Net(nn.Module):
             self.level2.append(
                 ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
-        self.bn_prelu_2 = BNPReLU(128 + 3)
+        self.bn_prelu_2 = BNPReLU(128 + 6)
 
         self.sem = SEM(32+3, 6)
 
         # stage 3
-        self.level3_0 = ContextGuidedBlock_Down(
-            128 + 3, 128, dilation_rate=4, reduction=16
+        self.level3_0 = CSSAM_Down(
+            128 + 6, 128, dilation=1
         )
         self.level3 = nn.ModuleList()
-        for i in range(0, N - 1):
-            self.level3.append(
-                ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
-            )  # CG bloc
+        self.level3=nn.Sequential(
+            CSSAM(128, 128, dilation=2),
+            CSSAM(128, 128, dilation=2),
+            CSSAM(128, 128, dilation=2),
+            CSSAM(128, 128, dilation=2),
+        )  # CG bloc
         self.bn_prelu_3 = BNPReLU(256+3)
 
-        self.cam = CAM(128+3, 12)
+        self.cam = CAM(128+6, 12)
 
-        self.ffm = FFM(128+3, 256)
+        self.ffm = FFM(128+6, 256)
 
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
-                nn.Dropout2d(0.1, False), Conv(425, classes, 1, 1)
+                nn.Dropout2d(0.1, False), Conv(687, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(425, classes, 1, 1))
+            self.classifier = nn.Sequential(Conv(687, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -768,7 +770,7 @@ class Net(nn.Module):
             else:
                 output1 = layer(output1)
 
-        output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
+        output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2,inp2], 1))
 
         cam_out = self.cam(output1_cat)
 
@@ -786,9 +788,9 @@ class Net(nn.Module):
 
         output0_up = self.upsample(output0_cat)
         output1_up = self.upsample(output1_cat)
-        # output2_up = self.upsample(output2_cat)
+        output2_up = self.upsample(output2_cat)
         output_ffm_up = self.upsample(output_ffm)
-        output = torch.cat([output0_up, output1_up, output_ffm_up], 1)
+        output = torch.cat([output0_up, output1_up, output2_up, output_ffm_up], 1)
         # classifier
         classifier = self.classifier(output)
         # output = self.my_simgoid(classifier)
