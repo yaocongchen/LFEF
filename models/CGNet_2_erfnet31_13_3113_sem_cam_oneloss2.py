@@ -607,16 +607,16 @@ class CSSAM_Down(nn.Module):
         out31normre = F.relu(out31norm)
         out11cat = self.conv11(torch.cat((out13normre, out31normre), dim=1))
 
-        outmp = self.maxpl(x)
+        # outmp = self.maxpl(x)
 
-        outmp11 = self.conv11(outmp)
-        outmp11norm = self.batch_norm(outmp11)
-        outmp11normsgm = self.mysigmoid(outmp11norm)
+        # outmp11 = self.conv11(outmp)
+        # outmp11norm = self.batch_norm(outmp11)
+        # outmp11normsgm = self.mysigmoid(outmp11norm)
 
-        Ewp = out11cat * outmp11normsgm
-        Ews = out11cat + Ewp
+        # Ewp = out11cat * outmp11normsgm
+        # Ews = out11cat + Ewp
 
-        return channel_shuffle(Ews, 2)
+        return channel_shuffle(out11cat, 2)
 
 class CSSAM(nn.Module):
     def __init__(self, in_ch, out_ch, dilation):

@@ -308,7 +308,6 @@ class ContextGuidedBlock_Down(nn.Module):
 
         self.F_glo = FGlo(nOut, reduction)
 
-        # self.dropout = nn.Dropout2d(dropprob)
 
     def forward(self, input):
         output = self.conv1x1(input)
@@ -325,9 +324,6 @@ class ContextGuidedBlock_Down(nn.Module):
         joi_feat = self.reduce(joi_feat)  # channel= nOut
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
-
-        # if self.dropout.p != 0:
-        #     output = self.dropout(output)
 
         return output
 
@@ -389,7 +385,7 @@ class InputInjection(nn.Module):
 
 
 class non_bottleneck_1d(nn.Module):
-    def __init__(self, chann, dropprob, dilated):
+    def __init__(self, chann, dilated):
         super().__init__()
 
         self.conv3x1_1 = nn.Conv2d(
@@ -424,8 +420,6 @@ class non_bottleneck_1d(nn.Module):
         self.prelu = nn.PReLU(chann)
         self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
 
-        self.dropout = nn.Dropout2d(dropprob)
-
     def forward(self, input):
         output = self.conv3x1_1(input)
         output = self.prelu(output)
@@ -437,9 +431,6 @@ class non_bottleneck_1d(nn.Module):
         output = self.prelu(output)
         output = self.conv1x3_2(output)
         output = self.bn2(output)
-
-        if self.dropout.p != 0:
-            output = self.dropout(output)
 
         return self.prelu(output + input)  # +input = identity (residual connection)
     
@@ -583,7 +574,92 @@ class FFM(nn.Module):
         f4 = self.sigmoid(f4)
 
         return f4
+    
+class CSSAM_Down(nn.Module):
+    def __init__(self, in_ch, out_ch, dilation):
+        super().__init__()
+        in_ch_2 = in_ch // 2
+        self.conv31 = nn.Conv2d(
+            in_ch_2, in_ch_2, kernel_size=(3, 1), padding="same", dilation=dilation
+        )
+        self.conv13 = nn.Conv2d(
+            in_ch_2, in_ch_2, kernel_size=(1, 3), padding="same", dilation=dilation
+        )
+        self.batch_norm_2 = nn.BatchNorm2d(in_ch_2)
 
+        self.conv11 = nn.Conv2d(in_ch, out_ch, kernel_size=(1, 1),stride=2)
+        self.maxpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+        self.batch_norm = nn.BatchNorm2d(out_ch)
+        self.mysigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        x1, x2 = split(x)
+        out31 = self.conv31(x1)
+        out31norm = self.batch_norm_2(out31)
+        out13 = self.conv13(out31norm)
+        out13norm = self.batch_norm_2(out13)
+        out13normre = F.relu(out13norm)
+
+        out13 = self.conv13(x2)
+        out13norm = self.batch_norm_2(out13)
+        out31 = self.conv31(out13norm)
+        out31norm = self.batch_norm_2(out31)
+        out31normre = F.relu(out31norm)
+        out11cat = self.conv11(torch.cat((out13normre, out31normre), dim=1))
+
+        outmp = self.maxpl(x)
+
+        outmp11 = self.conv11(outmp)
+        outmp11norm = self.batch_norm(outmp11)
+        outmp11normsgm = self.mysigmoid(outmp11norm)
+
+        Ewp = out11cat * outmp11normsgm
+        Ews = out11cat + Ewp
+
+        return channel_shuffle(Ews, 2)
+
+class CSSAM(nn.Module):
+    def __init__(self, in_ch, out_ch, dilation):
+        super().__init__()
+        in_ch_2 = in_ch // 2
+        self.conv31 = nn.Conv2d(
+            in_ch_2, in_ch_2, kernel_size=(3, 1), padding="same", dilation=dilation
+        )
+        self.conv13 = nn.Conv2d(
+            in_ch_2, in_ch_2, kernel_size=(1, 3), padding="same", dilation=dilation
+        )
+        self.batch_norm_2 = nn.BatchNorm2d(in_ch_2)
+
+        self.conv11 = nn.Conv2d(in_ch, out_ch, kernel_size=(1, 1), padding="same")
+        self.maxpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+        self.batch_norm = nn.BatchNorm2d(out_ch)
+        self.mysigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        x1, x2 = split(x)
+        out31 = self.conv31(x1)
+        out31norm = self.batch_norm_2(out31)
+        out13 = self.conv13(out31norm)
+        out13norm = self.batch_norm_2(out13)
+        out13normre = F.relu(out13norm)
+
+        out13 = self.conv13(x2)
+        out13norm = self.batch_norm_2(out13)
+        out31 = self.conv31(out13norm)
+        out31norm = self.batch_norm_2(out31)
+        out31normre = F.relu(out31norm)
+        out11cat = self.conv11(torch.cat((out13normre, out31normre), dim=1))
+
+        outmp = self.maxpl(x)
+
+        outmp11 = self.conv11(outmp)
+        outmp11norm = self.batch_norm(outmp11)
+        outmp11normsgm = self.mysigmoid(outmp11norm)
+
+        Ewp = out11cat * outmp11normsgm
+        Ews = out11cat + Ewp
+
+        return channel_shuffle(Ews, 2)
 #===============================Net====================================#
 class Net(nn.Module):
     """
@@ -600,8 +676,8 @@ class Net(nn.Module):
         super().__init__()
 
         self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
-        self.level1_1 = non_bottleneck_1d(32, 0.03, 1)
-        self.level1_2 = non_bottleneck_1d(32, 0.03, 2)
+        self.level1_1 = non_bottleneck_1d(32, 1)
+        self.level1_2 = non_bottleneck_1d(32, 2)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
