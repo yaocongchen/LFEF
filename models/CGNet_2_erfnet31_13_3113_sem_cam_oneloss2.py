@@ -705,9 +705,9 @@ class Net(nn.Module):
         self.level3 = nn.ModuleList()
         self.level3=nn.Sequential(
             CSSAM(128, 128, dilation=2),
-            CSSAM(128, 128, dilation=4),
-            CSSAM(128, 128, dilation=8),
-            CSSAM(128, 128, dilation=16),
+            CSSAM(128, 128, dilation=2),
+            CSSAM(128, 128, dilation=2),
+            CSSAM(128, 128, dilation=2),
         )  # CG bloc
         self.bn_prelu_3 = BNPReLU(256+3)
 
