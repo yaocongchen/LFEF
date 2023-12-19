@@ -716,10 +716,10 @@ class Net(nn.Module):
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
-                nn.Dropout2d(0.1, False), Conv(294, classes, 1, 1)
+                nn.Dropout2d(0.1, False), Conv(425, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(294, classes, 1, 1))
+            self.classifier = nn.Sequential(Conv(425, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -759,7 +759,7 @@ class Net(nn.Module):
         # stage 2
         output0_cat = self.b1(torch.cat([output0, inp1], 1))
 
-        sem_out = self.sem(output0_cat)
+        # sem_out = self.sem(output0_cat)
         output1_0 = self.level2_0(output0_cat)  # down-sampled
 
         for i, layer in enumerate(self.level2):
@@ -770,7 +770,7 @@ class Net(nn.Module):
 
         output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
 
-        cam_out = self.cam(output1_cat)
+        # cam_out = self.cam(output1_cat)
 
         # stage 3
         output2_0 = self.level3_0(output1_cat)  # down-sampled
@@ -782,13 +782,13 @@ class Net(nn.Module):
 
         output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2,inp3], 1))
 
-        output_ffm = self.ffm(sem_out, cam_out, output2_cat)
+        # output_ffm = self.ffm(sem_out, cam_out, output2_cat)
 
         output0_up = self.upsample(output0_cat)
-        # output1_up = self.upsample(output1_cat)
-        # output2_up = self.upsample(output2_cat)
-        output_ffm_up = self.upsample(output_ffm)
-        output = torch.cat([output0_up, output_ffm_up], 1)
+        output1_up = self.upsample(output1_cat)
+        output2_up = self.upsample(output2_cat)
+        # output_ffm_up = self.upsample(output_ffm)
+        output = torch.cat([output0_up, output1_up, output2_up], 1)
         # classifier
         classifier = self.classifier(output)
         # output = self.my_simgoid(classifier)
