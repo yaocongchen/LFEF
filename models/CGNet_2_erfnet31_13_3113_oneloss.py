@@ -716,10 +716,10 @@ class Net(nn.Module):
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
-                nn.Dropout2d(0.1, False), Conv(259, classes, 1, 1)
+                nn.Dropout2d(0.1, False), Conv(390, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(259, classes, 1, 1))
+            self.classifier = nn.Sequential(Conv(390, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -788,9 +788,9 @@ class Net(nn.Module):
         output1_up = self.upsample(output1_cat)
         output2_up = self.upsample(output2_cat)
         # output_ffm_up = self.upsample(output_ffm)
-        # output = torch.cat([ output1_up, output2_up], 1)
+        output = torch.cat([ output1_up, output2_up], 1)
         # classifier
-        classifier = self.classifier(output2_up)
+        classifier = self.classifier(output)
         # output = self.my_simgoid(classifier)
         # classifier2 = self.classifier(output2_cat)
 
