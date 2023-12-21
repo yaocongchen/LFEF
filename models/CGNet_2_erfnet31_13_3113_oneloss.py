@@ -788,9 +788,9 @@ class Net(nn.Module):
         output1_up = self.upsample(output1_cat)
         output2_up = self.upsample(output2_cat)
         # output_ffm_up = self.upsample(output_ffm)
-        output = torch.cat([ output1_up, output2_up], 1)
+        # output = torch.cat([ output1_up, output2_up], 1)
         # classifier
-        classifier = self.classifier(output)
+        classifier = self.classifier(output2_up)
         # output = self.my_simgoid(classifier)
         # classifier2 = self.classifier(output2_cat)
 
