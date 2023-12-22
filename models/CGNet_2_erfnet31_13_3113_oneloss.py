@@ -433,233 +433,7 @@ class non_bottleneck_1d(nn.Module):
         output = self.bn2(output)
 
         return self.prelu(output + input)  # +input = identity (residual connection)
-    
-#===============================SEM====================================#
-class SEM(nn.Module):
-    def __init__(self, in_ch, out_ch):
-        super().__init__()
 
-        self.conv11_64out32 = nn.Sequential(
-            nn.Conv2d(
-                in_ch, in_ch // 2, kernel_size=(1, 1), padding="same"
-            ),  # TODO:有自行除於2
-            nn.BatchNorm2d(in_ch // 2),
-        )
-        self.avgpl = nn.AvgPool2d(kernel_size=3, stride=1, padding=1)
-        self.maxpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
-
-        self.conv11_130 = nn.Sequential(
-            nn.Conv2d(in_ch-1, in_ch, kernel_size=(1, 1), padding="same"),
-            nn.BatchNorm2d(in_ch),
-        )
-
-        self.gavgpl = nn.AdaptiveAvgPool2d(1)
-
-        self.conv11_131 = nn.Sequential(
-            nn.Conv2d(in_ch, in_ch, kernel_size=(1, 1), padding="same"),
-            nn.BatchNorm2d(in_ch),
-        )
-        self.mysigmoid = nn.Sigmoid()
-
-    def forward(self, x):
-        out = self.conv11_64out32(x)
-        f20 = F.relu(out)
-        f21 = self.avgpl(f20)
-        f22 = self.maxpl(f20)
-        f23 = torch.cat((f21, f22), dim=1)
-        out = self.conv11_130(f23)
-        f27 = F.relu(out)
-
-        f24 = self.gavgpl(x)
-        f25 = self.conv11_131(f24)
-        f26 = self.mysigmoid(f25)
-
-        f28 = f26 * f27
-        f29 = f28 + x
-
-        return f29 
-    
-#===============================CAM====================================#
-k=2
-class CAM(nn.Module):
-    def __init__(self, in_ch, out_ch):
-        super().__init__()
-        ck = in_ch // k
-        self.conv33_cin_cin = nn.Sequential(
-            nn.Conv2d(in_ch, in_ch, kernel_size=(3, 3), padding="same"),
-            nn.BatchNorm2d(in_ch),
-        )
-        self.conv33_cin_ckout = nn.Sequential(
-            nn.Conv2d(in_ch, ck, kernel_size=(3, 3), padding="same"), nn.BatchNorm2d(ck)
-        )
-
-        self.conv11_cin_ckout = nn.Conv1d(in_ch, ck, kernel_size=3, padding="same")
-        self.conv11_ckin_cout = nn.Conv1d(ck, in_ch, kernel_size=3, padding="same")
-        self.mysoftmax = nn.Softmax(dim=1)
-
-        self.conv33_cin_cout = nn.Sequential(
-            nn.Conv2d(in_ch, in_ch, kernel_size=(3, 3), padding="same"),
-            nn.BatchNorm2d(in_ch),
-        )
-
-    def forward(self, x):
-        f4 = self.conv33_cin_cin(x)
-        batchsize, num_channels, height, width = f4.data.size()
-
-        # reshape (torch版的)
-        f5 = f4.view(-1, num_channels, height * width)
-        f6 = self.conv11_cin_ckout(f5)
-        f9 = self.mysoftmax(f6)
-
-        f7 = self.conv33_cin_ckout(x)
-
-        batchsize, num_channels, height, width = f7.data.size()
-        f8 = f7.view(-1, num_channels, height * width)
-
-        f10 = f9 * f8
-
-        f11 = self.conv11_ckin_cout(f10)
-        batchsize, num_channels, HW = f11.data.size()
-        f11 = f11.view(batchsize, num_channels, 64, 64)
-        f12 = self.conv33_cin_cout(f11)
-
-        f13 = f11 + f12
-
-        return f13
-#===============================GCP====================================#
-class GCP(nn.Module):
-    def __init__(self, in_ch, out_ch):
-        super().__init__()
-        self.glavgpl = nn.AdaptiveAvgPool2d(1)
-        self.glmaxpl = nn.AdaptiveMaxPool2d(1)
-        self.conv11 = nn.Sequential(
-            nn.Conv2d(in_ch*2, out_ch, kernel_size=(1, 1), padding="same"),
-            nn.BatchNorm2d(out_ch),
-            nn.ReLU(),
-        )
-
-    def forward(self, x):
-        f1 = self.glavgpl(x)
-        f2 = self.glmaxpl(x)
-        f3 = torch.cat((f1, f2), dim=1)
-        f4 = self.conv11(f3)
-
-        return f4
-#===============================FFM====================================#
-class FFM(nn.Module):
-    def __init__(self, in_ch, out_ch):
-        super().__init__()
-
-        self.conv11 = nn.Sequential(
-            nn.Conv2d(in_ch, out_ch, kernel_size=(1, 1), padding="same"),
-            nn.BatchNorm2d(out_ch),
-            nn.ReLU(),
-        )
-        self.upsamp = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
-
-        self.conv11_in192_out128 = nn.Sequential(
-            nn.Conv2d(291, out_ch+3, kernel_size=(1, 1), padding="same"),
-            nn.BatchNorm2d(out_ch+3),
-            nn.ReLU(),
-        )
-        self.sigmoid = nn.Sigmoid()
-
-    def forward(self, sem_out, cam_out, gcp_out): 
-        f1 = self.conv11(cam_out)
-        f1 = self.upsamp(f1)
-        f2 = torch.cat((sem_out, f1), dim=1)
-        f2 = self.conv11_in192_out128(f2)
-        f3 = self.upsamp(gcp_out)
-        f4 = f2 * f3
-        f4 = self.sigmoid(f4)
-
-        return f4
-    
-class CSSAM_Down(nn.Module):
-    def __init__(self, in_ch, out_ch, dilation):
-        super().__init__()
-        in_ch_2 = in_ch // 2
-        self.conv31 = nn.Conv2d(
-            in_ch_2, in_ch_2, kernel_size=(3, 1), padding="same", dilation=dilation
-        )
-        self.conv13 = nn.Conv2d(
-            in_ch_2, in_ch_2, kernel_size=(1, 3), padding="same", dilation=dilation
-        )
-        self.batch_norm_2 = nn.BatchNorm2d(in_ch_2)
-
-        self.conv11 = nn.Conv2d(in_ch, out_ch, kernel_size=(1, 1),stride=2)
-        self.maxpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
-        self.batch_norm = nn.BatchNorm2d(out_ch)
-        self.mysigmoid = nn.Sigmoid()
-
-    def forward(self, x):
-        x1, x2 = split(x)
-        out31 = self.conv31(x1)
-        out31norm = self.batch_norm_2(out31)
-        out13 = self.conv13(out31norm)
-        out13norm = self.batch_norm_2(out13)
-        out13normre = F.relu(out13norm)
-
-        out13 = self.conv13(x2)
-        out13norm = self.batch_norm_2(out13)
-        out31 = self.conv31(out13norm)
-        out31norm = self.batch_norm_2(out31)
-        out31normre = F.relu(out31norm)
-        out11cat = self.conv11(torch.cat((out13normre, out31normre), dim=1))
-
-        outmp = self.maxpl(x)
-
-        outmp11 = self.conv11(outmp)
-        outmp11norm = self.batch_norm(outmp11)
-        outmp11normsgm = self.mysigmoid(outmp11norm)
-
-        Ewp = out11cat * outmp11normsgm
-        Ews = out11cat + Ewp
-
-        return channel_shuffle(Ews, 2)
-
-class CSSAM(nn.Module):
-    def __init__(self, in_ch, out_ch, dilation):
-        super().__init__()
-        in_ch_2 = in_ch // 2
-        self.conv31 = nn.Conv2d(
-            in_ch_2, in_ch_2, kernel_size=(3, 1), padding="same", dilation=dilation
-        )
-        self.conv13 = nn.Conv2d(
-            in_ch_2, in_ch_2, kernel_size=(1, 3), padding="same", dilation=dilation
-        )
-        self.batch_norm_2 = nn.BatchNorm2d(in_ch_2)
-
-        self.conv11 = nn.Conv2d(in_ch, out_ch, kernel_size=(1, 1), padding="same")
-        self.maxpl = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
-        self.batch_norm = nn.BatchNorm2d(out_ch)
-        self.mysigmoid = nn.Sigmoid()
-
-    def forward(self, x):
-        x1, x2 = split(x)
-        out31 = self.conv31(x1)
-        out31norm = self.batch_norm_2(out31)
-        out13 = self.conv13(out31norm)
-        out13norm = self.batch_norm_2(out13)
-        out13normre = F.relu(out13norm)
-
-        out13 = self.conv13(x2)
-        out13norm = self.batch_norm_2(out13)
-        out31 = self.conv31(out13norm)
-        out31norm = self.batch_norm_2(out31)
-        out31normre = F.relu(out31norm)
-        out11cat = self.conv11(torch.cat((out13normre, out31normre), dim=1))
-
-        outmp = self.maxpl(x)
-
-        outmp11 = self.conv11(outmp)
-        outmp11norm = self.batch_norm(outmp11)
-        outmp11normsgm = self.mysigmoid(outmp11norm)
-
-        Ewp = out11cat * outmp11normsgm
-        Ews = out11cat + Ewp
-
-        return channel_shuffle(Ews, 2)
 #===============================Net====================================#
 class Net(nn.Module):
     """
@@ -696,7 +470,6 @@ class Net(nn.Module):
             )  # CG block
         self.bn_prelu_2 = BNPReLU(128 + 3)
 
-        self.sem = SEM(32+3, 6)
 
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
@@ -709,17 +482,13 @@ class Net(nn.Module):
             )  # CG bloc
         self.bn_prelu_3 = BNPReLU(256+3)
 
-        self.cam = CAM(128+3, 12)
-
-        self.ffm = FFM(128+3, 256)
-
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
-                nn.Dropout2d(0.1, False), Conv(390, classes, 1, 1)
+                nn.Dropout2d(0.1, False), Conv(425, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(390, classes, 1, 1))
+            self.classifier = nn.Sequential(Conv(425, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -759,7 +528,6 @@ class Net(nn.Module):
         # stage 2
         output0_cat = self.b1(torch.cat([output0, inp1], 1))
 
-        # sem_out = self.sem(output0_cat)
         output1_0 = self.level2_0(output0_cat)  # down-sampled
 
         for i, layer in enumerate(self.level2):
@@ -770,7 +538,6 @@ class Net(nn.Module):
 
         output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
 
-        # cam_out = self.cam(output1_cat)
 
         # stage 3
         output2_0 = self.level3_0(output1_cat)  # down-sampled
@@ -782,13 +549,11 @@ class Net(nn.Module):
 
         output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2,inp3], 1))
 
-        # output_ffm = self.ffm(sem_out, cam_out, output2_cat)
-
         output0_up = self.upsample(output0_cat)
         output1_up = self.upsample(output1_cat)
         output2_up = self.upsample(output2_cat)
         # output_ffm_up = self.upsample(output_ffm)
-        output = torch.cat([ output1_up, output2_up], 1)
+        output = torch.cat([ output0_up,output1_up, output2_up], 1)
         # classifier
         classifier = self.classifier(output)
         # output = self.my_simgoid(classifier)
@@ -810,4 +575,4 @@ if __name__ == "__main__":
     x = torch.randn(16, 3, 256, 256)
     output = model(x)
     print(output.shape)
-    summary(model, input_size=(16, 3, 256, 256))
+    summary(model,input_data=x,verbose=1)

@@ -372,30 +372,164 @@ class ContextGuidedBlock(nn.Module):
         return output
     
 #===============================deformable_conv====================================#
-# class deformable_conv(nn.Module):
-#     def __init__(self, nIn, nOut):
-#         super().__init__()
-#         self.bn = nn.BatchNorm2d(nIn, eps=1e-3)
-
-
-#     def forward(self, input):
-        
-#         return output
-
-
-class Context_deformableBlock_Down(nn.Module):
-    def __init__(self, nIn, nOut):
+class deformable_ConvBNPReLU(nn.Module):
+    def __init__(self, nIn, nOut,kSize, stride=1):
         super().__init__()
-        #use deformable conv
-        self.deform_conv = deform_conv.DeformConv2d(nIn, nOut,(3,3), stride=1,padding=1, dilation=1,groups=1,bias = False)
+        padding = int((kSize - 1) / 2)
+        self.split_size = (2 * kSize * kSize, kSize * kSize)
+        self.conv_offset = nn.Conv2d(nIn, 3 * kSize * kSize, kernel_size=kSize, stride=stride,padding=(padding,padding))
+        self.conv_deform = deform_conv.DeformConv2d(nIn, nOut,(kSize,kSize), stride=stride,padding=(padding,padding),bias = False)
+
+        #initialize
+        nn.init.constant_(self.conv_offset.weight, 0)
+        nn.init.constant_(self.conv_offset.bias, 0)
+        nn.init.kaiming_normal_(self.conv_deform.weight, mode='fan_out', nonlinearity='relu')
+
+        self.bn = nn.BatchNorm2d(nOut, eps=1e-3)
+        self.act = nn.PReLU(nOut)
+
+    def forward(self, input):
+        offset ,make = torch.split(self.conv_offset(input), self.split_size, dim=1)
+        mask = torch.sigmoid(make)
+        output = self.conv_deform(input,offset,mask)
+        output = self.bn(output)
+        output = self.act(output)
+
+        return output
+
+class Dilated_DeformConv(nn.Module):
+    def __init__(self,nIn,nOut,kSize, stride=1, d=1):
+        super().__init__()
+        padding = int((kSize - 1) / 2) * d
+        self.split_size = (2 * kSize * kSize, kSize * kSize)
+        self.conv_offset = nn.Conv2d(nIn, 3 * kSize * kSize, kernel_size=kSize,stride=stride, padding=(padding,padding),dilation=d)
+        self.conv_deform = deform_conv.DeformConv2d(nIn, nOut,(kSize,kSize),stride=stride,padding=(padding,padding), dilation=d, bias=False)
+
+        #initialize
+        nn.init.constant_(self.conv_offset.weight, 0)
+        nn.init.constant_(self.conv_offset.bias, 0)
+        nn.init.kaiming_normal_(self.conv_deform.weight, mode='fan_out', nonlinearity='relu')
+        
+    def forward(self, input):
+        offset ,make = torch.split(self.conv_offset(input), self.split_size, dim=1)
+        mask = torch.sigmoid(make)
+        output = self.conv_deform(input,offset,mask)
+
+        return output
+    
+class ChannelWise_DeformConv(nn.Module):
+    def __init__(self,nIn,nOut,kSize, stride=1):
+        """
+        args:
+           nIn: number of input channels
+           nOut: number of output channels, default (nIn == nOut)
+           kSize: kernel size
+           stride: optional stride rate for down-sampling
+           d: dilation rate
+        """
+        super().__init__()
+        self.kSize = kSize
+        padding = int((kSize - 1) / 2)
+        self.split_size = (2 * kSize * kSize, kSize * kSize)
+        self.conv_offset = nn.Conv2d(nIn, 3 * kSize * kSize, kernel_size=kSize,stride=stride, padding=(padding,padding),dilation=1)
+        self.conv_deform = deform_conv.DeformConv2d(nIn, nOut,(kSize,kSize),stride=stride,padding=(padding,padding), dilation=1,groups=nIn, bias=False)
+
+        #initialize
+        nn.init.constant_(self.conv_offset.weight, 0)
+        nn.init.constant_(self.conv_offset.bias, 0)
+        nn.init.kaiming_normal_(self.conv_deform.weight, mode='fan_out', nonlinearity='relu')
 
 
     def forward(self, input):
-        offset = torch.randn(1, 18, 256, 256).cuda()
-        mask = torch.randn(1, 1, 256, 256).cuda()
-        output = self.deform_conv(input,offset,mask)
+        offset ,make = torch.split(self.conv_offset(input), self.split_size, dim=1)
+        mask = torch.sigmoid(make)
+        output = self.conv_deform(input,offset,mask)
+
         return output
-#===============================end====================================#
+    
+class ChannelWiseDilated_DeformConv(nn.Module):
+    def __init__(self,nIn,nOut,kSize, stride=1, d=1):
+        super().__init__()
+        self.kSize = kSize
+        padding = int((kSize - 1) / 2) * d
+        self.split_size = (2 * kSize * kSize, kSize * kSize)
+        self.conv_offset = nn.Conv2d(nIn, 3 * kSize * kSize, kernel_size=kSize, stride=stride ,padding=padding ,dilation=d)
+        self.conv_deform = deform_conv.DeformConv2d(nIn, nOut,(kSize,kSize),stride=stride,padding=(padding,padding), dilation=d,groups=nIn, bias=False)
+
+    
+    def forward(self, input):
+        offset ,make = torch.split(self.conv_offset(input), self.split_size, dim=1)
+        mask = torch.sigmoid(make)
+        output = self.conv_deform(input,offset,mask)
+
+        return output
+
+class Context_deformableBlock_Down(nn.Module):
+    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16):
+        super().__init__()
+        #use deformable conv
+
+        self.conv1x1 = ConvBNPReLU(nIn, nOut, 1, 2)
+        self.F_loc = ChannelWise_DeformConv(nOut, nOut, 3, 1)  # local feature
+        self.F_sur = ChannelWiseDilated_DeformConv(nOut, nOut, 3, 1, dilation_rate)  # surrounding context
+        self.F_sur_4 = ChannelWiseDilated_DeformConv(nOut, nOut, 3, 1, dilation_rate * 2)
+        self.F_sur_8 = ChannelWiseDilated_DeformConv(nOut, nOut, 3, 1, dilation_rate * 4)
+
+        self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
+        self.act = nn.PReLU(4 * nOut)
+        self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+
+        self.F_glo = FGlo(nOut)
+
+    def forward(self, input):
+        output = self.conv1x1(input)
+        loc = self.F_loc(output)
+        sur= self.F_sur(output)
+        sur_4 = self.F_sur_4(output)
+        sur_8 = self.F_sur_8(output)
+
+        joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
+
+        joi_feat = self.bn(joi_feat)
+        joi_feat = self.act(joi_feat)
+
+        joi_feat = self.reduce(joi_feat)
+        output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
+
+        return output
+    
+class Context_deformableBlock(nn.Module):
+    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16, add=True):
+        super().__init__()
+        #use deformable conv
+        n = int(nOut / 4)
+        self.conv1x1 = ConvBNPReLU(nIn, n, 1, 1)
+        self.F_loc = ChannelWise_DeformConv(n, n, 3, 1)
+        self.F_sur = ChannelWiseDilated_DeformConv(n, n, 3, 1, dilation_rate)
+        self.F_sur_4 = ChannelWiseDilated_DeformConv(n, n, 3, 1, dilation_rate * 2)
+        self.F_sur_8 = ChannelWiseDilated_DeformConv(n, n, 3, 1, dilation_rate * 4)
+
+        self.bn_prelu = BNPReLU(4 * n)
+        self.add = add
+        self.F_glo = FGlo(4 * n, reduction)
+
+    def forward(self, input):
+        output = self.conv1x1(input)
+        loc = self.F_loc(output)
+        sur = self.F_sur(output)
+        sur_4 = self.F_sur_4(output)
+        sur_8 = self.F_sur_8(output)
+
+        joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
+
+        joi_feat = self.bn_prelu(joi_feat)
+
+        output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
+        # if residual version
+        if self.add:
+            output = input + output
+        return output
+#===============================end=================================================#
     
 class InputInjection(nn.Module):
     def __init__(self, downsamplingRatio):
@@ -486,35 +620,60 @@ class Net(nn.Module):
         self.b1 = BNPReLU(32 + 3)
 
         # stage 2
-        self.level2_0 = ContextGuidedBlock_Down(
+        # self.level2_0 = ContextGuidedBlock_Down(
+        #     32 + 3, 64,dilation_rate=2, reduction=8
+        # )
+
+        # self.level2 = nn.ModuleList()
+        # for i in range(0, M - 1):
+        #     self.level2.append(
+        #         ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
+        #     )  # CG block
+        # self.bn_prelu_2 = BNPReLU(128 + 3)
+
+#///////////////////////////////deformable//////////////////////////////////////////
+        self.level2_0_deform = Context_deformableBlock_Down(
             32 + 3, 64,dilation_rate=2, reduction=8
         )
-        self.level2 = nn.ModuleList()
+        self.level2_deform = nn.ModuleList()
         for i in range(0, M - 1):
-            self.level2.append(
-                ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
-            )  # CG block
+            self.level2_deform.append(
+                Context_deformableBlock(64, 64, dilation_rate=2, reduction=8)
+            )
         self.bn_prelu_2 = BNPReLU(128 + 3)
-
+#///////////////////////////////end//////////////////////////////////////////
 
         # stage 3
-        self.level3_0 = ContextGuidedBlock_Down(
+        # self.level3_0 = ContextGuidedBlock_Down(
+        #     128 + 3, 128, dilation_rate=4, reduction=16
+        # )
+
+        # self.level3 = nn.ModuleList()
+        # for i in range(0, N - 1):
+        #     self.level3.append(
+        #         ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
+        #     )  # CG bloc
+        # self.bn_prelu_3 = BNPReLU(256+3)
+
+#///////////////////////////////deformable//////////////////////////////////////////
+        self.level3_0_deform = Context_deformableBlock_Down(
             128 + 3, 128, dilation_rate=4, reduction=16
         )
-        self.level3 = nn.ModuleList()
+        self.level3_deform = nn.ModuleList()
         for i in range(0, N - 1):
-            self.level3.append(
-                ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
-            )  # CG bloc
+            self.level3_deform.append(
+                Context_deformableBlock(128, 128, dilation_rate=4, reduction=16)
+            )
         self.bn_prelu_3 = BNPReLU(256+3)
+#///////////////////////////////end//////////////////////////////////////////
 
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
-                nn.Dropout2d(0.1, False), Conv(390, classes, 1, 1)
+                nn.Dropout2d(0.1, False), Conv(425, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(390, classes, 1, 1))
+            self.classifier = nn.Sequential(Conv(425, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -554,10 +713,9 @@ class Net(nn.Module):
         # stage 2
         output0_cat = self.b1(torch.cat([output0, inp1], 1))
 
-        # sem_out = self.sem(output0_cat)
-        output1_0 = self.level2_0(output0_cat)  # down-sampled
+        output1_0 = self.level2_0_deform(output0_cat)  # down-sampled
 
-        for i, layer in enumerate(self.level2):
+        for i, layer in enumerate(self.level2_deform):
             if i == 0:
                 output1 = layer(output1_0)
             else:
@@ -565,11 +723,10 @@ class Net(nn.Module):
 
         output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
 
-        # cam_out = self.cam(output1_cat)
 
         # stage 3
-        output2_0 = self.level3_0(output1_cat)  # down-sampled
-        for i, layer in enumerate(self.level3):
+        output2_0 = self.level3_0_deform(output1_cat)  # down-sampled
+        for i, layer in enumerate(self.level3_deform):
             if i == 0:
                 output2 = layer(output2_0)
             else:
@@ -577,13 +734,11 @@ class Net(nn.Module):
 
         output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2,inp3], 1))
 
-        # output_ffm = self.ffm(sem_out, cam_out, output2_cat)
-
-        # output0_up = self.upsample(output0_cat)
+        output0_up = self.upsample(output0_cat)
         output1_up = self.upsample(output1_cat)
         output2_up = self.upsample(output2_cat)
         # output_ffm_up = self.upsample(output_ffm)
-        output = torch.cat([ output1_up, output2_up], 1)
+        output = torch.cat([ output0_up,output1_up, output2_up], 1)
         # classifier
         classifier = self.classifier(output)
         # output = self.my_simgoid(classifier)
@@ -602,7 +757,7 @@ class Net(nn.Module):
 
 if __name__ == "__main__":
     model = Net()
-    x = torch.randn(16, 3, 256, 256)
+    x = torch.randn(4, 3, 256, 256)
     output = model(x)
     print(output.shape)
-    summary(model, input_size=(16, 3, 256, 256))
+    summary(model,input_data=x,verbose=1)

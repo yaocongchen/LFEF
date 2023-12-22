@@ -807,7 +807,7 @@ class Net(nn.Module):
 
 if __name__ == "__main__":
     model = Net()
-    x = torch.randn(16, 3, 256, 256)
+    x = torch.randn(4, 3, 256, 256)
     output = model(x)
     print(output.shape)
-    summary(model, input_size=(16, 3, 256, 256))
+    summary(model, input_size=(4, 3, 256, 256))
