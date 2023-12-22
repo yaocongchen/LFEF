@@ -419,6 +419,7 @@ def main():
             wandb.save(args["save_dir"] + "last_checkpoint" + ".pth", base_path="./")
             wandb.save(args["save_dir"] + "last" + ".pth", base_path="./")
             # wandb.save(args['save_dir'] + 'last' +  '.onnx', base_path="./")
+
             # Graphical archive of the epoch test set
             # epoch 測試集中的圖示化存檔
             # wandb.log({"last": wandb.Image("./validation_data_captures/" + "last_" + ".jpg")})
@@ -474,6 +475,7 @@ def main():
             torch.save(state, args["save_dir"] + "best_checkpoint" + ".pth")
             torch.save(model.state_dict(), args["save_dir"] + "best" + ".pth")
             # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best' +  '.onnx', verbose=False)
+
             # torchvision.utils.save_image(
             #     torch.cat((mask_image, output), 0),
             #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
@@ -497,6 +499,7 @@ def main():
                 wandb.save(args["save_dir"] + "best_checkpoint" + ".pth", base_path="./")
                 wandb.save(args["save_dir"] + "best" + ".pth", base_path="./")
                 # wandb.save(args['save_dir'] + 'best' +  '.onnx', base_path="./")
+                
                 # wandb.log({"best": wandb.Image("./validation_data_captures/" + "best" + ".jpg")})
 
                 if args["save_validation_image_bast"] != "no":
