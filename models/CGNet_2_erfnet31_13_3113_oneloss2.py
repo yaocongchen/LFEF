@@ -452,15 +452,23 @@ class ChannelWiseDilated_DeformConv(nn.Module):
         super().__init__()
         self.kSize = kSize
         padding = int((kSize - 1) / 2) * d
-        self.split_size = (2 * kSize * kSize, kSize * kSize)
-        self.conv_offset = nn.Conv2d(nIn, 3 * kSize * kSize, kernel_size=kSize, stride=stride ,padding=padding ,dilation=d)
-        self.conv_deform = deform_conv.DeformConv2d(nIn, nOut,(kSize,kSize),stride=stride,padding=(padding,padding), dilation=d,groups=nIn, bias=False)
+        self.split_size_3_1 = (2 * kSize * 1, kSize * 1)
+        self.conv_offset_3_1 = nn.Conv2d(nIn, 3 * kSize * 1, kernel_size=(kSize,1), stride=stride ,padding=(padding,0) ,dilation=d)
+        self.conv_deform_3_1 = deform_conv.DeformConv2d(nIn, nIn,(kSize,1),stride=stride,padding=(padding,0), dilation=d,groups=nIn, bias=False)
+
+        self.split_size_1_3 = (2 * 1 * kSize, 1 * kSize)
+        self.conv_offset_1_3 = nn.Conv2d(nIn, 3 * 1 * kSize, kernel_size=(1,kSize), stride=stride ,padding=(0,padding) ,dilation=d)
+        self.conv_deform_1_3 = deform_conv.DeformConv2d(nIn, nOut,(1,kSize),stride=stride,padding=(0,padding), dilation=d,groups=nIn, bias=False)
 
     
     def forward(self, input):
-        offset ,make = torch.split(self.conv_offset(input), self.split_size, dim=1)
-        mask = torch.sigmoid(make)
-        output = self.conv_deform(input,offset,mask)
+        offset_3_1 ,make_3_1 = torch.split(self.conv_offset_3_1(input), self.split_size_3_1, dim=1)
+        mask_3_1 = torch.sigmoid(make_3_1)
+        output = self.conv_deform_3_1(input,offset_3_1,mask_3_1)
+
+        offset_1_3 ,make_1_3 = torch.split(self.conv_offset_1_3(input), self.split_size_1_3, dim=1)
+        mask_1_3 = torch.sigmoid(make_1_3)
+        output = self.conv_deform_1_3(input,offset_1_3,mask_1_3)
 
         return output
 
