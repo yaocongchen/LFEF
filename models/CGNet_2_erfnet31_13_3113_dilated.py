@@ -308,6 +308,8 @@ class ContextGuidedBlock_Down(nn.Module):
 
         self.F_glo = FGlo(nOut, reduction)
 
+        # self.dropout = nn.Dropout2d(dropprob)
+
     def forward(self, input):
         output = self.conv1x1(input)
         loc = self.F_loc(output)
@@ -323,6 +325,9 @@ class ContextGuidedBlock_Down(nn.Module):
         joi_feat = self.reduce(joi_feat)  # channel= nOut
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
+
+        # if self.dropout.p != 0:
+        #     output = self.dropout(output)
 
         return output
 
@@ -411,27 +416,27 @@ class non_bottleneck_1d(nn.Module):
             bias=True,
             dilation=(1, dilated),
         )
-
+        self.prelu = nn.PReLU(chann)
         self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
 
         self.dropout = nn.Dropout2d(dropprob)
 
     def forward(self, input):
         output = self.conv3x1_1(input)
-        output = F.relu(output)
+        output = self.prelu(output)
         output = self.conv1x3_1(output)
         output = self.bn1(output)
-        output = F.relu(output)
+        output = self.prelu(output)
 
         output = self.conv3x1_2(output)
-        output = F.relu(output)
+        output = self.prelu(output)
         output = self.conv1x3_2(output)
         output = self.bn2(output)
 
         if self.dropout.p != 0:
             output = self.dropout(output)
 
-        return F.relu(output + input)  # +input = identity (residual connection)
+        return self.prelu(output + input)  # +input = identity (residual connection)
 
 
 class Net(nn.Module):
@@ -450,7 +455,7 @@ class Net(nn.Module):
 
         self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 0.03, 1)
-        # self.level1_2 = non_bottleneck_1d(32, 0.03, 2)
+        self.level1_2 = non_bottleneck_1d(32, 0.03, 2)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
@@ -459,7 +464,7 @@ class Net(nn.Module):
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            32 + 3, 64, dilation_rate=2, reduction=8
+            32 + 3, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -511,7 +516,7 @@ class Net(nn.Module):
         # stage 1
         output0 = self.level1_0(input)
         output0 = self.level1_1(output0)
-        # output0 = self.level1_2(output0)
+        output0 = self.level1_2(output0)
         inp1 = self.sample1(input)
         inp2 = self.sample2(input)
 

@@ -15,7 +15,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet_2_erfnet31_13_3113_dilated as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_3113_oneloss2 as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 CONFIG_FILE = "import_dataset_path.cfg"
@@ -140,8 +140,8 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
 
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
-        loss = utils.loss.CustomLoss(output, mask_image, device)
-        iou = utils.metrics.IoU(output, mask_image, device)
+        loss = utils.loss.CustomLoss(output, mask_image)
+        iou = utils.metrics.IoU(output, mask_image)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
 
@@ -200,8 +200,8 @@ def valid_epoch(model, validation_data_loader, device, epoch):
         with torch.no_grad():
             output = model(img_image)
 
-        loss = utils.loss.CustomLoss(output, mask_image, device)
-        iou = utils.metrics.IoU(output, mask_image, device)
+        loss = utils.loss.CustomLoss(output, mask_image)
+        iou = utils.metrics.IoU(output, mask_image)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
 
@@ -260,7 +260,7 @@ def main():
     cudnn.enabled = True
 
     # Model import 模型導入
-    model = network_model.Net(1)
+    model = network_model.Net()
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
@@ -387,7 +387,7 @@ def main():
 
         torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
         torch.save(model.state_dict(), args["save_dir"] + "last" + ".pth")
-        torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
+        # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
 
         if args["save_train_image"] != "no":
             torchvision.utils.save_image(
@@ -418,7 +418,8 @@ def main():
         if args["wandb_name"] != "no":
             wandb.save(args["save_dir"] + "last_checkpoint" + ".pth", base_path="./")
             wandb.save(args["save_dir"] + "last" + ".pth", base_path="./")
-            wandb.save(args['save_dir'] + 'last' +  '.onnx', base_path="./")
+            # wandb.save(args['save_dir'] + 'last' +  '.onnx', base_path="./")
+
             # Graphical archive of the epoch test set
             # epoch 測試集中的圖示化存檔
             # wandb.log({"last": wandb.Image("./validation_data_captures/" + "last_" + ".jpg")})
@@ -473,7 +474,8 @@ def main():
             print("best_loss: %.3f , best_miou: %.3f" % (mean_loss, mean_miou))
             torch.save(state, args["save_dir"] + "best_checkpoint" + ".pth")
             torch.save(model.state_dict(), args["save_dir"] + "best" + ".pth")
-            torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best' +  '.onnx', verbose=False)
+            # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best' +  '.onnx', verbose=False)
+
             # torchvision.utils.save_image(
             #     torch.cat((mask_image, output), 0),
             #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
@@ -496,7 +498,8 @@ def main():
                 wandb.log({"best_loss": mean_loss, "best_miou": mean_miou})
                 wandb.save(args["save_dir"] + "best_checkpoint" + ".pth", base_path="./")
                 wandb.save(args["save_dir"] + "best" + ".pth", base_path="./")
-                wandb.save(args['save_dir'] + 'best' +  '.onnx', base_path="./")
+                # wandb.save(args['save_dir'] + 'best' +  '.onnx', base_path="./")
+                
                 # wandb.log({"best": wandb.Image("./validation_data_captures/" + "best" + ".jpg")})
 
                 if args["save_validation_image_bast"] != "no":

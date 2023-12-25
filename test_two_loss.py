@@ -10,9 +10,11 @@ import wandb
 import random
 
 import utils
-import models.CGNet_add_sem_cam_2loss as network_model
+import models.CGNet_2_erfnet31_13_3113_sem_cam as network_model
 from visualization_codes.inference import smoke_semantic
 
+model_name = str(network_model)
+print("model_name:", model_name)
 
 def folders_and_files_name():
     # Set save folder and file name 設定存檔資料夾與存檔名稱
@@ -41,6 +43,7 @@ def wandb_information(model_size, flops, params):
         name=args["wandb_name"],
         # track hyperparameters and run metadata
         config={
+            "Model": model_name,
             "Model_size": model_size,
             "FLOPs": flops,
             "Parameters": params,
@@ -55,7 +58,7 @@ def wandb_information(model_size, flops, params):
 
 # Main function 主函式
 def smoke_segmentation(device, names):
-    model = network_model.Net(1).to(device)
+    model = network_model.Net().to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
     model.eval()
@@ -75,14 +78,14 @@ def smoke_segmentation(device, names):
         wandb_time_total2_cache = 0
 
     epoch_loss = []
-    epoch_iou_s = []
     epoch_iou = []
-    epoch_dice_coef = []
+    # epoch_iou_s = []
+    # epoch_dice_coef = []
     epoch_SSIM = []
     time_train = []
     i = 0
 
-    testing_data = utils.dataset_test.DatasetSegmentation(
+    testing_data = utils.dataset.DatasetSegmentation(
         args["test_images"], args["test_masks"], mode="test"
     )
     testing_data_loader = DataLoader(
@@ -110,9 +113,7 @@ def smoke_segmentation(device, names):
         img_image = RGB_image.to(device)
         mask_image = mask_image.to(device)
 
-        output, output_auxiliary = smoke_semantic(
-            img_image, model, device, time_train, i
-        )
+        output,output2 = smoke_semantic(img_image, model, device, time_train, i)
 
         count += 1
         # torchvision.utils.save_image(
@@ -133,31 +134,29 @@ def smoke_segmentation(device, names):
             f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg',
         )
 
-        loss = utils.two_loss.CustomLoss(
-            output, output_auxiliary, mask_image, mode="test"
-        )
-        iou = utils.metrics.IoU(output, mask_image, device)
-        iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
-        dice_coef = utils.metrics.dice_coef(output, mask_image, device)
-        SSIM = utils.metrics.SSIM(output, mask_image)
+        loss = utils.loss_two.CustomLoss(output,output2, mask_image,mode="test")
+        iou = utils.metrics.IoU(output, mask_image)
+        # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
+        # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
+        customssim = utils.metrics.ssim_val(output, mask_image)
 
         epoch_loss.append(loss.item())
         epoch_iou.append(iou.item())
-        epoch_iou_s.append(iou_s.item())
-        epoch_dice_coef.append(dice_coef.item())
-        epoch_SSIM.append(SSIM.item())
+        # epoch_iou_s.append(iou_s.item())
+        # epoch_dice_coef.append(dice_coef.item())
+        epoch_SSIM.append(customssim.item())
 
         average_epoch_loss_test = sum(epoch_loss) / len(epoch_loss)
         average_epoch_miou_test = sum(epoch_iou) / len(epoch_iou)
-        average_epoch_miou_s_test = sum(epoch_iou_s) / len(epoch_iou_s)
-        average_epoch_dice_coef_test = sum(epoch_dice_coef) / len(epoch_dice_coef)
+        # average_epoch_miou_s_test = sum(epoch_iou_s) / len(epoch_iou_s)
+        # average_epoch_dice_coef_test = sum(epoch_dice_coef) / len(epoch_dice_coef)
         average_epoch_epoch_mSSIM_test = sum(epoch_SSIM) / len(epoch_SSIM)
 
         pbar.set_postfix(
             test_loss=average_epoch_loss_test,
             test_miou=average_epoch_miou_test,
-            test_miou_s=average_epoch_miou_s_test,
-            test_dice_coef=average_epoch_dice_coef_test,
+            # test_miou_s=average_epoch_miou_s_test,
+            # test_dice_coef=average_epoch_dice_coef_test,
             test_mSSIM=average_epoch_epoch_mSSIM_test,
         )
 
@@ -166,9 +165,9 @@ def smoke_segmentation(device, names):
             wandb.log(
                 {
                     "test_loss": average_epoch_loss_test,
-                    "test_miou_s": average_epoch_miou_s_test,
                     "test_miou": average_epoch_miou_test,
-                    "test_dice_coef": average_epoch_dice_coef_test,
+                    # "test_miou_s": average_epoch_miou_s_test,
+                    # "test_dice_coef": average_epoch_dice_coef_test,
                     "test_mSSIM": average_epoch_epoch_mSSIM_test,
                 }
             )
@@ -220,6 +219,30 @@ if __name__ == "__main__":
         default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/mask/",
         help="path to mask",
     )
+    # ap.add_argument(
+    #     "-ti",
+    #     "--test_images",
+    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Imag/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--test_masks",
+    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Mask/",
+    #     help="path to mask",
+    # )
+    # ap.add_argument(
+    #     "-ti",
+    #     "--test_images",
+    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/120k/img/",
+    #     help="path to hazy training images",
+    # )
+    # ap.add_argument(
+    #     "-tm",
+    #     "--test_masks",
+    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/120k/gt/",
+    #     help="path to mask",
+    # )
     # ap.add_argument(
     #     "-ti",
     #     "--test_images",

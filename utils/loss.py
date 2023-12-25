@@ -29,7 +29,7 @@ L = nn.BCELoss(reduction="mean")
 #     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
 
 def IoU(
-    model_output, mask, device, smooth=1
+    model_output, mask, smooth=1
 ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
     
 #==============================================================================================================#
@@ -115,17 +115,17 @@ def ssim_val(model_output, mask):
     
     return msssim
     
-def CustomLoss(model_output, mask,device):
+def CustomLoss(model_output, mask):
     # s_iou = Sigmoid_IoU(model_output,mask)
-    iou = IoU(model_output,mask,device)
+    iou = IoU(model_output,mask)
 
     my_ssim = ssim_val(model_output,mask)
 
     loss_1 = L(S(model_output), mask)
 
 
-    total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - my_ssim) * (alpha/2)
-    # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha)
+    # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - my_ssim) * (alpha/2)
+    total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha)
     # total_loss = loss_1
 
     return total_loss
