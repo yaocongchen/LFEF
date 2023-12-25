@@ -233,9 +233,9 @@ class ChannelWiseDilatedConv(nn.Module):
             nn.Conv2d(
                 nIn,
                 nIn,
-                (1, kSize),
+                (kSize, 1),
                 stride=stride,
-                padding=(0, padding),
+                padding=(padding , 0),
                 groups=nIn,
                 bias=False,
                 dilation=d,
@@ -243,9 +243,9 @@ class ChannelWiseDilatedConv(nn.Module):
             nn.Conv2d(
                 nIn,
                 nOut,
-                (kSize, 1),
+                (1, kSize),
                 stride=stride,
-                padding=(padding, 0),
+                padding=(0 , padding),
                 groups=nIn,
                 bias=False,
                 dilation=d,
