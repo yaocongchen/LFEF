@@ -455,7 +455,7 @@ class Net(nn.Module):
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
-        self.sample3 = InputInjection(3)
+
 
         self.b1 = BNPReLU(32 + 3)
 
