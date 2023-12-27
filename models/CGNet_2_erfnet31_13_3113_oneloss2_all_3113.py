@@ -48,14 +48,32 @@ class ConvBNPReLU(nn.Module):
         """
         super().__init__()
         padding = int((kSize - 1) / 2)
-        self.conv = nn.Conv2d(
-            nIn,
-            nOut,
-            (kSize, kSize),
-            stride=stride,
-            padding=(padding, padding),
-            bias=False,
+        self.conv = nn.Sequential(
+            nn.Conv2d(
+                nIn,
+                nOut,
+                (kSize, 1),
+                stride=stride,
+                padding=(padding , 0),
+                bias = False,
+                ),
+            nn.Conv2d(
+                nOut,
+                nOut,
+                (1, kSize), 
+                stride=1,
+                padding=(0 , padding),
+                bias = False,
+                ),
         )
+        # self.conv = nn.Conv2d(
+        #     nIn,
+        #     nOut,
+        #     (kSize, kSize),
+        #     stride=stride,
+        #     padding=(padding, padding),
+        #     bias=False,
+        # )
         self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.act = nn.PReLU(nOut)
 
@@ -92,36 +110,36 @@ class BNPReLU(nn.Module):
         return output
 
 
-class ConvBN(nn.Module):
-    def __init__(self, nIn, nOut, kSize, stride=1):
-        """
-        args:
-           nIn: number of input channels
-           nOut: number of output channels
-           kSize: kernel size
-           stride: optinal stide for down-sampling
-        """
-        super().__init__()
-        padding = int((kSize - 1) / 2)
-        self.conv = nn.Conv2d(
-            nIn,
-            nOut,
-            (kSize, kSize),
-            stride=stride,
-            padding=(padding, padding),
-            bias=False,
-        )
-        self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
+# class ConvBN(nn.Module):
+#     def __init__(self, nIn, nOut, kSize, stride=1):
+#         """
+#         args:
+#            nIn: number of input channels
+#            nOut: number of output channels
+#            kSize: kernel size
+#            stride: optinal stide for down-sampling
+#         """
+#         super().__init__()
+#         padding = int((kSize - 1) / 2)
+#         self.conv = nn.Conv2d(
+#             nIn,
+#             nOut,
+#             (kSize, kSize),
+#             stride=stride,
+#             padding=(padding, padding),
+#             bias=False,
+#         )
+#         self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
 
-    def forward(self, input):
-        """
-        args:
-           input: input feature map
-           return: transformed feature map
-        """
-        output = self.conv(input)
-        output = self.bn(output)
-        return output
+#     def forward(self, input):
+#         """
+#         args:
+#            input: input feature map
+#            return: transformed feature map
+#         """
+#         output = self.conv(input)
+#         output = self.bn(output)
+#         return output
 
 
 class Conv(nn.Module):
@@ -135,14 +153,32 @@ class Conv(nn.Module):
         """
         super().__init__()
         padding = int((kSize - 1) / 2)
-        self.conv = nn.Conv2d(
-            nIn,
-            nOut,
-            (kSize, kSize),
-            stride=stride,
-            padding=(padding, padding),
-            bias=False,
+        self.conv = nn.Sequential(
+            nn.Conv2d(
+                nIn,
+                nOut,
+                (kSize, 1),
+                stride=stride,
+                padding=(padding , 0),
+                bias = False,
+                ),
+            nn.Conv2d(
+                nOut,
+                nOut,
+                (1, kSize), 
+                stride=1,
+                padding=(0 , padding),
+                bias = False,
+                ),
         )
+        # self.conv = nn.Conv2d(
+        #     nIn,
+        #     nOut,
+        #     (kSize, kSize),
+        #     stride=stride,
+        #     padding=(padding, padding),
+        #     bias=False,
+        # )
 
     def forward(self, input):
         """
@@ -165,15 +201,36 @@ class ChannelWiseConv(nn.Module):
         """
         super().__init__()
         padding = int((kSize - 1) / 2)
-        self.conv = nn.Conv2d(
-            nIn,
-            nOut,
-            (kSize, kSize),
-            stride=stride,
-            padding=(padding, padding),
-            groups=nIn,
-            bias=False,
+        self.conv = nn.Sequential(
+            nn.Conv2d(
+                nIn,
+                nOut,
+                (kSize, 1),
+                stride=stride,
+                padding=(padding , 0),
+                groups=nIn,
+                bias = False,
+                ),
+            nn.Conv2d(
+                nOut,
+                nOut,
+                (1, kSize), 
+                stride=1,
+                padding=(0 , padding),
+                groups=nIn,
+                bias = False,
+                ),
         )
+
+        # self.conv = nn.Conv2d(
+        #     nIn,
+        #     nOut,
+        #     (kSize, kSize),
+        #     stride=stride,
+        #     padding=(padding, padding),
+        #     groups=nIn,
+        #     bias=False,
+        # )
 
     def forward(self, input):
         """
@@ -185,36 +242,36 @@ class ChannelWiseConv(nn.Module):
         return output
 
 
-class DilatedConv(nn.Module):
-    def __init__(self, nIn, nOut, kSize, stride=1, d=1):
-        """
-        args:
-           nIn: number of input channels
-           nOut: number of output channels
-           kSize: kernel size
-           stride: optional stride rate for down-sampling
-           d: dilation rate
-        """
-        super().__init__()
-        padding = int((kSize - 1) / 2) * d
-        self.conv = nn.Conv2d(
-            nIn,
-            nOut,
-            (kSize, kSize),
-            stride=stride,
-            padding=(padding, padding),
-            bias=False,
-            dilation=d,
-        )
+# class DilatedConv(nn.Module):
+#     def __init__(self, nIn, nOut, kSize, stride=1, d=1):
+#         """
+#         args:
+#            nIn: number of input channels
+#            nOut: number of output channels
+#            kSize: kernel size
+#            stride: optional stride rate for down-sampling
+#            d: dilation rate
+#         """
+#         super().__init__()
+#         padding = int((kSize - 1) / 2) * d
+#         self.conv = nn.Conv2d(
+#             nIn,
+#             nOut,
+#             (kSize, kSize),
+#             stride=stride,
+#             padding=(padding, padding),
+#             bias=False,
+#             dilation=d,
+#         )
 
-    def forward(self, input):
-        """
-        args:
-           input: input feature map
-           return: transformed feature map
-        """
-        output = self.conv(input)
-        return output
+#     def forward(self, input):
+#         """
+#         args:
+#            input: input feature map
+#            return: transformed feature map
+#         """
+#         output = self.conv(input)
+#         return output
 
 
 class ChannelWiseDilatedConv(nn.Module):
