@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.CGNet_2_erfnet31_13_3113_oneloss_all_3113 as network_model
+import models.CGNet_2_erfnet31_13_3113_oneloss2_all_3113 as network_model
 from visualization_codes.inference import smoke_semantic
 
 model_name = str(network_model)
@@ -57,7 +57,7 @@ def wandb_information(model_size, flops, params):
 
 
 # Main function 主函式
-def smoke_segmentation(device, names):
+def smoke_segmentation(device, names,args,tqdm_par):
     model = network_model.Net().to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
@@ -195,11 +195,12 @@ def smoke_segmentation(device, names):
             wandb_time_end2 = time.time()
             wandb_time_total2 = wandb_time_end2 - wandb_time_start2
             wandb_time_total2_cache += wandb_time_total2
+            wandb_time_total = wandb_time_total1 + wandb_time_total2_cache
 
     if args["wandb_name"] != "no":
-        return wandb_time_total1 + wandb_time_total2_cache
+        return average_epoch_loss_test, average_epoch_miou_test, average_epoch_epoch_mSSIM_test, wandb_time_total
     else:
-        return
+        return average_epoch_loss_test, average_epoch_miou_test, average_epoch_epoch_mSSIM_test
 
 
 if __name__ == "__main__":
@@ -287,7 +288,7 @@ if __name__ == "__main__":
     names = folders_and_files_name()
     # Calculate the total implement time 計算總執行時間
     time_start = time.time()
-    wandb_time_total = smoke_segmentation(device, names)
+    Avg_loss, Avg_miou, Avg_mSSIM,wandb_time_total = smoke_segmentation(device, names,args,tqdm)
     time_end = time.time()
     total_image = len(os.listdir(args["test_images"]))
 
