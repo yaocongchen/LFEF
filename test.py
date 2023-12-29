@@ -57,7 +57,8 @@ def wandb_information(model_size, flops, params):
 
 
 # Main function 主函式
-def smoke_segmentation(device, names,args,tqdm_par):
+def smoke_segmentation(device, names,args):
+    print("test_data:", args["test_images"])
     model = network_model.Net().to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
@@ -280,7 +281,6 @@ if __name__ == "__main__":
     )
     args = vars(ap.parse_args())
 
-    print("test_data:", args["test_images"])
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print(f"Testing on device {device}.")
@@ -288,7 +288,7 @@ if __name__ == "__main__":
     names = folders_and_files_name()
     # Calculate the total implement time 計算總執行時間
     time_start = time.time()
-    Avg_loss, Avg_miou, Avg_mSSIM,wandb_time_total = smoke_segmentation(device, names,args,tqdm)
+    Avg_loss, Avg_miou, Avg_mSSIM,wandb_time_total = smoke_segmentation(device, names,args)
     time_end = time.time()
     total_image = len(os.listdir(args["test_images"]))
 
