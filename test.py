@@ -10,7 +10,7 @@ import wandb
 import random
 
 import utils
-import models.CGNet_2_erfnet31_13_3113_oneloss2_all_3113 as network_model
+import models.CGNet_2_erfnet31_13_3113_oneloss_add_deformable_conv as network_model
 from visualization_codes.inference import smoke_semantic
 
 model_name = str(network_model)
