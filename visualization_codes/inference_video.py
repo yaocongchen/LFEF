@@ -41,7 +41,7 @@ def image_pre_processing(input, device):
 # Main function 主函式
 def smoke_segmentation(
     video_path: str,
-    model_input: str,
+    model: str,
     device: torch.device,
     binary_mode: bool,
     blend_image: bool,
@@ -83,7 +83,7 @@ def smoke_segmentation(
         counter += 1
 
         video_frame = image_pre_processing(frame, device)
-        output = smoke_semantic(video_frame, model_input, device, time_train, i)
+        output = smoke_semantic(video_frame, model, device, time_train, i)
         # use opencv method
         output_np = (
             output.squeeze(0)

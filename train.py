@@ -15,7 +15,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet_2_erfnet31_13_3113_oneloss_add_deformable_conv as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_3113_oneloss_add_conv_deformable as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 CONFIG_FILE = "import_dataset_path.cfg"

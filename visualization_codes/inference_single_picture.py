@@ -44,7 +44,10 @@ def files_name():
 def image_stitching(input_image, names):
     bg = Image.new("RGB", (1200, 300), "#000000")  # 產生一張 600x300 的全黑圖片
     # Load two images 載入兩張影像
-    img1 = Image.open(input_image)
+    if type(input_image) == str:
+        img1 = Image.open(input_image)
+    else:
+        img1 = input_image
     img2 = Image.open(names["smoke_semantic_image_name"] + ".jpg")
     img3 = Image.open(names["image_binary_name"] + ".jpg")
     img4 = Image.open(names["image_overlap_name"] + ".png")
@@ -86,7 +89,10 @@ def image_stitching(input_image, names):
 
 # The trained feature map is fused with the original image 訓練出的特徵圖融合原圖
 def image_overlap(input_image, names):
-    img1 = Image.open(input_image)
+    if type(input_image) == str:
+        img1 = Image.open(input_image)
+    else:
+        img1 = input_image
     img1 = img1.convert("RGBA")
     img2 = Image.open(f'{names["smoke_semantic_image_name"]}.jpg')
 
@@ -114,16 +120,22 @@ def image_overlap(input_image, names):
 
 # Main function 主函式
 def smoke_segmentation(
-    input: str, model_input: str, device: torch.device, names: dict, time_train, i
+    input: str, model: str, device: torch.device, names: dict, time_train, i
 ):
-    smoke_input_image = read_image(input)
+    if type(input) == str:
+        smoke_input_image = read_image(input)
+    else:
+        smoke_input_image = input
+        # turn pil jpeg to Tensor
+        smoke_input_image = transforms.ToTensor()(smoke_input_image)
+
     # print(smoke_input_image.shape)
-    transform = transforms.Resize([256, 256])
+    transform = transforms.Resize([256, 256],antialias=True)
     smoke_input_image = transform(smoke_input_image)
     # print(smoke_input_image.shape)
     smoke_input_image = (smoke_input_image) / 255.0
     smoke_input_image = smoke_input_image.unsqueeze(0).to(device)
-    output = smoke_semantic(smoke_input_image, model_input, device, time_train, i)
+    output = smoke_semantic(smoke_input_image, model, device, time_train, i)
     torchvision.utils.save_image(output, f'{names["smoke_semantic_image_name"]}.jpg')
 
     image_overlap(input, names)

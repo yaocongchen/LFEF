@@ -148,10 +148,10 @@ def smoke_segmentation(device, names,args):
         epoch_SSIM.append(customssim.item())
 
         average_epoch_loss_test = sum(epoch_loss) / len(epoch_loss)
-        average_epoch_miou_test = sum(epoch_iou) / len(epoch_iou)
-        # average_epoch_miou_s_test = sum(epoch_iou_s) / len(epoch_iou_s)
-        # average_epoch_dice_coef_test = sum(epoch_dice_coef) / len(epoch_dice_coef)
-        average_epoch_epoch_mSSIM_test = sum(epoch_SSIM) / len(epoch_SSIM)
+        average_epoch_miou_test = sum(epoch_iou) / len(epoch_iou) * 100
+        # average_epoch_miou_s_test = sum(epoch_iou_s) / len(epoch_iou_s) * 100
+        # average_epoch_dice_coef_test = sum(epoch_dice_coef) / len(epoch_dice_coef) * 100
+        average_epoch_epoch_mSSIM_test = sum(epoch_SSIM) / len(epoch_SSIM) * 100
 
         pbar.set_postfix(
             test_loss=average_epoch_loss_test,
@@ -287,12 +287,14 @@ if __name__ == "__main__":
 
     names = folders_and_files_name()
     # Calculate the total implement time 計算總執行時間
-    time_start = time.time()
-    Avg_loss, Avg_miou, Avg_mSSIM,wandb_time_total = smoke_segmentation(device, names,args)
-    time_end = time.time()
-    total_image = len(os.listdir(args["test_images"]))
+
 
     if args["wandb_name"] != "no":  # 此方式還是會誤差FPS4~5
+        time_start = time.time()
+        Avg_loss, Avg_miou, Avg_mSSIM,wandb_time_total = smoke_segmentation(device, names,args)
+        time_end = time.time()
+        total_image = len(os.listdir(args["test_images"]))
+
         # Calculate FPS
         print(
             "FPS:{:.1f}".format(
@@ -305,6 +307,12 @@ if __name__ == "__main__":
         print("totally cost:", f"{time_min}m {time_sec}s")
         wandb.log({"FPS": total_image / (time_end - time_start - wandb_time_total)})
     else:
+        time_start = time.time()
+        Avg_loss, Avg_miou, Avg_mSSIM = smoke_segmentation(device, names,args)
+        time_end = time.time()
+        total_image = len(os.listdir(args["test_images"]))
+
+
         print("FPS:{:.1f}".format(total_image / (time_end - time_start)))
         spend_time = int(time_end - time_start)
         time_min = spend_time // 60
