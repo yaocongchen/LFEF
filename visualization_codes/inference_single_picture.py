@@ -47,7 +47,8 @@ def image_stitching(input_image, names):
     if type(input_image) == str:
         img1 = Image.open(input_image)
     else:
-        img1 = input_image
+        # numpy to pil
+        img1 = transforms.ToPILImage()(input_image)
     img2 = Image.open(names["smoke_semantic_image_name"] + ".jpg")
     img3 = Image.open(names["image_binary_name"] + ".jpg")
     img4 = Image.open(names["image_overlap_name"] + ".png")
@@ -92,7 +93,8 @@ def image_overlap(input_image, names):
     if type(input_image) == str:
         img1 = Image.open(input_image)
     else:
-        img1 = input_image
+        # numpy to pil
+        img1 = transforms.ToPILImage()(input_image)
     img1 = img1.convert("RGBA")
     img2 = Image.open(f'{names["smoke_semantic_image_name"]}.jpg')
 
@@ -125,9 +127,13 @@ def smoke_segmentation(
     if type(input) == str:
         smoke_input_image = read_image(input)
     else:
-        smoke_input_image = input
+        # pil to numpy
+        # smoke_input_image = transforms.ToPILImage()(input)
         # turn pil jpeg to Tensor
-        smoke_input_image = transforms.ToTensor()(smoke_input_image)
+        # smoke_input_image = transforms.ToTensor()(smoke_input_image)
+        # numpy to Tensor
+        smoke_input_image = torch.from_numpy(input).float()
+        smoke_input_image = smoke_input_image.permute(2, 0, 1).contiguous()
 
     # print(smoke_input_image.shape)
     transform = transforms.Resize([256, 256],antialias=True)

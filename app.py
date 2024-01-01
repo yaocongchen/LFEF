@@ -15,7 +15,7 @@ from visualization_codes import (
     inference_multiple_pictures,
     inference_video,
 )
-import models.CGNet_2_erfnet31_13_3113_oneloss_add_deformable_conv as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_3113_oneloss_add_conv_deformable as network_model  # import self-written models 引入自行寫的模型
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -103,23 +103,21 @@ def SYN70k_dataset(operation):
         return
 
 def Your_image(image):
+
+    model_path= "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/bs32e150/last.pth"
+
     time_train = []
     i = 0
 
-    args = {
-        "source" : image,
-        "model_path": "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/bs32e150/last.pth",
-        "save_video": False,
-        "show_video": False,
-    }
     names = inference_single_picture.files_name()
 
     model = network_model.Net().to(device)
-    model.load_state_dict(torch.load(args["model_path"]))
+    model.load_state_dict(torch.load(model_path))
 
     model.eval()
+
     inference_single_picture.smoke_segmentation(
-        input=args["source"],
+        input=image,
         model=model,
         device=device,
         names=names,
@@ -151,7 +149,7 @@ with gr.Blocks() as demo:
 
     with gr.Tab("Your_Image"):
         with gr.Column():
-            image_input = gr.Image(label="Input_Image",type="pil")
+            image_input = gr.Image(label="Input_Image",type="numpy")
             with gr.Row():
                 image_smoke_semantic = gr.Image(label="smoke_semantic_image",type="numpy")   
                 image_binary = gr.Image(label="binary_image",type="numpy")
