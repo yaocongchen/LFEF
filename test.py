@@ -57,12 +57,8 @@ def wandb_information(model_size, flops, params):
 
 
 # Main function 主函式
-def smoke_segmentation(device, names,args):
+def smoke_segmentation(model,device, names,args):
     print("test_data:", args["test_images"])
-    model = network_model.Net().to(device)
-    model.load_state_dict(torch.load(args["model_path"]))
-
-    model.eval()
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
@@ -288,10 +284,13 @@ if __name__ == "__main__":
     names = folders_and_files_name()
     # Calculate the total implement time 計算總執行時間
 
-
+    model = network_model.Net().to(device)
+    model.load_state_dict(torch.load(args["model_path"]))
+    model.eval()
+    
     if args["wandb_name"] != "no":  # 此方式還是會誤差FPS4~5
         time_start = time.time()
-        Avg_loss, Avg_miou, Avg_mSSIM,wandb_time_total = smoke_segmentation(device, names,args)
+        Avg_loss, Avg_miou, Avg_mSSIM,wandb_time_total = smoke_segmentation(model,device,names,args)
         time_end = time.time()
         total_image = len(os.listdir(args["test_images"]))
 
@@ -308,7 +307,7 @@ if __name__ == "__main__":
         wandb.log({"FPS": total_image / (time_end - time_start - wandb_time_total)})
     else:
         time_start = time.time()
-        Avg_loss, Avg_miou, Avg_mSSIM = smoke_segmentation(device, names,args)
+        Avg_loss, Avg_miou, Avg_mSSIM = smoke_segmentation(model,device,names,args)
         time_end = time.time()
         total_image = len(os.listdir(args["test_images"]))
 
