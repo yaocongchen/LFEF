@@ -16,15 +16,22 @@ function check_update(){
     # 先從遠程服務器下載 log.txt 文件到臨時文件
     scp -P $remote_port $remote_folder_path/log.txt /tmp/remote_log.txt
 
-    # 使用 diff 命令比較本地和遠程的 log.txt 文件
-    diff $local_file_path /tmp/remote_log.txt > /dev/null
-    if [ $? -ne 0 ]; then
-        echo "local file $local_file_path is different from remote file"
+    # 檢查本地文件是否存在
+    if [ ! -f $local_file_path ]; then
+        echo "local file $local_file_path does not exist"
         echo "copying $remote_folder_name to $local_folder_name"
         scp -P $remote_port -r $remote_folder_path $local_folder_path
     else
-        echo "local file $local_file_path is the same as remote file"
-        echo "do nothing"
+        # 使用 diff 命令比較本地和遠程的 log.txt 文件
+        diff $local_file_path /tmp/remote_log.txt > /dev/null
+        if [ $? -ne 0 ]; then
+            echo "local file $local_file_path is different from remote file"
+            echo "copying $remote_folder_name to $local_folder_name"
+            scp -P $remote_port -r $remote_folder_path $local_folder_path
+        else
+            echo "local file $local_file_path is the same as remote file"
+            echo "do nothing"
+        fi
     fi
 }
 
