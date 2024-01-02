@@ -46,7 +46,7 @@ def SYN70k_dataset(operation):
         args = {
             "batch_size": 1,
             "num_workers": 1,
-            "model_path": "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/bs32e150/last.pth",
+            "model_path": "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth",
             "wandb_name": "no",
             "test_images": "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/img/",
             "test_masks": "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/mask/",
@@ -60,7 +60,7 @@ def SYN70k_dataset(operation):
         args = {
             "batch_size": 1,
             "num_workers": 1,
-            "model_path": "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/bs32e150/last.pth",
+            "model_path": "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth",
             "wandb_name": "no",
             "test_images": "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS02/img/",
             "test_masks": "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS02/mask/",
@@ -75,7 +75,7 @@ def SYN70k_dataset(operation):
         args = {
             "batch_size": 1,
             "num_workers": 1,
-            "model_path": "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/bs32e150/last.pth",
+            "model_path": "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth",
             "wandb_name": "no",
             "test_images": "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/img/",
             "test_masks": "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/mask/",
@@ -93,7 +93,7 @@ def SYN70k_dataset(operation):
 def Your_image(image):
 
     args = {
-        "model_path": "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/bs32e150/last.pth"
+        "model_path": "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth"
     }
 
     time_train = []
@@ -122,7 +122,7 @@ def model_update():
     #執行check_trained_model_update.sh
     os.system("bash /home/yaocong/Experimental/speed_smoke_segmentation/check_trained_model_update.sh")
     #查看log.txt的更新時間
-    log_time = os.path.getmtime("/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/bs2e150/log.txt")
+    log_time = os.path.getmtime("/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/log.txt")
     #轉換成localtime
     log_time_localtime = time.localtime(log_time)
     #轉換成新的時間格式(2016-05-05 20:28:54)
