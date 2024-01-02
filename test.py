@@ -17,42 +17,27 @@ model_name = str(network_model)
 print("model_name:", model_name)
 
 def folders_and_files_name():
-    # Set save folder and file name 設定存檔資料夾與存檔名稱
     save_smoke_semantic_dir_name = "testing_multiple_result"
-    if os.path.exists("./" + save_smoke_semantic_dir_name):
-        shutil.rmtree(
-            "./" + save_smoke_semantic_dir_name
-        )  # Delete the original folder and content 將原有的資料夾與內容刪除
-        os.makedirs("./" + save_smoke_semantic_dir_name)  # Create new folder 創建新的資料夾
-    else:
-        # if not os.path.exists("./" + save_smoke_semantic_dir_name):
-        os.makedirs("./" + save_smoke_semantic_dir_name)
-    save_smoke_semantic_image_name = "smoke_semantic_image"
+    shutil.rmtree(save_smoke_semantic_dir_name, ignore_errors=True)
+    os.makedirs(save_smoke_semantic_dir_name)
 
-    names = {}
-    names["smoke_semantic_dir_name"] = save_smoke_semantic_dir_name
-    names["smoke_semantic_image_name"] = save_smoke_semantic_image_name
-
-    return names
+    return {
+        "smoke_semantic_dir_name": save_smoke_semantic_dir_name,
+        "smoke_semantic_image_name": "smoke_semantic_image"
+    }
 
 
 def wandb_information(model_size, flops, params):
     wandb.init(
-        # set the wandb project where this run will be logged
         project="lightssd-project-test",
         name=args["wandb_name"],
-        # track hyperparameters and run metadata
         config={
             "Model": model_name,
             "Model_size": model_size,
             "FLOPs": flops,
             "Parameters": params,
-            "test_images": args["test_images"],
-            "test_masks": args["test_masks"],
-            "batch_size": args["batch_size"],
-            "num_workers": args["num_workers"],
-            "model_path": args["model_path"],
-        },
+            **{k: args[k] for k in ["test_images", "test_masks", "batch_size", "num_workers"]}
+        }
     )
 
 

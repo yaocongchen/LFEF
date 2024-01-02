@@ -12,6 +12,8 @@ import test
 from visualization_codes import inference_single_picture
 import models.CGNet_2_erfnet31_13_3113_oneloss_add_deformable_conv as network_model  # import self-written models 引入自行寫的模型
 
+MODEL_PATH = "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth"
+
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 def model_load(args):
@@ -41,59 +43,29 @@ def test_dataset(args):
         # Avg_loss, Avg_miou, Avg_mSSIM = test.smoke_segmentation(device, names, args)
     return Avg_loss, Avg_miou,Avg_mSSIM, fps, time_min ,time_sec
 
+def get_args(operation):
+    return {
+        "batch_size": 1,
+        "num_workers": 1,
+        "model_path": MODEL_PATH,
+        "wandb_name": "no",
+        "test_images": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation}/img/",
+        "test_masks": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation}/mask/",
+    }
+
 def SYN70k_dataset(operation):
-    if operation == "DS01":
-        args = {
-            "batch_size": 1,
-            "num_workers": 1,
-            "model_path": "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth",
-            "wandb_name": "no",
-            "test_images": "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/img/",
-            "test_masks": "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/mask/",
-        }
+    if operation in ["DS01", "DS02", "DS03"]:
+        args = get_args(operation)
         Avg_loss, Avg_miou,Avg_mSSIM, fps, time_min ,time_sec = test_dataset(args)
-
-        # Avg_loss, Avg_miou, Avg_mSSIM = test.smoke_segmentation(device, names, args)
         return Avg_loss, Avg_miou,Avg_mSSIM, f"{fps} fps", f"{time_min}m {time_sec}s"
-    
-    elif operation == "DS02":
-        args = {
-            "batch_size": 1,
-            "num_workers": 1,
-            "model_path": "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth",
-            "wandb_name": "no",
-            "test_images": "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS02/img/",
-            "test_masks": "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS02/mask/",
-        }
-
-        Avg_loss, Avg_miou,Avg_mSSIM, fps, time_min ,time_sec = test_dataset(args)
-
-        # Avg_loss, Avg_miou, Avg_mSSIM = test.smoke_segmentation(device, names, args)
-        return Avg_loss, Avg_miou,Avg_mSSIM, f"{fps} fps", f"{time_min}m {time_sec}s"
-    
-    elif operation == "DS03":
-        args = {
-            "batch_size": 1,
-            "num_workers": 1,
-            "model_path": "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth",
-            "wandb_name": "no",
-            "test_images": "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/img/",
-            "test_masks": "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/mask/",
-        }
-
-        Avg_loss, Avg_miou,Avg_mSSIM, fps, time_min ,time_sec = test_dataset(args)
-
-        # Avg_loss, Avg_miou, Avg_mSSIM = test.smoke_segmentation(device, names, args)
-        return Avg_loss, Avg_miou,Avg_mSSIM, f"{fps} fps", f"{time_min}m {time_sec}s"
-    
-    elif operation == None:
+    else:
         gr.Warning("Please choice your data source")
         return
 
 def Your_image(image):
 
     args = {
-        "model_path": "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth"
+        "model_path": MODEL_PATH,
     }
 
     time_train = []
