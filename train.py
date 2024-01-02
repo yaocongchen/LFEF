@@ -403,7 +403,7 @@ def main():
                         + "weight_decay:" + str(args["weight_decay"]) + "\n"
                         + "update time:" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + "\n")
         else:
-            with open(f"./{args['save_dir']}/log.txt", "w") as f:
+            with open(f"{args['save_dir']}/log.txt", "w") as f:
                 f.write(model_name +"\n" 
                         + "train_images:"+ train_images + "\n" 
                         + "train_masks:" + train_masks + "\n" 
