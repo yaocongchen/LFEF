@@ -391,8 +391,8 @@ def main():
         # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
 
         #將現在電腦時間存入log.txt，若沒有log.txt則創建log.txt，若有log.txt則直接覆蓋內容
-        if not os.path.exists(f"./{args['save_dir']}/log.txt"):
-            with open(f"./{args['save_dir']}/log.txt", "w") as f:
+        if not os.path.exists(f"{args['save_dir']}/log.txt"):
+            with open(f"{args['save_dir']}/log.txt", "w") as f:
                 f.write(model_name +"\n" 
                         + "train_images:"+ train_images + "\n" 
                         + "train_masks:" + train_masks + "\n" 
