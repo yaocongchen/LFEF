@@ -374,25 +374,13 @@ class ContextGuidedBlock(nn.Module):
 class InputInjection(nn.Module):
     def __init__(self, downsamplingRatio):
         super().__init__()
-        self.avg_pool = nn.ModuleList()
+        self.pool = nn.ModuleList()
         for i in range(0, downsamplingRatio):
-            self.avg_pool.append(nn.AvgPool2d(3, stride=2, padding=1))
-
-        self.max_pool = nn.ModuleList()
-        for i in range(0, downsamplingRatio):
-            self.max_pool.append(nn.MaxPool2d(3, stride=2, padding=1))
+            self.pool.append(nn.AvgPool2d(3, stride=2, padding=1))
 
     def forward(self, input):
-        avg_pool_input = input
-        for avg_pool in self.avg_pool:
-            avg_pool_input = avg_pool(avg_pool_input)
-
-        max_pool_input = input
-        for max_pool in self.max_pool:
-            max_pool_input = max_pool(max_pool_input)
-
-        input = avg_pool_input + max_pool_input
-        
+        for pool in self.pool:
+            input = pool(input)
         return input
 
 
