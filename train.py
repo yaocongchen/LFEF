@@ -389,30 +389,16 @@ def main():
         torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
         torch.save(model.state_dict(), args["save_dir"] + "last" + ".pth")
         # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
-
-        #將現在電腦時間存入log.txt，若沒有log.txt則創建log.txt，若有log.txt則直接覆蓋內容
-        if not os.path.exists(f"{args['save_dir']}/log.txt"):
-            with open(f"{args['save_dir']}/log.txt", "w") as f:
-                f.write(model_name +"\n" 
-                        + "train_images:"+ train_images + "\n" 
-                        + "train_masks:" + train_masks + "\n" 
-                        + "batchsize:" + str(args["batch_size"]) + "\n"
-                        + "num_workers:" + str(args["num_workers"]) + "\n"
-                        + "epochs:" + str(args["epochs"]) + "\n"
-                        + "learning_rate:" + str(args["learning_rate"]) + "\n"
-                        + "weight_decay:" + str(args["weight_decay"]) + "\n"
-                        + "update time:" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + "\n")
-        else:
-            with open(f"{args['save_dir']}/log.txt", "w") as f:
-                f.write(model_name +"\n" 
-                        + "train_images:"+ train_images + "\n" 
-                        + "train_masks:" + train_masks + "\n" 
-                        + "batchsize:" + str(args["batch_size"]) + "\n"
-                        + "num_workers:" + str(args["num_workers"]) + "\n"
-                        + "epochs:" + str(args["epochs"]) + "\n"
-                        + "learning_rate:" + str(args["learning_rate"]) + "\n"
-                        + "weight_decay:" + str(args["weight_decay"]) + "\n"
-                        + "update time:" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + "\n")
+        with open(f"{args['save_dir']}/log.txt", "w") as f:
+            f.write(model_name +"\n" 
+                    + "train_images:"+ train_images + "\n" 
+                    + "train_masks:" + train_masks + "\n" 
+                    + "batchsize:" + str(args["batch_size"]) + "\n"
+                    + "num_workers:" + str(args["num_workers"]) + "\n"
+                    + "epochs:" + str(args["epochs"]) + "\n"
+                    + "learning_rate:" + str(args["learning_rate"]) + "\n"
+                    + "weight_decay:" + str(args["weight_decay"]) + "\n"
+                    + "update time:" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + "\n")
 
         if args["save_train_image"] != "no":
             torchvision.utils.save_image(

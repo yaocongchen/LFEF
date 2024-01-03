@@ -1,16 +1,17 @@
 #%%
 import numpy as np
 import gradio as gr
-import argparse
 import torch
 import time
 import os
 import PIL.Image as Image
 import numpy as np
+import wandb
 
 import test
 from visualization_codes import inference_single_picture
 import models.CGNet_2_erfnet31_13_3113_oneloss_add_deformable_conv as network_model  # import self-written models 引入自行寫的模型
+model_name = str(network_model)
 
 MODEL_PATH = "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth"
 
@@ -27,35 +28,57 @@ def test_dataset(args):
 
     model = model_load(args)
 
-    time_start = time.time()
-    Avg_loss, Avg_miou, Avg_mSSIM = test.smoke_segmentation(model,device,names,args)
-    time_end = time.time()
-    Avg_loss = round(Avg_loss, 4)
-    Avg_miou = round(Avg_miou, 1)
-    Avg_mSSIM = round(Avg_mSSIM, 1)
-    total_image = len(os.listdir(args["test_images"]))
+    def calculate_and_print_fps(total_image, time_start, time_end, wandb_time_total=0):
+        fps = total_image / (time_end - time_start - wandb_time_total)
+        fps = round(fps, 1)
+        spend_time = int(time_end - time_start - wandb_time_total)
+        time_min = spend_time // 60
+        time_sec = spend_time % 60
 
-    fps = round(total_image / (time_end - time_start), 1)
-    spend_time = int(time_end - time_start)
-    time_min = spend_time // 60
-    time_sec = spend_time % 60
+        return fps , time_min ,time_sec
+
+    if args["wandb_name"] != "no":  # 此方式還是會誤差FPS4~5
+        time_start = time.time()
+        Avg_loss, Avg_miou, Avg_mSSIM, wandb_time_total= test.smoke_segmentation(model,device,names,args)
+        time_end = time.time()
+        Avg_loss = round(Avg_loss, 4)
+        Avg_miou = round(Avg_miou, 1)
+        Avg_mSSIM = round(Avg_mSSIM, 1)
+        total_image = len(os.listdir(args["test_images"]))
+        fps,time_min,time_sec = calculate_and_print_fps(total_image, time_start, time_end, wandb_time_total)
+        wandb.log({"FPS": fps})
+    else:
+        time_start = time.time()
+        Avg_loss, Avg_miou, Avg_mSSIM = test.smoke_segmentation(model,device,names,args)
+        time_end = time.time()
+        Avg_loss = round(Avg_loss, 4)
+        Avg_miou = round(Avg_miou, 1)
+        Avg_mSSIM = round(Avg_mSSIM, 1)        
+        total_image = len(os.listdir(args["test_images"]))
+        fps, time_min,time_sec =calculate_and_print_fps(total_image, time_start, time_end)
 
         # Avg_loss, Avg_miou, Avg_mSSIM = test.smoke_segmentation(device, names, args)
     return Avg_loss, Avg_miou,Avg_mSSIM, fps, time_min ,time_sec
 
-def get_args(operation):
+def get_args(operation_input, WANDB_NAME):
     return {
         "batch_size": 1,
         "num_workers": 1,
         "model_path": MODEL_PATH,
-        "wandb_name": "no",
-        "test_images": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation}/img/",
-        "test_masks": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation}/mask/",
+        "wandb_name": WANDB_NAME,
+        "test_images": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation_input}/img/",
+        "test_masks": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation_input}/mask/",
     }
 
-def SYN70k_dataset(operation):
-    if operation in ["DS01", "DS02", "DS03"]:
-        args = get_args(operation)
+
+def SYN70k_dataset(operation_input,wandb_name_input):
+    if operation_input in ["DS01", "DS02", "DS03"]:
+        if wandb_name_input != "":
+            WANDB_NAME = wandb_name_input
+        else:
+            WANDB_NAME = "no"
+            
+        args = get_args(operation_input, WANDB_NAME)
         Avg_loss, Avg_miou,Avg_mSSIM, fps, time_min ,time_sec = test_dataset(args)
         return Avg_loss, Avg_miou,Avg_mSSIM, f"{fps} fps", f"{time_min}m {time_sec}s"
     else:
@@ -119,6 +142,11 @@ with gr.Blocks() as demo:
             with gr.Column():
                 fps = gr.Textbox(label="FPS",info="(frames/s)")
                 spend_time = gr.Textbox(label="Spend_Time")
+
+        with gr.Accordion("Advanced Options"):
+            gr.Markdown("## Save to Weight & Biases (Optional)")
+            wandb_name_input = gr.Textbox(label="wandb_name")
+
         SYN70K_button = gr.Button("Start !")
 
     with gr.Tab("Your_Image"):
@@ -136,10 +164,8 @@ with gr.Blocks() as demo:
     # with gr.Accordion("Open for More!"):
     #     gr.Markdown("Look at me...")
 
-    # text_button.click(flip_text, inputs=text_input, outputs=text_output)
-    # image_button.click(flip_image, inputs=image_input, outputs=image_output)
     update_model_button.click(model_update,outputs=status)
-    SYN70K_button.click(SYN70k_dataset, inputs=operation_input, outputs=[loss, mIoU, mSSIM, fps, spend_time])
+    SYN70K_button.click(SYN70k_dataset, inputs=[operation_input,wandb_name_input], outputs=[loss, mIoU, mSSIM, fps, spend_time])
     image_button.click(Your_image, inputs=image_input, outputs=[image_smoke_semantic, image_binary, image_stitching, image_overlap])
     
 if __name__ == "__main__":

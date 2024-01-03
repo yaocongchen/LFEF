@@ -7,7 +7,6 @@ import shutil
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 import wandb
-import random
 
 import utils
 import models.CGNet_2_erfnet31_13_3113_oneloss_add_deformable_conv as network_model
@@ -27,7 +26,7 @@ def folders_and_files_name():
     }
 
 
-def wandb_information(model_size, flops, params):
+def wandb_information(model_size, flops, params,args):
     wandb.init(
         project="lightssd-project-test",
         name=args["wandb_name"],
@@ -54,7 +53,7 @@ def smoke_segmentation(model,device, names,args):
     # wandb.ai
     if args["wandb_name"] != "no":
         wandb_time_start1 = time.time()
-        wandb_information(model_size, flops, params)
+        wandb_information(model_size, flops, params,args)
         wandb_time_end1 = time.time()
         wandb_time_total1 = wandb_time_end1 - wandb_time_start1
         wandb_time_total2_cache = 0
@@ -273,32 +272,25 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load(args["model_path"]))
     model.eval()
     
-    if args["wandb_name"] != "no":  # 此方式還是會誤差FPS4~5
-        time_start = time.time()
-        Avg_loss, Avg_miou, Avg_mSSIM,wandb_time_total = smoke_segmentation(model,device,names,args)
-        time_end = time.time()
-        total_image = len(os.listdir(args["test_images"]))
-
-        # Calculate FPS
-        print(
-            "FPS:{:.1f}".format(
-                total_image / (time_end - time_start - wandb_time_total)
-            )
-        )
+    def calculate_and_print_fps(total_image, time_start, time_end, wandb_time_total=0):
+        fps = total_image / (time_end - time_start - wandb_time_total)
+        print("FPS:{:.1f}".format(fps))
         spend_time = int(time_end - time_start - wandb_time_total)
         time_min = spend_time // 60
         time_sec = spend_time % 60
         print("totally cost:", f"{time_min}m {time_sec}s")
-        wandb.log({"FPS": total_image / (time_end - time_start - wandb_time_total)})
+        return fps
+
+    if args["wandb_name"] != "no":  # 此方式還是會誤差FPS4~5
+        time_start = time.time()
+        Avg_loss, Avg_miou, Avg_mSSIM, wandb_time_total= smoke_segmentation(model,device,names,args)
+        time_end = time.time()
+        total_image = len(os.listdir(args["test_images"]))
+        fps = calculate_and_print_fps(total_image, time_start, time_end, wandb_time_total)
+        wandb.log({"FPS": fps})
     else:
         time_start = time.time()
         Avg_loss, Avg_miou, Avg_mSSIM = smoke_segmentation(model,device,names,args)
         time_end = time.time()
         total_image = len(os.listdir(args["test_images"]))
-
-
-        print("FPS:{:.1f}".format(total_image / (time_end - time_start)))
-        spend_time = int(time_end - time_start)
-        time_min = spend_time // 60
-        time_sec = spend_time % 60
-        print("totally cost:", f"{time_min}m {time_sec}s")
+        calculate_and_print_fps(total_image, time_start, time_end)
