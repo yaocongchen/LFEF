@@ -7,61 +7,42 @@ import shutil
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 import wandb
-import random
 
 import utils
-import models.CGNet_2_erfnet31_13_3113_oneloss2 as network_model
+import models.CGNet_2_erfnet31_13_3113_oneloss_add_deformable_conv as network_model
 from visualization_codes.inference import smoke_semantic
 
 model_name = str(network_model)
 print("model_name:", model_name)
 
 def folders_and_files_name():
-    # Set save folder and file name 設定存檔資料夾與存檔名稱
     save_smoke_semantic_dir_name = "testing_multiple_result"
-    if os.path.exists("./" + save_smoke_semantic_dir_name):
-        shutil.rmtree(
-            "./" + save_smoke_semantic_dir_name
-        )  # Delete the original folder and content 將原有的資料夾與內容刪除
-        os.makedirs("./" + save_smoke_semantic_dir_name)  # Create new folder 創建新的資料夾
-    else:
-        # if not os.path.exists("./" + save_smoke_semantic_dir_name):
-        os.makedirs("./" + save_smoke_semantic_dir_name)
-    save_smoke_semantic_image_name = "smoke_semantic_image"
+    shutil.rmtree(save_smoke_semantic_dir_name, ignore_errors=True)
+    os.makedirs(save_smoke_semantic_dir_name)
 
-    names = {}
-    names["smoke_semantic_dir_name"] = save_smoke_semantic_dir_name
-    names["smoke_semantic_image_name"] = save_smoke_semantic_image_name
-
-    return names
+    return {
+        "smoke_semantic_dir_name": save_smoke_semantic_dir_name,
+        "smoke_semantic_image_name": "smoke_semantic_image"
+    }
 
 
-def wandb_information(model_size, flops, params):
+def wandb_information(model_size, flops, params,args):
     wandb.init(
-        # set the wandb project where this run will be logged
         project="lightssd-project-test",
         name=args["wandb_name"],
-        # track hyperparameters and run metadata
         config={
             "Model": model_name,
             "Model_size": model_size,
             "FLOPs": flops,
             "Parameters": params,
-            "test_images": args["test_images"],
-            "test_masks": args["test_masks"],
-            "batch_size": args["batch_size"],
-            "num_workers": args["num_workers"],
-            "model_path": args["model_path"],
-        },
+            **{k: args[k] for k in ["test_images", "test_masks", "batch_size", "num_workers"]}
+        }
     )
 
 
 # Main function 主函式
-def smoke_segmentation(device, names):
-    model = network_model.Net().to(device)
-    model.load_state_dict(torch.load(args["model_path"]))
-
-    model.eval()
+def smoke_segmentation(model,device, names,args):
+    print("test_data:", args["test_images"])
 
     # Calculation model size parameter amount and calculation amount
     # 計算模型大小、參數量與計算量
@@ -72,7 +53,7 @@ def smoke_segmentation(device, names):
     # wandb.ai
     if args["wandb_name"] != "no":
         wandb_time_start1 = time.time()
-        wandb_information(model_size, flops, params)
+        wandb_information(model_size, flops, params,args)
         wandb_time_end1 = time.time()
         wandb_time_total1 = wandb_time_end1 - wandb_time_start1
         wandb_time_total2_cache = 0
@@ -147,10 +128,10 @@ def smoke_segmentation(device, names):
         epoch_SSIM.append(customssim.item())
 
         average_epoch_loss_test = sum(epoch_loss) / len(epoch_loss)
-        average_epoch_miou_test = sum(epoch_iou) / len(epoch_iou)
-        # average_epoch_miou_s_test = sum(epoch_iou_s) / len(epoch_iou_s)
-        # average_epoch_dice_coef_test = sum(epoch_dice_coef) / len(epoch_dice_coef)
-        average_epoch_epoch_mSSIM_test = sum(epoch_SSIM) / len(epoch_SSIM)
+        average_epoch_miou_test = sum(epoch_iou) / len(epoch_iou) * 100
+        # average_epoch_miou_s_test = sum(epoch_iou_s) / len(epoch_iou_s) * 100
+        # average_epoch_dice_coef_test = sum(epoch_dice_coef) / len(epoch_dice_coef) * 100
+        average_epoch_epoch_mSSIM_test = sum(epoch_SSIM) / len(epoch_SSIM) * 100
 
         pbar.set_postfix(
             test_loss=average_epoch_loss_test,
@@ -195,11 +176,12 @@ def smoke_segmentation(device, names):
             wandb_time_end2 = time.time()
             wandb_time_total2 = wandb_time_end2 - wandb_time_start2
             wandb_time_total2_cache += wandb_time_total2
+            wandb_time_total = wandb_time_total1 + wandb_time_total2_cache
 
     if args["wandb_name"] != "no":
-        return wandb_time_total1 + wandb_time_total2_cache
+        return average_epoch_loss_test, average_epoch_miou_test, average_epoch_epoch_mSSIM_test, wandb_time_total
     else:
-        return
+        return average_epoch_loss_test, average_epoch_miou_test, average_epoch_epoch_mSSIM_test
 
 
 if __name__ == "__main__":
@@ -279,33 +261,36 @@ if __name__ == "__main__":
     )
     args = vars(ap.parse_args())
 
-    print("test_data:", args["test_images"])
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print(f"Testing on device {device}.")
 
     names = folders_and_files_name()
     # Calculate the total implement time 計算總執行時間
-    time_start = time.time()
-    wandb_time_total = smoke_segmentation(device, names)
-    time_end = time.time()
-    total_image = len(os.listdir(args["test_images"]))
 
-    if args["wandb_name"] != "no":  # 此方式還是會誤差FPS4~5
-        # Calculate FPS
-        print(
-            "FPS:{:.1f}".format(
-                total_image / (time_end - time_start - wandb_time_total)
-            )
-        )
+    model = network_model.Net().to(device)
+    model.load_state_dict(torch.load(args["model_path"]))
+    model.eval()
+    
+    def calculate_and_print_fps(total_image, time_start, time_end, wandb_time_total=0):
+        fps = total_image / (time_end - time_start - wandb_time_total)
+        print("FPS:{:.1f}".format(fps))
         spend_time = int(time_end - time_start - wandb_time_total)
         time_min = spend_time // 60
         time_sec = spend_time % 60
         print("totally cost:", f"{time_min}m {time_sec}s")
-        wandb.log({"FPS": total_image / (time_end - time_start - wandb_time_total)})
+        return fps
+
+    if args["wandb_name"] != "no":  # 此方式還是會誤差FPS4~5
+        time_start = time.time()
+        Avg_loss, Avg_miou, Avg_mSSIM, wandb_time_total= smoke_segmentation(model,device,names,args)
+        time_end = time.time()
+        total_image = len(os.listdir(args["test_images"]))
+        fps = calculate_and_print_fps(total_image, time_start, time_end, wandb_time_total)
+        wandb.log({"FPS": fps})
     else:
-        print("FPS:{:.1f}".format(total_image / (time_end - time_start)))
-        spend_time = int(time_end - time_start)
-        time_min = spend_time // 60
-        time_sec = spend_time % 60
-        print("totally cost:", f"{time_min}m {time_sec}s")
+        time_start = time.time()
+        Avg_loss, Avg_miou, Avg_mSSIM = smoke_segmentation(model,device,names,args)
+        time_end = time.time()
+        total_image = len(os.listdir(args["test_images"]))
+        calculate_and_print_fps(total_image, time_start, time_end)

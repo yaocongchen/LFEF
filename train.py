@@ -15,7 +15,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet_2_erfnet31_13_3113_oneloss2 as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_3113_oneloss_add_deformable_conv as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 CONFIG_FILE = "import_dataset_path.cfg"
@@ -57,7 +57,8 @@ def check_number_of_GPUs(model):
 
 
 def set_save_dir_names():
-    args["save_dir"] = f'{args["save_dir"]}/bs{args["batch_size"]}e{args["epochs"]}/'
+    # args["save_dir"] = f'{args["save_dir"]}/bs{args["batch_size"]}e{args["epochs"]}/'
+    args["save_dir"] = f"{args['save_dir']}/"
     if not os.path.exists(args["save_dir"]):
         os.makedirs(args["save_dir"])
 
@@ -388,6 +389,16 @@ def main():
         torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
         torch.save(model.state_dict(), args["save_dir"] + "last" + ".pth")
         # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
+        with open(f"{args['save_dir']}/log.txt", "w") as f:
+            f.write(model_name +"\n" 
+                    + "train_images:"+ train_images + "\n" 
+                    + "train_masks:" + train_masks + "\n" 
+                    + "batchsize:" + str(args["batch_size"]) + "\n"
+                    + "num_workers:" + str(args["num_workers"]) + "\n"
+                    + "epochs:" + str(args["epochs"]) + "\n"
+                    + "learning_rate:" + str(args["learning_rate"]) + "\n"
+                    + "weight_decay:" + str(args["weight_decay"]) + "\n"
+                    + "update time:" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + "\n")
 
         if args["save_train_image"] != "no":
             torchvision.utils.save_image(

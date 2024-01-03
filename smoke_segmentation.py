@@ -8,11 +8,11 @@ from visualization_codes import (
     inference_multiple_pictures,
     inference_video,
 )
-import models.CGNet_2_erfnet31_13_3113_oneloss as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_3113_oneloss_add_deformable_conv as network_model  # import self-written models 引入自行寫的模型
 
 
-def smoke_segmentation(device):
-    model = network_model.Net(1).to(device)
+def smoke_segmentation(args,device):
+    model = network_model.Net().to(device)
     model.load_state_dict(torch.load(args["model_path"]))
 
     model.eval()
@@ -117,4 +117,4 @@ if __name__ == "__main__":
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print(f"smoke_segmentation on device {device}.")
 
-    smoke_segmentation(device)
+    smoke_segmentation(args,device)

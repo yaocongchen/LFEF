@@ -455,7 +455,7 @@ class Net(nn.Module):
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
-        self.sample3 = InputInjection(3)
+
 
         self.b1 = BNPReLU(32 + 3)
 
@@ -468,7 +468,8 @@ class Net(nn.Module):
             self.level2.append(
                 ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
-        self.bn_prelu_2 = BNPReLU(128 + 3)
+        self.bn_prelu_2 = BNPReLU(128)
+        self.bn_prelu_2_2 = BNPReLU(128 + 3)
 
 
         # stage 3
@@ -480,15 +481,15 @@ class Net(nn.Module):
             self.level3.append(
                 ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
             )  # CG bloc
-        self.bn_prelu_3 = BNPReLU(256+3)
+        self.bn_prelu_3 = BNPReLU(256)
 
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
-                nn.Dropout2d(0.1, False), Conv(425, classes, 1, 1)
+                nn.Dropout2d(0.1, False), Conv(416, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(425, classes, 1, 1))
+            self.classifier = nn.Sequential(Conv(416, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -523,7 +524,6 @@ class Net(nn.Module):
         output0 = self.level1_2(output0)
         inp1 = self.sample1(input)
         inp2 = self.sample2(input)
-        inp3 = self.sample3(input)
 
         # stage 2
         output0_cat = self.b1(torch.cat([output0, inp1], 1))
@@ -536,20 +536,22 @@ class Net(nn.Module):
             else:
                 output1 = layer(output1)
 
-        output1_cat = self.bn_prelu_2(torch.cat([output1, output1_0, inp2], 1))
+        output1_cat = self.bn_prelu_2(torch.cat([output1_0, output1], 1))
+
+        output1_cat_inp2 = self.bn_prelu_2_2(torch.cat([output1_cat, inp2], 1))
 
 
         # stage 3
-        output2_0 = self.level3_0(output1_cat)  # down-sampled
+        output2_0 = self.level3_0(output1_cat_inp2)  # down-sampled
         for i, layer in enumerate(self.level3):
             if i == 0:
                 output2 = layer(output2_0)
             else:
                 output2 = layer(output2)
 
-        output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2,inp3], 1))
+        output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2], 1))
 
-        output0_up = self.upsample(output0_cat)
+        output0_up = self.upsample(output0)
         output1_up = self.upsample(output1_cat)
         output2_up = self.upsample(output2_cat)
         # output_ffm_up = self.upsample(output_ffm)
