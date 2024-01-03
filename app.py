@@ -11,6 +11,7 @@ import wandb
 import test
 import models.CGNet_2_erfnet31_13_3113_oneloss as network_model  # import self-written models 引入自行寫的模型
 from visualization_codes import inference_single_picture
+
 model_name = str(network_model)
 
 Model_folder = "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/"
