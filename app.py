@@ -13,7 +13,15 @@ from visualization_codes import inference_single_picture
 import models.CGNet_2_erfnet31_13_3113_oneloss_add_deformable_conv as network_model  # import self-written models 引入自行寫的模型
 model_name = str(network_model)
 
-MODEL_PATH = "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth"
+Model_folder = "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/"
+def model_choice(model_file):
+    if model_file == "last.pth":
+        MODEL_PATH = Model_folder + "last.pth"
+    elif model_file == "best.pth":
+        MODEL_PATH = Model_folder + "best.pth"
+    return MODEL_PATH
+
+MODEL_LOG = Model_folder + "log.txt"
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -60,7 +68,8 @@ def test_dataset(args):
         # Avg_loss, Avg_miou, Avg_mSSIM = test.smoke_segmentation(device, names, args)
     return Avg_loss, Avg_miou,Avg_mSSIM, fps, time_min ,time_sec
 
-def get_args(operation_input, WANDB_NAME):
+def get_args(model_file,operation_input, WANDB_NAME):
+    MODEL_PATH = model_choice(model_file)
     return {
         "batch_size": 1,
         "num_workers": 1,
@@ -71,53 +80,65 @@ def get_args(operation_input, WANDB_NAME):
     }
 
 
-def SYN70k_dataset(operation_input,wandb_name_input):
-    if operation_input in ["DS01", "DS02", "DS03"]:
-        if wandb_name_input != "":
-            WANDB_NAME = wandb_name_input
-        else:
-            WANDB_NAME = "no"
+def SYN70k_dataset(model_file,operation_input,wandb_name_input):
+    if model_file in ["last.pth", "best.pth"]:
+        use_model_file = model_file
+        if operation_input in ["DS01", "DS02", "DS03"]:
+            use_Data_Source = operation_input
+            if wandb_name_input != "":
+                WANDB_NAME = wandb_name_input
+            else:
+                WANDB_NAME = "no"
             
-        args = get_args(operation_input, WANDB_NAME)
-        Avg_loss, Avg_miou,Avg_mSSIM, fps, time_min ,time_sec = test_dataset(args)
-        return Avg_loss, Avg_miou,Avg_mSSIM, f"{fps} fps", f"{time_min}m {time_sec}s"
+            args = get_args(model_file,operation_input, WANDB_NAME)
+            Avg_loss, Avg_miou,Avg_mSSIM, fps, time_min ,time_sec = test_dataset(args)
+            return Avg_loss, Avg_miou,Avg_mSSIM, f"{fps} fps", f"{time_min}m {time_sec}s", use_model_file, use_Data_Source
+        else:
+            gr.Warning("Please choice your data source")
+            return
     else:
-        gr.Warning("Please choice your data source")
+        gr.Warning("Please choice your model file")
         return
 
-def Your_image(image):
+def Your_image(model_file,image):
+    if model_file in ["last.pth", "best.pth"]:
+        use_model_file = model_file
+        MODEL_PATH = model_choice(model_file)
 
-    args = {
-        "model_path": MODEL_PATH,
-    }
+        args = {
+            "model_path": MODEL_PATH,
+        }
 
-    time_train = []
-    i = 0
+        time_train = []
+        i = 0
 
-    names = inference_single_picture.files_name()
+        names = inference_single_picture.files_name()
 
-    model = model_load(args)
+        model = model_load(args)
 
-    inference_single_picture.smoke_segmentation(
-        input=image,
-        model=model,
-        device=device,
-        names=names,
-        time_train=time_train, 
-        i=i
-    )
-    smoke_semantic_image = np.array(Image.open("/home/yaocong/Experimental/speed_smoke_segmentation/results/smoke_semantic.jpg"))
-    binary_image = np.array(Image.open("/home/yaocong/Experimental/speed_smoke_segmentation/results/binary.jpg"))
-    image_stitching_image = np.array(Image.open("/home/yaocong/Experimental/speed_smoke_segmentation/results/image_stitching.jpg"))
-    image_overlap_image = np.array(Image.open("/home/yaocong/Experimental/speed_smoke_segmentation/results/image_overlap.png"))
-    
-    return smoke_semantic_image,binary_image,image_stitching_image,image_overlap_image
+        inference_single_picture.smoke_segmentation(
+            input=image,
+            model=model,
+            device=device,
+            names=names,
+            time_train=time_train, 
+            i=i
+        )
+        smoke_semantic_image = np.array(Image.open("./results/smoke_semantic.jpg"))
+        binary_image = np.array(Image.open("./results/binary.jpg"))
+        image_stitching_image = np.array(Image.open("./results/image_stitching.jpg"))
+        image_overlap_image = np.array(Image.open("./results/image_overlap.png"))
+        
+        return smoke_semantic_image,binary_image,image_stitching_image,image_overlap_image,use_model_file
+    else:
+        gr.Warning("Please choice your model file")
+        return
 
 def model_update():
     #執行check_trained_model_update.sh
-    os.system("bash /home/yaocong/Experimental/speed_smoke_segmentation/check_trained_model_update.sh")
+    os.system("bash ./check_trained_model_update.sh")
     #查看log.txt的更新時間
-    log_time = os.path.getmtime("/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/log.txt")
+    log_time = os.path.getmtime(MODEL_LOG)
     #轉換成localtime
     log_time_localtime = time.localtime(log_time)
     #轉換成新的時間格式(2016-05-05 20:28:54)
@@ -129,11 +150,15 @@ with gr.Blocks() as demo:
     gr.Markdown("# Speed Smoke Segmentation Demo",)
     gr.Markdown("## Choice your data source")
     update_model_button = gr.Button("Update model !")
-    status = gr.Textbox(label="Model update time")
+    with gr.Row():
+        status = gr.Textbox(label="Model update time")
+        model_file = gr.Radio(["last.pth", "best.pth"], label="Model_File")
+        use_model_file = gr.Textbox(label="Use_Model_File")
 
     with gr.Tab("SYN70K_Test_Data"):
         with gr.Row():
             operation_input = gr.Radio(["DS01", "DS02", "DS03"], label="Data Source")
+            use_Data_Source = gr.Textbox(label="Use_Data_Source")
         loss = gr.Textbox(label="Avg_loss")
         with gr.Row():
             with gr.Column():
@@ -165,8 +190,8 @@ with gr.Blocks() as demo:
     #     gr.Markdown("Look at me...")
 
     update_model_button.click(model_update,outputs=status)
-    SYN70K_button.click(SYN70k_dataset, inputs=[operation_input,wandb_name_input], outputs=[loss, mIoU, mSSIM, fps, spend_time])
-    image_button.click(Your_image, inputs=image_input, outputs=[image_smoke_semantic, image_binary, image_stitching, image_overlap])
+    SYN70K_button.click(SYN70k_dataset, inputs=[model_file,operation_input,wandb_name_input], outputs=[loss, mIoU, mSSIM, fps, spend_time, use_model_file, use_Data_Source])
+    image_button.click(Your_image, inputs=[model_file,image_input], outputs=[image_smoke_semantic, image_binary, image_stitching, image_overlap, use_model_file])
     
 if __name__ == "__main__":
     # x = Your_image(Image.open("/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/1_3.jpg"))
