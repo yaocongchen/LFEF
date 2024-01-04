@@ -1,5 +1,6 @@
 __pycache__/
 wandb/
+*avi
 validation_data_captures/
 training_data_captures/
 test_files/
