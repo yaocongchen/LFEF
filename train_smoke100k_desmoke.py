@@ -319,7 +319,7 @@ def main():
             args["resume"]
         ):  # There is a specified file in the path 路徑中有指定檔案
             checkpoint = torch.load(args["resume"])
-            model.load_state_dict(checkpoint["model_state_dict"])
+            model.load_state_dict(checkpoint["model_state_dict"], map_location=device)
             optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
             start_epoch = checkpoint["epoch"]
             mean_loss = checkpoint["loss"]

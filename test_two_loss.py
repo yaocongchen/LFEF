@@ -59,7 +59,7 @@ def wandb_information(model_size, flops, params):
 # Main function 主函式
 def smoke_segmentation(device, names):
     model = network_model.Net().to(device)
-    model.load_state_dict(torch.load(args["model_path"]))
+    model.load_state_dict(torch.load(args["model_path"], map_location=device))
 
     model.eval()
 

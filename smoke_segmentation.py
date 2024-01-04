@@ -13,7 +13,7 @@ import models.CGNet_2_erfnet31_13_3113_oneloss as network_model  # import self-w
 
 def smoke_segmentation(args,device):
     model = network_model.Net().to(device)
-    model.load_state_dict(torch.load(args["model_path"]))
+    model.load_state_dict(torch.load(args["model_path"], map_location=device))
 
     model.eval()
 

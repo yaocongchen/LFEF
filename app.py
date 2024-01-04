@@ -28,7 +28,7 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cp
 
 def model_load(args):
     model = network_model.Net().to(device)
-    model.load_state_dict(torch.load(args["model_path"]))
+    model.load_state_dict(torch.load(args["model_path"], map_location=device))
     model.eval()
     return model
 
