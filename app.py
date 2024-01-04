@@ -9,8 +9,9 @@ import numpy as np
 import wandb
 
 import test
+import models.CGNet_2_erfnet31_13_3113_oneloss as network_model  # import self-written models 引入自行寫的模型
 from visualization_codes import inference_single_picture
-import models.CGNet_2_erfnet31_13_3113_oneloss_add_deformable_conv as network_model  # import self-written models 引入自行寫的模型
+
 model_name = str(network_model)
 
 Model_folder = "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/"
@@ -148,13 +149,13 @@ def model_update():
 
 with gr.Blocks() as demo:
     gr.Markdown("# Speed Smoke Segmentation Demo",)
-    gr.Markdown("## Choice your data source")
     update_model_button = gr.Button("Update model !")
     with gr.Row():
         status = gr.Textbox(label="Model update time")
         model_file = gr.Radio(["last.pth", "best.pth"], label="Model_File")
         use_model_file = gr.Textbox(label="Use_Model_File")
-
+        
+    gr.Markdown("## Choice your data source")
     with gr.Tab("SYN70K_Test_Data"):
         with gr.Row():
             operation_input = gr.Radio(["DS01", "DS02", "DS03"], label="Data Source")

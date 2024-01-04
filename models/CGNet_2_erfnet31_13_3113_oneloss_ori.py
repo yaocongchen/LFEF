@@ -374,25 +374,13 @@ class ContextGuidedBlock(nn.Module):
 class InputInjection(nn.Module):
     def __init__(self, downsamplingRatio):
         super().__init__()
-        self.avg_pool = nn.ModuleList()
+        self.pool = nn.ModuleList()
         for i in range(0, downsamplingRatio):
-            self.avg_pool.append(nn.AvgPool2d(3, stride=2, padding=1))
-
-        self.max_pool = nn.ModuleList()
-        for i in range(0, downsamplingRatio):
-            self.max_pool.append(nn.MaxPool2d(3, stride=2, padding=1))
+            self.pool.append(nn.AvgPool2d(3, stride=2, padding=1))
 
     def forward(self, input):
-        avg_pool_input = input
-        for avg_pool in self.avg_pool:
-            avg_pool_input = avg_pool(avg_pool_input)
-
-        max_pool_input = input
-        for max_pool in self.max_pool:
-            max_pool_input = max_pool(max_pool_input)
-
-        input = avg_pool_input + max_pool_input
-        
+        for pool in self.pool:
+            input = pool(input)
         return input
 
 
@@ -498,10 +486,10 @@ class Net(nn.Module):
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
-                nn.Dropout2d(0.1, False), Conv(3, classes, 1, 1)
+                nn.Dropout2d(0.1, False), Conv(416, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(3, classes, 1, 1))
+            self.classifier = nn.Sequential(Conv(416, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -516,9 +504,10 @@ class Net(nn.Module):
                         m.bias.data.zero_()
         
         self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        self.conv11_32 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.PReLU())
-        self.conv11_128 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.PReLU())
-        self.conv11_256 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.PReLU())
+        self.conv11_32 = nn.Sequential(nn.Conv2d(35, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
+        self.conv11_64 = nn.Sequential(nn.Conv2d(131, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
+        self.conv11_128 = nn.Sequential(nn.Conv2d(259, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
+        self.conv11_256 = nn.Sequential(nn.Conv2d(259, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.ReLU())
 
         # self.my_simgoid = nn.Sigmoid()
 
@@ -565,11 +554,6 @@ class Net(nn.Module):
         output0_up = self.upsample(output0)
         output1_up = self.upsample(output1_cat)
         output2_up = self.upsample(output2_cat)
-
-        output0_up = self.conv11_32(output0_up)
-        output1_up = self.conv11_128(output1_up)
-        output2_up = self.conv11_256(output2_up)
-
         # output_ffm_up = self.upsample(output_ffm)
         output = torch.cat([ output0_up,output1_up, output2_up], 1)
         # classifier
