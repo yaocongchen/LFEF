@@ -269,7 +269,7 @@ if __name__ == "__main__":
     # Calculate the total implement time 計算總執行時間
 
     model = network_model.Net().to(device)
-    model.load_state_dict(torch.load(args["model_path"]))
+    model.load_state_dict(torch.load(args["model_path"], map_location=device))
     model.eval()
     
     def calculate_and_print_fps(total_image, time_start, time_end, wandb_time_total=0):

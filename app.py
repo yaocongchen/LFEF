@@ -14,7 +14,7 @@ from visualization_codes import inference_single_picture
 
 model_name = str(network_model)
 
-Model_folder = "/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/"
+Model_folder = "./trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/"
 def model_choice(model_file):
     if model_file == "last.pth":
         MODEL_PATH = Model_folder + "last.pth"
@@ -28,7 +28,7 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cp
 
 def model_load(args):
     model = network_model.Net().to(device)
-    model.load_state_dict(torch.load(args["model_path"]))
+    model.load_state_dict(torch.load(args["model_path"], map_location=device))
     model.eval()
     return model
 
