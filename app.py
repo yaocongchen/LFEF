@@ -149,13 +149,13 @@ def model_update():
 
 with gr.Blocks() as demo:
     gr.Markdown("# Speed Smoke Segmentation Demo",)
-    gr.Markdown("## Choice your data source")
     update_model_button = gr.Button("Update model !")
     with gr.Row():
         status = gr.Textbox(label="Model update time")
         model_file = gr.Radio(["last.pth", "best.pth"], label="Model_File")
         use_model_file = gr.Textbox(label="Use_Model_File")
-
+        
+    gr.Markdown("## Choice your data source")
     with gr.Tab("SYN70K_Test_Data"):
         with gr.Row():
             operation_input = gr.Radio(["DS01", "DS02", "DS03"], label="Data Source")
