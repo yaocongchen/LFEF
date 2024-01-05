@@ -637,7 +637,7 @@ if __name__ == "__main__":
     ap.add_argument(
         "-resume",
         type=str,
-        default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint.pth",
+        default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint_sample.pth",
         help="use this file to load last checkpoint for continuing training",
     )  # Use this flag to load last checkpoint for training
     ap.add_argument(
