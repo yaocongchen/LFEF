@@ -7,9 +7,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchinfo import summary
+from torch.nn import init
 
 __all__ = ["Context_Guided_Network"]
 # Filter out variables, functions, and classes that other programs don't need or don't want when running cmd "from CGNet import *"
+
+
 def split(x):
     c = int(x.size()[1])
     c1 = round(c * 0.5)
@@ -282,7 +285,37 @@ class FGlo(nn.Module):
         y = self.fc(y).view(b, c, 1, 1)
         return x * y
 
+class ExternalAttention(nn.Module):
 
+    def __init__(self, d_model,S=64):
+        super().__init__()
+        self.mk=nn.Linear(d_model,S,bias=False)
+        self.mv=nn.Linear(S,d_model,bias=False)
+        self.softmax=nn.Softmax(dim=1)
+        self.init_weights()
+
+
+    def init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                init.kaiming_normal_(m.weight, mode='fan_out')
+                if m.bias is not None:
+                    init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm2d):
+                init.constant_(m.weight, 1)
+                init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                init.normal_(m.weight, std=0.001)
+                if m.bias is not None:
+                    init.constant_(m.bias, 0)
+
+    def forward(self, queries):
+        attn=self.mk(queries) #bs,n,S
+        attn=self.softmax(attn) #bs,n,S
+        attn=attn/torch.sum(attn,dim=2,keepdim=True) #bs,n,S
+        out=self.mv(attn) #bs,n,d_model
+
+        return out
 class ContextGuidedBlock_Down(nn.Module):
     """
     the size of feature map divided 2, (H,W,C)---->(H/2, W/2, 2C)
@@ -308,6 +341,12 @@ class ContextGuidedBlock_Down(nn.Module):
 
         self.F_glo = FGlo(nOut, reduction)
 
+        self.ea = ExternalAttention(d_model=nIn)
+        self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
+
+        self.avg_pool = nn.AvgPool2d(3, stride=2, padding=1)
+        self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
+        
 
     def forward(self, input):
         output = self.conv1x1(input)
@@ -324,6 +363,17 @@ class ContextGuidedBlock_Down(nn.Module):
         joi_feat = self.reduce(joi_feat)  # channel= nOut
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
+
+        b, c, w, h = input.size()
+        input_3c = input.view(b, c, w * h).permute(0, 2, 1)
+        
+        ea_output = self.ea(input_3c)
+        ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
+        ea_output = self.add_conv(ea_output)
+        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+
+        output = output * ea_output
+
 
         return output
 
@@ -352,6 +402,12 @@ class ContextGuidedBlock(nn.Module):
         self.add = add
         self.F_glo = FGlo(4*n, reduction)
 
+        self.ea = ExternalAttention(d_model=nIn)
+        self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
+
+        self.avg_pool = nn.AvgPool2d(3, stride=2, padding=1)
+        self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
+
     def forward(self, input):
         output = self.conv1x1(input)
         loc = self.F_loc(output)
@@ -368,6 +424,15 @@ class ContextGuidedBlock(nn.Module):
         # if residual version
         if self.add:
             output = input + output
+
+        b, c, w, h = input.size()
+        input_3c = input.view(b, c, w * h).permute(0, 2, 1)
+
+        ea_output = self.ea(input_3c)
+        ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
+        ea_output = self.add_conv(ea_output)
+        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+        
         return output
 
 
