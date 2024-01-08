@@ -413,6 +413,8 @@ class ContextGuidedBlock(nn.Module):
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
 
+        self.conv3_3 = nn.Conv2d(nIn, nOut, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn_prelu = BNPReLU(nOut)
 
     def forward(self, input):
         output = self.conv1x1(input)
@@ -439,6 +441,8 @@ class ContextGuidedBlock(nn.Module):
         ea_output = self.add_conv(ea_output)
         ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
+        input = self.conv3_3(input)
+        input = self.bn_prelu(input)
         ea_output = input * ea_output
         output = input + ea_output
         
