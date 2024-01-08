@@ -346,7 +346,8 @@ class ContextGuidedBlock_Down(nn.Module):
 
         self.avg_pool = nn.AvgPool2d(3, stride=2, padding=1)
         self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
-        
+
+        self.conv3_3 = nn.Conv2d(nIn, nOut, kernel_size=3, stride=2, padding=1, bias=False)
 
     def forward(self, input):
         output = self.conv1x1(input)
@@ -372,8 +373,9 @@ class ContextGuidedBlock_Down(nn.Module):
         ea_output = self.add_conv(ea_output)
         ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
-        output = output * ea_output
-
+        input = self.conv3_3(input)
+        ea_output = input * ea_output
+        output = input + ea_output
 
         return output
 
@@ -405,8 +407,10 @@ class ContextGuidedBlock(nn.Module):
         self.ea = ExternalAttention(d_model=nIn)
         self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
 
-        self.avg_pool = nn.AvgPool2d(3, stride=2, padding=1)
-        self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
+        self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
+        self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
+
+        self.conv3_3 = nn.Conv2d(nIn, nOut, kernel_size=3, stride=2, padding=1, bias=False)
 
     def forward(self, input):
         output = self.conv1x1(input)
@@ -432,6 +436,9 @@ class ContextGuidedBlock(nn.Module):
         ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
         ea_output = self.add_conv(ea_output)
         ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+
+        ea_output = input * ea_output
+        output = input + ea_output
         
         return output
 
