@@ -48,7 +48,7 @@ def test_dataset(args):
 
     if args["wandb_name"] != "no":  # 此方式還是會誤差FPS4~5
         time_start = time.time()
-        Avg_loss, Avg_miou, Avg_mSSIM, wandb_time_total= test.smoke_segmentation(model,device,names,args)
+        Avg_loss, Avg_miou, Avg_mSSIM, Avg_hd, wandb_time_total= test.smoke_segmentation(model,device,names,args)
         time_end = time.time()
         Avg_loss = round(Avg_loss, 4)
         Avg_miou = round(Avg_miou, 1)
@@ -58,7 +58,7 @@ def test_dataset(args):
         wandb.log({"FPS": fps})
     else:
         time_start = time.time()
-        Avg_loss, Avg_miou, Avg_mSSIM = test.smoke_segmentation(model,device,names,args)
+        Avg_loss, Avg_miou, Avg_mSSIM, Avg_hd = test.smoke_segmentation(model,device,names,args)
         time_end = time.time()
         Avg_loss = round(Avg_loss, 4)
         Avg_miou = round(Avg_miou, 1)
@@ -67,7 +67,7 @@ def test_dataset(args):
         fps, time_min,time_sec =calculate_and_print_fps(total_image, time_start, time_end)
 
         # Avg_loss, Avg_miou, Avg_mSSIM = test.smoke_segmentation(device, names, args)
-    return Avg_loss, Avg_miou,Avg_mSSIM, fps, time_min ,time_sec
+    return Avg_loss, Avg_miou, Avg_mSSIM, Avg_hd, fps, time_min ,time_sec
 
 def get_args(model_file,operation_input, WANDB_NAME):
     MODEL_PATH = model_choice(model_file)
@@ -92,8 +92,8 @@ def SYN70k_dataset(model_file,operation_input,wandb_name_input):
                 WANDB_NAME = "no"
             
             args = get_args(model_file,operation_input, WANDB_NAME)
-            Avg_loss, Avg_miou,Avg_mSSIM, fps, time_min ,time_sec = test_dataset(args)
-            return Avg_loss, Avg_miou,Avg_mSSIM, f"{fps} fps", f"{time_min}m {time_sec}s", use_model_file, use_Data_Source
+            Avg_loss, Avg_miou, Avg_mSSIM, Avg_hd, fps, time_min ,time_sec = test_dataset(args)
+            return Avg_loss, Avg_miou, Avg_mSSIM, Avg_hd, f"{fps} fps", f"{time_min}m {time_sec}s", use_model_file, use_Data_Source
         else:
             gr.Warning("Please choice your data source")
             return
@@ -165,6 +165,7 @@ with gr.Blocks() as demo:
             with gr.Column():
                 mIoU = gr.Textbox(label="Avg_mIoU",info="(%)")
                 mSSIM = gr.Textbox(label="Avg_mSSIM",info = "(%)")
+                hd = gr.Textbox(label="Avg_hd",info="(pixel)")
             with gr.Column():
                 fps = gr.Textbox(label="FPS",info="(frames/s)")
                 spend_time = gr.Textbox(label="Spend_Time")
@@ -191,7 +192,7 @@ with gr.Blocks() as demo:
     #     gr.Markdown("Look at me...")
 
     update_model_button.click(model_update,outputs=status)
-    SYN70K_button.click(SYN70k_dataset, inputs=[model_file,operation_input,wandb_name_input], outputs=[loss, mIoU, mSSIM, fps, spend_time, use_model_file, use_Data_Source])
+    SYN70K_button.click(SYN70k_dataset, inputs=[model_file,operation_input,wandb_name_input], outputs=[loss, mIoU, mSSIM, hd, fps, spend_time, use_model_file, use_Data_Source])
     image_button.click(Your_image, inputs=[model_file,image_input], outputs=[image_smoke_semantic, image_binary, image_stitching, image_overlap, use_model_file])
     
 if __name__ == "__main__":
