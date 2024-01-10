@@ -603,9 +603,8 @@ class Net(nn.Module):
 
         # stage 2
         # output0_cat = self.b1(torch.cat([output0, inp1], 1))
-        output0_cat = self.b1(output0)
 
-        output1_0 = self.level2_0(output0_cat)  # down-sampled
+        output1_0 = self.level2_0(output0)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -616,11 +615,11 @@ class Net(nn.Module):
         output1_cat = self.bn_prelu_2(torch.cat([output1_0, output1], 1))
 
         # output1_cat_inp2 = self.bn_prelu_2_2(torch.cat([output1_cat, inp2], 1))
-        output1_cat_inp2 = self.bn_prelu_2(output1_cat)
+
 
 
         # stage 3
-        output2_0 = self.level3_0(output1_cat_inp2)  # down-sampled
+        output2_0 = self.level3_0(output1_cat)  # down-sampled
         for i, layer in enumerate(self.level3):
             if i == 0:
                 output2 = layer(output2_0)
