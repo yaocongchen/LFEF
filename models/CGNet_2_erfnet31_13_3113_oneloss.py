@@ -534,11 +534,11 @@ class Net(nn.Module):
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
 
-        self.b1 = BNPReLU(32 + 3)
+        self.b1 = BNPReLU(32)
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            32 + 3, 64,dilation_rate=2, reduction=8
+            32, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -546,12 +546,12 @@ class Net(nn.Module):
                 ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
         self.bn_prelu_2 = BNPReLU(128)
-        self.bn_prelu_2_2 = BNPReLU(128 + 3)
+        # self.bn_prelu_2_2 = BNPReLU(128 + 3)
 
 
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
-            128 + 3, 128, dilation_rate=4, reduction=16
+            128, 128, dilation_rate=4, reduction=16
         )
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
@@ -598,11 +598,12 @@ class Net(nn.Module):
         output0 = self.level1_0(input)
         output0 = self.level1_1(output0)
         output0 = self.level1_2(output0)
-        inp1 = self.sample1(input)
-        inp2 = self.sample2(input)
+        # inp1 = self.sample1(input)
+        # inp2 = self.sample2(input)
 
         # stage 2
-        output0_cat = self.b1(torch.cat([output0, inp1], 1))
+        # output0_cat = self.b1(torch.cat([output0, inp1], 1))
+        output0_cat = self.b1(output0)
 
         output1_0 = self.level2_0(output0_cat)  # down-sampled
 
@@ -614,7 +615,8 @@ class Net(nn.Module):
 
         output1_cat = self.bn_prelu_2(torch.cat([output1_0, output1], 1))
 
-        output1_cat_inp2 = self.bn_prelu_2_2(torch.cat([output1_cat, inp2], 1))
+        # output1_cat_inp2 = self.bn_prelu_2_2(torch.cat([output1_cat, inp2], 1))
+        output1_cat_inp2 = self.bn_prelu_2(output1_cat)
 
 
         # stage 3
