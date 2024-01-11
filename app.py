@@ -198,5 +198,5 @@ with gr.Blocks() as demo:
 if __name__ == "__main__":
     # x = Your_image(Image.open("/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/1_3.jpg"))
     
-    demo.launch(share=True)
+    demo.launch()
 #%%

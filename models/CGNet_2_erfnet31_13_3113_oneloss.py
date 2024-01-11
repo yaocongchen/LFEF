@@ -363,15 +363,15 @@ class ContextGuidedBlock_Down(nn.Module):
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
 
-        # b, c, w, h = input.size()
-        # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
+        b, c, w, h = input.size()
+        input_3c = input.view(b, c, w * h).permute(0, 2, 1)
         
-        # ea_output = self.ea(input_3c)
-        # ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
-        # ea_output = self.add_conv(ea_output)
-        # ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+        ea_output = self.ea(input_3c)
+        ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
+        ea_output = self.add_conv(ea_output)
+        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
-        # output = output * ea_output
+        output = output * ea_output
         
         return output
 
@@ -423,15 +423,15 @@ class ContextGuidedBlock(nn.Module):
         if self.add:
             output = input + output
 
-        # b, c, w, h = input.size()
-        # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
+        b, c, w, h = input.size()
+        input_3c = input.view(b, c, w * h).permute(0, 2, 1)
 
-        # ea_output = self.ea(input_3c)
-        # ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
-        # ea_output = self.add_conv(ea_output)
-        # ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+        ea_output = self.ea(input_3c)
+        ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
+        ea_output = self.add_conv(ea_output)
+        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
-        # output = output * ea_output
+        output = output * ea_output
         
         return output
 
@@ -510,7 +510,16 @@ class non_bottleneck_1d(nn.Module):
         output = self.bn2(output)
 
         return self.prelu(output + input)  # +input = identity (residual connection)
+    
+class BrightnessAdjustment(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.brightness = nn.Parameter(torch.tensor([1.0]))
 
+    def forward(self, input_image):
+
+        adjusted_image = input_image * self.brightness
+        return adjusted_image
 #===============================Net====================================#
 class Net(nn.Module):
     """
@@ -525,6 +534,7 @@ class Net(nn.Module):
           N: the number of blocks in stage 3
         """
         super().__init__()
+        self.ba = BrightnessAdjustment()
 
         self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
@@ -594,6 +604,7 @@ class Net(nn.Module):
             return: segmentation map
         """
 
+        input = self.ba(input)
         # stage 1
         output0 = self.level1_0(input)
         output0 = self.level1_1(output0)
