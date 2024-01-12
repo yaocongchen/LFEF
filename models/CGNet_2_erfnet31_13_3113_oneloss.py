@@ -521,7 +521,7 @@ class BrightnessAdjustment(nn.Module):
         adjusted_image = input_image * self.brightness
         return adjusted_image
 #===============================Net====================================#
-class Net(nn.Module):
+class Main_Net(nn.Module):
     """
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
@@ -603,8 +603,8 @@ class Net(nn.Module):
             input: Receives the input RGB image
             return: segmentation map
         """
-
-        input = self.ba(input)
+        # Color inversion
+        # input = self.ba(input)
         # stage 1
         output0 = self.level1_0(input)
         output0 = self.level1_1(output0)
@@ -664,6 +664,19 @@ class Net(nn.Module):
         # out = self.my_simgoid(out)
         return classifier
 
+class Net(nn.Module):
+    def __init__(self, classes=1, M=3, N=3, dropout_flag=False):
+        super().__init__()
+        self.main_net = Main_Net(classes=classes, M=M, N=N, dropout_flag=dropout_flag)
+
+    def forward(self, input):
+        output_ori = self.main_net(input)
+        # 色彩反轉
+        input = 1 - input
+        output_inv = self.main_net(input)
+
+        output = output_ori + output_inv
+        return output
 
 if __name__ == "__main__":
     model = Net()
