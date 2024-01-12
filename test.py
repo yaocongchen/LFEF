@@ -98,24 +98,11 @@ def smoke_segmentation(model,device, names,args):
 
         output = smoke_semantic(img_image, model, device, time_train, i)
 
-        count += 1
         # torchvision.utils.save_image(
         #     torch.cat((mask_image, output), 0),
         #     f'./{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{count}.jpg',
         # )
 
-        torchvision.utils.save_image(
-            RGB_image,
-            f'./{names["smoke_semantic_dir_name"]}/test_RGB_image/test_RGB_image_{count}.jpg',
-        )
-        torchvision.utils.save_image(
-            mask_image,
-            f'./{names["smoke_semantic_dir_name"]}/test_mask_image/test_mask_image_{count}.jpg',
-        )
-        torchvision.utils.save_image(
-            output,
-            f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg',
-        )
 
         loss = utils.loss.CustomLoss(output, mask_image)
         iou = utils.metrics.IoU(output, mask_image)
@@ -128,7 +115,6 @@ def smoke_segmentation(model,device, names,args):
         mask_image_for_HD = mask_image.squeeze()
         HausdorffDistance = HD.AveragedHausdorffLoss()
         hd = HausdorffDistance(output_for_HD, mask_image_for_HD)
-
 
         epoch_loss.append(loss.item())
         epoch_iou.append(iou.item())
@@ -190,6 +176,22 @@ def smoke_segmentation(model,device, names,args):
             wandb_time_total2 = wandb_time_end2 - wandb_time_start2
             wandb_time_total2_cache += wandb_time_total2
             wandb_time_total = wandb_time_total1 + wandb_time_total2_cache
+
+        count += 1
+        output = (output > 0.5).float()
+        torchvision.utils.save_image(
+            RGB_image,
+            f'./{names["smoke_semantic_dir_name"]}/test_RGB_image/test_RGB_image_{count}.jpg',
+        )
+        torchvision.utils.save_image(
+            mask_image,
+            f'./{names["smoke_semantic_dir_name"]}/test_mask_image/test_mask_image_{count}.jpg',
+        )
+        torchvision.utils.save_image(
+            output,
+            f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg',
+        )
+
 
     if args["wandb_name"] != "no":
         return average_epoch_loss_test, average_epoch_miou_test, average_epoch_mSSIM_test, average_epoch_hd_test, wandb_time_total

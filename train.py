@@ -151,7 +151,9 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
             model.parameters(), 0.1
         )  # 梯度裁減(避免梯度爆炸或消失) 0.1為閥值
         optimizer.step()
-
+            
+        output = (output > 0.5).float()
+        
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
         mean_miou += (iou.item() - mean_miou) / n_element
@@ -206,6 +208,8 @@ def valid_epoch(model, validation_data_loader, device, epoch):
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
 
+        output = (output > 0.5).float()
+        
         n_element += 1
         mean_loss += (loss.item() - mean_loss) / n_element
         mean_miou += (iou.item() - mean_miou) / n_element  # 別人研究出的算平均的方法
