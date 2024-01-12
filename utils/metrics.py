@@ -35,11 +35,11 @@ def IoU(
     # model_output = S(model_output)
     # print("model_output:",model_output.shape)
 #==============================================================================================================#
-    model_output = (
-        model_output.mul(255)
-        .add_(0.5)
-        .clamp_(0, 255)
-    )
+    # model_output = (
+    #     model_output.mul(255)
+    #     .add_(0.5)
+    #     .clamp_(0, 255)
+    # )
 
     model_output = (model_output > 0.5).float()
 #==============================================================================================================#
@@ -110,11 +110,11 @@ def ssim_val(model_output, mask):
     # msssim = structural_similarity(model_output, mask,data_range=1,win_size=11,win_sigma=1.5,size_average=True,k1=0.01,k2=0.03,gaussian_weights=True)
 
 
-    model_output = (
-        model_output.mul(255)
-        .add_(0.5)
-        .clamp_(0, 255)
-    )
+    # model_output = (
+    #     model_output.mul(255)
+    #     .add_(0.5)
+    #     .clamp_(0, 255)
+    # )
 
     model_output = (model_output > 0.5).float()
     msssim = ssim(model_output, mask, data_range=1)

@@ -7,9 +7,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchinfo import summary
+from torch.nn import init
 
 __all__ = ["Context_Guided_Network"]
 # Filter out variables, functions, and classes that other programs don't need or don't want when running cmd "from CGNet import *"
+
+
 def split(x):
     c = int(x.size()[1])
     c1 = round(c * 0.5)
@@ -282,7 +285,37 @@ class FGlo(nn.Module):
         y = self.fc(y).view(b, c, 1, 1)
         return x * y
 
+class ExternalAttention(nn.Module):
 
+    def __init__(self, d_model,S=64):
+        super().__init__()
+        self.mk=nn.Linear(d_model,S,bias=False)
+        self.mv=nn.Linear(S,d_model,bias=False)
+        self.softmax=nn.Softmax(dim=1)
+        self.init_weights()
+
+
+    def init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                init.kaiming_normal_(m.weight, mode='fan_out')
+                if m.bias is not None:
+                    init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm2d):
+                init.constant_(m.weight, 1)
+                init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                init.normal_(m.weight, std=0.001)
+                if m.bias is not None:
+                    init.constant_(m.bias, 0)
+
+    def forward(self, queries):
+        attn=self.mk(queries) #bs,n,S
+        attn=self.softmax(attn) #bs,n,S
+        attn=attn/torch.sum(attn,dim=2,keepdim=True) #bs,n,S
+        out=self.mv(attn) #bs,n,d_model
+
+        return out
 class ContextGuidedBlock_Down(nn.Module):
     """
     the size of feature map divided 2, (H,W,C)---->(H/2, W/2, 2C)
@@ -308,6 +341,11 @@ class ContextGuidedBlock_Down(nn.Module):
 
         self.F_glo = FGlo(nOut, reduction)
 
+        self.ea = ExternalAttention(d_model=nIn)
+        self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
+
+        self.avg_pool = nn.AvgPool2d(3, stride=2, padding=1)
+        self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
 
     def forward(self, input):
         output = self.conv1x1(input)
@@ -325,6 +363,16 @@ class ContextGuidedBlock_Down(nn.Module):
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
 
+        b, c, w, h = input.size()
+        input_3c = input.view(b, c, w * h).permute(0, 2, 1)
+        
+        ea_output = self.ea(input_3c)
+        ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
+        ea_output = self.add_conv(ea_output)
+        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+
+        output = output * ea_output
+        
         return output
 
 
@@ -352,6 +400,12 @@ class ContextGuidedBlock(nn.Module):
         self.add = add
         self.F_glo = FGlo(4*n, reduction)
 
+        self.ea = ExternalAttention(d_model=nIn)
+        self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
+
+        self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
+        self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
+
     def forward(self, input):
         output = self.conv1x1(input)
         loc = self.F_loc(output)
@@ -368,6 +422,17 @@ class ContextGuidedBlock(nn.Module):
         # if residual version
         if self.add:
             output = input + output
+
+        b, c, w, h = input.size()
+        input_3c = input.view(b, c, w * h).permute(0, 2, 1)
+
+        ea_output = self.ea(input_3c)
+        ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
+        ea_output = self.add_conv(ea_output)
+        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+
+        output = output * ea_output
+        
         return output
 
 
@@ -445,9 +510,18 @@ class non_bottleneck_1d(nn.Module):
         output = self.bn2(output)
 
         return self.prelu(output + input)  # +input = identity (residual connection)
+    
+class BrightnessAdjustment(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.brightness = nn.Parameter(torch.tensor([1.0]))
 
+    def forward(self, input_image):
+
+        adjusted_image = input_image * self.brightness
+        return adjusted_image
 #===============================Net====================================#
-class Net(nn.Module):
+class Main_Net(nn.Module):
     """
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
@@ -460,6 +534,7 @@ class Net(nn.Module):
           N: the number of blocks in stage 3
         """
         super().__init__()
+        self.ba = BrightnessAdjustment()
 
         self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
@@ -469,11 +544,11 @@ class Net(nn.Module):
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
 
-        self.b1 = BNPReLU(32 + 3)
+        self.b1 = BNPReLU(32)
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            32 + 3, 64,dilation_rate=2, reduction=8
+            32, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -481,12 +556,12 @@ class Net(nn.Module):
                 ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
         self.bn_prelu_2 = BNPReLU(128)
-        self.bn_prelu_2_2 = BNPReLU(128 + 3)
+        # self.bn_prelu_2_2 = BNPReLU(128 + 3)
 
 
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
-            128 + 3, 128, dilation_rate=4, reduction=16
+            128, 128, dilation_rate=4, reduction=16
         )
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
@@ -528,18 +603,19 @@ class Net(nn.Module):
             input: Receives the input RGB image
             return: segmentation map
         """
-
+        # Color inversion
+        # input = self.ba(input)
         # stage 1
         output0 = self.level1_0(input)
         output0 = self.level1_1(output0)
         output0 = self.level1_2(output0)
-        inp1 = self.sample1(input)
-        inp2 = self.sample2(input)
+        # inp1 = self.sample1(input)
+        # inp2 = self.sample2(input)
 
         # stage 2
-        output0_cat = self.b1(torch.cat([output0, inp1], 1))
+        # output0_cat = self.b1(torch.cat([output0, inp1], 1))
 
-        output1_0 = self.level2_0(output0_cat)  # down-sampled
+        output1_0 = self.level2_0(output0)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -549,11 +625,12 @@ class Net(nn.Module):
 
         output1_cat = self.bn_prelu_2(torch.cat([output1_0, output1], 1))
 
-        output1_cat_inp2 = self.bn_prelu_2_2(torch.cat([output1_cat, inp2], 1))
+        # output1_cat_inp2 = self.bn_prelu_2_2(torch.cat([output1_cat, inp2], 1))
+
 
 
         # stage 3
-        output2_0 = self.level3_0(output1_cat_inp2)  # down-sampled
+        output2_0 = self.level3_0(output1_cat)  # down-sampled
         for i, layer in enumerate(self.level3):
             if i == 0:
                 output2 = layer(output2_0)
@@ -587,6 +664,21 @@ class Net(nn.Module):
         # out = self.my_simgoid(out)
         return classifier
 
+class Net(nn.Module):
+    def __init__(self, classes=1, M=3, N=3, dropout_flag=False):
+        super().__init__()
+        self.main_net = Main_Net(classes=classes, M=M, N=N, dropout_flag=dropout_flag)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, input):
+        output_ori = self.main_net(input)
+        # 色彩反轉
+        input = 1 - input
+        output_inv = self.main_net(input)
+
+        output = output_ori + output_inv
+        output = self.sigmoid(output)
+        return output
 
 if __name__ == "__main__":
     model = Net()

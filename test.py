@@ -11,6 +11,7 @@ import wandb
 import utils
 import models.CGNet_2_erfnet31_13_3113_oneloss as network_model
 from visualization_codes.inference import smoke_semantic
+import utils.HausdorffDistance_losses as HD
 
 model_name = str(network_model)
 print("model_name:", model_name)
@@ -63,6 +64,7 @@ def smoke_segmentation(model,device, names,args):
     # epoch_iou_s = []
     # epoch_dice_coef = []
     epoch_SSIM = []
+    epoch_hd = []
     time_train = []
     i = 0
 
@@ -96,24 +98,11 @@ def smoke_segmentation(model,device, names,args):
 
         output = smoke_semantic(img_image, model, device, time_train, i)
 
-        count += 1
         # torchvision.utils.save_image(
         #     torch.cat((mask_image, output), 0),
         #     f'./{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{count}.jpg',
         # )
 
-        torchvision.utils.save_image(
-            RGB_image,
-            f'./{names["smoke_semantic_dir_name"]}/test_RGB_image/test_RGB_image_{count}.jpg',
-        )
-        torchvision.utils.save_image(
-            mask_image,
-            f'./{names["smoke_semantic_dir_name"]}/test_mask_image/test_mask_image_{count}.jpg',
-        )
-        torchvision.utils.save_image(
-            output,
-            f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg',
-        )
 
         loss = utils.loss.CustomLoss(output, mask_image)
         iou = utils.metrics.IoU(output, mask_image)
@@ -121,24 +110,33 @@ def smoke_segmentation(model,device, names,args):
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
         customssim = utils.metrics.ssim_val(output, mask_image)
 
+        #去掉為度為1的部份
+        output_for_HD = output.squeeze()
+        mask_image_for_HD = mask_image.squeeze()
+        HausdorffDistance = HD.AveragedHausdorffLoss()
+        hd = HausdorffDistance(output_for_HD, mask_image_for_HD)
+
         epoch_loss.append(loss.item())
         epoch_iou.append(iou.item())
         # epoch_iou_s.append(iou_s.item())
         # epoch_dice_coef.append(dice_coef.item())
         epoch_SSIM.append(customssim.item())
+        epoch_hd.append(hd.item())
 
         average_epoch_loss_test = sum(epoch_loss) / len(epoch_loss)
         average_epoch_miou_test = sum(epoch_iou) / len(epoch_iou) * 100
         # average_epoch_miou_s_test = sum(epoch_iou_s) / len(epoch_iou_s) * 100
         # average_epoch_dice_coef_test = sum(epoch_dice_coef) / len(epoch_dice_coef) * 100
-        average_epoch_epoch_mSSIM_test = sum(epoch_SSIM) / len(epoch_SSIM) * 100
+        average_epoch_mSSIM_test = sum(epoch_SSIM) / len(epoch_SSIM) * 100
+        average_epoch_hd_test = sum(epoch_hd) / len(epoch_hd)
 
         pbar.set_postfix(
             test_loss=average_epoch_loss_test,
             test_miou=average_epoch_miou_test,
             # test_miou_s=average_epoch_miou_s_test,
             # test_dice_coef=average_epoch_dice_coef_test,
-            test_mSSIM=average_epoch_epoch_mSSIM_test,
+            test_mSSIM=average_epoch_mSSIM_test,
+            test_hd=average_epoch_hd_test,
         )
 
         if args["wandb_name"] != "no":
@@ -149,7 +147,8 @@ def smoke_segmentation(model,device, names,args):
                     "test_miou": average_epoch_miou_test,
                     # "test_miou_s": average_epoch_miou_s_test,
                     # "test_dice_coef": average_epoch_dice_coef_test,
-                    "test_mSSIM": average_epoch_epoch_mSSIM_test,
+                    "test_mSSIM": average_epoch_mSSIM_test,
+                    "test_hd": average_epoch_hd_test,
                 }
             )
             wandb.log(
@@ -178,10 +177,26 @@ def smoke_segmentation(model,device, names,args):
             wandb_time_total2_cache += wandb_time_total2
             wandb_time_total = wandb_time_total1 + wandb_time_total2_cache
 
+        count += 1
+        output = (output > 0.5).float()
+        torchvision.utils.save_image(
+            RGB_image,
+            f'./{names["smoke_semantic_dir_name"]}/test_RGB_image/test_RGB_image_{count}.jpg',
+        )
+        torchvision.utils.save_image(
+            mask_image,
+            f'./{names["smoke_semantic_dir_name"]}/test_mask_image/test_mask_image_{count}.jpg',
+        )
+        torchvision.utils.save_image(
+            output,
+            f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg',
+        )
+
+
     if args["wandb_name"] != "no":
-        return average_epoch_loss_test, average_epoch_miou_test, average_epoch_epoch_mSSIM_test, wandb_time_total
+        return average_epoch_loss_test, average_epoch_miou_test, average_epoch_mSSIM_test, average_epoch_hd_test, wandb_time_total
     else:
-        return average_epoch_loss_test, average_epoch_miou_test, average_epoch_epoch_mSSIM_test
+        return average_epoch_loss_test, average_epoch_miou_test, average_epoch_mSSIM_test, average_epoch_hd_test
 
 
 if __name__ == "__main__":
@@ -283,14 +298,14 @@ if __name__ == "__main__":
 
     if args["wandb_name"] != "no":  # 此方式還是會誤差FPS4~5
         time_start = time.time()
-        Avg_loss, Avg_miou, Avg_mSSIM, wandb_time_total= smoke_segmentation(model,device,names,args)
+        Avg_loss, Avg_miou, Avg_mSSIM,Avg_hd, wandb_time_total= smoke_segmentation(model,device,names,args)
         time_end = time.time()
         total_image = len(os.listdir(args["test_images"]))
         fps = calculate_and_print_fps(total_image, time_start, time_end, wandb_time_total)
         wandb.log({"FPS": fps})
     else:
         time_start = time.time()
-        Avg_loss, Avg_miou, Avg_mSSIM = smoke_segmentation(model,device,names,args)
+        Avg_loss, Avg_miou, Avg_mSSIM, Avg_hd = smoke_segmentation(model,device,names,args)
         time_end = time.time()
         total_image = len(os.listdir(args["test_images"]))
         calculate_and_print_fps(total_image, time_start, time_end)
