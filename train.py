@@ -141,14 +141,6 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
 
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
-        output = (
-            output.mul(255)
-            .add_(0.5)
-            .clamp_(0, 255)
-        )
-
-        output = (output > 0.5).float()
-
         loss = utils.loss.CustomLoss(output, mask_image)
         iou = utils.metrics.IoU(output, mask_image)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)

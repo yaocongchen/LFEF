@@ -104,14 +104,6 @@ def smoke_segmentation(model,device, names,args):
         #     f'./{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{count}.jpg',
         # )
 
-        output = (
-            output.mul(255)
-            .add_(0.5)
-            .clamp_(0, 255)
-        )
-
-        output = (output > 0.5).float()
-        
         torchvision.utils.save_image(
             RGB_image,
             f'./{names["smoke_semantic_dir_name"]}/test_RGB_image/test_RGB_image_{count}.jpg',
