@@ -41,7 +41,7 @@ def IoU(
     #     .clamp_(0, 255)
     # )
 
-    model_output = (model_output > 0).float()
+    model_output = (model_output > 0.5).float()
 #==============================================================================================================#
 
 ############################################################################################################################
@@ -116,7 +116,7 @@ def ssim_val(model_output, mask):
     #     .clamp_(0, 255)
     # )
 
-    model_output = (model_output > 0).float()
+    model_output = (model_output > 0.5).float()
     msssim = ssim(model_output, mask, data_range=1)
     
     return msssim
