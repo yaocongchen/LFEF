@@ -668,6 +668,7 @@ class Net(nn.Module):
     def __init__(self, classes=1, M=3, N=3, dropout_flag=False):
         super().__init__()
         self.main_net = Main_Net(classes=classes, M=M, N=N, dropout_flag=dropout_flag)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
         output_ori = self.main_net(input)
@@ -676,6 +677,7 @@ class Net(nn.Module):
         output_inv = self.main_net(input)
 
         output = output_ori + output_inv
+        output = self.sigmoid(output)
         return output
 
 if __name__ == "__main__":
