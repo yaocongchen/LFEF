@@ -363,15 +363,15 @@ class ContextGuidedBlock_Down(nn.Module):
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
 
-        b, c, w, h = input.size()
-        input_3c = input.view(b, c, w * h).permute(0, 2, 1)
+        # b, c, w, h = input.size()
+        # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
         
-        ea_output = self.ea(input_3c)
-        ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
-        ea_output = self.add_conv(ea_output)
-        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+        # ea_output = self.ea(input_3c)
+        # ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
+        # ea_output = self.add_conv(ea_output)
+        # ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
-        output = output * ea_output
+        # output = output * ea_output
         
         return output
 
@@ -423,15 +423,15 @@ class ContextGuidedBlock(nn.Module):
         if self.add:
             output = input + output
 
-        b, c, w, h = input.size()
-        input_3c = input.view(b, c, w * h).permute(0, 2, 1)
+        # b, c, w, h = input.size()
+        # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
 
-        ea_output = self.ea(input_3c)
-        ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
-        ea_output = self.add_conv(ea_output)
-        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+        # ea_output = self.ea(input_3c)
+        # ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
+        # ea_output = self.add_conv(ea_output)
+        # ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
-        output = output * ea_output
+        # output = output * ea_output
         
         return output
 
