@@ -672,12 +672,12 @@ class Net(nn.Module):
 
     def forward(self, input):
         output_ori = self.main_net(input)
-        # 色彩反轉
-        input = 1 - input
-        output_inv = self.main_net(input)
+        # # 色彩反轉
+        # input = 1 - input
+        # output_inv = self.main_net(input)
 
-        output = output_ori + output_inv
-        output = self.sigmoid(output)
+        # output = output_ori + output_inv
+        output = self.sigmoid(output_ori)
         return output
 
 if __name__ == "__main__":
