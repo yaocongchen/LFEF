@@ -138,6 +138,12 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
         )  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
 
         output = model(img_image)
+        torchvision.utils.save_image(
+    img_image, "./training_data_captures/" + "last_output_test_" + ".jpg"
+)
+        torchvision.utils.save_image(
+    output, "./training_data_captures/" + "last_output_" + ".jpg"
+)
 
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 

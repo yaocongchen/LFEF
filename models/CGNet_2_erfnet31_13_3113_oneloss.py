@@ -511,15 +511,6 @@ class non_bottleneck_1d(nn.Module):
 
         return self.prelu(output + input)  # +input = identity (residual connection)
     
-class BrightnessAdjustment(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.brightness = nn.Parameter(torch.tensor([1.0]))
-
-    def forward(self, input_image):
-
-        adjusted_image = input_image * self.brightness
-        return adjusted_image
 #===============================Net====================================#
 class Main_Net(nn.Module):
     """
@@ -663,22 +654,36 @@ class Main_Net(nn.Module):
         # )
         # out = self.my_simgoid(out)
         return classifier
+    
+class BrightnessAdjustment(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.brightness = nn.Parameter(torch.tensor([1.0]))
 
+    def forward(self, input_image):
+
+        adjusted_image = input_image * self.brightness
+        return adjusted_image
+    
 class Net(nn.Module):
     def __init__(self, classes=1, M=3, N=3, dropout_flag=False):
         super().__init__()
         self.main_net = Main_Net(classes=classes, M=M, N=N, dropout_flag=dropout_flag)
+        self.ba = BrightnessAdjustment()
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
-        output_ori = self.main_net(input)
-        # # 色彩反轉
-        # input = 1 - input
-        # output_inv = self.main_net(input)
+        input_ba = self.ba(input)
+        output_ori = self.main_net(input_ba)
 
-        # output = output_ori + output_inv
-        output = self.sigmoid(output_ori)
-        return output
+        # 色彩反轉
+        input_reverse = 1 - input
+        input_reverse_ba = self.ba(input_reverse)
+        output_inv = self.main_net(input_reverse_ba)
+
+        output = output_ori + output_inv
+        output = self.sigmoid(output)
+        return input
 
 if __name__ == "__main__":
     model = Net()
