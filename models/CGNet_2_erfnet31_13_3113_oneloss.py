@@ -683,7 +683,7 @@ class Net(nn.Module):
 
         output = output_ori + output_inv
         output = self.sigmoid(output)
-        return input
+        return output
 
 if __name__ == "__main__":
     model = Net()
