@@ -76,15 +76,15 @@ def get_args(model_file,operation_input, WANDB_NAME):
         "num_workers": 1,
         "model_path": MODEL_PATH,
         "wandb_name": WANDB_NAME,
-        "test_images": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation_input}/img/",
-        "test_masks": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation_input}/mask/",
+        "test_images": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation_input}/images/",
+        "test_masks": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation_input}/masks/",
     }
 
 
-def SYN70k_dataset(model_file,operation_input,wandb_name_input):
+def Test_dataset(model_file,operation_input,wandb_name_input):
     if model_file in ["last.pth", "best.pth"]:
         use_model_file = model_file
-        if operation_input in ["DS01", "DS02", "DS03"]:
+        if operation_input in ["DS01", "DS02", "DS03", "Real"]:
             use_Data_Source = operation_input
             if wandb_name_input != "":
                 WANDB_NAME = wandb_name_input
@@ -156,9 +156,9 @@ with gr.Blocks() as demo:
         use_model_file = gr.Textbox(label="Use_Model_File")
         
     gr.Markdown("## Choice your data source")
-    with gr.Tab("SYN70K_Test_Data"):
+    with gr.Tab("Test_Dataset"):
         with gr.Row():
-            operation_input = gr.Radio(["DS01", "DS02", "DS03"], label="Data Source")
+            operation_input = gr.Radio(["DS01", "DS02", "DS03", "Real"], label="Data Source")
             use_Data_Source = gr.Textbox(label="Use_Data_Source")
         loss = gr.Textbox(label="Avg_loss")
         with gr.Row():
@@ -174,7 +174,7 @@ with gr.Blocks() as demo:
             gr.Markdown("## Save to Weight & Biases (Optional)")
             wandb_name_input = gr.Textbox(label="wandb_name")
 
-        SYN70K_button = gr.Button("Start !")
+        Test_dataset_button = gr.Button("Start !")
 
     with gr.Tab("Your_Image"):
         with gr.Column():
@@ -192,7 +192,7 @@ with gr.Blocks() as demo:
     #     gr.Markdown("Look at me...")
 
     update_model_button.click(model_update,outputs=status)
-    SYN70K_button.click(SYN70k_dataset, inputs=[model_file,operation_input,wandb_name_input], outputs=[loss, mIoU, mSSIM, hd, fps, spend_time, use_model_file, use_Data_Source])
+    Test_dataset_button.click(Test_dataset, inputs=[model_file,operation_input,wandb_name_input], outputs=[loss, mIoU, mSSIM, hd, fps, spend_time, use_model_file, use_Data_Source])
     image_button.click(Your_image, inputs=[model_file,image_input], outputs=[image_smoke_semantic, image_binary, image_stitching, image_overlap, use_model_file])
     
 if __name__ == "__main__":
