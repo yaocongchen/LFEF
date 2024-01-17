@@ -527,7 +527,7 @@ class Main_Net(nn.Module):
         super().__init__()
         self.ba = BrightnessAdjustment()
 
-        self.level1_0 = ConvBNPReLU(6, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
         self.level1_2 = non_bottleneck_1d(32, 2)
 
@@ -581,7 +581,7 @@ class Main_Net(nn.Module):
                     if m.bias is not None:
                         m.bias.data.zero_()
         
-        self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
+        self.upsample = nn.Upsample(size=(512, 256), mode="bilinear", align_corners=True)
         self.conv11_32 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.PReLU())
         self.conv11_128 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.PReLU())
         self.conv11_256 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.PReLU())
@@ -674,13 +674,20 @@ class Net(nn.Module):
 
     def forward(self, input):
         input_ba = self.ba(input)
+
         # 色彩反轉
-        input_reverse = 1 - input
-        input_reverse_ba = self.ba(input_reverse)
+        input_inv = 1 - input
+        input_inv_ba = self.ba(input_inv)
+        # output_ori 與 output_inv 長度concat
+        output = torch.cat([input_ba,input_inv_ba], 2)
 
-        input_merge = torch.cat([input_ba, input_reverse_ba], 1)
-        output = self.main_net(input_merge)
+        output = self.main_net(output)
 
+        # output 長度拆解
+        output_ori = output[:,:,:256,:]
+        output_inv = output[:,:,256:,:]
+
+        output = output_ori + output_inv
         output = self.sigmoid(output)
         return output
 
