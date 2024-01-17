@@ -531,39 +531,39 @@ class Main_Net(nn.Module):
         super().__init__()
         self.ba = BrightnessAdjustment()
 
-        self.level1_0 = ConvBNPReLU(6, 64, 3, 2)  # feature map size divided 2, 1/2
-        self.level1_1 = non_bottleneck_1d(64, 1)
-        self.level1_2 = non_bottleneck_1d(64, 2)
+        self.level1_0 = ConvBNPReLU(6, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_1 = non_bottleneck_1d(32, 1)
+        self.level1_2 = non_bottleneck_1d(32, 2)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
 
-        self.b1 = BNPReLU(64)
+        self.b1 = BNPReLU(32)
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            64, 128,dilation_rate=2, reduction=8
+            32, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
             self.level2.append(
-                ContextGuidedBlock(128, 128, dilation_rate=2, reduction=8)
+                ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
-        self.bn_prelu_2 = BNPReLU(256)
+        self.bn_prelu_2 = BNPReLU(128)
         # self.bn_prelu_2_2 = BNPReLU(128 + 3)
 
 
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
-            256, 256, dilation_rate=4, reduction=16
+            128, 128, dilation_rate=4, reduction=16
         )
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
             self.level3.append(
-                ContextGuidedBlock(256, 256, dilation_rate=4, reduction=16)
+                ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
             )  # CG bloc
-        self.bn_prelu_3 = BNPReLU(512)
+        self.bn_prelu_3 = BNPReLU(256)
 
         if dropout_flag:
             print("have droput layer")
@@ -586,9 +586,9 @@ class Main_Net(nn.Module):
                         m.bias.data.zero_()
         
         self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        self.conv11_32 = nn.Sequential(nn.Conv2d(64, 2, kernel_size=(1, 1), padding="same", groups=2), nn.BatchNorm2d(2), nn.PReLU())
-        self.conv11_128 = nn.Sequential(nn.Conv2d(256, 2, kernel_size=(1, 1), padding="same", groups=2), nn.BatchNorm2d(2), nn.PReLU())
-        self.conv11_256 = nn.Sequential(nn.Conv2d(512, 2, kernel_size=(1, 1), padding="same", groups=2), nn.BatchNorm2d(2), nn.PReLU())
+        self.conv11_32 = nn.Sequential(nn.Conv2d(32, 2, kernel_size=(1, 1), padding="same", groups=2), nn.BatchNorm2d(2), nn.PReLU())
+        self.conv11_128 = nn.Sequential(nn.Conv2d(128, 2, kernel_size=(1, 1), padding="same", groups=2), nn.BatchNorm2d(2), nn.PReLU())
+        self.conv11_256 = nn.Sequential(nn.Conv2d(256, 2, kernel_size=(1, 1), padding="same", groups=2), nn.BatchNorm2d(2), nn.PReLU())
 
         # self.my_simgoid = nn.Sigmoid()
 
