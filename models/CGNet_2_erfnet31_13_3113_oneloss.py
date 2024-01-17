@@ -527,7 +527,7 @@ class Main_Net(nn.Module):
         super().__init__()
         self.ba = BrightnessAdjustment()
 
-        self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_0 = ConvBNPReLU(6, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
         self.level1_2 = non_bottleneck_1d(32, 2)
 
@@ -674,14 +674,13 @@ class Net(nn.Module):
 
     def forward(self, input):
         input_ba = self.ba(input)
-        output_ori = self.main_net(input_ba)
-
         # 色彩反轉
         input_reverse = 1 - input
         input_reverse_ba = self.ba(input_reverse)
-        output_inv = self.main_net(input_reverse_ba)
 
-        output = output_ori + output_inv
+        input_merge = torch.cat([input_ba, input_reverse_ba], 1)
+        output = self.main_net(input_merge)
+
         output = self.sigmoid(output)
         return output
 
