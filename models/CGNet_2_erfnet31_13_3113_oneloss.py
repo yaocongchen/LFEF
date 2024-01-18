@@ -582,9 +582,9 @@ class Main_Net(nn.Module):
                         m.bias.data.zero_()
         
         self.upsample = nn.Upsample(size=(512, 256), mode="bilinear", align_corners=True)
-        self.conv11_32 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.PReLU())
-        self.conv11_128 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.PReLU())
-        self.conv11_256 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding="same"), nn.BatchNorm2d(1), nn.PReLU())
+        self.conv11_32 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(1), nn.PReLU())
+        self.conv11_128 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(1), nn.PReLU())
+        self.conv11_256 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(1), nn.PReLU())
 
         # self.my_simgoid = nn.Sigmoid()
 

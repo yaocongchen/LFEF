@@ -56,7 +56,6 @@ class ConvBNPReLU(nn.Module):
             (kSize, kSize),
             stride=stride,
             padding=(padding, padding),
-            groups=2,
             bias=False,
         )
         self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
@@ -144,7 +143,6 @@ class Conv(nn.Module):
             (kSize, kSize),
             stride=stride,
             padding=(padding, padding),
-            groups=2,
             bias=False,
         )
 
@@ -468,11 +466,11 @@ class non_bottleneck_1d(nn.Module):
         super().__init__()
 
         self.conv3x1_1 = nn.Conv2d(
-            chann, chann, (3, 1), stride=1, padding=(1, 0), groups=2, bias=True
+            chann, chann, (3, 1), stride=1, padding=(1, 0), bias=True
         )
 
         self.conv1x3_1 = nn.Conv2d(
-            chann, chann, (1, 3), stride=1, padding=(0, 1), groups=2, bias=True
+            chann, chann, (1, 3), stride=1, padding=(0, 1), bias=True
         )
 
         self.bn1 = nn.BatchNorm2d(chann, eps=1e-03)
@@ -483,9 +481,8 @@ class non_bottleneck_1d(nn.Module):
             (3, 1),
             stride=1,
             padding=(1 * dilated, 0),
-            dilation=(dilated, 1),
-            groups=2,
             bias=True,
+            dilation=(dilated, 1),
         )
 
         self.conv1x3_2 = nn.Conv2d(
@@ -494,9 +491,8 @@ class non_bottleneck_1d(nn.Module):
             (1, 3),
             stride=1,
             padding=(0, 1 * dilated),
-            dilation=(1, dilated),
-            groups=2,
             bias=True,
+            dilation=(1, dilated),
         )
         self.prelu = nn.PReLU(chann)
         self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
@@ -531,7 +527,7 @@ class Main_Net(nn.Module):
         super().__init__()
         self.ba = BrightnessAdjustment()
 
-        self.level1_0 = ConvBNPReLU(6, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
         self.level1_2 = non_bottleneck_1d(32, 2)
 
@@ -568,10 +564,10 @@ class Main_Net(nn.Module):
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
-                nn.Dropout2d(0.1, False), Conv(6, 2, 1, 1)
+                nn.Dropout2d(0.1, False), Conv(3, classes, 1, 1)
             )
         else:
-            self.classifier = nn.Sequential(Conv(6, 2, 1, 1))
+            self.classifier = nn.Sequential(Conv(3, classes, 1, 1))
 
         # init weights
         for m in self.modules():
@@ -585,10 +581,16 @@ class Main_Net(nn.Module):
                     if m.bias is not None:
                         m.bias.data.zero_()
         
-        self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        self.conv11_32 = nn.Sequential(nn.Conv2d(32, 2, kernel_size=(1, 1), padding="same", groups=2), nn.BatchNorm2d(2), nn.PReLU())
-        self.conv11_128 = nn.Sequential(nn.Conv2d(128, 2, kernel_size=(1, 1), padding="same", groups=2), nn.BatchNorm2d(2), nn.PReLU())
-        self.conv11_256 = nn.Sequential(nn.Conv2d(256, 2, kernel_size=(1, 1), padding="same", groups=2), nn.BatchNorm2d(2), nn.PReLU())
+        self.upsample = nn.Upsample(size=(512, 256), mode="bilinear", align_corners=True)
+        self.conv11_32 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(1), nn.PReLU())
+        self.conv11_128 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(1), nn.PReLU())
+        self.conv11_256 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(1), nn.PReLU())
+
+        self.ea = ExternalAttention(d_model=64)
+        self.add_conv = nn.Conv2d(64, 128, kernel_size=1, stride=1, padding=0, bias=False)
+
+        self.avg_pool = nn.AvgPool2d(3, stride=2, padding=1)
+        self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
 
         # self.my_simgoid = nn.Sigmoid()
 
@@ -622,10 +624,20 @@ class Main_Net(nn.Module):
 
         # output1_cat_inp2 = self.bn_prelu_2_2(torch.cat([output1_cat, inp2], 1))
 
-
-
         # stage 3
         output2_0 = self.level3_0(output1_cat)  # down-sampled
+
+        b, c, w, h = output1_0.size()
+        input_3c = output1_0.view(b, c, w * h).permute(0, 2, 1)
+
+        ea_output = self.ea(input_3c)
+        ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
+        ea_output = self.add_conv(ea_output)
+        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+
+        output2_0 = output2_0 * ea_output
+
+
         for i, layer in enumerate(self.level3):
             if i == 0:
                 output2 = layer(output2_0)
@@ -683,13 +695,13 @@ class Net(nn.Module):
         input_inv = 1 - input
         input_inv_ba = self.ba(input_inv)
         # output_ori 與 output_inv 長度concat
-        output = torch.cat([input_ba,input_inv_ba], 1)
+        output = torch.cat([input_ba,input_inv_ba], 2)
 
         output = self.main_net(output)
 
-        # output channel 拆解
-        output_ori = output[:,0:1,:,:]
-        output_inv = output[:,1:2,:,:]
+        # output 長度拆解
+        output_ori = output[:,:,:256,:]
+        output_inv = output[:,:,256:,:]
 
         output = output_ori + output_inv
         output = self.sigmoid(output)
