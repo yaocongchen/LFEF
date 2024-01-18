@@ -152,39 +152,39 @@ with gr.Blocks() as demo:
     update_model_button = gr.Button("Update model !")
     with gr.Row():
         status = gr.Textbox(label="Model update time")
-        model_file = gr.Radio(["last.pth", "best.pth"], label="Model_File")
-        use_model_file = gr.Textbox(label="Use_Model_File")
+        model_file = gr.Radio(["last.pth", "best.pth"], label="Model File")
+        use_model_file = gr.Textbox(label="Use Model File")
         
     gr.Markdown("## Choice your data source")
     with gr.Tab("Test_Dataset"):
         with gr.Row():
             operation_input = gr.Radio(["DS01", "DS02", "DS03", "Real"], label="Data Source")
-            use_Data_Source = gr.Textbox(label="Use_Data_Source")
-        loss = gr.Textbox(label="Avg_loss")
+            use_Data_Source = gr.Textbox(label="Use Data Source")
+        loss = gr.Textbox(label="Avg loss")
         with gr.Row():
             with gr.Column():
-                mIoU = gr.Textbox(label="Avg_mIoU",info="(%)")
-                mSSIM = gr.Textbox(label="Avg_mSSIM",info = "(%)")
-                hd = gr.Textbox(label="Avg_hd",info="(pixel)")
+                mIoU = gr.Textbox(label="Avg mIoU",info="(%)")
+                mSSIM = gr.Textbox(label="Avg mSSIM",info = "(%)")
+                hd = gr.Textbox(label="Avg hd",info="(pixel)")
             with gr.Column():
                 fps = gr.Textbox(label="FPS",info="(frames/s)")
-                spend_time = gr.Textbox(label="Spend_Time")
+                spend_time = gr.Textbox(label="Spend Time")
 
         with gr.Accordion("Advanced Options"):
             gr.Markdown("## Save to Weight & Biases (Optional)")
-            wandb_name_input = gr.Textbox(label="wandb_name")
+            wandb_name_input = gr.Textbox(label="wandb name")
 
         Test_dataset_button = gr.Button("Start !")
 
     with gr.Tab("Your_Image"):
         with gr.Column():
-            image_input = gr.Image(label="Input_Image",type="numpy")
+            image_input = gr.Image(label="Input Image",type="numpy")
             with gr.Row():
-                image_smoke_semantic = gr.Image(label="smoke_semantic_image",type="numpy")   
-                image_binary = gr.Image(label="binary_image",type="numpy")
-                image_overlap = gr.Image(label="image_overlap_image",type="numpy")
+                image_smoke_semantic = gr.Image(label="smoke semantic image",type="numpy")   
+                image_binary = gr.Image(label="binary image",type="numpy")
+                image_overlap = gr.Image(label="image overlap image",type="numpy")
             with gr.Column():
-                image_stitching = gr.Image(label="image_stitching_image",type="numpy")
+                image_stitching = gr.Image(label="image stitching image",type="numpy")
 
         image_button = gr.Button("Start !")
 
