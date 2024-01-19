@@ -6,6 +6,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision.transforms.functional as TF
 from torchinfo import summary
 from torch.nn import init
 
@@ -581,7 +582,7 @@ class Main_Net(nn.Module):
                     if m.bias is not None:
                         m.bias.data.zero_()
         
-        self.upsample = nn.Upsample(size=(512, 256), mode="bilinear", align_corners=True)
+        self.upsample = nn.Upsample(size=(768, 256), mode="bilinear", align_corners=True)
         self.conv11_32 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(1), nn.PReLU())
         self.conv11_128 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(1), nn.PReLU())
         self.conv11_256 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(1), nn.PReLU())
@@ -678,16 +679,28 @@ class Net(nn.Module):
         # 色彩反轉
         input_inv = 1 - input
         input_inv_ba = self.ba(input_inv)
+
+        # 將張量的值限制在 [0, 1]，然後再將其乘以 255
+        input = (input.clamp(0, 1) * 255).byte()
+
+        # 進行亮度均衡
+        equalized_image_tensor = TF.equalize(input)
+
+        # 將張量轉換回 torch.uint8 類型並將像素值範圍轉換回 [0, 1] float32
+        equalized_image_tensor = equalized_image_tensor.float() / 255.0
+        equalized_image_tensor_ba = self.ba(equalized_image_tensor)
+
         # output_ori 與 output_inv 長度concat
-        output = torch.cat([input_ba,input_inv_ba], 2)
+        output = torch.cat([input_ba,input_inv_ba,equalized_image_tensor_ba], 2)
 
         output = self.main_net(output)
 
         # output 長度拆解
         output_ori = output[:,:,:256,:]
-        output_inv = output[:,:,256:,:]
+        output_inv = output[:,:,256:512,:]
+        equalized_image_tensor = output[:,:,512:,:]
 
-        output = output_ori + output_inv
+        output = output_ori + output_inv + equalized_image_tensor
         output = self.sigmoid(output)
         return output
 

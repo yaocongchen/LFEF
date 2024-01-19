@@ -9,7 +9,7 @@ import numpy as np
 import wandb
 
 import test
-import models.CGNet_2_erfnet31_13_3113_oneloss as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_3113_oneloss_he as network_model  # import self-written models 引入自行寫的模型
 from visualization_codes import inference_single_picture
 
 model_name = str(network_model)
@@ -76,15 +76,15 @@ def get_args(model_file,operation_input, WANDB_NAME):
         "num_workers": 1,
         "model_path": MODEL_PATH,
         "wandb_name": WANDB_NAME,
-        "test_images": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation_input}/img/",
-        "test_masks": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation_input}/mask/",
+        "test_images": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation_input}/images/",
+        "test_masks": f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/{operation_input}/masks/",
     }
 
 
-def SYN70k_dataset(model_file,operation_input,wandb_name_input):
+def Test_dataset(model_file,operation_input,wandb_name_input):
     if model_file in ["last.pth", "best.pth"]:
         use_model_file = model_file
-        if operation_input in ["DS01", "DS02", "DS03"]:
+        if operation_input in ["DS01", "DS02", "DS03", "Real"]:
             use_Data_Source = operation_input
             if wandb_name_input != "":
                 WANDB_NAME = wandb_name_input
@@ -152,39 +152,39 @@ with gr.Blocks() as demo:
     update_model_button = gr.Button("Update model !")
     with gr.Row():
         status = gr.Textbox(label="Model update time")
-        model_file = gr.Radio(["last.pth", "best.pth"], label="Model_File")
-        use_model_file = gr.Textbox(label="Use_Model_File")
+        model_file = gr.Radio(["last.pth", "best.pth"], label="Model File")
+        use_model_file = gr.Textbox(label="Use Model File")
         
     gr.Markdown("## Choice your data source")
-    with gr.Tab("SYN70K_Test_Data"):
+    with gr.Tab("Test_Dataset"):
         with gr.Row():
-            operation_input = gr.Radio(["DS01", "DS02", "DS03"], label="Data Source")
-            use_Data_Source = gr.Textbox(label="Use_Data_Source")
-        loss = gr.Textbox(label="Avg_loss")
+            operation_input = gr.Radio(["DS01", "DS02", "DS03", "Real"], label="Data Source")
+            use_Data_Source = gr.Textbox(label="Use Data Source")
+        loss = gr.Textbox(label="Avg loss")
         with gr.Row():
             with gr.Column():
-                mIoU = gr.Textbox(label="Avg_mIoU",info="(%)")
-                mSSIM = gr.Textbox(label="Avg_mSSIM",info = "(%)")
-                hd = gr.Textbox(label="Avg_hd",info="(pixel)")
+                mIoU = gr.Textbox(label="Avg mIoU",info="(%)")
+                mSSIM = gr.Textbox(label="Avg mSSIM",info = "(%)")
+                hd = gr.Textbox(label="Avg hd",info="(pixel)")
             with gr.Column():
                 fps = gr.Textbox(label="FPS",info="(frames/s)")
-                spend_time = gr.Textbox(label="Spend_Time")
+                spend_time = gr.Textbox(label="Spend Time")
 
         with gr.Accordion("Advanced Options"):
             gr.Markdown("## Save to Weight & Biases (Optional)")
-            wandb_name_input = gr.Textbox(label="wandb_name")
+            wandb_name_input = gr.Textbox(label="wandb name")
 
-        SYN70K_button = gr.Button("Start !")
+        Test_dataset_button = gr.Button("Start !")
 
     with gr.Tab("Your_Image"):
         with gr.Column():
-            image_input = gr.Image(label="Input_Image",type="numpy")
+            image_input = gr.Image(label="Input Image",type="numpy")
             with gr.Row():
-                image_smoke_semantic = gr.Image(label="smoke_semantic_image",type="numpy")   
-                image_binary = gr.Image(label="binary_image",type="numpy")
-                image_overlap = gr.Image(label="image_overlap_image",type="numpy")
+                image_smoke_semantic = gr.Image(label="smoke semantic image",type="numpy")   
+                image_binary = gr.Image(label="binary image",type="numpy")
+                image_overlap = gr.Image(label="image overlap image",type="numpy")
             with gr.Column():
-                image_stitching = gr.Image(label="image_stitching_image",type="numpy")
+                image_stitching = gr.Image(label="image stitching image",type="numpy")
 
         image_button = gr.Button("Start !")
 
@@ -192,7 +192,7 @@ with gr.Blocks() as demo:
     #     gr.Markdown("Look at me...")
 
     update_model_button.click(model_update,outputs=status)
-    SYN70K_button.click(SYN70k_dataset, inputs=[model_file,operation_input,wandb_name_input], outputs=[loss, mIoU, mSSIM, hd, fps, spend_time, use_model_file, use_Data_Source])
+    Test_dataset_button.click(Test_dataset, inputs=[model_file,operation_input,wandb_name_input], outputs=[loss, mIoU, mSSIM, hd, fps, spend_time, use_model_file, use_Data_Source])
     image_button.click(Your_image, inputs=[model_file,image_input], outputs=[image_smoke_semantic, image_binary, image_stitching, image_overlap, use_model_file])
     
 if __name__ == "__main__":

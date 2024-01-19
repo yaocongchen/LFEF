@@ -586,6 +586,14 @@ class Main_Net(nn.Module):
         self.conv11_128 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(1), nn.PReLU())
         self.conv11_256 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(1), nn.PReLU())
 
+        self.ea = ExternalAttention(d_model=64)
+        self.add_conv = nn.Conv2d(64, 128, kernel_size=1, stride=1, padding=0, bias=False)
+
+        self.avg_pool = nn.AvgPool2d(3, stride=2, padding=1)
+        self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
+
+        self.conv256_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(128), nn.PReLU())
+
         # self.my_simgoid = nn.Sigmoid()
 
     def forward(self, input):
@@ -618,10 +626,21 @@ class Main_Net(nn.Module):
 
         # output1_cat_inp2 = self.bn_prelu_2_2(torch.cat([output1_cat, inp2], 1))
 
-
-
         # stage 3
         output2_0 = self.level3_0(output1_cat)  # down-sampled
+
+        b, c, w, h = output1_0.size()
+        input_3c = output1_0.view(b, c, w * h).permute(0, 2, 1)
+
+        ea_output = self.ea(input_3c)
+        ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
+        ea_output = self.add_conv(ea_output)
+        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+
+        output2_0 = torch.cat([output2_0, ea_output], 1)
+        output2_0 = self.conv256_128(output2_0)
+
+
         for i, layer in enumerate(self.level3):
             if i == 0:
                 output2 = layer(output2_0)

@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 import wandb
 
 import utils
-import models.CGNet_2_erfnet31_13_3113_oneloss as network_model
+import models.CGNet_2_erfnet31_13_3113_oneloss_he as network_model
 from visualization_codes.inference import smoke_semantic
 import utils.HausdorffDistance_losses as HD
 
@@ -207,25 +207,25 @@ if __name__ == "__main__":
     ap.add_argument(
         "-ti",
         "--test_images",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/img/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/images/",
         help="path to hazy training images",
     )
     ap.add_argument(
         "-tm",
         "--test_masks",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/mask/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/masks/",
         help="path to mask",
     )
     # ap.add_argument(
     #     "-ti",
     #     "--test_images",
-    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Imag/",
+    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/Real/images/",
     #     help="path to hazy training images",
     # )
     # ap.add_argument(
     #     "-tm",
     #     "--test_masks",
-    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Mask/",
+    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/Real/masks/",
     #     help="path to mask",
     # )
     # ap.add_argument(

@@ -210,25 +210,25 @@ if __name__ == "__main__":
     ap.add_argument(
         "-ti",
         "--test_images",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/img/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/images/",
         help="path to hazy training images",
     )
     ap.add_argument(
         "-tm",
         "--test_masks",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/mask/",
+        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/masks/",
         help="path to mask",
     )
     # ap.add_argument(
     #     "-ti",
     #     "--test_images",
-    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Imag/",
+    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/Real/images/",
     #     help="path to hazy training images",
     # )
     # ap.add_argument(
     #     "-tm",
     #     "--test_masks",
-    #     default="/home/yaocong/Experimental/Dataset/Smoke-Segmentation/Dataset/Train/Mask/",
+    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/Real/masks/",
     #     help="path to mask",
     # )
     # ap.add_argument(
