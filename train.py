@@ -15,7 +15,7 @@ import torch.onnx
 from torch.utils.data import DataLoader
 
 # import self-written modules
-import models.CGNet_2_erfnet31_13_3113_oneloss_ea as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_3113_oneloss_he as network_model  # import self-written models 引入自行寫的模型
 import utils
 
 CONFIG_FILE = "import_dataset_path.cfg"
@@ -138,6 +138,17 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
         )  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
 
         output = model(img_image)
+
+        # torchvision.utils.save_image(
+        #     img_image, "./training_data_captures/" + "img_image" + ".jpg"
+        # )
+        # torchvision.utils.save_image(
+        #     output, "./training_data_captures/" + "output" + ".jpg"
+        # )
+        # torchvision.utils.save_image(
+        #     mask_image, "./training_data_captures/" + "mask_image" + ".jpg"
+        # )
+        
 
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
