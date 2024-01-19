@@ -635,7 +635,7 @@ class Main_Net(nn.Module):
         ea_output = self.add_conv(ea_output)
         ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
-        output2_0 = output2_0 * ea_output
+        output2_0 = output2_0 + ea_output
 
 
         for i, layer in enumerate(self.level3):
