@@ -592,7 +592,7 @@ class Main_Net(nn.Module):
         self.avg_pool = nn.AvgPool2d(3, stride=2, padding=1)
         self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
 
-        self.conv255_128 = nn.Sequential(nn.Conv2d(255, 128, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(128), nn.PReLU())
+        self.conv256_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.BatchNorm2d(128), nn.PReLU())
 
         # self.my_simgoid = nn.Sigmoid()
 
@@ -638,7 +638,7 @@ class Main_Net(nn.Module):
         ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
         output2_0 = torch.cat([output2_0, ea_output], 1)
-        output2_0 = self.conv255_128(output2_0)
+        output2_0 = self.conv256_128(output2_0)
 
 
         for i, layer in enumerate(self.level3):
