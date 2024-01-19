@@ -9,7 +9,7 @@ import numpy as np
 import wandb
 
 import test
-import models.CGNet_2_erfnet31_13_3113_oneloss_ea as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_3113_oneloss_he as network_model  # import self-written models 引入自行寫的模型
 from visualization_codes import inference_single_picture
 
 model_name = str(network_model)
