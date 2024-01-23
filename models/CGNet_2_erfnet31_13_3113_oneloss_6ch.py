@@ -531,8 +531,8 @@ class Main_Net(nn.Module):
         self.ba = BrightnessAdjustment()
 
         self.level1_0 = ConvBNPReLU(6, 64, 3, 2)  # feature map size divided 2, 1/2
-        self.level1_1 = non_bottleneck_1d(64, 1)
-        self.level1_2 = non_bottleneck_1d(64, 2)
+        # self.level1_1 = non_bottleneck_1d(64, 1)
+        # self.level1_2 = non_bottleneck_1d(64, 2)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
@@ -600,8 +600,8 @@ class Main_Net(nn.Module):
         # input = self.ba(input)
         # stage 1
         output0 = self.level1_0(input)
-        output0 = self.level1_1(output0)
-        output0 = self.level1_2(output0)
+        # output0 = self.level1_1(output0)
+        # output0 = self.level1_2(output0)
         # inp1 = self.sample1(input)
         # inp2 = self.sample2(input)
 
