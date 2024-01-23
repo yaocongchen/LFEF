@@ -11,7 +11,6 @@ import wandb
 import utils
 import models.CGNet_2_erfnet31_13_3113_oneloss_6ch as network_model
 from visualization_codes.inference import smoke_semantic
-import utils.HausdorffDistance_losses as HD
 
 model_name = str(network_model)
 print("model_name:", model_name)
@@ -109,12 +108,7 @@ def smoke_segmentation(model,device, names,args):
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
         customssim = utils.metrics.ssim_val(output, mask_image)
-
-        #去掉為度為1的部份
-        output_for_HD = output.squeeze()
-        mask_image_for_HD = mask_image.squeeze()
-        HausdorffDistance = HD.AveragedHausdorffLoss()
-        hd = HausdorffDistance(output_for_HD, mask_image_for_HD)
+        hd = utils.metrics.Sobel_hausdorffDistance_metric(output, mask_image, device)
 
         epoch_loss.append(loss.item())
         epoch_iou.append(iou.item())
@@ -266,7 +260,7 @@ if __name__ == "__main__":
     # )
     ap.add_argument("-bs", "--batch_size", type=int, default=1, help="set batch_size")
     ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
-    ap.add_argument("-m", "--model_path", required=True, help="load model path")
+    ap.add_argument("-m", "--model_path", required=False, default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth",help="load model path")
     ap.add_argument(
         "-wn",
         "--wandb_name",

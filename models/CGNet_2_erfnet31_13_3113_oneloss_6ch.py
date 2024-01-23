@@ -530,18 +530,18 @@ class Main_Net(nn.Module):
         super().__init__()
         self.ba = BrightnessAdjustment()
 
-        self.level1_0 = ConvBNPReLU(6, 32, 3, 2)  # feature map size divided 2, 1/2
-        self.level1_1 = non_bottleneck_1d(32, 1)
-        self.level1_2 = non_bottleneck_1d(32, 2)
+        self.level1_0 = ConvBNPReLU(6, 64, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_1 = non_bottleneck_1d(64, 1)
+        self.level1_2 = non_bottleneck_1d(64, 2)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
-        self.b1 = BNPReLU(32)
+        self.b1 = BNPReLU(64)
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            32, 64,dilation_rate=2, reduction=8
+            64, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -584,7 +584,7 @@ class Main_Net(nn.Module):
                         m.bias.data.zero_()
         
         self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        self.conv11_32 = nn.Sequential(nn.Conv2d(32, 2, kernel_size=(1, 1), padding=0,groups=2), nn.BatchNorm2d(2), nn.PReLU())
+        self.conv11_32 = nn.Sequential(nn.Conv2d(64, 2, kernel_size=(1, 1), padding=0,groups=2), nn.BatchNorm2d(2), nn.PReLU())
         self.conv11_128 = nn.Sequential(nn.Conv2d(128, 2, kernel_size=(1, 1), padding=0,groups=2), nn.BatchNorm2d(2), nn.PReLU())
         self.conv11_256 = nn.Sequential(nn.Conv2d(256, 2, kernel_size=(1, 1), padding=0,groups=2), nn.BatchNorm2d(2), nn.PReLU())
 

@@ -165,7 +165,7 @@ with gr.Blocks() as demo:
             with gr.Column():
                 mIoU = gr.Textbox(label="Avg mIoU",info="(%)")
                 mSSIM = gr.Textbox(label="Avg mSSIM",info = "(%)")
-                hd = gr.Textbox(label="Avg hd",info="(pixel)")
+                hd = gr.Textbox(label="Avg Hausdorff Distance",info="(pixel)")
             with gr.Column():
                 fps = gr.Textbox(label="FPS",info="(frames/s)")
                 spend_time = gr.Textbox(label="Spend Time")

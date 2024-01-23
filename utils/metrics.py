@@ -6,10 +6,11 @@ from PIL import Image
 import numpy as np
 import time
 from skimage.metrics import structural_similarity
-
+import torchvision
 S = nn.Sigmoid()
 L = nn.BCELoss(reduction="mean")
 from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
+import utils.HausdorffDistance_losses as HD
 
 def Sigmoid_IoU(
     model_output, mask, smooth=1
@@ -121,6 +122,46 @@ def ssim_val(model_output, mask):
     
     return msssim
 
+def Sobel_hausdorffDistance_metric(model_output, mask, device):
+    #Sobel
+    def Sobel_process(input):
+        # gray_image_tensor = 0.2989 * input[:, 0, :, :] + 0.5870 * input[:, 1, :, :] + 0.1140 * input[:, 2, :, :]
+        # gray_image_tensor = gray_image_tensor.unsqueeze(0)
+
+        # 定義 Sobel 運算子
+        sobel_x = torch.tensor([[1, 0, -1],
+                                [2, 0, -2],
+                                [1, 0, -1]], dtype=torch.float32).to(device).view(1, 1, 3, 3)
+        
+        #Sobel 運算子得到垂直方向的梯度
+        sobel_y = torch.tensor([[1, 2, 1],
+                                [0, 0, 0],
+                                [-1, -2, -1]], dtype=torch.float32).to(device).view(1, 1, 3, 3)
+        
+        # 計算圖像在水平和垂直方向上的梯度
+
+        gradient_x = nn.functional.conv2d(input, sobel_x)
+        gradient_y = nn.functional.conv2d(input, sobel_y)
+        
+        # 計算梯度的大小
+        output = torch.sqrt(gradient_x**2 + gradient_y**2)
+        
+        return output
+    
+    model_output = (model_output > 0.5).float()
+    model_output = Sobel_process(model_output)
+    # torchvision.utils.save_image (model_output, '/home/yaocong/Experimental/speed_smoke_segmentation/sobel_test.jpg')
+
+    mask = Sobel_process(mask)
+    # torchvision.utils.save_image (mask, '/home/yaocong/Experimental/speed_smoke_segmentation/sobel_test_mask.jpg')
+
+    #去掉為度為1的部份
+    model_output = model_output.squeeze()
+    mask = mask.squeeze()
+    HausdorffDistance = HD.AveragedHausdorffLoss()
+    hd = HausdorffDistance(model_output, mask)
+
+    return hd
 
 def dice_coef(
     model_output, mask, device, smooth=1

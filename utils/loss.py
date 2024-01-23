@@ -114,7 +114,7 @@ def ssim_val(model_output, mask):
     msssim = ssim(model_output, mask, data_range=1)
     
     return msssim
-    
+
 def CustomLoss(model_output, mask):
     # s_iou = Sigmoid_IoU(model_output,mask)
     iou = IoU(model_output,mask)
