@@ -69,6 +69,8 @@ def wandb_information(model_size, flops, params, model, train_images, train_mask
         # set the wandb project where this run will be logged
         project="lightssd-project-train",
         name=args["wandb_name"],
+        id = args["wandb_name"],
+        resume="allow",
         # track hyperparameters and run metadata
         config={
             "Model_name": model_name,
@@ -336,12 +338,19 @@ def main():
 
     start_epoch = 1  # Initial epoch 初始epoch值
 
+    # wandb.ai
+    if args["wandb_name"] != "no":
+        wandb_information(model_size, flops, params, model, train_images, train_masks)
+
     # Checkpoint training 斷點訓練
     if args["resume"]:
         if os.path.isfile(
             args["resume"]
         ):  # There is a specified file in the path 路徑中有指定檔案
-            checkpoint = torch.load(args["resume"])
+            if args["wandb_name"] != "no":
+                checkpoint = torch.load(wandb.restore(args["resume"]).name)
+            else:
+                checkpoint = torch.load(args["resume"])
             model.load_state_dict(checkpoint["model_state_dict"])
             optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
             start_epoch = checkpoint["epoch"]
@@ -357,10 +366,6 @@ def main():
             )
         else:
             print("=====> no checkpoint found at '{}'".format(args["resume"]))
-
-    # wandb.ai
-    if args["wandb_name"] != "no":
-        wandb_information(model_size, flops, params, model, train_images, train_masks)
 
     if not os.path.exists("./training_data_captures/"):
         os.makedirs("./training_data_captures/")
