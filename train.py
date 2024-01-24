@@ -63,13 +63,13 @@ def set_save_dir_names():
         os.makedirs(args["save_dir"])
 
 
-def wandb_information(model_size, flops, params, model, train_images, train_masks):
+def wandb_information(model_size, flops, params, model, train_images, train_masks,args):
     wandb.init(
         # Initialize wandb 初始化wandb
         # set the wandb project where this run will be logged
         project="lightssd-project-train",
         name=args["wandb_name"],
-        id = args["wandb_name"],
+        id = args["wandb_id"],
         resume="allow",
         # track hyperparameters and run metadata
         config={
@@ -340,7 +340,7 @@ def main():
 
     # wandb.ai
     if args["wandb_name"] != "no":
-        wandb_information(model_size, flops, params, model, train_images, train_masks)
+        wandb_information(model_size, flops, params, model, train_images, train_masks,args)
 
     # Checkpoint training 斷點訓練
     if args["resume"]:
@@ -666,6 +666,13 @@ if __name__ == "__main__":
         type=str,
         default="no",
         help="wandb test name,but 'no' is not use wandb",
+    )
+    ap.add_argument(
+        "-wid",
+        "--wandb_id",
+        type=str,
+        default=None,
+        help="wandb id",
     )
     ap.add_argument(
         "-sti",
