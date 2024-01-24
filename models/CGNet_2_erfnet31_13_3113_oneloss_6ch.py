@@ -668,7 +668,7 @@ class BrightnessAdjustment(nn.Module):
         return adjusted_image
     
 class Net(nn.Module):
-    def __init__(self, classes=2, M=3, N=3, dropout_flag=False):
+    def __init__(self, classes=2, M=6, N=6, dropout_flag=False):
         super().__init__()
         self.main_net = Main_Net(classes=classes, M=M, N=N, dropout_flag=dropout_flag)
         self.ba = BrightnessAdjustment()
