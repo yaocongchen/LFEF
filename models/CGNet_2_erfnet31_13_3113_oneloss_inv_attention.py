@@ -562,7 +562,7 @@ class Main_Net(nn.Module):
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            64, 64,dilation_rate=2, reduction=8
+            32, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -628,9 +628,9 @@ class Main_Net(nn.Module):
 
         # stage 2
         inv_output_32c = self.inv_net(input_inv)
-        output0_cat = self.b1(torch.cat([output0, inv_output_32c], 1))
+        output0_add_inv = output0 + inv_output_32c
 
-        output1_0 = self.level2_0(output0_cat)  # down-sampled
+        output1_0 = self.level2_0(output0_add_inv)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
