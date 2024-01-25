@@ -511,6 +511,26 @@ class non_bottleneck_1d(nn.Module):
 
         return self.prelu(output + input)  # +input = identity (residual connection)
     
+class Main_Net_2(nn.Module):
+    def __init__(self, nIn, nOut, stride=1):
+        super().__init__()
+        # self.ea = ExternalAttention(d_model=nIn)
+        self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=3, stride=stride, padding=1, bias=False)
+
+        self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
+        self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
+
+    def forward(self, input):
+        # b, c, w, h = input.size()
+        # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
+
+        # ea_output = self.ea(input_3c)
+        # ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
+        ea_output = self.add_conv(input)
+        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+
+        return ea_output
+    
 #===============================Net====================================#
 class Main_Net(nn.Module):
     """
@@ -535,11 +555,14 @@ class Main_Net(nn.Module):
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
 
-        self.b1 = BNPReLU(32)
+
+
+        self.inv_net = Main_Net_2(3, 32, stride = 2)
+        self.b1 = BNPReLU(64)
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            32, 64,dilation_rate=2, reduction=8
+            64, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -588,7 +611,7 @@ class Main_Net(nn.Module):
 
         # self.my_simgoid = nn.Sigmoid()
 
-    def forward(self, input):
+    def forward(self, input, input_inv):
         """
         args:
             input: Receives the input RGB image
@@ -604,9 +627,10 @@ class Main_Net(nn.Module):
         # inp2 = self.sample2(input)
 
         # stage 2
-        # output0_cat = self.b1(torch.cat([output0, inp1], 1))
+        inv_output_32c = self.inv_net(input_inv)
+        output0_cat = self.b1(torch.cat([output0, inv_output_32c], 1))
 
-        output1_0 = self.level2_0(output0)  # down-sampled
+        output1_0 = self.level2_0(output0_cat)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -655,26 +679,6 @@ class Main_Net(nn.Module):
         # out = self.my_simgoid(out)
         return classifier
 
-class Main_Net_2(nn.Module):
-    def __init__(self, nIn, nOut):
-        super().__init__()
-        # self.ea = ExternalAttention(d_model=nIn)
-        self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=3, stride=1, padding=1, bias=False)
-
-        self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding=1)
-        self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
-
-    def forward(self, input):
-        # b, c, w, h = input.size()
-        # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
-
-        # ea_output = self.ea(input_3c)
-        # ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
-        ea_output = self.add_conv(input)
-        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
-
-        return ea_output
-
 
 class BrightnessAdjustment(nn.Module):
     def __init__(self):
@@ -691,7 +695,7 @@ class Net(nn.Module):
         super().__init__()
         self.main_net = Main_Net(classes=classes, M=M, N=N, dropout_flag=dropout_flag)
 
-        self.main_net_2 = Main_Net_2(3, 1)
+        self.main_net_2 = Main_Net_2(3, 1 , stride = 2)
         self.ba = BrightnessAdjustment()
         self.sigmoid = nn.Sigmoid()
 
@@ -703,11 +707,10 @@ class Net(nn.Module):
         input_inv_ba = self.ba(input_inv)
         # output_ori 與 output_inv 長度concat
 
-        output_ori = self.main_net(input_ba)
+        output = self.main_net(input_ba, input_inv_ba)
 
-        output_inv = self.main_net_2(input_inv_ba)
+        # output_inv = self.main_net_2(input_inv_ba)
 
-        output = output_ori + output_inv
         output = self.sigmoid(output)
         return output
 
