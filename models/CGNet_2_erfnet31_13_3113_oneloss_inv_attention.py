@@ -658,19 +658,19 @@ class Main_Net(nn.Module):
 class Main_Net_2(nn.Module):
     def __init__(self, nIn, nOut):
         super().__init__()
-        self.ea = ExternalAttention(d_model=nIn)
-        self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
+        # self.ea = ExternalAttention(d_model=nIn)
+        self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=3, stride=1, padding=1, bias=False)
 
-        self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
-        self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
+        self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding=1)
+        self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
 
     def forward(self, input):
-        b, c, w, h = input.size()
-        input_3c = input.view(b, c, w * h).permute(0, 2, 1)
+        # b, c, w, h = input.size()
+        # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
 
-        ea_output = self.ea(input_3c)
-        ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
-        ea_output = self.add_conv(ea_output)
+        # ea_output = self.ea(input_3c)
+        # ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
+        ea_output = self.add_conv(input)
         ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
         return ea_output
