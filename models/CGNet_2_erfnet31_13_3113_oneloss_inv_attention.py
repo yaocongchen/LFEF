@@ -515,7 +515,9 @@ class Main_Net_2(nn.Module):
     def __init__(self, nIn, nOut, stride=1):
         super().__init__()
         # self.ea = ExternalAttention(d_model=nIn)
-        self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=False), nn.BatchNorm2d(8), nn.PReLU())
+        self.conv2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=False) , nn.BatchNorm2d(16), nn.PReLU())
+        self.conv3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=False), nn.BatchNorm2d(nOut), nn.PReLU())
 
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
@@ -526,10 +528,12 @@ class Main_Net_2(nn.Module):
 
         # ea_output = self.ea(input_3c)
         # ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
-        ea_output = self.add_conv(input)
-        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+        output = self.conv1(input)
+        output = self.conv2(output)
+        output = self.conv3(output)
+        output = self.avg_pool(output) + self.max_pool(output)
 
-        return ea_output
+        return output
     
 #===============================Net====================================#
 class Main_Net(nn.Module):
@@ -562,7 +566,7 @@ class Main_Net(nn.Module):
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            32, 64,dilation_rate=2, reduction=8
+            64, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -628,9 +632,9 @@ class Main_Net(nn.Module):
 
         # stage 2
         inv_output_32c = self.inv_net(input_inv)
-        output0_add_inv = output0 + inv_output_32c
+        output0_cat = self.b1(torch.cat([output0, inv_output_32c], 1))
 
-        output1_0 = self.level2_0(output0_add_inv)  # down-sampled
+        output1_0 = self.level2_0(output0_cat)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:

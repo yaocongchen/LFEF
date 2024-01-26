@@ -8,7 +8,7 @@ from visualization_codes import (
     inference_multiple_pictures,
     inference_video,
 )
-import models.CGNet_2_erfnet31_13_3113_oneloss_6ch as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
 
 
 def smoke_segmentation(args,device):
