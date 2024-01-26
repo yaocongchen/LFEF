@@ -566,7 +566,7 @@ class Main_Net(nn.Module):
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            64, 64,dilation_rate=2, reduction=8
+            32, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
