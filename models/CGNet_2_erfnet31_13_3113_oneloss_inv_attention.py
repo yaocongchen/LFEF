@@ -632,7 +632,7 @@ class Main_Net(nn.Module):
 
         # stage 2
         inv_output_32c = self.inv_net(input_inv)
-        output0_cat = self.b1(torch.cat([output0, inv_output_32c], 1))
+        output0_cat = output0 + inv_output_32c
 
         output1_0 = self.level2_0(output0_cat)  # down-sampled
 
