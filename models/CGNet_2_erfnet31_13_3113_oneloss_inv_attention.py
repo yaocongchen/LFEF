@@ -608,10 +608,14 @@ class Main_Net(nn.Module):
                     if m.bias is not None:
                         m.bias.data.zero_()
         
-        self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        self.conv11_32 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0), nn.PReLU())
-        self.conv11_128 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0), nn.PReLU())
-        self.conv11_256 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0), nn.PReLU())
+        self.upsample_64_64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
+        self.conv_256_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.PReLU())
+
+        self.upsample_128_128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
+        self.conv_256_32 = nn.Sequential(nn.Conv2d(256, 32, kernel_size=(1, 1), padding=0), nn.PReLU())
+
+        self.upsample_256_256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
+        self.conv_64_1 = nn.Sequential(nn.Conv2d(64, 1, kernel_size=(1, 1), padding=0), nn.PReLU())
 
         # self.my_simgoid = nn.Sigmoid()
 
@@ -632,9 +636,9 @@ class Main_Net(nn.Module):
 
         # stage 2
         inv_output_32c = self.inv_net(input_inv)
-        output0_cat = output0 + inv_output_32c
+        output0_add = output0 + inv_output_32c
 
-        output1_0 = self.level2_0(output0_cat)  # down-sampled
+        output1_0 = self.level2_0(output0_add)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -646,8 +650,6 @@ class Main_Net(nn.Module):
 
         # output1_cat_inp2 = self.bn_prelu_2_2(torch.cat([output1_cat, inp2], 1))
 
-
-
         # stage 3
         output2_0 = self.level3_0(output1_cat)  # down-sampled
         for i, layer in enumerate(self.level3):
@@ -658,30 +660,18 @@ class Main_Net(nn.Module):
 
         output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2], 1))
 
-        output0_up = self.upsample(output0)
-        output1_up = self.upsample(output1_cat)
-        output2_up = self.upsample(output2_cat)
+        output2_cat_up = self.upsample_64_64(output2_cat)
+        output2_conv = self.conv_256_128(output2_cat_up)
 
-        output0_up = self.conv11_32(output0_up)
-        output1_up = self.conv11_128(output1_up)
-        output2_up = self.conv11_256(output2_up)
+        output2_conv_cat_output1 = torch.cat([output2_conv, output1_cat], 1)
+        output1_cat_up = self.upsample_128_128(output2_conv_cat_output1)
+        output1_conv = self.conv_256_32(output1_cat_up)
 
-        # output_ffm_up = self.upsample(output_ffm)
-        output = torch.cat([ output0_up,output1_up, output2_up], 1)
-        # classifier
-        classifier = self.classifier(output)
-        # output = self.my_simgoid(classifier)
-        # classifier2 = self.classifier(output2_cat)
+        output1_conv_cat_output0_add = torch.cat([output1_conv, output0_add], 1)
+        output0_add_up = self.upsample_256_256(output1_conv_cat_output0_add)
+        output = self.conv_64_1(output0_add_up)
 
-        # upsample segmenation map ---> the input image size
-        # out = F.interpolate(
-        #     classifier, input.size()[2:], mode="bilinear", align_corners=False
-        # )  # Upsample score map, factor=8
-        # out2 = F.interpolate(
-        #     classifier2, input.size()[2:], mode="bilinear", align_corners=False
-        # )
-        # out = self.my_simgoid(out)
-        return classifier
+        return output
 
 
 class BrightnessAdjustment(nn.Module):
@@ -704,14 +694,14 @@ class Net(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
-        input_ba = self.ba(input)
+        # input_ba = self.ba(input)
 
         # 色彩反轉
         input_inv = 1 - input
-        input_inv_ba = self.ba(input_inv)
+        # input_inv_ba = self.ba(input_inv)
         # output_ori 與 output_inv 長度concat
 
-        output = self.main_net(input_ba, input_inv_ba)
+        output = self.main_net(input, input_inv)
 
         # output_inv = self.main_net_2(input_inv_ba)
 
