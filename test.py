@@ -103,18 +103,18 @@ def smoke_segmentation(model,device, names, args):
         mask_image = mask_image.to(device)
 
         # 註冊 hook 到模型的中間層
-        handle = model.main_net.conv11_128.register_forward_hook(hook_fn)
-
-        output = smoke_semantic(img_image, model, device, time_train, i)
+        # handle = model.main_net.conv11_128.register_forward_hook(hook_fn)
+        with torch.no_grad():
+            output = smoke_semantic(img_image, model, device, time_train, i)
         # feature = check_feature.check_feature(32)
         # print("output.shape:", outputs[0].shape )
 
         # print("outputs.shape:", type(outputs[0]))
-        feature = check_feature.check_feature(1).to(device)
-        feat = feature(outputs[0])
+        # feature = check_feature.check_feature(1).to(device)
+        # feat = feature(outputs[0])
 
-        # 移除 hook
-        handle.remove()
+        # # 移除 hook
+        # handle.remove()
 
         loss = utils.loss.CustomLoss(output, mask_image)
         iou = utils.metrics.IoU(output, mask_image)
@@ -198,10 +198,10 @@ def smoke_segmentation(model,device, names, args):
             output,
             f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg',
         )
-        torchvision.utils.save_image(
-            feat,
-            f'./{names["smoke_semantic_dir_name"]}/test_check_feature/test_check_feature_{count}.jpg',
-        )  
+        # torchvision.utils.save_image(
+        #     feat,
+        #     f'./{names["smoke_semantic_dir_name"]}/test_check_feature/test_check_feature_{count}.jpg',
+        # )  
 
     if args["wandb_name"] != "no":
         return average_epoch_loss_test, average_epoch_miou_test, average_epoch_mSSIM_test, average_epoch_hd_test, wandb_time_total

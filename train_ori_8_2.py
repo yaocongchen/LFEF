@@ -270,13 +270,6 @@ def main():
         train_images = config.get(args["dataset_path"], "train_images")
         train_masks = config.get(args["dataset_path"], "train_masks")
 
-    if (args["test_images"] != None) and (args["test_masks"] != None):
-        test_images = args["test_images"]
-        test_masks = args["test_masks"]
-    else:
-        test_images = config.get(args["test_dataset_path"], "test_images")
-        test_masks = config.get(args["test_dataset_path"], "test_masks")
-
     save_mean_miou = 0
     # save_mean_miou_s = 0
     check_have_GPU()
@@ -308,7 +301,7 @@ def main():
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
     validation_data = utils.dataset.DatasetSegmentation(
-        test_images, test_masks, mode="test"
+        train_images, train_masks, mode="val"
     )
     training_data_loader = DataLoader(
         training_data,
@@ -320,9 +313,9 @@ def main():
     )
     validation_data_loader = DataLoader(
         validation_data,
-        batch_size=1,
-        shuffle=False,
-        num_workers=1,
+        batch_size=args["batch_size"],
+        shuffle=True,
+        num_workers=args["num_workers"],
         pin_memory=True,
         drop_last=True,
     )
@@ -622,12 +615,6 @@ if __name__ == "__main__":
         default="Host_SYN70K",
         help="use dataset path",
     )
-    ap.add_argument(
-        "-tdataset",
-        "--test_dataset_path",
-        default="Host_DS01",
-        help="use test dataset path",
-    )
 
     ap.add_argument(
         "-ti",
@@ -637,16 +624,6 @@ if __name__ == "__main__":
     ap.add_argument(
         "-tm",
         "--train_masks",
-        help="path to mask",
-    )
-    ap.add_argument(
-        "-test_i",
-        "--test_images",
-        help="path to hazy training images",
-    )
-    ap.add_argument(
-        "-test_m",
-        "--test_masks",
         help="path to mask",
     )
 
