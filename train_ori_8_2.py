@@ -267,15 +267,8 @@ def main():
         train_images = args["train_images"]
         train_masks = args["train_masks"]
     else:
-        train_images = config.get(args["train_dataset_path"], "train_images")
-        train_masks = config.get(args["train_dataset_path"], "train_masks")
-
-    if (args["validation_images"] != None) and (args["validation_masks"] != None):
-        validation_images = args["validation_images"]
-        validation_masks = args["validation_masks"]
-    else:
-        validation_images = config.get(args["validation_dataset_path"], "validation_images")
-        validation_masks = config.get(args["validation_dataset_path"], "validation_masks")
+        train_images = config.get(args["dataset_path"], "train_images")
+        train_masks = config.get(args["dataset_path"], "train_masks")
 
     save_mean_miou = 0
     # save_mean_miou_s = 0
@@ -308,7 +301,7 @@ def main():
     random.seed(seconds)  # 使用時間秒數當亂數種子
 
     validation_data = utils.dataset.DatasetSegmentation(
-        validation_images, validation_masks, mode="all"
+        train_images, train_masks, mode="val"
     )
     training_data_loader = DataLoader(
         training_data,
@@ -320,9 +313,9 @@ def main():
     )
     validation_data_loader = DataLoader(
         validation_data,
-        batch_size=1,
-        shuffle=False,
-        num_workers=1,
+        batch_size=args["batch_size"],
+        shuffle=True,
+        num_workers=args["num_workers"],
         pin_memory=True,
         drop_last=True,
     )
@@ -617,16 +610,10 @@ def main():
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument(
-        "-train_dataset",
-        "--train_dataset_path",
+        "-dataset",
+        "--dataset_path",
         default="Host_SYN70K",
         help="use dataset path",
-    )
-    ap.add_argument(
-        "-validation_dataset",
-        "--validation_dataset_path",
-        default="Host_DS01",
-        help="use test dataset path",
     )
 
     ap.add_argument(
@@ -637,16 +624,6 @@ if __name__ == "__main__":
     ap.add_argument(
         "-tm",
         "--train_masks",
-        help="path to mask",
-    )
-    ap.add_argument(
-        "-vi",
-        "--validation_images",
-        help="path to hazy training images",
-    )
-    ap.add_argument(
-        "-vm",
-        "--validation_masks",
         help="path to mask",
     )
 

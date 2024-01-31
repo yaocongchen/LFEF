@@ -9,7 +9,7 @@ import numpy as np
 import wandb
 
 import test
-import models.CGNet_2_erfnet31_13_3113_oneloss_he as network_model  # import self-written models 引入自行寫的模型
+import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
 from visualization_codes import inference_single_picture
 
 model_name = str(network_model)
@@ -165,7 +165,7 @@ with gr.Blocks() as demo:
             with gr.Column():
                 mIoU = gr.Textbox(label="Avg mIoU",info="(%)")
                 mSSIM = gr.Textbox(label="Avg mSSIM",info = "(%)")
-                hd = gr.Textbox(label="Avg hd",info="(pixel)")
+                hd = gr.Textbox(label="Avg Hausdorff Distance",info="(pixel)")
             with gr.Column():
                 fps = gr.Textbox(label="FPS",info="(frames/s)")
                 spend_time = gr.Textbox(label="Spend Time")

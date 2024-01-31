@@ -9,9 +9,9 @@ from torch.utils.data import DataLoader
 import wandb
 
 import utils
-import models.CGNet_2_erfnet31_13_3113_oneloss_he as network_model
-from visualization_codes.inference import smoke_semantic
-import utils.HausdorffDistance_losses as HD
+import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model
+import check_feature
+from utils.inference import smoke_semantic
 
 model_name = str(network_model)
 print("model_name:", model_name)
@@ -39,10 +39,14 @@ def wandb_information(model_size, flops, params,args):
             **{k: args[k] for k in ["test_images", "test_masks", "batch_size", "num_workers"]}
         }
     )
-
+outputs = []
+# 設置一個函數來處理中間層的輸出
+def hook_fn(module, input, output):
+    # print(f"Output shape of intermediate layer: {output.shape}")
+    outputs.append(output)
 
 # Main function 主函式
-def smoke_segmentation(model,device, names,args):
+def smoke_segmentation(model,device, names, args):
     print("test_data:", args["test_images"])
 
     # Calculation model size parameter amount and calculation amount
@@ -69,7 +73,7 @@ def smoke_segmentation(model,device, names,args):
     i = 0
 
     testing_data = utils.dataset.DatasetSegmentation(
-        args["test_images"], args["test_masks"], mode="test"
+        args["test_images"], args["test_masks"], mode="all"
     )
     testing_data_loader = DataLoader(
         testing_data,
@@ -81,40 +85,43 @@ def smoke_segmentation(model,device, names,args):
     )
 
     os.makedirs(
-        f'./{names["smoke_semantic_dir_name"]}/test_RGB_image'
+        f'./{names["smoke_semantic_dir_name"]}/test_RGB_image', exist_ok=True
     )  # Create new folder 創建新的資料夾
     os.makedirs(
-        f'./{names["smoke_semantic_dir_name"]}/test_mask_image'
+        f'./{names["smoke_semantic_dir_name"]}/test_mask_image', exist_ok=True
     )  # Create new folder 創建新的資料夾
     os.makedirs(
-        f'./{names["smoke_semantic_dir_name"]}/test_output'
+        f'./{names["smoke_semantic_dir_name"]}/test_output', exist_ok=True
     )  # Create new folder 創建新的資料夾
-
+    os.makedirs(
+        f'./{names["smoke_semantic_dir_name"]}/test_check_feature', exist_ok=True)
+    
     count = 0
     pbar = tqdm((testing_data_loader), total=len(testing_data_loader))
     for RGB_image, mask_image in pbar:
         img_image = RGB_image.to(device)
         mask_image = mask_image.to(device)
 
-        output = smoke_semantic(img_image, model, device, time_train, i)
+        # 註冊 hook 到模型的中間層
+        # handle = model.main_net.conv11_128.register_forward_hook(hook_fn)
+        with torch.no_grad():
+            output = smoke_semantic(img_image, model, device, time_train, i)
+        # feature = check_feature.check_feature(32)
+        # print("output.shape:", outputs[0].shape )
 
-        # torchvision.utils.save_image(
-        #     torch.cat((mask_image, output), 0),
-        #     f'./{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{count}.jpg',
-        # )
+        # print("outputs.shape:", type(outputs[0]))
+        # feature = check_feature.check_feature(1).to(device)
+        # feat = feature(outputs[0])
 
+        # # 移除 hook
+        # handle.remove()
 
         loss = utils.loss.CustomLoss(output, mask_image)
         iou = utils.metrics.IoU(output, mask_image)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
         customssim = utils.metrics.ssim_val(output, mask_image)
-
-        #去掉為度為1的部份
-        output_for_HD = output.squeeze()
-        mask_image_for_HD = mask_image.squeeze()
-        HausdorffDistance = HD.AveragedHausdorffLoss()
-        hd = HausdorffDistance(output_for_HD, mask_image_for_HD)
+        hd = utils.metrics.Sobel_hausdorffDistance_metric(output, mask_image, device)
 
         epoch_loss.append(loss.item())
         epoch_iou.append(iou.item())
@@ -191,7 +198,10 @@ def smoke_segmentation(model,device, names,args):
             output,
             f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg',
         )
-
+        # torchvision.utils.save_image(
+        #     feat,
+        #     f'./{names["smoke_semantic_dir_name"]}/test_check_feature/test_check_feature_{count}.jpg',
+        # )  
 
     if args["wandb_name"] != "no":
         return average_epoch_loss_test, average_epoch_miou_test, average_epoch_mSSIM_test, average_epoch_hd_test, wandb_time_total
@@ -266,7 +276,7 @@ if __name__ == "__main__":
     # )
     ap.add_argument("-bs", "--batch_size", type=int, default=1, help="set batch_size")
     ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
-    ap.add_argument("-m", "--model_path", required=True, help="load model path")
+    ap.add_argument("-m", "--model_path", required=False, default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth",help="load model path")
     ap.add_argument(
         "-wn",
         "--wandb_name",
@@ -281,7 +291,6 @@ if __name__ == "__main__":
     print(f"Testing on device {device}.")
 
     names = folders_and_files_name()
-    # Calculate the total implement time 計算總執行時間
 
     model = network_model.Net().to(device)
     model.load_state_dict(torch.load(args["model_path"], map_location=device))

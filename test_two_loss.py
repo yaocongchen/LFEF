@@ -11,7 +11,7 @@ import random
 
 import utils
 import models.CGNet_2_erfnet31_13_3113_sem_cam as network_model
-from visualization_codes.inference import smoke_semantic
+from utils.inference import smoke_semantic
 
 model_name = str(network_model)
 print("model_name:", model_name)

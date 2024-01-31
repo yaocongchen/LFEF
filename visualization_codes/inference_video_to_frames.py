@@ -13,51 +13,51 @@ import shutil
 import sys
 sys.path.append("..")
 
-import models.CGNet_2_erfnet31_13_3113_oneloss_ea as network_model
+import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model
 
-from visualization_codes.inference import smoke_semantic
+from utils.inference import smoke_semantic
 # import visualization_codes.process_utils_cython_version.image_process_utils_cython as image_process
 
-import visualization_codes.image_process_utils as image_process
+import visualization_codes.utils.image_process as image_process
 
 
 def folders_and_files_name():
     # Set save folder and save name 設定存檔資料夾與存檔名稱
     save_RGB_original_dir_name = "RGB_original_image"
-    if os.path.exists("../results/" + save_RGB_original_dir_name):
+    if os.path.exists("./results/" + save_RGB_original_dir_name):
         shutil.rmtree(
-            "../results/" + save_RGB_original_dir_name
+            "./results/" + save_RGB_original_dir_name
         )  # Delete the original folder and content 將原有的資料夾與內容刪除
         os.makedirs(
-            "../results/" + save_RGB_original_dir_name
+            "./results/" + save_RGB_original_dir_name
         )  # Create new folder 創建新的資料夾
     else:
         # if not os.path.exists("./" + save_smoke_semantic_dir_name):
-        os.makedirs("../results/" + save_RGB_original_dir_name)
+        os.makedirs("./results/" + save_RGB_original_dir_name)
 
     save_segmentation_image_dir_name = "segmentation_image"
-    if os.path.exists("../results/" + save_segmentation_image_dir_name):
+    if os.path.exists("./results/" + save_segmentation_image_dir_name):
         shutil.rmtree(
-            "../results/" + save_segmentation_image_dir_name
+            "./results/" + save_segmentation_image_dir_name
         )  # Delete the original folder and content 將原有的資料夾與內容刪除
         os.makedirs(
-            "../results/" + save_segmentation_image_dir_name
+            "./results/" + save_segmentation_image_dir_name
         )  # Create new folder 創建新的資料夾
     else:
         # if not os.path.exists("./" + save_smoke_semantic_dir_name):
-        os.makedirs("../results/" + save_segmentation_image_dir_name)
+        os.makedirs("./results/" + save_segmentation_image_dir_name)
 
     save_blend_image_dir_name = "blend_image"
-    if os.path.exists("../results/" + save_blend_image_dir_name):
+    if os.path.exists("./results/" + save_blend_image_dir_name):
         shutil.rmtree(
-            "../results/" + save_blend_image_dir_name
+            "./results/" + save_blend_image_dir_name
         )  # Delete the original folder and content 將原有的資料夾與內容刪除
         os.makedirs(
             "./results/" + save_blend_image_dir_name
         )  # Create new folder 創建新的資料夾
     else:
         # if not os.path.exists("./" + save_smoke_semantic_dir_name):
-        os.makedirs("../results/" + save_blend_image_dir_name)
+        os.makedirs("./results/" + save_blend_image_dir_name)
 
     save_video_capture_image_name = "capture"
 
@@ -70,13 +70,13 @@ def folders_and_files_name():
 
 
 def save(video_W: int, video_H: int, video_FPS):
-    if not os.path.exists("../" + "results"):
-        os.makedirs("../" + "results")
+    if not os.path.exists("./" + "results"):
+        os.makedirs("./" + "results")
     localtime = time.localtime()
     save_file_name = time.strftime("%Y-%m-%d_%I:%M:%S_%p", localtime)
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     output = cv2.VideoWriter(
-        f"../results/{save_file_name}.mp4", fourcc, video_FPS, (video_W, video_H), 3
+        f"./results/{save_file_name}.mp4", fourcc, video_FPS, (video_W, video_H), 3
     )  # mp4 only RGB
     return output
 
@@ -131,7 +131,7 @@ def smoke_segmentation(
         counter += 1
 
         cv2.imwrite(
-            f'../results/{names["video_RGB_original_dir_name"]}/{names["video_capture_image_name"]}_{i}.png',
+            f'./results/{names["video_RGB_original_dir_name"]}/{names["video_capture_image_name"]}_{i}.png',
             frame,
         )
 
@@ -168,7 +168,7 @@ def smoke_segmentation(
         save_binary_image = np.asarray(save_binary_image)
 
         cv2.imwrite(
-            f'../results/{names["video_segmentation_dir_name"]}/{names["video_capture_image_name"]}_{i}.png',
+            f'./results/{names["video_segmentation_dir_name"]}/{names["video_capture_image_name"]}_{i}.png',
             save_binary_image,
         )
         if binary_mode == True:
@@ -187,7 +187,7 @@ def smoke_segmentation(
         output_np = np.asarray(output_np)
 
         cv2.imwrite(
-            f'../results/{names["video_blend_dir_name"]}/{names["video_capture_image_name"]}_{i}.png',
+            f'./results/{names["video_blend_dir_name"]}/{names["video_capture_image_name"]}_{i}.png',
             output_np,
         )
         print("process_time: ", time.time() - start_time)
