@@ -11,7 +11,7 @@ from PIL import Image, ImageOps
 
 from utils.inference import smoke_semantic
 
-import visualization_codes.image_process_utils as image_process
+import visualization_codes.utils.image_process as image_process
 # import visualization_codes.process_utils_cython_version.image_process_utils_cython as image_process
 
 
