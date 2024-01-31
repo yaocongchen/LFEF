@@ -69,7 +69,7 @@ class DatasetSegmentation(Dataset):
         elif self.mode == "val":
             print("Number of Validation Images:", len(self.val_x))
             self.data_dict = self.val_x
-        elif self.mode == "test":
+        elif self.mode == "all":
             print("Number of test Images:", len(self.test_x))
             self.data_dict = self.test_x
 

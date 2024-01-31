@@ -73,7 +73,7 @@ def smoke_segmentation(model,device, names, args):
     i = 0
 
     testing_data = utils.dataset.DatasetSegmentation(
-        args["test_images"], args["test_masks"], mode="test"
+        args["test_images"], args["test_masks"], mode="all"
     )
     testing_data_loader = DataLoader(
         testing_data,
