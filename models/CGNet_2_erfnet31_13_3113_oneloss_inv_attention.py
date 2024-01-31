@@ -557,7 +557,7 @@ class Net(nn.Module):
           N: the number of blocks in stage 3
         """
         super().__init__()
-        self.ba = BrightnessAdjustment()
+        self.brightness_adjustment = BrightnessAdjustment()
 
         self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
@@ -636,6 +636,7 @@ class Net(nn.Module):
         """
 
         # stage 1
+        input = self.brightness_adjustment(input)
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
         stage1_output = self.level1_2(stage1_output)
@@ -643,6 +644,7 @@ class Net(nn.Module):
         # inp2 = self.sample2(input)
 
         input_inverted = 1 - input
+        input_inverted = self.brightness_adjustment(input_inverted)
         # inverted_output = self.inv_net(input_inv)
         inverted_output= self.level1_0(input_inverted)
         inverted_output = self.level1_1(inverted_output)
