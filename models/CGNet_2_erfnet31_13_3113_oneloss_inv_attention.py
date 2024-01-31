@@ -567,7 +567,7 @@ class Net(nn.Module):
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
 
-        self.inv_net = AuxiliaryNetwork(3, 32, stride = 2)
+        self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
 
 
         # stage 2
@@ -617,6 +617,13 @@ class Net(nn.Module):
                         m.bias.data.zero_()
         
 
+        self.external_attention = ExternalAttention(d_model=64)
+        self.conv_64_to_128 = nn.Conv2d(64, 128, kernel_size=1, stride=1, padding=0, bias=False)
+        self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
+        self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
+        self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.PReLU())
+
+
         self.upsample_to_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
         self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
 
@@ -636,7 +643,6 @@ class Net(nn.Module):
         """
 
         # stage 1
-        input = self.brightness_adjustment(input)
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
         stage1_output = self.level1_2(stage1_output)
@@ -644,11 +650,7 @@ class Net(nn.Module):
         # inp2 = self.sample2(input)
 
         input_inverted = 1 - input
-        input_inverted = self.brightness_adjustment(input_inverted)
-        # inverted_output = self.inv_net(input_inv)
-        inverted_output= self.level1_0(input_inverted)
-        inverted_output = self.level1_1(inverted_output)
-        inverted_output = self.level1_2(inverted_output)
+        inverted_output = self.aux_net(input_inverted)
         stage1_add_inverted_output = stage1_output + inverted_output
 
 
@@ -662,6 +664,18 @@ class Net(nn.Module):
                 processed_stage2_output = layer(processed_stage2_output)
 
         final_stage2_output = self.bn_prelu_2(torch.cat([initial_stage2_output, processed_stage2_output], 1))
+
+
+        b, c, w, h = initial_stage2_output.size()
+        initial_stage2_output_3channel = initial_stage2_output.view(b, c, w * h).permute(0, 2, 1)
+
+        ea_output = self.external_attention(initial_stage2_output_3channel)
+        ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
+        ea_output = self.conv_64_to_128(ea_output)
+        ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
+        
+        final_stage2_cat_ea_output = torch.cat([final_stage2_output, ea_output], 1)
+        final_stage2_cat_ea_output = self.conv_256_to_128(final_stage2_cat_ea_output)
 
 
         # stage 3
