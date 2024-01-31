@@ -53,7 +53,6 @@ def smoke_segmentation(args,device):
         elif extension in [".mp4", ".avi"]:
             binary_mode = True
             blend_image = True
-            print("vtf: ", args["video_to_frames"])
             if args["video_to_frames"] == "yes":
                 names = inference_video_to_frames.folders_and_files_name()
                 inference_video_to_frames.smoke_segmentation(
