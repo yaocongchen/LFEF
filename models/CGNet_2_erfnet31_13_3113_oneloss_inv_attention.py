@@ -1,8 +1,3 @@
-###########################################################################
-# Created by: Tianyi Wu
-# Email: wutianyi@ict.ac.cn
-# Copyright (c) 2018
-###########################################################################
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -511,13 +506,14 @@ class non_bottleneck_1d(nn.Module):
 
         return self.prelu(output + input)  # +input = identity (residual connection)
     
-class Main_Net_2(nn.Module):
+
+class AuxiliaryNetwork(nn.Module):
     def __init__(self, nIn, nOut, stride=1):
         super().__init__()
         # self.ea = ExternalAttention(d_model=nIn)
-        self.conv1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=False), nn.PReLU())
-        self.conv2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=False) , nn.PReLU())
-        self.conv3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=False), nn.PReLU())
+        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=False), nn.PReLU())
+        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=False) , nn.PReLU())
+        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=False), nn.PReLU())
 
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
@@ -528,15 +524,27 @@ class Main_Net_2(nn.Module):
 
         # ea_output = self.ea(input_3c)
         # ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
-        output = self.conv1(input)
-        output = self.conv2(output)
-        output = self.conv3(output)
+        output = self.conv_layer1(input)
+        output = self.conv_layer2(output)
+        output = self.conv_layer3(output)
         output = self.avg_pool(output) + self.max_pool(output)
 
         return output
     
-#===============================Net====================================#
-class Main_Net(nn.Module):
+
+class BrightnessAdjustment(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.brightness = nn.Parameter(torch.tensor([1.0]))
+
+    def forward(self, input_image):
+
+        adjusted_image = input_image * self.brightness
+        return adjusted_image  
+    
+
+
+class Net(nn.Module):
     """
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
@@ -559,10 +567,8 @@ class Main_Net(nn.Module):
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
 
+        self.inv_net = AuxiliaryNetwork(3, 32, stride = 2)
 
-
-        self.inv_net = Main_Net_2(3, 32, stride = 2)
-        self.b1 = BNPReLU(64)
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
@@ -588,6 +594,7 @@ class Main_Net(nn.Module):
             )  # CG bloc
         self.bn_prelu_3 = BNPReLU(256)
 
+
         if dropout_flag:
             print("have droput layer")
             self.classifier = nn.Sequential(
@@ -595,6 +602,7 @@ class Main_Net(nn.Module):
             )
         else:
             self.classifier = nn.Sequential(Conv(3, classes, 1, 1))
+
 
         # init weights
         for m in self.modules():
@@ -608,104 +616,75 @@ class Main_Net(nn.Module):
                     if m.bias is not None:
                         m.bias.data.zero_()
         
-        self.upsample_64_64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
-        self.conv_256_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(3, 3), stride=1,padding=1), nn.PReLU())
 
-        self.upsample_128_128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
-        self.conv_256_32 = nn.Sequential(nn.Conv2d(256, 32, kernel_size=(3, 3), stride=1,padding=1), nn.PReLU())
+        self.upsample_to_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
+        self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
 
-        self.upsample_256_256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        self.conv_64_1 = nn.Sequential(nn.Conv2d(64, 1, kernel_size=(3, 3), stride=1,padding=1), nn.PReLU())
+        self.upsample_to_128x128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
+        self.conv_256_to_32 = nn.Sequential(nn.Conv2d(256, 32, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
 
-        # self.my_simgoid = nn.Sigmoid()
+        self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
+        self.conv_64_to_1 = nn.Sequential(nn.Conv2d(64, 1, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
 
-    def forward(self, input, input_inv):
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, input):
         """
         args:
             input: Receives the input RGB image
             return: segmentation map
         """
-        # Color inversion
-        # input = self.ba(input)
+
         # stage 1
-        output0 = self.level1_0(input)
-        output0 = self.level1_1(output0)
-        output0 = self.level1_2(output0)
+        stage1_output= self.level1_0(input)
+        stage1_output = self.level1_1(stage1_output)
+        stage1_output = self.level1_2(stage1_output)
         # inp1 = self.sample1(input)
         # inp2 = self.sample2(input)
 
-        # stage 2
-        inv_output_32c = self.inv_net(input_inv)
-        output0_add = output0 + inv_output_32c
+        input_inverted = 1 - input
+        # inverted_output = self.inv_net(input_inv)
+        inverted_output= self.level1_0(input_inverted)
+        inverted_output = self.level1_1(inverted_output)
+        inverted_output = self.level1_2(inverted_output)
+        stage1_add_inverted_output = stage1_output + inverted_output
 
-        output1_0 = self.level2_0(output0_add)  # down-sampled
+
+        # stage 2
+        initial_stage2_output = self.level2_0(stage1_add_inverted_output)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
-                output1 = layer(output1_0)
+                processed_stage2_output = layer(initial_stage2_output)
             else:
-                output1 = layer(output1)
+                processed_stage2_output = layer(processed_stage2_output)
 
-        output1_cat = self.bn_prelu_2(torch.cat([output1_0, output1], 1))
+        final_stage2_output = self.bn_prelu_2(torch.cat([initial_stage2_output, processed_stage2_output], 1))
 
-        # output1_cat_inp2 = self.bn_prelu_2_2(torch.cat([output1_cat, inp2], 1))
 
         # stage 3
-        output2_0 = self.level3_0(output1_cat)  # down-sampled
+        initial_stage3_output = self.level3_0(final_stage2_output)  # down-sampled
         for i, layer in enumerate(self.level3):
             if i == 0:
-                output2 = layer(output2_0)
+                processed_stage3_output = layer(initial_stage3_output)
             else:
-                output2 = layer(output2)
+                processed_stage3_output = layer(processed_stage3_output)
 
-        output2_cat = self.bn_prelu_3(torch.cat([output2_0, output2], 1))
+        final_stage3_output = self.bn_prelu_3(torch.cat([initial_stage3_output, processed_stage3_output], 1))
 
-        output2_cat_up = self.upsample_64_64(output2_cat)
-        output2_conv = self.conv_256_128(output2_cat_up)
+        upsample_stage3_output = self.upsample_to_64x64(final_stage3_output)
+        convolved_stage3_output = self.conv_256_to_128(upsample_stage3_output)
 
-        output2_conv_cat_output1 = torch.cat([output2_conv, output1_cat], 1)
-        output1_cat_up = self.upsample_128_128(output2_conv_cat_output1)
-        output1_conv = self.conv_256_32(output1_cat_up)
+        stage3_cat_stage2_output = torch.cat([convolved_stage3_output, final_stage2_output], 1)
+        upsample_stage2_output = self.upsample_to_128x128(stage3_cat_stage2_output)
+        convolved_stage2_output = self.conv_256_to_32(upsample_stage2_output)
 
-        output1_conv_cat_output0_add = torch.cat([output1_conv, output0_add], 1)
-        output0_add_up = self.upsample_256_256(output1_conv_cat_output0_add)
-        output = self.conv_64_1(output0_add_up)
-
-        return output
-
-
-class BrightnessAdjustment(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.brightness = nn.Parameter(torch.tensor([1.0]))
-
-    def forward(self, input_image):
-
-        adjusted_image = input_image * self.brightness
-        return adjusted_image
-    
-class Net(nn.Module):
-    def __init__(self, classes=1, M=3, N=3, dropout_flag=False):
-        super().__init__()
-        self.main_net = Main_Net(classes=classes, M=M, N=N, dropout_flag=dropout_flag)
-
-        self.main_net_2 = Main_Net_2(3, 1 , stride = 2)
-        self.ba = BrightnessAdjustment()
-        self.sigmoid = nn.Sigmoid()
-
-    def forward(self, input):
-        # input_ba = self.ba(input)
-
-        # 色彩反轉
-        input_inv = 1 - input
-        # input_inv_ba = self.ba(input_inv)
-        # output_ori 與 output_inv 長度concat
-
-        output = self.main_net(input, input_inv)
-
-        # output_inv = self.main_net_2(input_inv_ba)
+        stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_add_inverted_output], 1)
+        upsample_stage1_output = self.upsample_to_256x256(stage2_cat_stage1_output)
+        output = self.conv_64_to_1(upsample_stage1_output)
 
         output = self.sigmoid(output)
+
         return output
 
 if __name__ == "__main__":
