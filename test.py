@@ -11,7 +11,7 @@ import wandb
 import utils
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model
 import check_feature
-from visualization_codes.inference import smoke_semantic
+from utils.inference import smoke_semantic
 
 model_name = str(network_model)
 print("model_name:", model_name)

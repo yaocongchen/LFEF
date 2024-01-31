@@ -7,6 +7,7 @@ from visualization_codes import (
     inference_single_picture,
     inference_multiple_pictures,
     inference_video,
+    inference_video_to_frames,
 )
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
 
@@ -52,31 +53,58 @@ def smoke_segmentation(args,device):
         elif extension in [".mp4", ".avi"]:
             binary_mode = True
             blend_image = True
-            inference_video.smoke_segmentation(
-                args["source"],
-                model,
-                device,
-                binary_mode,
-                blend_image,
-                args["save_video"],
-                args["show_video"],
-                time_train,
-                i,
-            )
+            print("vtf: ", args["video_to_frames"])
+            if args["video_to_frames"] == "yes":
+                names = inference_video_to_frames.folders_and_files_name()
+                inference_video_to_frames.smoke_segmentation(
+                    args["source"],
+                    model,
+                    device,
+                    names,
+                    binary_mode,
+                    blend_image,
+                    time_train,
+                    i,
+                )
+            else:
+                inference_video.smoke_segmentation(
+                    args["source"],
+                    model,
+                    device,
+                    binary_mode,
+                    blend_image,
+                    args["save_video"],
+                    args["show_video"],
+                    time_train,
+                    i,
+                )
         elif root in ["0"]:  # camera
             binary_mode = True
             blend_image = False
-            inference_video.smoke_segmentation(
-                args["source"],
-                model,
-                device,
-                binary_mode,
-                blend_image,
-                args["save_video"],
-                args["show_video"],
-                time_train,
-                i,
-            )
+            if args["video_to_frames"] == "yes":
+                names = inference_video_to_frames.folders_and_files_name()
+                inference_video_to_frames.smoke_segmentation(
+                    args["source"],
+                    model,
+                    device,
+                    names,
+                    binary_mode,
+                    blend_image,
+                    time_train,
+                    i,
+                )
+            else:
+                inference_video.smoke_segmentation(
+                    args["source"],
+                    model,
+                    device,
+                    binary_mode,
+                    blend_image,
+                    args["save_video"],
+                    args["show_video"],
+                    time_train,
+                    i,
+                )
 
 
 if __name__ == "__main__":
@@ -95,6 +123,14 @@ if __name__ == "__main__":
         default="/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs8e150/final.pth",
         required=False,
         help="load model path",
+    )
+    ap.add_argument(
+        "-vtf",
+        "--video_to_frames",
+        type=str,
+        default="no",
+        required=False,
+        help="video to frames",
     )
     ap.add_argument(
         "-save",
