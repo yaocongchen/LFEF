@@ -673,13 +673,13 @@ class Net(nn.Module):
         ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
         ea_output = self.conv_64_to_128(ea_output)
         ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
-        
+
         final_stage2_cat_ea_output = torch.cat([final_stage2_output, ea_output], 1)
         final_stage2_cat_ea_output = self.conv_256_to_128(final_stage2_cat_ea_output)
 
 
         # stage 3
-        initial_stage3_output = self.level3_0(final_stage2_output)  # down-sampled
+        initial_stage3_output = self.level3_0(final_stage2_cat_ea_output)  # down-sampled
         for i, layer in enumerate(self.level3):
             if i == 0:
                 processed_stage3_output = layer(initial_stage3_output)
