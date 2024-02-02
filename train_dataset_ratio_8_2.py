@@ -561,40 +561,6 @@ def main():
                     )
             save_mean_miou = mean_miou
 
-            # if mean_miou_s > save_mean_miou_s:
-            #     print("best_loss: %.3f , best_miou_s: %.3f" % (mean_loss, mean_miou_s))
-            #     torch.save(
-            #         state, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
-            #     )
-            #     torch.save(
-            #         model.state_dict(), args["save_dir"] + "best_mean_miou_s" + ".pth"
-            #     )
-            #     # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best_mean_miou_s' +  '.onnx', verbose=False)
-            #     # torchvision.utils.save_image(
-            #     #     torch.cat((mask_image, output), 0),
-            #     #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
-            #     # )
-                # if args["wandb_name"] != "no":
-                #     wandb.log({"best_loss": mean_loss, "best_miou_s": mean_miou_s})
-                #     wandb.save(
-                #         args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth",base_path="./"
-                #     )
-                #     wandb.save(args["save_dir"] + "best_mean_miou_s" + ".pth",base_path="./")
-                #     wandb.save(args['save_dir'] + 'best_mean_miou_s' +  '.onnx', base_path="./")
-
-            # save_mean_miou_s = mean_miou_s
-
-
-    #     if epoch > args["epochs"] - 10:
-    #         torch.save(state, model_file_name)
-    #         # torch.onnx.export(model, onnx_img_image, model_file_nameonnx, verbose=False)
-    #     elif not epoch % 20:
-    #         torch.save(state, model_file_name)
-    #         # torch.onnx.export(model, onnx_img_image, model_file_nameonnx, verbose=False)
-
-    # torch.save(state, args["save_dir"] + "final" + ".pth")
-    # wandb.save(args["save_dir"] + "final" + ".pth")
-    # # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'final' +  '.onnx', verbose=False)
 
     # Calculation of end time end elapsed time
     # 計算結束時間與花費時間
