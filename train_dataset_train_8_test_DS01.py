@@ -454,6 +454,7 @@ def main():
 
 
         if args["wandb_name"] != "no":
+            wandb.log({"last_loss": mean_loss, "last_miou": mean_miou})
             wandb.save(args["save_dir"] + "last_checkpoint" + ".pth", base_path="./")
             wandb.save(args["save_dir"] + "last" + ".pth", base_path="./")
             # wandb.save(args['save_dir'] + 'last' +  '.onnx', base_path="./")
