@@ -572,7 +572,7 @@ class Net(nn.Module):
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            32, 64,dilation_rate=2, reduction=8
+            64, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -631,7 +631,7 @@ class Net(nn.Module):
         self.conv_256_to_32 = nn.Sequential(nn.Conv2d(256, 32, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
 
         self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        self.conv_64_to_1 = nn.Sequential(nn.Conv2d(64, 1, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
+        self.conv_96_to_1 = nn.Sequential(nn.Conv2d(96, 1, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
 
         self.sigmoid = nn.Sigmoid()
 
@@ -651,11 +651,11 @@ class Net(nn.Module):
 
         input_inverted = 1 - input
         inverted_output = self.aux_net(input_inverted)
-        stage1_add_inverted_output = stage1_output + inverted_output
+        stage1_cat_inverted_output = torch.cat([stage1_output, inverted_output], 1)
 
 
         # stage 2
-        initial_stage2_output = self.level2_0(stage1_add_inverted_output)  # down-sampled
+        initial_stage2_output = self.level2_0(stage1_cat_inverted_output)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -695,9 +695,9 @@ class Net(nn.Module):
         upsample_stage2_output = self.upsample_to_128x128(stage3_cat_stage2_output)
         convolved_stage2_output = self.conv_256_to_32(upsample_stage2_output)
 
-        stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_add_inverted_output], 1)
+        stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_cat_inverted_output], 1)
         upsample_stage1_output = self.upsample_to_256x256(stage2_cat_stage1_output)
-        output = self.conv_64_to_1(upsample_stage1_output)
+        output = self.conv_96_to_1(upsample_stage1_output)
 
         output = self.sigmoid(output)
 
