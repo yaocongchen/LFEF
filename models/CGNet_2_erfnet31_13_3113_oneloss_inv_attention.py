@@ -518,6 +518,8 @@ class AuxiliaryNetwork(nn.Module):
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
 
+        self.sigmoid = nn.Sigmoid()
+
     def forward(self, input):
         # b, c, w, h = input.size()
         # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
@@ -528,6 +530,8 @@ class AuxiliaryNetwork(nn.Module):
         output = self.conv_layer2(output)
         output = self.conv_layer3(output)
         output = self.avg_pool(output) + self.max_pool(output)
+
+        output = self.sigmoid(output)
 
         return output
     
@@ -572,7 +576,7 @@ class Net(nn.Module):
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            64, 64,dilation_rate=2, reduction=8
+            32, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -617,11 +621,11 @@ class Net(nn.Module):
                         m.bias.data.zero_()
         
 
-        self.external_attention = ExternalAttention(d_model=64)
-        self.conv_64_to_128 = nn.Conv2d(64, 128, kernel_size=1, stride=1, padding=0, bias=False)
-        self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
-        self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
-        self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.PReLU())
+        # self.external_attention = ExternalAttention(d_model=64)
+        # self.conv_64_to_128 = nn.Conv2d(64, 128, kernel_size=1, stride=1, padding=0, bias=False)
+        # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
+        # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
+        # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.PReLU())
 
 
         self.upsample_to_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
@@ -631,7 +635,7 @@ class Net(nn.Module):
         self.conv_256_to_32 = nn.Sequential(nn.Conv2d(256, 32, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
 
         self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        self.conv_96_to_1 = nn.Sequential(nn.Conv2d(96, 1, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
+        self.conv_96_to_1 = nn.Sequential(nn.Conv2d(64, 1, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
 
         self.sigmoid = nn.Sigmoid()
 
@@ -651,11 +655,11 @@ class Net(nn.Module):
 
         input_inverted = 1 - input
         inverted_output = self.aux_net(input_inverted)
-        stage1_cat_inverted_output = torch.cat([stage1_output, inverted_output], 1)
+        stage1_ewp_inverted_output = stage1_output * inverted_output
 
 
         # stage 2
-        initial_stage2_output = self.level2_0(stage1_cat_inverted_output)  # down-sampled
+        initial_stage2_output = self.level2_0(stage1_ewp_inverted_output)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -695,7 +699,7 @@ class Net(nn.Module):
         upsample_stage2_output = self.upsample_to_128x128(stage3_cat_stage2_output)
         convolved_stage2_output = self.conv_256_to_32(upsample_stage2_output)
 
-        stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_cat_inverted_output], 1)
+        stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_ewp_inverted_output], 1)
         upsample_stage1_output = self.upsample_to_256x256(stage2_cat_stage1_output)
         output = self.conv_96_to_1(upsample_stage1_output)
 
