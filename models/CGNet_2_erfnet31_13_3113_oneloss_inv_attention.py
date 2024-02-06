@@ -628,14 +628,14 @@ class Net(nn.Module):
         # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.PReLU())
 
 
-        self.upsample_to_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
         self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
+        self.upsample_to_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
 
-        self.upsample_to_128x128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
         self.conv_256_to_32 = nn.Sequential(nn.Conv2d(256, 32, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
+        self.upsample_to_128x128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
 
-        self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
         self.conv_96_to_1 = nn.Sequential(nn.Conv2d(64, 1, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
+        self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
 
         self.sigmoid = nn.Sigmoid()
 
