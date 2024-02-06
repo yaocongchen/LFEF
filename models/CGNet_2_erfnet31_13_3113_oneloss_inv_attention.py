@@ -628,14 +628,17 @@ class Net(nn.Module):
         # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.PReLU())
 
 
-        self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
+        self.conv_256_to_128 = nn.Conv2d(256, 128, kernel_size=(1, 1), stride=1,padding=0)
+
         self.upsample_to_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
 
-        self.conv_256_to_32 = nn.Sequential(nn.Conv2d(256, 32, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
+        self.conv_256_to_32 = nn.Conv2d(256, 32, kernel_size=(1, 1), stride=1,padding=0)
         self.upsample_to_128x128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
 
-        self.conv_96_to_1 = nn.Sequential(nn.Conv2d(64, 1, kernel_size=(1, 1), stride=1,padding=0), nn.PReLU())
+        self.conv_96_to_1 = nn.Conv2d(64, 1, kernel_size=(1, 1), stride=1,padding=0)
         self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
+
+        self.prelu = nn.PReLU()
 
         self.sigmoid = nn.Sigmoid()
 
@@ -694,14 +697,20 @@ class Net(nn.Module):
 
 
         convolved_stage3_output = self.conv_256_to_128(final_stage3_output)
+        convolved_stage3_output = F.layer_norm(convolved_stage3_output, convolved_stage3_output.size()[1:])
+        convolved_stage3_output = self.prelu(convolved_stage3_output)
         upsample_stage3_output = self.upsample_to_64x64(convolved_stage3_output)
 
         stage3_cat_stage2_output = torch.cat([upsample_stage3_output, final_stage2_output], 1)
         convolved_stage2_output = self.conv_256_to_32(stage3_cat_stage2_output)
+        convolved_stage2_output = F.layer_norm(convolved_stage2_output, convolved_stage2_output.size()[1:])
+        convolved_stage2_output = self.prelu(convolved_stage2_output)
         upsample_stage2_output = self.upsample_to_128x128(convolved_stage2_output)
 
         stage2_cat_stage1_output = torch.cat([upsample_stage2_output, stage1_ewp_inverted_output], 1)
         convolved_stage1_output = self.conv_96_to_1(stage2_cat_stage1_output)
+        convolved_stage1_output = F.layer_norm(convolved_stage1_output, convolved_stage1_output.size()[1:])
+        convolved_stage1_output = self.prelu(convolved_stage1_output)
         upsample_stage1_output = self.upsample_to_256x256(convolved_stage1_output)
 
         output = self.sigmoid(upsample_stage1_output)
