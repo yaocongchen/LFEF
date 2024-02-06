@@ -692,18 +692,19 @@ class Net(nn.Module):
 
         final_stage3_output = self.bn_prelu_3(torch.cat([initial_stage3_output, processed_stage3_output], 1))
 
-        upsample_stage3_output = self.upsample_to_64x64(final_stage3_output)
-        convolved_stage3_output = self.conv_256_to_128(upsample_stage3_output)
 
-        stage3_cat_stage2_output = torch.cat([convolved_stage3_output, final_stage2_output], 1)
-        upsample_stage2_output = self.upsample_to_128x128(stage3_cat_stage2_output)
-        convolved_stage2_output = self.conv_256_to_32(upsample_stage2_output)
+        convolved_stage3_output = self.conv_256_to_128(final_stage3_output)
+        upsample_stage3_output = self.upsample_to_64x64(convolved_stage3_output)
 
-        stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_ewp_inverted_output], 1)
-        upsample_stage1_output = self.upsample_to_256x256(stage2_cat_stage1_output)
-        output = self.conv_96_to_1(upsample_stage1_output)
+        stage3_cat_stage2_output = torch.cat([upsample_stage3_output, final_stage2_output], 1)
+        convolved_stage2_output = self.conv_256_to_32(stage3_cat_stage2_output)
+        upsample_stage2_output = self.upsample_to_128x128(convolved_stage2_output)
 
-        output = self.sigmoid(output)
+        stage2_cat_stage1_output = torch.cat([upsample_stage2_output, stage1_ewp_inverted_output], 1)
+        convolved_stage1_output = self.conv_96_to_1(stage2_cat_stage1_output)
+        upsample_stage1_output = self.upsample_to_256x256(convolved_stage1_output)
+
+        output = self.sigmoid(upsample_stage1_output)
 
         return output
 
