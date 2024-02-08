@@ -53,7 +53,8 @@ class ConvBNPReLU(nn.Module):
             padding=(padding, padding),
             bias=False,
         )
-        self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
+        # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
+        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
         self.act = nn.PReLU(nOut)
 
     def forward(self, input):
@@ -63,7 +64,7 @@ class ConvBNPReLU(nn.Module):
            return: transformed feature map
         """
         output = self.conv(input)
-        output = self.bn(output)
+        output = self.in_norm(output)
         output = self.act(output)
         return output
 
@@ -75,7 +76,8 @@ class BNPReLU(nn.Module):
            nOut: channels of output feature maps
         """
         super().__init__()
-        self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
+        # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
+        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
         self.act = nn.PReLU(nOut)
 
     def forward(self, input):
@@ -84,7 +86,7 @@ class BNPReLU(nn.Module):
            input: input feature map
            return: normalized and thresholded feature map
         """
-        output = self.bn(input)
+        output = self.in_norm(input)
         output = self.act(output)
         return output
 
@@ -108,7 +110,8 @@ class ConvBN(nn.Module):
             padding=(padding, padding),
             bias=False,
         )
-        self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
+        # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
+        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
 
     def forward(self, input):
         """
@@ -117,7 +120,7 @@ class ConvBN(nn.Module):
            return: transformed feature map
         """
         output = self.conv(input)
-        output = self.bn(output)
+        output = self.in_norm(output)
         return output
 
 
@@ -296,7 +299,8 @@ class ExternalAttention(nn.Module):
                 init.kaiming_normal_(m.weight, mode='fan_out')
                 if m.bias is not None:
                     init.constant_(m.bias, 0)
-            elif isinstance(m, nn.BatchNorm2d):
+            # elif isinstance(m, nn.BatchNorm2d):
+            elif isinstance(m, nn.InstanceNorm2d):
                 init.constant_(m.weight, 1)
                 init.constant_(m.bias, 0)
             elif isinstance(m, nn.Linear):
@@ -330,7 +334,8 @@ class ContextGuidedBlock_Down(nn.Module):
         self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 2)
         self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 4)
 
-        self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
+        # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
+        self.in_norm = nn.InstanceNorm2d(4 * nOut, affine=True)
         self.act = nn.PReLU(4 * nOut)
         self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
@@ -352,7 +357,7 @@ class ContextGuidedBlock_Down(nn.Module):
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
-        joi_feat = self.bn(joi_feat)
+        joi_feat = self.in_norm(joi_feat)
         joi_feat = self.act(joi_feat)
         joi_feat = self.reduce(joi_feat)  # channel= nOut
 
@@ -468,7 +473,8 @@ class non_bottleneck_1d(nn.Module):
             chann, chann, (1, 3), stride=1, padding=(0, 1), bias=True
         )
 
-        self.bn1 = nn.BatchNorm2d(chann, eps=1e-03)
+        # self.bn1 = nn.BatchNorm2d(chann, eps=1e-03)
+        self.in_norm = nn.InstanceNorm2d(chann, affine=True)
 
         self.conv3x1_2 = nn.Conv2d(
             chann,
@@ -490,19 +496,20 @@ class non_bottleneck_1d(nn.Module):
             dilation=(1, dilated),
         )
         self.prelu = nn.PReLU(chann)
-        self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
+        # self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
+        self.in_norm2 = nn.InstanceNorm2d(chann, affine=True)
 
     def forward(self, input):
         output = self.conv3x1_1(input)
         output = self.prelu(output)
         output = self.conv1x3_1(output)
-        output = self.bn1(output)
+        output = self.in_norm(output)
         output = self.prelu(output)
 
         output = self.conv3x1_2(output)
         output = self.prelu(output)
         output = self.conv1x3_2(output)
-        output = self.bn2(output)
+        output = self.in_norm2(output)
 
         return self.prelu(output + input)  # +input = identity (residual connection)
     
