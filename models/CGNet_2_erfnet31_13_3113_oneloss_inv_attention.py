@@ -64,7 +64,8 @@ class ConvBNPReLU(nn.Module):
            return: transformed feature map
         """
         output = self.conv(input)
-        output = self.in_norm(output)
+        # output = self.in_norm(output)
+        output = F.layer_norm(output, output.size()[1:])
         output = self.act(output)
         return output
 
@@ -77,7 +78,7 @@ class BNPReLU(nn.Module):
         """
         super().__init__()
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
-        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
+        # self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
         self.act = nn.PReLU(nOut)
 
     def forward(self, input):
@@ -86,7 +87,8 @@ class BNPReLU(nn.Module):
            input: input feature map
            return: normalized and thresholded feature map
         """
-        output = self.in_norm(input)
+        # output = self.in_norm(input)
+        output = F.layer_norm(input, input.size()[1:])
         output = self.act(output)
         return output
 
@@ -120,7 +122,8 @@ class ConvBN(nn.Module):
            return: transformed feature map
         """
         output = self.conv(input)
-        output = self.in_norm(output)
+        # output = self.in_norm(output)
+        output = F.layer_norm(output, output.size()[1:])
         return output
 
 
@@ -357,7 +360,8 @@ class ContextGuidedBlock_Down(nn.Module):
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
-        joi_feat = self.in_norm(joi_feat)
+        # joi_feat = self.in_norm(joi_feat)
+        joi_feat = F.layer_norm(joi_feat, joi_feat.size()[1:])
         joi_feat = self.act(joi_feat)
         joi_feat = self.reduce(joi_feat)  # channel= nOut
 
@@ -503,13 +507,15 @@ class non_bottleneck_1d(nn.Module):
         output = self.conv3x1_1(input)
         output = self.prelu(output)
         output = self.conv1x3_1(output)
-        output = self.in_norm(output)
+        # output = self.in_norm(output)
+        output = F.layer_norm(output, output.size()[1:])
         output = self.prelu(output)
 
         output = self.conv3x1_2(output)
         output = self.prelu(output)
         output = self.conv1x3_2(output)
-        output = self.in_norm2(output)
+        # output = self.in_norm2(output)
+        output = F.layer_norm(output, output.size()[1:])
 
         return self.prelu(output + input)  # +input = identity (residual connection)
     
