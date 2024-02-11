@@ -34,7 +34,7 @@ def channel_shuffle(x, groups):
 
     return x
 
-class ConvBNPReLU(nn.Module):
+class ConvINPReLU(nn.Module):
     def __init__(self, nIn, nOut, kSize, stride=1):
         """
         args:
@@ -64,13 +64,13 @@ class ConvBNPReLU(nn.Module):
            return: transformed feature map
         """
         output = self.conv(input)
-        # output = self.in_norm(output)
-        output = F.layer_norm(output, output.size()[1:])
+        output = self.in_norm(output)
+        # output = F.layer_norm(output, output.size()[1:])
         output = self.act(output)
         return output
 
 
-class BNPReLU(nn.Module):
+class INPReLU(nn.Module):
     def __init__(self, nOut):
         """
         args:
@@ -78,7 +78,7 @@ class BNPReLU(nn.Module):
         """
         super().__init__()
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
-        # self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
+        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
         self.act = nn.PReLU(nOut)
 
     def forward(self, input):
@@ -87,13 +87,13 @@ class BNPReLU(nn.Module):
            input: input feature map
            return: normalized and thresholded feature map
         """
-        # output = self.in_norm(input)
-        output = F.layer_norm(input, input.size()[1:])
+        output = self.in_norm(input)
+        # output = F.layer_norm(input, input.size()[1:])
         output = self.act(output)
         return output
 
 
-class ConvBN(nn.Module):
+class ConvIN(nn.Module):
     def __init__(self, nIn, nOut, kSize, stride=1):
         """
         args:
@@ -122,8 +122,8 @@ class ConvBN(nn.Module):
            return: transformed feature map
         """
         output = self.conv(input)
-        # output = self.in_norm(output)
-        output = F.layer_norm(output, output.size()[1:])
+        output = self.in_norm(output)
+        # output = F.layer_norm(output, output.size()[1:])
         return output
 
 
@@ -286,38 +286,38 @@ class FGlo(nn.Module):
         y = self.fc(y).view(b, c, 1, 1)
         return x * y
 
-class ExternalAttention(nn.Module):
+# class ExternalAttention(nn.Module):
 
-    def __init__(self, d_model,S=64):
-        super().__init__()
-        self.mk=nn.Linear(d_model,S,bias=False)
-        self.mv=nn.Linear(S,d_model,bias=False)
-        self.softmax=nn.Softmax(dim=1)
-        self.init_weights()
+#     def __init__(self, d_model,S=64):
+#         super().__init__()
+#         self.mk=nn.Linear(d_model,S,bias=False)
+#         self.mv=nn.Linear(S,d_model,bias=False)
+#         self.softmax=nn.Softmax(dim=1)
+#         self.init_weights()
 
 
-    def init_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                init.kaiming_normal_(m.weight, mode='fan_out')
-                if m.bias is not None:
-                    init.constant_(m.bias, 0)
-            # elif isinstance(m, nn.BatchNorm2d):
-            elif isinstance(m, nn.InstanceNorm2d):
-                init.constant_(m.weight, 1)
-                init.constant_(m.bias, 0)
-            elif isinstance(m, nn.Linear):
-                init.normal_(m.weight, std=0.001)
-                if m.bias is not None:
-                    init.constant_(m.bias, 0)
+#     def init_weights(self):
+#         for m in self.modules():
+#             if isinstance(m, nn.Conv2d):
+#                 init.kaiming_normal_(m.weight, mode='fan_out')
+#                 if m.bias is not None:
+#                     init.constant_(m.bias, 0)
+#             # elif isinstance(m, nn.BatchNorm2d):
+#             elif isinstance(m, nn.InstanceNorm2d):
+#                 init.constant_(m.weight, 1)
+#                 init.constant_(m.bias, 0)
+#             elif isinstance(m, nn.Linear):
+#                 init.normal_(m.weight, std=0.001)
+#                 if m.bias is not None:
+#                     init.constant_(m.bias, 0)
 
-    def forward(self, queries):
-        attn=self.mk(queries) #bs,n,S
-        attn=self.softmax(attn) #bs,n,S
-        attn=attn/torch.sum(attn,dim=2,keepdim=True) #bs,n,S
-        out=self.mv(attn) #bs,n,d_model
+#     def forward(self, queries):
+#         attn=self.mk(queries) #bs,n,S
+#         attn=self.softmax(attn) #bs,n,S
+#         attn=attn/torch.sum(attn,dim=2,keepdim=True) #bs,n,S
+#         out=self.mv(attn) #bs,n,d_model
 
-        return out
+#         return out
 class ContextGuidedBlock_Down(nn.Module):
     """
     the size of feature map divided 2, (H,W,C)---->(H/2, W/2, 2C)
@@ -330,7 +330,7 @@ class ContextGuidedBlock_Down(nn.Module):
            nOut: the channel of output feature map, and nOut=2*nIn
         """
         super().__init__()
-        self.conv1x1 = ConvBNPReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
+        self.conv1x1 = ConvINPReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
 
         self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
         self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate)
@@ -344,11 +344,11 @@ class ContextGuidedBlock_Down(nn.Module):
 
         self.F_glo = FGlo(nOut, reduction)
 
-        self.ea = ExternalAttention(d_model=nIn)
-        self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
+        # self.ea = ExternalAttention(d_model=nIn)
+        # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
 
-        self.avg_pool = nn.AvgPool2d(3, stride=2, padding=1)
-        self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
+        # self.avg_pool = nn.AvgPool2d(3, stride=2, padding=1)
+        # self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
 
     def forward(self, input):
         output = self.conv1x1(input)
@@ -360,8 +360,8 @@ class ContextGuidedBlock_Down(nn.Module):
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
-        # joi_feat = self.in_norm(joi_feat)
-        joi_feat = F.layer_norm(joi_feat, joi_feat.size()[1:])
+        joi_feat = self.in_norm(joi_feat)
+        # joi_feat = F.layer_norm(joi_feat, joi_feat.size()[1:])
         joi_feat = self.act(joi_feat)
         joi_feat = self.reduce(joi_feat)  # channel= nOut
 
@@ -390,7 +390,7 @@ class ContextGuidedBlock(nn.Module):
         """
         super().__init__()
         n = int(nOut / 4)
-        self.conv1x1 = ConvBNPReLU(
+        self.conv1x1 = ConvINPReLU(
             nIn, n, 1, 1
         )  # 1x1 Conv is employed to reduce the computation
         self.F_loc = ChannelWiseConv(n, n, 3, 1)  # local feature
@@ -400,15 +400,15 @@ class ContextGuidedBlock(nn.Module):
         self.F_sur_4 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 2)
         self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 4)
 
-        self.bn_prelu = BNPReLU(4*n)
+        self.in_prelu = INPReLU(4*n)
         self.add = add
         self.F_glo = FGlo(4*n, reduction)
 
-        self.ea = ExternalAttention(d_model=nIn)
-        self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
+        # self.ea = ExternalAttention(d_model=nIn)
+        # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
 
-        self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
-        self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
+        # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
+        # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
 
     def forward(self, input):
         output = self.conv1x1(input)
@@ -420,7 +420,7 @@ class ContextGuidedBlock(nn.Module):
         #joi_feat = torch.cat([loc, sur], 1)
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
 
-        joi_feat = self.bn_prelu(joi_feat)
+        joi_feat = self.in_prelu(joi_feat)
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
         # if residual version
@@ -514,8 +514,8 @@ class non_bottleneck_1d(nn.Module):
         output = self.conv3x1_2(output)
         output = self.prelu(output)
         output = self.conv1x3_2(output)
-        # output = self.in_norm2(output)
-        output = F.layer_norm(output, output.size()[1:])
+        output = self.in_norm2(output)
+        # output = F.layer_norm(output, output.size()[1:])
 
         return self.prelu(output + input)  # +input = identity (residual connection)
     
@@ -576,7 +576,7 @@ class Net(nn.Module):
         super().__init__()
         self.brightness_adjustment = BrightnessAdjustment()
 
-        self.level1_0 = ConvBNPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_0 = ConvINPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
         self.level1_2 = non_bottleneck_1d(32, 2)
 
@@ -596,7 +596,7 @@ class Net(nn.Module):
             self.level2.append(
                 ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
-        self.bn_prelu_2 = BNPReLU(128)
+        self.in_prelu_2 = INPReLU(128)
         # self.bn_prelu_2_2 = BNPReLU(128 + 3)
 
 
@@ -609,7 +609,7 @@ class Net(nn.Module):
             self.level3.append(
                 ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
             )  # CG bloc
-        self.bn_prelu_3 = BNPReLU(256)
+        self.in_prelu_3 = INPReLU(256)
 
 
         if dropout_flag:
@@ -691,7 +691,7 @@ class Net(nn.Module):
             else:
                 processed_stage2_output = layer(processed_stage2_output)
 
-        final_stage2_output = self.bn_prelu_2(torch.cat([initial_stage2_output, processed_stage2_output], 1))
+        final_stage2_output = self.in_prelu_2(torch.cat([initial_stage2_output, processed_stage2_output], 1))
 
 
         # b, c, w, h = initial_stage2_output.size()
@@ -714,7 +714,7 @@ class Net(nn.Module):
             else:
                 processed_stage3_output = layer(processed_stage3_output)
 
-        final_stage3_output = self.bn_prelu_3(torch.cat([initial_stage3_output, processed_stage3_output], 1))
+        final_stage3_output = self.in_prelu_3(torch.cat([initial_stage3_output, processed_stage3_output], 1))
 
         stage1_ewp_inverted_output_up = self.upsample(stage1_ewp_inverted_output)
         stage1_ewp_inverted_output_up = self.conv_32_to_1(stage1_ewp_inverted_output_up)
