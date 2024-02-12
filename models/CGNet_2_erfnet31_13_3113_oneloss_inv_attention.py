@@ -507,8 +507,8 @@ class non_bottleneck_1d(nn.Module):
         output = self.conv3x1_1(input)
         output = self.prelu(output)
         output = self.conv1x3_1(output)
-        # output = self.in_norm(output)
-        output = F.layer_norm(output, output.size()[1:])
+        output = self.in_norm(output)
+        # output = F.layer_norm(output, output.size()[1:])
         output = self.prelu(output)
 
         output = self.conv3x1_2(output)
