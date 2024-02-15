@@ -584,7 +584,7 @@ class Net(nn.Module):
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
 
-        self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
+        # self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
 
 
         # stage 2
@@ -677,13 +677,13 @@ class Net(nn.Module):
         # inp1 = self.sample1(input)
         # inp2 = self.sample2(input)
 
-        input_inverted = 1 - input
-        inverted_output = self.aux_net(input_inverted)
-        stage1_ewp_inverted_output = stage1_output * inverted_output
+        # input_inverted = 1 - input
+        # inverted_output = self.aux_net(input_inverted)
+        # stage1_ewp_inverted_output = stage1_output * inverted_output
 
 
         # stage 2
-        initial_stage2_output = self.level2_0(stage1_ewp_inverted_output)  # down-sampled
+        initial_stage2_output = self.level2_0(stage1_output)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -742,7 +742,7 @@ class Net(nn.Module):
         # convolved_stage2_output = F.layer_norm(convolved_stage2_output, convolved_stage2_output.size()[1:])
         convolved_stage2_output = self.prelu(convolved_stage2_output)
 
-        stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_ewp_inverted_output], 1)
+        stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_output], 1)
         upsample_stage1_output = self.upsample_to_256x256(stage2_cat_stage1_output)
         convolved_stage1_output = self.conv_96_to_1(upsample_stage1_output)
         convolved_stage1_output = self.conv_96_to_1_IN(convolved_stage1_output)
