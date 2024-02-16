@@ -34,7 +34,7 @@ def channel_shuffle(x, groups):
 
     return x
 
-class ConvINPReLU(nn.Module):
+class ConvINLeakyReLU(nn.Module):
     def __init__(self, nIn, nOut, kSize, stride=1):
         """
         args:
@@ -55,7 +55,7 @@ class ConvINPReLU(nn.Module):
         )
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
-        self.act = nn.PReLU(nOut)
+        self.act = nn.LeakyReLU(nOut)
 
     def forward(self, input):
         """
@@ -70,7 +70,7 @@ class ConvINPReLU(nn.Module):
         return output
 
 
-class INPReLU(nn.Module):
+class INLeakyReLU(nn.Module):
     def __init__(self, nOut):
         """
         args:
@@ -79,7 +79,7 @@ class INPReLU(nn.Module):
         super().__init__()
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
-        self.act = nn.PReLU(nOut)
+        self.act = nn.LeakyReLU(nOut)
 
     def forward(self, input):
         """
@@ -330,7 +330,7 @@ class ContextGuidedBlock_Down(nn.Module):
            nOut: the channel of output feature map, and nOut=2*nIn
         """
         super().__init__()
-        self.conv1x1 = ConvINPReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
+        self.conv1x1 = ConvINLeakyReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
 
         self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
         self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate)
@@ -339,7 +339,7 @@ class ContextGuidedBlock_Down(nn.Module):
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
         self.in_norm = nn.InstanceNorm2d(4 * nOut, affine=True)
-        self.act = nn.PReLU(4 * nOut)
+        self.act = nn.LeakyReLU(4 * nOut)
         self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.F_glo = FGlo(nOut, reduction)
@@ -390,7 +390,7 @@ class ContextGuidedBlock(nn.Module):
         """
         super().__init__()
         n = int(nOut / 4)
-        self.conv1x1 = ConvINPReLU(
+        self.conv1x1 = ConvINLeakyReLU(
             nIn, n, 1, 1
         )  # 1x1 Conv is employed to reduce the computation
         self.F_loc = ChannelWiseConv(n, n, 3, 1)  # local feature
@@ -400,7 +400,7 @@ class ContextGuidedBlock(nn.Module):
         self.F_sur_4 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 2)
         self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 4)
 
-        self.in_prelu = INPReLU(4*n)
+        self.in_leakyrelu = INLeakyReLU(4*n)
         self.add = add
         self.F_glo = FGlo(4*n, reduction)
 
@@ -420,7 +420,7 @@ class ContextGuidedBlock(nn.Module):
         #joi_feat = torch.cat([loc, sur], 1)
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
 
-        joi_feat = self.in_prelu(joi_feat)
+        joi_feat = self.in_leakyrelu(joi_feat)
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
         # if residual version
@@ -499,34 +499,34 @@ class non_bottleneck_1d(nn.Module):
             bias=True,
             dilation=(1, dilated),
         )
-        self.prelu = nn.PReLU(chann)
+        self.leakyrelu = nn.LeakyReLU(chann)
         # self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
         self.in_norm2 = nn.InstanceNorm2d(chann, affine=True)
 
     def forward(self, input):
         output = self.conv3x1_1(input)
-        output = self.prelu(output)
+        output = self.leakyrelu(output)
         output = self.conv1x3_1(output)
         output = self.in_norm(output)
         # output = F.layer_norm(output, output.size()[1:])
-        output = self.prelu(output)
+        output = self.leakyrelu(output)
 
         output = self.conv3x1_2(output)
-        output = self.prelu(output)
+        output = self.leakyrelu(output)
         output = self.conv1x3_2(output)
         output = self.in_norm2(output)
         # output = F.layer_norm(output, output.size()[1:])
 
-        return self.prelu(output + input)  # +input = identity (residual connection)
+        return self.leakyrelu(output + input)  # +input = identity (residual connection)
     
 
 class AuxiliaryNetwork(nn.Module):
     def __init__(self, nIn, nOut, stride=1):
         super().__init__()
         # self.ea = ExternalAttention(d_model=nIn)
-        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=False), nn.PReLU())
-        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=False) , nn.PReLU())
-        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=False), nn.PReLU())
+        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=False), nn.LeakyReLU())
+        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=False) , nn.LeakyReLU())
+        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=False), nn.LeakyReLU())
 
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
@@ -576,7 +576,7 @@ class Net(nn.Module):
         super().__init__()
         self.brightness_adjustment = BrightnessAdjustment()
 
-        self.level1_0 = ConvINPReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_0 = ConvINLeakyReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
         self.level1_2 = non_bottleneck_1d(32, 2)
 
@@ -584,7 +584,7 @@ class Net(nn.Module):
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
 
-        # self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
+        self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
 
 
         # stage 2
@@ -596,8 +596,8 @@ class Net(nn.Module):
             self.level2.append(
                 ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
-        self.in_prelu_2 = INPReLU(128)
-        # self.bn_prelu_2_2 = BNPReLU(128 + 3)
+        self.in_leakyrelu_2 = INLeakyReLU(128)
+        # self.bn_leakyrelu_2_2 = BNLeakyReLU(128 + 3)
 
 
         # stage 3
@@ -609,7 +609,7 @@ class Net(nn.Module):
             self.level3.append(
                 ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
             )  # CG bloc
-        self.in_prelu_3 = INPReLU(256)
+        self.in_leakyrelu_3 = INLeakyReLU(256)
 
 
         if dropout_flag:
@@ -638,12 +638,12 @@ class Net(nn.Module):
         # self.conv_64_to_128 = nn.Conv2d(64, 128, kernel_size=1, stride=1, padding=0, bias=False)
         # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
-        # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.PReLU())
+        # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.LeakyReLU())
         
         # self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        # self.conv_32_to_1 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.PReLU())
-        # self.conv_128_to_1 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.PReLU())
-        # self.conv_256_to_1 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.PReLU())
+        # self.conv_32_to_1 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.LeakyReLU())
+        # self.conv_128_to_1 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.LeakyReLU())
+        # self.conv_256_to_1 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.LeakyReLU())
 
 #================================================================================================#
         self.conv_256_to_128 = nn.Conv2d(256, 128, kernel_size=(1, 1), stride=1,padding=0)
@@ -658,7 +658,7 @@ class Net(nn.Module):
         self.conv_96_to_1_IN = nn.InstanceNorm2d(1, affine=True)
         self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
 
-        self.prelu = nn.PReLU()
+        self.leakyrelu = nn.LeakyReLU()
 #================================================================================================#
         
         self.sigmoid = nn.Sigmoid()
@@ -677,13 +677,13 @@ class Net(nn.Module):
         # inp1 = self.sample1(input)
         # inp2 = self.sample2(input)
 
-        # input_inverted = 1 - input
-        # inverted_output = self.aux_net(input_inverted)
-        # stage1_ewp_inverted_output = stage1_output * inverted_output
+        input_inverted = 1 - input
+        inverted_output = self.aux_net(input_inverted)
+        stage1_ewp_inverted_output = stage1_output * inverted_output
 
 
         # stage 2
-        initial_stage2_output = self.level2_0(stage1_output)  # down-sampled
+        initial_stage2_output = self.level2_0(stage1_ewp_inverted_output)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -691,7 +691,7 @@ class Net(nn.Module):
             else:
                 processed_stage2_output = layer(processed_stage2_output)
 
-        final_stage2_output = self.in_prelu_2(torch.cat([initial_stage2_output, processed_stage2_output], 1))
+        final_stage2_output = self.in_leakyrelu_2(torch.cat([initial_stage2_output, processed_stage2_output], 1))
 
 
         # b, c, w, h = initial_stage2_output.size()
@@ -714,7 +714,7 @@ class Net(nn.Module):
             else:
                 processed_stage3_output = layer(processed_stage3_output)
 
-        final_stage3_output = self.in_prelu_3(torch.cat([initial_stage3_output, processed_stage3_output], 1))
+        final_stage3_output = self.in_leakyrelu_3(torch.cat([initial_stage3_output, processed_stage3_output], 1))
 
         # stage1_ewp_inverted_output_up = self.upsample(stage1_ewp_inverted_output)
         # stage1_ewp_inverted_output_up = self.conv_32_to_1(stage1_ewp_inverted_output_up)
@@ -733,21 +733,21 @@ class Net(nn.Module):
         convolved_stage3_output = self.conv_256_to_128(upsample_stage3_output)
         convolved_stage3_output = self.conv_256_to_128_IN(convolved_stage3_output)
         # convolved_stage3_output = F.layer_norm(convolved_stage3_output, convolved_stage3_output.size()[1:])
-        convolved_stage3_output = self.prelu(convolved_stage3_output)
+        convolved_stage3_output = self.leakyrelu(convolved_stage3_output)
 
         stage3_cat_stage2_output = torch.cat([convolved_stage3_output, final_stage2_output], 1)
         upsample_stage2_output = self.upsample_to_128x128(stage3_cat_stage2_output)
         convolved_stage2_output = self.conv_256_to_32(upsample_stage2_output)
         convolved_stage2_output = self.conv_256_to_32_IN(convolved_stage2_output)
         # convolved_stage2_output = F.layer_norm(convolved_stage2_output, convolved_stage2_output.size()[1:])
-        convolved_stage2_output = self.prelu(convolved_stage2_output)
+        convolved_stage2_output = self.leakyrelu(convolved_stage2_output)
 
         stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_output], 1)
         upsample_stage1_output = self.upsample_to_256x256(stage2_cat_stage1_output)
         convolved_stage1_output = self.conv_96_to_1(upsample_stage1_output)
         convolved_stage1_output = self.conv_96_to_1_IN(convolved_stage1_output)
         # convolved_stage1_output = F.layer_norm(convolved_stage1_output, convolved_stage1_output.size()[1:])
-        convolved_stage1_output = self.prelu(convolved_stage1_output)
+        convolved_stage1_output = self.leakyrelu(convolved_stage1_output)
 #================================================================================================#
 
         output = self.sigmoid(convolved_stage1_output)
