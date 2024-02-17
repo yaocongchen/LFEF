@@ -3,7 +3,7 @@ from PIL import Image
 
 def gray_to_binary(image):
     gray = image.convert("L")
-    threshold = 128
+    threshold = 200
 
     table = []
     for pixel_g in range(256):
