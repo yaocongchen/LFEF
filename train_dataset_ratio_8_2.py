@@ -7,7 +7,6 @@ import os
 import configparser
 import argparse
 import time
-import random
 from tqdm import tqdm
 from torch.autograd import Variable
 import wandb
@@ -98,18 +97,10 @@ def wandb_information(model_size, flops, params, model, train_images, train_mask
 
 
 def time_processing(spend_time):
-    time_day = spend_time // 86400
-    spend_time = spend_time % 86400
-    time_hour = spend_time // 3600
-    spend_time = spend_time % 3600
-    time_min = spend_time // 60
-    time_sec = spend_time % 60
-
     time_dict = {}
-    time_dict["time_day"] = time_day
-    time_dict["time_hour"] = time_hour
-    time_dict["time_min"] = time_min
-    time_dict["time_sec"] = time_sec
+    time_dict["time_day"], spend_time = divmod(spend_time, 86400)
+    time_dict["time_hour"], spend_time = divmod(spend_time, 3600)
+    time_dict["time_min"], time_dict["time_sec"] = divmod(spend_time, 60)
 
     return time_dict
 
@@ -199,7 +190,6 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
 
 
 def valid_epoch(model, validation_data_loader, device, epoch):
-    # Validation loop 驗證迴圈
     n_element = 0
     mean_loss = 0
     mean_miou = 0
@@ -263,13 +253,8 @@ def main():
     config = configparser.ConfigParser()
     config.read(CONFIG_FILE)
 
-    if (args["train_images"] != None) and (args["train_masks"] != None):
-        train_images = args["train_images"]
-        train_masks = args["train_masks"]
-    else:
-        train_images = config.get(args["dataset_path"], "train_images")
-        train_masks = config.get(args["dataset_path"], "train_masks")
-
+    train_images = args.get(args["train_images"], config.get(args["train_dataset_path"], "train_images"))
+    train_masks = args.get(args["train_masks"], config.get(args["train_dataset_path"], "train_masks"))
     save_mean_miou = 0
     # save_mean_miou_s = 0
     check_have_GPU()
@@ -280,26 +265,15 @@ def main():
     # Model import 模型導入
     model = network_model.Net()
 
-    # Calculation model size parameter amount and calculation amount
-    # 計算模型大小、參數量與計算量
     c = utils.metrics.Calculate(model)
     model_size = c.get_model_size()
     flops, params = c.get_params()
 
-    # Set up the device for training
-    # 設定用於訓練之裝置
     model, device = check_number_of_GPUs(model)
 
     set_save_dir_names()
 
-    # Import data導入資料
-    seconds = time.time()  # Random number generation 亂數產生
-    random.seed(seconds)  # 使用時間秒數當亂數種子
-
     training_data = utils.dataset.DatasetSegmentation(train_images, train_masks)
-
-    random.seed(seconds)  # 使用時間秒數當亂數種子
-
     validation_data = utils.dataset.DatasetSegmentation(
         train_images, train_masks, mode="val"
     )
@@ -320,8 +294,6 @@ def main():
         drop_last=True,
     )
 
-    # Import optimizer導入優化器
-
     # 先用Adam測試模型能力
     optimizer = torch.optim.Adam(
         model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
@@ -336,13 +308,11 @@ def main():
 
     # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
 
-    start_epoch = 1  # Initial epoch 初始epoch值
+    start_epoch = 1
 
-    # wandb.ai
     if args["wandb_name"] != "no":
         wandb_information(model_size, flops, params, model, train_images, train_masks,args)
 
-    # Checkpoint training 斷點訓練
     if args["resume"]:
         if os.path.isfile(
             args["resume"]
@@ -405,199 +375,58 @@ def main():
             "best_miou": save_mean_miou,
             # "best_miou_s": save_mean_miou_s,
         }
+        
+        def save_model_and_state(model, state, mean_loss, mean_miou, onnx_img_image, path, filename):
+            torch.save(state, f"{path}{filename}_checkpoint.pth")
+            torch.save(model.state_dict(), f"{path}{filename}.pth")
+            # torch.onnx.export(model, onnx_img_image, f"{path}{filename}.onnx", verbose=False)
+            if args["wandb_name"] != "no":
+                wandb.log({"last_loss": mean_loss, "last_miou": mean_miou})
+                wandb.save(f"{path}{filename}_checkpoint.pth", base_path="./")
+                wandb.save(f"{path}{filename}.pth", base_path="./")
+                # wandb.save(f"{path}{filename}.onnx", base_path="./")
 
-        torch.save(state, args["save_dir"] + "last_checkpoint" + ".pth")
-        torch.save(model.state_dict(), args["save_dir"] + "last" + ".pth")
-        # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'last' +  '.onnx', verbose=False)
+        def save_and_log_image(image, path, filename):
+            full_path = f"{path}/{filename}.jpg"
+            torchvision.utils.save_image(image, full_path)
+            if args["wandb_name"] != "no":
+                wandb.log({filename: wandb.Image(full_path)})
+
+        save_model_and_state(model, state,  mean_loss, mean_miou, onnx_img_image,args["save_dir"], "last")
+
         with open(f"{args['save_dir']}/log.txt", "w") as f:
-            f.write(model_name +"\n" 
-                    + "train_images:"+ train_images + "\n" 
-                    + "train_masks:" + train_masks + "\n" 
-                    + "batchsize:" + str(args["batch_size"]) + "\n"
-                    + "num_workers:" + str(args["num_workers"]) + "\n"
-                    + "epochs:" + str(args["epochs"]) + "\n"
-                    + "learning_rate:" + str(args["learning_rate"]) + "\n"
-                    + "weight_decay:" + str(args["weight_decay"]) + "\n"
-                    + "update time:" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + "\n")
+            f.write(f"{model_name}\n"
+                    f"train_images: {train_images}\n"
+                    f"train_masks: {train_masks}\n"
+                    f"batchsize: {args['batch_size']}\n"
+                    f"num_workers: {args['num_workers']}\n"
+                    f"epochs: {args['epochs']}\n"
+                    f"learning_rate: {args['learning_rate']}\n"
+                    f"weight_decay: {args['weight_decay']}\n"
+                    f"update time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}\n")
 
         if args["save_train_image"] != "no":
-            torchvision.utils.save_image(
-                train_RGB_image,
-                "./training_data_captures/" + "last_RGB_image_" + ".jpg",
-            )
-            torchvision.utils.save_image(
-                train_mask_image,
-                "./training_data_captures/" + "last_mask_image_" + ".jpg",
-            )
-            torchvision.utils.save_image(
-                train_output, "./training_data_captures/" + "last_output_" + ".jpg"
-            )
+            save_and_log_image(train_RGB_image, "./training_data_captures", "train_RGB_image")
+            save_and_log_image(train_mask_image, "./training_data_captures", "train_mask_image")
+            save_and_log_image(train_output, "./training_data_captures", "train_output")
 
         if args["save_validation_image_last"] != "no":
-            # torchvision.utils.save_image(torch.cat((mask_image,output),0), "./validation_data_captures/" + "last_" + ".jpg")
-            torchvision.utils.save_image(
-                RGB_image, "./validation_data_captures/" + "last_RGB_image_" + ".jpg"
-            )
-            torchvision.utils.save_image(
-                mask_image, "./validation_data_captures/" + "last_mask_image_" + ".jpg"
-            )
-            torchvision.utils.save_image(
-                output, "./validation_data_captures/" + "last_output_" + ".jpg"
-            )
+            save_and_log_image(RGB_image, "./validation_data_captures", "last_RGB_image")
+            save_and_log_image(mask_image, "./validation_data_captures", "last_mask_image")
+            save_and_log_image(output, "./validation_data_captures", "last_output")
 
-
-        if args["wandb_name"] != "no":
-            wandb.save(args["save_dir"] + "last_checkpoint" + ".pth", base_path="./")
-            wandb.save(args["save_dir"] + "last" + ".pth", base_path="./")
-            # wandb.save(args['save_dir'] + 'last' +  '.onnx', base_path="./")
-
-            # Graphical archive of the epoch test set
-            # epoch 測試集中的圖示化存檔
-            # wandb.log({"last": wandb.Image("./validation_data_captures/" + "last_" + ".jpg")})
-
-            if args["save_train_image"] != "no":
-                wandb.log(
-                    {
-                        "train_RGB_image": wandb.Image(
-                            "./training_data_captures/" + "last_RGB_image_" + ".jpg"
-                        )
-                    }
-                )
-                wandb.log(
-                    {
-                        "train_mask_image": wandb.Image(
-                            "./training_data_captures/" + "last_mask_image_" + ".jpg"
-                        )
-                    }
-                )
-                wandb.log(
-                    {
-                        "train_output": wandb.Image(
-                            "./training_data_captures/" + "last_output_" + ".jpg"
-                        )
-                    }
-                )
-
-            if args["save_validation_image_last"] != "no":
-                wandb.log(
-                    {
-                        "last_RGB_image": wandb.Image(
-                            "./validation_data_captures/" + "last_RGB_image_" + ".jpg"
-                        )
-                    }
-                )
-                wandb.log(
-                    {
-                        "last_mask_image": wandb.Image(
-                            "./validation_data_captures/" + "last_mask_image_" + ".jpg"
-                        )
-                    }
-                )
-                wandb.log(
-                    {
-                        "last_output": wandb.Image(
-                            "./validation_data_captures/" + "last_output_" + ".jpg"
-                        )
-                    }
-                )
 
         if mean_miou > save_mean_miou:
             print("best_loss: %.3f , best_miou: %.3f" % (mean_loss, mean_miou))
-            torch.save(state, args["save_dir"] + "best_checkpoint" + ".pth")
-            torch.save(model.state_dict(), args["save_dir"] + "best" + ".pth")
-            # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best' +  '.onnx', verbose=False)
-
-            # torchvision.utils.save_image(
-            #     torch.cat((mask_image, output), 0),
-            #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
-            # )
-
+            save_model_and_state(model, state,  mean_loss, mean_miou, onnx_img_image,args["save_dir"], "best")
+            
             if args["save_validation_image_bast"] != "no":
-                torchvision.utils.save_image(
-                    RGB_image,
-                    "./validation_data_captures/" + "best_RGB_image_" + ".jpg",
-                )
-                torchvision.utils.save_image(
-                    mask_image,
-                    "./validation_data_captures/" + "best_mask_image_" + ".jpg",
-                )
-                torchvision.utils.save_image(
-                    output, "./validation_data_captures/" + "best_output_" + ".jpg"
-                )
+                save_and_log_image(RGB_image, "./validation_data_captures", "best_RGB_image")
+                save_and_log_image(mask_image, "./validation_data_captures", "best_mask_image")
+                save_and_log_image(output, "./validation_data_captures", "best_output")
 
-            if args["wandb_name"] != "no":
-                wandb.log({"best_loss": mean_loss, "best_miou": mean_miou})
-                wandb.save(args["save_dir"] + "best_checkpoint" + ".pth", base_path="./")
-                wandb.save(args["save_dir"] + "best" + ".pth", base_path="./")
-                # wandb.save(args['save_dir'] + 'best' +  '.onnx', base_path="./")
-                
-                # wandb.log({"best": wandb.Image("./validation_data_captures/" + "best" + ".jpg")})
-
-                if args["save_validation_image_bast"] != "no":
-                    wandb.log(
-                        {
-                            "best_RGB_image": wandb.Image(
-                                "./validation_data_captures/"
-                                + "best_RGB_image_"
-                                + ".jpg"
-                            )
-                        }
-                    )
-                    wandb.log(
-                        {
-                            "best_mask_image": wandb.Image(
-                                "./validation_data_captures/"
-                                + "best_mask_image_"
-                                + ".jpg"
-                            )
-                        }
-                    )
-                    wandb.log(
-                        {
-                            "best_output": wandb.Image(
-                                "./validation_data_captures/" + "best_output_" + ".jpg"
-                            )
-                        }
-                    )
             save_mean_miou = mean_miou
 
-            # if mean_miou_s > save_mean_miou_s:
-            #     print("best_loss: %.3f , best_miou_s: %.3f" % (mean_loss, mean_miou_s))
-            #     torch.save(
-            #         state, args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth"
-            #     )
-            #     torch.save(
-            #         model.state_dict(), args["save_dir"] + "best_mean_miou_s" + ".pth"
-            #     )
-            #     # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'best_mean_miou_s' +  '.onnx', verbose=False)
-            #     # torchvision.utils.save_image(
-            #     #     torch.cat((mask_image, output), 0),
-            #     #     "./validation_data_captures/" + "best" + str(count) + ".jpg",
-            #     # )
-                # if args["wandb_name"] != "no":
-                #     wandb.log({"best_loss": mean_loss, "best_miou_s": mean_miou_s})
-                #     wandb.save(
-                #         args["save_dir"] + "best_mean_miou_s_checkpoint" + ".pth",base_path="./"
-                #     )
-                #     wandb.save(args["save_dir"] + "best_mean_miou_s" + ".pth",base_path="./")
-                #     wandb.save(args['save_dir'] + 'best_mean_miou_s' +  '.onnx', base_path="./")
-
-            # save_mean_miou_s = mean_miou_s
-
-
-    #     if epoch > args["epochs"] - 10:
-    #         torch.save(state, model_file_name)
-    #         # torch.onnx.export(model, onnx_img_image, model_file_nameonnx, verbose=False)
-    #     elif not epoch % 20:
-    #         torch.save(state, model_file_name)
-    #         # torch.onnx.export(model, onnx_img_image, model_file_nameonnx, verbose=False)
-
-    # torch.save(state, args["save_dir"] + "final" + ".pth")
-    # wandb.save(args["save_dir"] + "final" + ".pth")
-    # # torch.onnx.export(model, onnx_img_image, args['save_dir'] + 'final' +  '.onnx', verbose=False)
-
-    # Calculation of end time end elapsed time
-    # 計算結束時間與花費時間
     time_end = time.time()
     spend_time = int(time_end - time_start)
     time_dict = time_processing(spend_time)
@@ -610,8 +439,8 @@ def main():
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument(
-        "-dataset",
-        "--dataset_path",
+        "-train_dataset",
+        "--train_dataset_path",
         default="Host_SYN70K",
         help="use dataset path",
     )
