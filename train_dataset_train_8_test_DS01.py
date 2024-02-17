@@ -7,7 +7,6 @@ import os
 import configparser
 import argparse
 import time
-import random
 from tqdm import tqdm
 from torch.autograd import Variable
 import wandb
