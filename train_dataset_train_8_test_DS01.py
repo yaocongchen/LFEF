@@ -386,7 +386,7 @@ def main():
             torch.save(model.state_dict(), f"{path}{filename}.pth")
             # torch.onnx.export(model, onnx_img_image, f"{path}{filename}.onnx", verbose=False)
             if args["wandb_name"] != "no":
-                wandb.log({"last_loss": mean_loss, "last_miou": mean_miou})
+                wandb.log({f"{filename}_loss": mean_loss, f"{filename}_miou": mean_miou})
                 wandb.save(f"{path}{filename}_checkpoint.pth", base_path="./")
                 wandb.save(f"{path}{filename}.pth", base_path="./")
                 # wandb.save(f"{path}{filename}.onnx", base_path="./")
