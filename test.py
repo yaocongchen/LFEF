@@ -84,17 +84,10 @@ def smoke_segmentation(model,device, names, args):
         drop_last=True,
     )
 
-    os.makedirs(
-        f'./{names["smoke_semantic_dir_name"]}/test_RGB_image', exist_ok=True
-    )  # Create new folder 創建新的資料夾
-    os.makedirs(
-        f'./{names["smoke_semantic_dir_name"]}/test_mask_image', exist_ok=True
-    )  # Create new folder 創建新的資料夾
-    os.makedirs(
-        f'./{names["smoke_semantic_dir_name"]}/test_output', exist_ok=True
-    )  # Create new folder 創建新的資料夾
-    os.makedirs(
-        f'./{names["smoke_semantic_dir_name"]}/test_check_feature', exist_ok=True)
+    folders = ["test_RGB_image", "test_mask_image", "test_output", "test_check_feature"]
+
+    for folder in folders:
+        os.makedirs(f'./{names["smoke_semantic_dir_name"]}/{folder}', exist_ok=True)
     
     count = 0
     pbar = tqdm((testing_data_loader), total=len(testing_data_loader))
@@ -146,6 +139,19 @@ def smoke_segmentation(model,device, names, args):
             test_hd=average_epoch_hd_test,
         )
 
+        def save_and_log_image(image, path, filename):
+            torchvision.utils.save_image(image, f"{path}{filename}")
+            if args["wandb_name"] != "no":
+                wandb.log({path.split('/')[-2]: wandb.Image(f"{path}{filename}")})
+
+        count += 1
+        output = (output > 0.5).float()
+
+        save_and_log_image(RGB_image, f'./{names["smoke_semantic_dir_name"]}/test_RGB_image/', f'test_RGB_image_{count}.jpg')
+        save_and_log_image(mask_image, f'./{names["smoke_semantic_dir_name"]}/test_mask_image/', f'test_mask_image_{count}.jpg')
+        save_and_log_image(output, f'./{names["smoke_semantic_dir_name"]}/test_output/', f'test_output_{count}.jpg')
+        # save_and_log_image(feat, f'./{names["smoke_semantic_dir_name"]}/test_check_feature/', f'test_check_feature_{count}.jpg')
+        
         if args["wandb_name"] != "no":
             wandb_time_start2 = time.time()
             wandb.log(
@@ -158,50 +164,11 @@ def smoke_segmentation(model,device, names, args):
                     "test_hd": average_epoch_hd_test,
                 }
             )
-            wandb.log(
-                {
-                    "test_RGB_image": wandb.Image(
-                        f'./{names["smoke_semantic_dir_name"]}/test_RGB_image/test_RGB_image_{count}.jpg'
-                    )
-                }
-            )
-            wandb.log(
-                {
-                    "test_mask_image": wandb.Image(
-                        f'./{names["smoke_semantic_dir_name"]}/test_mask_image/test_mask_image_{count}.jpg'
-                    )
-                }
-            )
-            wandb.log(
-                {
-                    "test_output": wandb.Image(
-                        f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg'
-                    )
-                }
-            )
+            
             wandb_time_end2 = time.time()
             wandb_time_total2 = wandb_time_end2 - wandb_time_start2
             wandb_time_total2_cache += wandb_time_total2
             wandb_time_total = wandb_time_total1 + wandb_time_total2_cache
-
-        count += 1
-        output = (output > 0.5).float()
-        torchvision.utils.save_image(
-            RGB_image,
-            f'./{names["smoke_semantic_dir_name"]}/test_RGB_image/test_RGB_image_{count}.jpg',
-        )
-        torchvision.utils.save_image(
-            mask_image,
-            f'./{names["smoke_semantic_dir_name"]}/test_mask_image/test_mask_image_{count}.jpg',
-        )
-        torchvision.utils.save_image(
-            output,
-            f'./{names["smoke_semantic_dir_name"]}/test_output/test_output_{count}.jpg',
-        )
-        # torchvision.utils.save_image(
-        #     feat,
-        #     f'./{names["smoke_semantic_dir_name"]}/test_check_feature/test_check_feature_{count}.jpg',
-        # )  
 
     if args["wandb_name"] != "no":
         return average_epoch_loss_test, average_epoch_miou_test, average_epoch_mSSIM_test, average_epoch_hd_test, wandb_time_total
