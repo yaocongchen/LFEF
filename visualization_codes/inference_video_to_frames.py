@@ -137,6 +137,7 @@ def smoke_segmentation(
 
         video_frame = image_pre_processing(frame, device)
         output = smoke_semantic(video_frame, model_input, device, time_train, i)
+        output = (output > 0.5).float()
         # use opencv method
         output_np = (
             output.squeeze(0)
