@@ -34,7 +34,7 @@ def channel_shuffle(x, groups):
 
     return x
 
-class ConvINReLU6(nn.Module):
+class ConvINReLU(nn.Module):
     def __init__(self, nIn, nOut, kSize, stride=1):
         """
         args:
@@ -55,7 +55,7 @@ class ConvINReLU6(nn.Module):
         )
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
-        self.act = nn.ReLU6(nOut)
+        self.act = nn.ReLU(nOut)
 
     def forward(self, input):
         """
@@ -70,7 +70,7 @@ class ConvINReLU6(nn.Module):
         return output
 
 
-class INReLU6(nn.Module):
+class INReLU(nn.Module):
     def __init__(self, nOut):
         """
         args:
@@ -79,7 +79,7 @@ class INReLU6(nn.Module):
         super().__init__()
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
-        self.act = nn.ReLU6(nOut)
+        self.act = nn.ReLU(nOut)
 
     def forward(self, input):
         """
@@ -275,7 +275,7 @@ class FGlo(nn.Module):
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Sequential(
             nn.Linear(channel, channel // reduction),
-            nn.ReLU6(inplace=True),
+            nn.ReLU(inplace=True),
             nn.Linear(channel // reduction, channel),
             nn.Sigmoid(),
         )
@@ -330,7 +330,7 @@ class ContextGuidedBlock_Down(nn.Module):
            nOut: the channel of output feature map, and nOut=2*nIn
         """
         super().__init__()
-        self.conv1x1 = ConvINReLU6(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
+        self.conv1x1 = ConvINReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
 
         self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
         self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate)
@@ -339,7 +339,7 @@ class ContextGuidedBlock_Down(nn.Module):
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
         self.in_norm = nn.InstanceNorm2d(4 * nOut, affine=True)
-        self.act = nn.ReLU6(4 * nOut)
+        self.act = nn.ReLU(4 * nOut)
         self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.F_glo = FGlo(nOut, reduction)
@@ -390,7 +390,7 @@ class ContextGuidedBlock(nn.Module):
         """
         super().__init__()
         n = int(nOut / 4)
-        self.conv1x1 = ConvINReLU6(
+        self.conv1x1 = ConvINReLU(
             nIn, n, 1, 1
         )  # 1x1 Conv is employed to reduce the computation
         self.F_loc = ChannelWiseConv(n, n, 3, 1)  # local feature
@@ -400,7 +400,7 @@ class ContextGuidedBlock(nn.Module):
         self.F_sur_4 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 2)
         self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 4)
 
-        self.in_relu = INReLU6(4*n)
+        self.in_relu = INReLU(4*n)
         self.add = add
         self.F_glo = FGlo(4*n, reduction)
 
@@ -499,7 +499,7 @@ class non_bottleneck_1d(nn.Module):
             bias=True,
             dilation=(1, dilated),
         )
-        self.relu = nn.ReLU6(chann)
+        self.relu = nn.ReLU(chann)
         # self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
         self.in_norm2 = nn.InstanceNorm2d(chann, affine=True)
 
@@ -524,9 +524,9 @@ class AuxiliaryNetwork(nn.Module):
     def __init__(self, nIn, nOut, stride=1):
         super().__init__()
         # self.ea = ExternalAttention(d_model=nIn)
-        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=False), nn.ReLU6())
-        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=False) , nn.ReLU6())
-        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=False), nn.ReLU6())
+        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=False), nn.ReLU())
+        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=False) , nn.ReLU())
+        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=False), nn.ReLU())
 
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
@@ -576,7 +576,7 @@ class Net(nn.Module):
         super().__init__()
         self.brightness_adjustment = BrightnessAdjustment()
 
-        self.level1_0 = ConvINReLU6(3, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
         self.level1_2 = non_bottleneck_1d(32, 2)
 
@@ -596,8 +596,8 @@ class Net(nn.Module):
             self.level2.append(
                 ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
-        self.in_relu_2 = INReLU6(128)
-        # self.bn_relu_2_2 = BNReLU6(128 + 3)
+        self.in_relu_2 = INReLU(128)
+        # self.bn_relu_2_2 = BNReLU(128 + 3)
 
 
         # stage 3
@@ -609,7 +609,7 @@ class Net(nn.Module):
             self.level3.append(
                 ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
             )  # CG bloc
-        self.in_relu_3 = INReLU6(256)
+        self.in_relu_3 = INReLU(256)
 
 
         if dropout_flag:
@@ -638,12 +638,12 @@ class Net(nn.Module):
         # self.conv_64_to_128 = nn.Conv2d(64, 128, kernel_size=1, stride=1, padding=0, bias=False)
         # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
-        # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.ReLU6())
+        # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.ReLU())
         
         # self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        # self.conv_32_to_1 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU6())
-        # self.conv_128_to_1 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU6())
-        # self.conv_256_to_1 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU6())
+        # self.conv_32_to_1 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
+        # self.conv_128_to_1 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
+        # self.conv_256_to_1 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
 
 #================================================================================================#
         self.conv_256_to_128 = nn.Conv2d(256, 128, kernel_size=(1, 1), stride=1,padding=0)
@@ -658,7 +658,7 @@ class Net(nn.Module):
         self.conv_96_to_1_IN = nn.InstanceNorm2d(1, affine=True)
         self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
 
-        self.relu = nn.ReLU6()
+        self.relu = nn.ReLU()
 #================================================================================================#
         
         self.sigmoid = nn.Sigmoid()
