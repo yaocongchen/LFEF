@@ -119,13 +119,13 @@ def CustomLoss(model_output, mask):
     # s_iou = Sigmoid_IoU(model_output,mask)
     iou = IoU(model_output,mask)
 
-    # my_ssim = ssim_val(model_output,mask)
+    my_ssim = ssim_val(model_output,mask)
 
     loss_1 = L(model_output, mask)
 
 
     # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - my_ssim) * (alpha/2)
-    total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha)
-    # total_loss = loss_1
+    # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha)
+    total_loss = loss_1
 
     return total_loss
