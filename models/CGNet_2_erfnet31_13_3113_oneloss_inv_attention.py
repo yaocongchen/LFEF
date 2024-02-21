@@ -1,3 +1,8 @@
+###########################################################################
+# Created by: Yao-Cong,Chen
+# Email: yaocongchen@outlook.com
+# Copyright (c) 2024 Yao-Cong,Chen. All rights reserved.
+###########################################################################
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
