@@ -291,6 +291,7 @@ class FGlo(nn.Module):
         y = self.fc(y).view(b, c, 1, 1)
         return x * y
 
+
 # class ExternalAttention(nn.Module):
 
 #     def __init__(self, d_model,S=64):
@@ -323,6 +324,8 @@ class FGlo(nn.Module):
 #         out=self.mv(attn) #bs,n,d_model
 
 #         return out
+    
+
 class ContextGuidedBlock_Down(nn.Module):
     """
     the size of feature map divided 2, (H,W,C)---->(H/2, W/2, 2C)
@@ -563,7 +566,6 @@ class BrightnessAdjustment(nn.Module):
 
         adjusted_image = input_image * self.brightness
         return adjusted_image  
-    
 
 
 class Net(nn.Module):
@@ -758,6 +760,7 @@ class Net(nn.Module):
         output = self.sigmoid(output)
 
         return output
+
 
 if __name__ == "__main__":
     model = Net()
