@@ -647,25 +647,25 @@ class Net(nn.Module):
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.ReLU())
         
-        self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        self.conv_32_to_1 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
-        self.conv_128_to_1 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
-        self.conv_256_to_1 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
+        # self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
+        # self.conv_32_to_1 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
+        # self.conv_128_to_1 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
+        # self.conv_256_to_1 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
 
 #================================================================================================#
-        # self.conv_256_to_128 = nn.Conv2d(256, 128, kernel_size=(1, 1), stride=1,padding=0)
-        # self.conv_256_to_128_IN = nn.InstanceNorm2d(128, affine=True)
-        # self.upsample_to_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
+        self.conv_256_to_128 = nn.Conv2d(256, 128, kernel_size=(1, 1), stride=1,padding=0)
+        self.conv_256_to_128_IN = nn.InstanceNorm2d(128, affine=True)
+        self.upsample_to_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
 
-        # self.conv_256_to_32 = nn.Conv2d(256, 32, kernel_size=(1, 1), stride=1,padding=0)
-        # self.conv_256_to_32_IN = nn.InstanceNorm2d(32, affine=True)
-        # self.upsample_to_128x128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
+        self.conv_256_to_32 = nn.Conv2d(256, 32, kernel_size=(1, 1), stride=1,padding=0)
+        self.conv_256_to_32_IN = nn.InstanceNorm2d(32, affine=True)
+        self.upsample_to_128x128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
 
-        # self.conv_96_to_1 = nn.Conv2d(64, 1, kernel_size=(1, 1), stride=1,padding=0)
-        # self.conv_96_to_1_IN = nn.InstanceNorm2d(1, affine=True)
-        # self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
+        self.conv_96_to_1 = nn.Conv2d(64, 1, kernel_size=(1, 1), stride=1,padding=0)
+        self.conv_96_to_1_IN = nn.InstanceNorm2d(1, affine=True)
+        self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
 
-        # self.relu = nn.ReLU()
+        self.relu = nn.ReLU()
 #================================================================================================#
         
         self.sigmoid = nn.Sigmoid()
@@ -723,41 +723,41 @@ class Net(nn.Module):
 
         final_stage3_output = self.in_relu_3(torch.cat([initial_stage3_output, processed_stage3_output], 1))
 
-        stage1_ewp_inverted_output_up = self.upsample(stage1_ewp_inverted_output)
-        stage1_ewp_inverted_output_up = self.conv_32_to_1(stage1_ewp_inverted_output_up)
+        # stage1_ewp_inverted_output_up = self.upsample(stage1_ewp_inverted_output)
+        # stage1_ewp_inverted_output_up = self.conv_32_to_1(stage1_ewp_inverted_output_up)
 
-        final_stage2_output_up = self.upsample(final_stage2_output)
-        final_stage2_output_up = self.conv_128_to_1(final_stage2_output_up)
+        # final_stage2_output_up = self.upsample(final_stage2_output)
+        # final_stage2_output_up = self.conv_128_to_1(final_stage2_output_up)
 
-        final_stage3_output_up = self.upsample(final_stage3_output)
-        final_stage3_output_up = self.conv_256_to_1(final_stage3_output_up)
+        # final_stage3_output_up = self.upsample(final_stage3_output)
+        # final_stage3_output_up = self.conv_256_to_1(final_stage3_output_up)
 
-        output = torch.cat([stage1_ewp_inverted_output_up, final_stage2_output_up, final_stage3_output_up], 1)
-        output = self.classifier(output)
+        # output = torch.cat([stage1_ewp_inverted_output_up, final_stage2_output_up, final_stage3_output_up], 1)
+        # output = self.classifier(output)
 
 #================================================================================================#
-        # upsample_stage3_output = self.upsample_to_64x64(final_stage3_output)
-        # convolved_stage3_output = self.conv_256_to_128(upsample_stage3_output)
-        # convolved_stage3_output = self.conv_256_to_128_IN(convolved_stage3_output)
-        # # convolved_stage3_output = F.layer_norm(convolved_stage3_output, convolved_stage3_output.size()[1:])
-        # convolved_stage3_output = self.relu(convolved_stage3_output)
+        upsample_stage3_output = self.upsample_to_64x64(final_stage3_output)
+        convolved_stage3_output = self.conv_256_to_128(upsample_stage3_output)
+        convolved_stage3_output = self.conv_256_to_128_IN(convolved_stage3_output)
+        # convolved_stage3_output = F.layer_norm(convolved_stage3_output, convolved_stage3_output.size()[1:])
+        convolved_stage3_output = self.relu(convolved_stage3_output)
 
-        # stage3_cat_stage2_output = torch.cat([convolved_stage3_output, final_stage2_output], 1)
-        # upsample_stage2_output = self.upsample_to_128x128(stage3_cat_stage2_output)
-        # convolved_stage2_output = self.conv_256_to_32(upsample_stage2_output)
-        # convolved_stage2_output = self.conv_256_to_32_IN(convolved_stage2_output)
-        # # convolved_stage2_output = F.layer_norm(convolved_stage2_output, convolved_stage2_output.size()[1:])
-        # convolved_stage2_output = self.relu(convolved_stage2_output)
+        stage3_cat_stage2_output = torch.cat([convolved_stage3_output, final_stage2_output], 1)
+        upsample_stage2_output = self.upsample_to_128x128(stage3_cat_stage2_output)
+        convolved_stage2_output = self.conv_256_to_32(upsample_stage2_output)
+        convolved_stage2_output = self.conv_256_to_32_IN(convolved_stage2_output)
+        # convolved_stage2_output = F.layer_norm(convolved_stage2_output, convolved_stage2_output.size()[1:])
+        convolved_stage2_output = self.relu(convolved_stage2_output)
 
-        # stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_output], 1)
-        # upsample_stage1_output = self.upsample_to_256x256(stage2_cat_stage1_output)
-        # convolved_stage1_output = self.conv_96_to_1(upsample_stage1_output)
-        # convolved_stage1_output = self.conv_96_to_1_IN(convolved_stage1_output)
-        # # convolved_stage1_output = F.layer_norm(convolved_stage1_output, convolved_stage1_output.size()[1:])
-        # convolved_stage1_output = self.relu(convolved_stage1_output)
+        stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_output], 1)
+        upsample_stage1_output = self.upsample_to_256x256(stage2_cat_stage1_output)
+        convolved_stage1_output = self.conv_96_to_1(upsample_stage1_output)
+        convolved_stage1_output = self.conv_96_to_1_IN(convolved_stage1_output)
+        # convolved_stage1_output = F.layer_norm(convolved_stage1_output, convolved_stage1_output.size()[1:])
+        convolved_stage1_output = self.relu(convolved_stage1_output)
 #================================================================================================#
 
-        output = self.sigmoid(output)
+        output = self.sigmoid(convolved_stage1_output)
 
         return output
 
