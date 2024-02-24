@@ -1,3 +1,8 @@
+###########################################################################
+# Created by: Yao-Cong,Chen
+# Email: yaocongchen@outlook.com
+# Copyright (c) 2024 Yao-Cong,Chen. All rights reserved.
+###########################################################################
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -286,6 +291,7 @@ class FGlo(nn.Module):
         y = self.fc(y).view(b, c, 1, 1)
         return x * y
 
+
 # class ExternalAttention(nn.Module):
 
 #     def __init__(self, d_model,S=64):
@@ -318,6 +324,8 @@ class FGlo(nn.Module):
 #         out=self.mv(attn) #bs,n,d_model
 
 #         return out
+    
+
 class ContextGuidedBlock_Down(nn.Module):
     """
     the size of feature map divided 2, (H,W,C)---->(H/2, W/2, 2C)
@@ -558,7 +566,6 @@ class BrightnessAdjustment(nn.Module):
 
         adjusted_image = input_image * self.brightness
         return adjusted_image  
-    
 
 
 class Net(nn.Module):
@@ -753,6 +760,7 @@ class Net(nn.Module):
         output = self.sigmoid(convolved_stage1_output)
 
         return output
+
 
 if __name__ == "__main__":
     model = Net()

@@ -57,6 +57,7 @@ def overlap_v1(image1, image2, read_method):
 
 
 def overlap_v2(image1, image2, read_method):
+    image = image1.copy()
     W, H = image2.size
     black_background = (0, 0, 0, 255)
     # white_mask = (255, 255, 255, 255)
@@ -73,6 +74,6 @@ def overlap_v2(image1, image2, read_method):
                     color_1 = ((color_1[0] + 255), (color_1[1] + 0), (color_1[2] + 0))
                 elif read_method == "OpenCV_BGRA":
                     color_1 = ((color_1[0] + 0), (color_1[1] + 0), (color_1[2] + 255))
-                image1.putpixel(dot, color_1)
+                image.putpixel(dot, color_1)
 
-    return image1
+    return image

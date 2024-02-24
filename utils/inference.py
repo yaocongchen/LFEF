@@ -12,7 +12,6 @@ def smoke_semantic(input_image, model, device, time_train, i):
 
     with torch.no_grad():
         output = model(input_image)  # Import model 導進模型
-        output = (output > 0.5).float()
 
     if device == torch.device("cuda"):
         torch.cuda.synchronize()  # wait for cuda to finish (cuda is asynchronous!)
