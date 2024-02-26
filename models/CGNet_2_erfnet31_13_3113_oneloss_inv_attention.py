@@ -584,8 +584,11 @@ class Net(nn.Module):
         self.brightness_adjustment = BrightnessAdjustment()
 
         self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
-        self.level1_1 = non_bottleneck_1d(32, 1)
-        self.level1_2 = non_bottleneck_1d(32, 2)
+        # self.level1_1 = non_bottleneck_1d(32, 1)
+        # self.level1_2 = non_bottleneck_1d(32, 2)
+
+        self.level1_1 = ConvINReLU(32, 32, 3, 1)
+        self.level1_2 = ConvINReLU(32, 32, 3, 1)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
