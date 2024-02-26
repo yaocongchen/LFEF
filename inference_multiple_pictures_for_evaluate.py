@@ -223,7 +223,7 @@ def smoke_segmentation(
         iou_np = np.round(iou.cpu().detach().numpy() * 100, 2)
         image_stitching(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename), iou_np)
         iou_list.append(iou_np)
-
+        # i += 1
     return iou_list
 
 
@@ -266,4 +266,4 @@ if __name__ == "__main__":
     # print(total_image)
 
     # Calculate FPS
-    print("FPS:{:.1f}".format(total_image / (time_end - time_start)))
+    print("FPS:{:.3f}".format(total_image / spend_time))
