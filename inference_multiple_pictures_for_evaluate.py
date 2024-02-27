@@ -239,7 +239,7 @@ if __name__ == "__main__":
     print(f"inference_multiple_Dataset on device {device}.")
 
     names = folders_and_files_name()
-    print(names)
+    # print(names)
     # Calculate the total execution time 計算總執行時間
     model = network_model.Net().to(device)
     model.load_state_dict(torch.load(args["model_path"], map_location=device))
