@@ -346,9 +346,9 @@ class ContextGuidedBlock_Down(nn.Module):
         self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 4)
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
-        self.in_norm = nn.InstanceNorm2d(4 * nOut, affine=True)
-        self.act = nn.ReLU(4 * nOut)
-        self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+        self.in_norm = nn.InstanceNorm2d(2 * nOut, affine=True)
+        self.act = nn.ReLU(2 * nOut)
+        self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.F_glo = FGlo(nOut, reduction)
 
@@ -365,8 +365,8 @@ class ContextGuidedBlock_Down(nn.Module):
         sur_4 = self.F_sur_4(output)
         sur_8 = self.F_sur_8(output)
 
-        joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
-        # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
+        # joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
+        joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
         joi_feat = self.in_norm(joi_feat)
         # joi_feat = F.layer_norm(joi_feat, joi_feat.size()[1:])
@@ -397,7 +397,7 @@ class ContextGuidedBlock(nn.Module):
            add: if true, residual learning
         """
         super().__init__()
-        n = int(nOut / 4)
+        n = int(nOut / 2)
         self.conv1x1 = ConvINReLU(
             nIn, n, 1, 1
         )  # 1x1 Conv is employed to reduce the computation
@@ -408,9 +408,9 @@ class ContextGuidedBlock(nn.Module):
         self.F_sur_4 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 2)
         self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 4)
 
-        self.in_relu = INReLU(4*n)
+        self.in_relu = INReLU(2*n)
         self.add = add
-        self.F_glo = FGlo(4*n, reduction)
+        self.F_glo = FGlo(2*n, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
@@ -425,8 +425,8 @@ class ContextGuidedBlock(nn.Module):
         sur_4 = self.F_sur_4(output)
         sur_8 = self.F_sur_8(output)
         
-        #joi_feat = torch.cat([loc, sur], 1)
-        joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
+        joi_feat = torch.cat([loc, sur], 1)
+        # joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
 
         joi_feat = self.in_relu(joi_feat)
 
@@ -584,11 +584,11 @@ class Net(nn.Module):
         self.brightness_adjustment = BrightnessAdjustment()
 
         self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
-        # self.level1_1 = non_bottleneck_1d(32, 1)
-        # self.level1_2 = non_bottleneck_1d(32, 2)
+        self.level1_1 = non_bottleneck_1d(32, 1)
+        self.level1_2 = non_bottleneck_1d(32, 2)
 
-        self.level1_1 = ConvINReLU(32, 32, 3, 1)
-        self.level1_2 = ConvINReLU(32, 32, 3, 1)
+        # self.level1_1 = ConvINReLU(32, 32, 3, 1)
+        # self.level1_2 = ConvINReLU(32, 32, 3, 1)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
