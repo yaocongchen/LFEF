@@ -252,6 +252,8 @@ class ChannelWiseDilatedConv(nn.Module):
                 bias=False,
                 dilation=d,
             ),
+            nn.InstanceNorm2d(nIn, affine=True),
+            nn.ReLU(nIn),
             nn.Conv2d(
                 nIn,
                 nOut,
@@ -262,8 +264,9 @@ class ChannelWiseDilatedConv(nn.Module):
                 bias=False,
                 dilation=d,
             ),
+            nn.InstanceNorm2d(nOut, affine=True),
+            nn.ReLU(nOut),
         )
-        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
         self.act = nn.ReLU(nOut)
         
     def forward(self, input):
@@ -273,7 +276,6 @@ class ChannelWiseDilatedConv(nn.Module):
            return: transformed feature map
         """
         output = self.conv(input)
-        output = self.in_norm(output)
         return output
 
 
