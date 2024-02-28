@@ -119,6 +119,7 @@ class ConvIN(nn.Module):
         )
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
+        self.act = nn.ReLU(nOut)
 
     def forward(self, input):
         """
@@ -183,6 +184,7 @@ class ChannelWiseConv(nn.Module):
             bias=False,
         )
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
+        self.act = nn.ReLU(nOut)
 
     def forward(self, input):
         """
@@ -262,7 +264,8 @@ class ChannelWiseDilatedConv(nn.Module):
             ),
         )
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
-
+        self.act = nn.ReLU(nOut)
+        
     def forward(self, input):
         """
         args:
