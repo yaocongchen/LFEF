@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-filename = "986"
+filename = "54"
 
 # Load the image
 image = cv2.imread(f"/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/images/{filename}.png")
