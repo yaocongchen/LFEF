@@ -347,21 +347,19 @@ class ContextGuidedBlock_Down(nn.Module):
            nOut: the channel of output feature map, and nOut=2*nIn
         """
         super().__init__()
-        n = int(nOut / 4)
+        self.conv1x1 = ConvINReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
 
-        self.conv1x1 = ConvINReLU(nIn, n, 3, 2)  #  size/2, channel: nIn--->nOut
-
-        self.F_loc = ChannelWiseConv(n, n, 3, 1)
-        self.F_sur = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate)
-        self.F_sur_4 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 2)
-        self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 4)
+        self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
+        self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate)
+        self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 2)
+        self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 4)
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
-        self.in_norm = nn.InstanceNorm2d(4 * n, affine=True)
-        self.act = nn.ReLU(4 * n)
-        # self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+        self.in_norm = nn.InstanceNorm2d(4 * nOut, affine=True)
+        self.act = nn.ReLU(4 * nOut)
+        self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
-        self.F_glo = FGlo(4 * n, reduction)
+        self.F_glo = FGlo(nOut, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
@@ -382,7 +380,7 @@ class ContextGuidedBlock_Down(nn.Module):
         joi_feat = self.in_norm(joi_feat)
         # joi_feat = F.layer_norm(joi_feat, joi_feat.size()[1:])
         joi_feat = self.act(joi_feat)
-        # joi_feat = self.reduce(joi_feat)  # channel= nOut
+        joi_feat = self.reduce(joi_feat)  # channel= nOut
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
 
