@@ -529,9 +529,9 @@ class AuxiliaryNetwork(nn.Module):
     def __init__(self, nIn, nOut, stride=1):
         super().__init__()
         # self.ea = ExternalAttention(d_model=nIn)
-        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=False), nn.ReLU())
-        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=False) , nn.ReLU())
-        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=False), nn.ReLU())
+        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=False), nn.InstanceNorm2d(8, affine = True) ,nn.ReLU())
+        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=False) ,nn.InstanceNorm2d(16 ,affine = True), nn.ReLU())
+        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=False),nn.InstanceNorm2d(16, affine = True), nn.ReLU())
 
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
