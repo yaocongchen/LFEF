@@ -18,6 +18,9 @@ from utils.inference import smoke_semantic
 import visualization_codes.utils.image_process as image_process
 # import visualization_codes.process_utils_cython_version.image_process_utils_cython as image_process
 
+model_name = str(network_model)
+print("model_name:", model_name)
+
 def folders_and_files_name():
     # Set save folder and save name 設定存檔資料夾與存檔名稱
     save_smoke_semantic_dir_name = "multiple_result"
@@ -197,6 +200,8 @@ def image_overlap(input_image, filename_no_extension, names, mask_image):
 def smoke_segmentation(
     directory: str, model: str, device: torch.device, names: dict, time_train, i
 ):
+    n_element = 0
+    mean_miou = 0
     images_dir = os.path.join(directory,"images")
     masks_dir = os.path.join(directory,"masks")
     pbar = tqdm((os.listdir(images_dir)), total=len(os.listdir(images_dir)))
@@ -213,7 +218,7 @@ def smoke_segmentation(
         mask_input_image = (mask_input_image) / 255.0
         mask_input_image = mask_input_image.unsqueeze(0).to(device)
         output = smoke_semantic(smoke_input_image, model, device, time_train, i)
-        iou = utils.metrics.IoU(output, mask_input_image)        
+        iou = utils.metrics.IoU(output, mask_input_image)
         output = (output > 0.5).float()
         torchvision.utils.save_image(
             output,
@@ -221,10 +226,12 @@ def smoke_segmentation(
         )
         image_overlap(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename))
         iou_np = np.round(iou.cpu().detach().numpy() * 100, 2)
+        n_element += 1
+        mean_miou += (iou_np.item() - mean_miou) / n_element  # 別人研究出的算平均的方法
         image_stitching(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename), iou_np)
         iou_list.append(iou_np)
         # i += 1
-    return iou_list
+    return iou_list, mean_miou
 
 
 if __name__ == "__main__":
@@ -248,15 +255,29 @@ if __name__ == "__main__":
     i = 0
     time_train = []
     time_start = time.time()
-    iou_list = smoke_segmentation(args["test_directory"], model, device, names, time_train, i)
+    iou_list,miou = smoke_segmentation(args["test_directory"], model, device, names, time_train, i)
     plt.hist(iou_list, bins=len(iou_list))
     plt.xlabel("IoU")
     plt.ylabel("Frequency")
-    plt.title("IoU Histogram")
+    plt.title(f"IoU Histogram \n mIoU:{miou:.2f}%")
     
     save_path = f'./results/{names["image_stitching_dir_name"]}/IoU_histogram.png'
     plt.savefig(save_path)
 
+    c = utils.metrics.Calculate(model)
+    model_size = c.get_model_size()
+    flops, params = c.get_params()
+
+    with open(f"./results/{names['image_stitching_dir_name']}/log.txt", "w") as f:
+        f.write(f"{model_name}\n"
+                f"test directory: {args['test_directory']}\n"
+                f"model path: {args['model_path']}\n"
+                f"model size: {model_size}\n"
+                f"flops: {flops}\n"
+                f"params: {params}\n"
+                f"mIoU: {miou:.2f}%\n"
+                f"update time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}\n")
+        
     total_image = len(os.listdir(args["test_directory"]))
     time_end = time.time()
     spend_time = int(time_end - time_start)
