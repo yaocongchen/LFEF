@@ -557,13 +557,22 @@ class AuxiliaryNetwork(nn.Module):
 class BrightnessAdjustment(nn.Module):
     def __init__(self):
         super().__init__()
-        self.brightness = nn.Parameter(torch.tensor([1.0]))
+        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=2, padding=1)
+        self.relu1 = nn.ReLU()
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1)
+        self.relu2 = nn.ReLU()
+        self.fc = nn.Linear(32 * 64 * 64, 1)  # 調整全連接層的輸入大小
 
-    def forward(self, input_image):
+    def forward(self, input):
+        x = self.conv1(input)
+        x = self.relu1(x)
+        x = self.conv2(x)
+        x = self.relu2(x)
+        x = x.view(x.size(0), -1)  # 將特徵圖攤平
+        x = self.fc(x)
 
-        adjusted_image = input_image * self.brightness
-        return adjusted_image  
-    
+        brightness = input * x.view(-1, 1, 1, 1)
+        return brightness
 
 
 class Net(nn.Module):
@@ -675,6 +684,7 @@ class Net(nn.Module):
             return: segmentation map
         """
 
+        input = self.brightness_adjustment(input)
         # stage 1
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
@@ -683,6 +693,7 @@ class Net(nn.Module):
         # inp2 = self.sample2(input)
 
         input_inverted = 1 - input
+        input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
         stage1_ewp_inverted_output = stage1_output * inverted_output
 
