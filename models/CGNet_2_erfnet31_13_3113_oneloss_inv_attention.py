@@ -562,6 +562,7 @@ class BrightnessAdjustment(nn.Module):
         self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1)
         self.relu2 = nn.ReLU()
         self.fc = nn.Linear(32 * 64 * 64, 1)  # 調整全連接層的輸入大小
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
         x = self.conv1(input)
@@ -570,9 +571,10 @@ class BrightnessAdjustment(nn.Module):
         x = self.relu2(x)
         x = x.view(x.size(0), -1)  # 將特徵圖攤平
         x = self.fc(x)
+        brightness = self.sigmoid(x)
+        output = input * brightness.view(-1, 1, 1, 1)
 
-        brightness = input * x.view(-1, 1, 1, 1)
-        return brightness
+        return output
 
 
 class Net(nn.Module):
