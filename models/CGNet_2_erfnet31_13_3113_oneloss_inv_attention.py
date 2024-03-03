@@ -13,7 +13,7 @@ __all__ = ["Context_Guided_Network"]
 # Filter out variables, functions, and classes that other programs don't need or don't want when running cmd "from CGNet import *"
 
 
-def split(x):
+def channel_split(x):
     c = int(x.size()[1])
     c1 = round(c * 0.5)
     x1 = x[
@@ -236,8 +236,10 @@ class ChannelWiseDilatedConv(nn.Module):
            d: dilation rate
         """
         super().__init__()
+        nIn = int(nIn / 2)
+        nOut = int(nOut / 2)
         padding = int((kSize - 1) / 2) * d
-        self.conv = nn.Sequential(
+        self.conv_3113 = nn.Sequential(
             nn.Conv2d(
                 nIn,
                 nIn,
@@ -260,13 +262,41 @@ class ChannelWiseDilatedConv(nn.Module):
             ),
         )
 
+        self.conv_1331 = nn.Sequential(
+            nn.Conv2d(
+                nIn,
+                nIn,
+                (1, kSize),
+                stride=stride,
+                padding=(0 , padding),
+                groups=nIn,
+                bias=False,
+                dilation=d,
+            ),
+            nn.Conv2d(
+                nIn,
+                nOut,
+                (kSize, 1),
+                stride=stride,
+                padding=(padding , 0),
+                groups=nIn,
+                bias=False,
+                dilation=d,
+            ),
+        )
+
     def forward(self, input):
         """
         args:
            input: input feature map
            return: transformed feature map
         """
-        output = self.conv(input)
+        x1, x2 = channel_split(input)
+        output_3113 = self.conv_3113(x1)
+        output_1331 = self.conv_1331(x2)
+        output = torch.cat([output_3113, output_1331], 1)
+        output = channel_shuffle(output, 2)
+
         return output
 
 
@@ -336,7 +366,7 @@ class ContextGuidedBlock_Down(nn.Module):
         """
         super().__init__()
         self.conv1x1 = ConvINReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
-
+        
         self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
         self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate)
         self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 2)
@@ -686,7 +716,7 @@ class Net(nn.Module):
             return: segmentation map
         """
 
-        input = self.brightness_adjustment(input)
+        # input = self.brightness_adjustment(input)
         # stage 1
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
@@ -695,7 +725,7 @@ class Net(nn.Module):
         # inp2 = self.sample2(input)
 
         input_inverted = 1 - input
-        input_inverted = self.brightness_adjustment(input_inverted)
+        # input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
         stage1_ewp_inverted_output = stage1_output * inverted_output
 
