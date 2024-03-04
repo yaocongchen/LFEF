@@ -286,10 +286,10 @@ class ChannelWiseDilatedConv(nn.Module):
         )
         self.conv_1x1 = nn.Sequential(nn.Conv2d(nOut * 2, nOut * 2, 1, 1),nn.InstanceNorm2d(nOut * 2, affine=True), nn.ReLU(nOut * 2))
 
-        self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
-        self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
-        self.conv_1x1_ori = nn.Sequential(nn.Conv2d(nOut_ori, nOut_ori, 1, 1),nn.InstanceNorm2d(nOut_ori, affine=True))
-        self.sigmoid = nn.Sigmoid()
+        # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
+        # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
+        # self.conv_1x1_ori = nn.Sequential(nn.Conv2d(nOut_ori, nOut_ori, 1, 1),nn.InstanceNorm2d(nOut_ori, affine=True))
+        # self.sigmoid = nn.Sigmoid()
 
 
     def forward(self, input):
@@ -304,15 +304,15 @@ class ChannelWiseDilatedConv(nn.Module):
         output = torch.cat([output_3113, output_1331], 1)
         output = self.conv_1x1(output)
 
-        mix_input = self.avg_pool(input) + self.max_pool(input)
-        mix_input = self.conv_1x1_ori(mix_input)
-        mix_input = self.sigmoid(mix_input)
+        # mix_input = self.avg_pool(input) + self.max_pool(input)
+        # mix_input = self.conv_1x1_ori(mix_input)
+        # mix_input = self.sigmoid(mix_input)
 
-        output_mul_input = output * mix_input
+        # output_mul_input = output * mix_input
 
-        output =  output + output_mul_input
+        # output =  output + output_mul_input
 
-        output = channel_shuffle(output, 2)
+        # output = channel_shuffle(output, 2)
 
         return output
 

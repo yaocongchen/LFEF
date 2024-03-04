@@ -77,9 +77,9 @@ def folders_and_files_name():
 
 iou_list = []
 # Merge all resulting images 合併所有產生之圖像
-def image_stitching(input_image, filename_no_extension, names, mask_image, iou_np):
+def image_stitching(input_image, filename_no_extension, names, mask_image, iou_np, customssim_np, hd_np, dice_np):
     bg = Image.new(
-        "RGB", (605, 940), "#000000"
+        "RGB", (605, 980), "#000000"
     )  # Produces a 1200 x 300 all black image 產生一張 1200x300 的全黑圖片
     # Load two images 載入兩張影像
     img1 = Image.open(input_image)
@@ -144,6 +144,9 @@ def image_stitching(input_image, filename_no_extension, names, mask_image, iou_n
 
 
     draw.text((230, 910), "IoU:  " + str(iou_np) + "%", fill=(255, 255, 255), font=font)
+    # draw.text((230, 930), "SSIM: " + str(customssim_np) + "%", fill=(255, 255, 255), font=font)
+    # draw.text((230, 950), "HD:   " + str(hd_np), fill=(255, 255, 255), font=font)
+    draw.text((230, 930), "Dice: " + str(dice_np), fill=(255, 255, 255), font=font)
 
 
     # bg.show()
@@ -219,6 +222,9 @@ def smoke_segmentation(
         mask_input_image = mask_input_image.unsqueeze(0).to(device)
         output = smoke_semantic(smoke_input_image, model, device, time_train, i)
         iou = utils.metrics.IoU(output, mask_input_image)
+        customssim = utils.metrics.ssim_val(output, mask_input_image)
+        hd = utils.metrics.Sobel_hausdorffDistance_metric(output, mask_input_image, device)
+        dice = utils.metrics.dice_coef(output, mask_input_image)
         output = (output > 0.5).float()
         torchvision.utils.save_image(
             output,
@@ -226,9 +232,13 @@ def smoke_segmentation(
         )
         image_overlap(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename))
         iou_np = np.round(iou.cpu().detach().numpy() * 100, 2)
+        customssim_np = np.round(customssim.cpu().detach().numpy() * 100, 2)
+        hd_np = hd.cpu().detach().numpy()
+        dice_np = dice.cpu().detach().numpy()
+
         n_element += 1
         mean_miou += (iou_np.item() - mean_miou) / n_element  # 別人研究出的算平均的方法
-        image_stitching(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename), iou_np)
+        image_stitching(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename), iou_np, customssim_np, hd_np, dice_np)
         iou_list.append(iou_np)
         # i += 1
     return iou_list, mean_miou

@@ -163,33 +163,12 @@ def Sobel_hausdorffDistance_metric(model_output, mask, device):
 
     return hd
 
-def dice_coef(
-    model_output, mask, device, smooth=1
-):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
-    output_np = (
-        model_output.mul(255)
-        .add_(0.5)
-        .clamp_(0, 255)
-        .contiguous()
-        .to("cpu", torch.uint8)
-        .detach()
-        .numpy()
-    )
-
-    np.set_printoptions(threshold=np.inf)
-    output_np[output_np >= 1] = 1
-    # output_np[1< output_np] = 0
-
-    model_output = torch.from_numpy(output_np).to(device).float()
-    intersection = torch.sum(
-        model_output * mask, dim=[1, 2, 3]
-    )  # Calculate the intersection 算出交集
-    union = torch.sum(model_output, dim=[1, 2, 3]) + torch.sum(
-        mask, dim=[1, 2, 3]
-    )  # 2*Consider the overlapping part # Calculate the Dice coefficient of the model output and the real label, which is used to evaluate the performance of the binary segmentation model. The parameters model_output and mask are the model output and the real label respectively, and smooth is a constant used to avoid the case where the denominator is 0.
-    return torch.mean(
-        (2.0 * intersection + smooth) / (union + smooth), dim=0
-    )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
+def dice_coef(model_output, mask):
+    model_output = (model_output > 0.5).float()
+    intersection = torch.sum(model_output * mask)
+    union = torch.sum(model_output) + torch.sum(mask)
+    dice = 1 - (2.0 * intersection + 1) / (union + 1)  # 加上平滑項
+    return dice
 
 
 # def dice_p_bce(in_gt, in_pred):
