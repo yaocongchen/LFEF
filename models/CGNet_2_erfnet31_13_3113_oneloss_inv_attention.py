@@ -56,7 +56,7 @@ class ConvINReLU(nn.Module):
             (kSize, kSize),
             stride=stride,
             padding=(padding, padding),
-            bias=False,
+            bias=True,
         )
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
@@ -115,7 +115,7 @@ class ConvIN(nn.Module):
             (kSize, kSize),
             stride=stride,
             padding=(padding, padding),
-            bias=False,
+            bias=True,
         )
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
@@ -149,7 +149,7 @@ class Conv(nn.Module):
             (kSize, kSize),
             stride=stride,
             padding=(padding, padding),
-            bias=False,
+            bias=True,
         )
 
     def forward(self, input):
@@ -180,7 +180,7 @@ class ChannelWiseConv(nn.Module):
             stride=stride,
             padding=(padding, padding),
             groups=nIn,
-            bias=False,
+            bias=True,
         )
 
     def forward(self, input):
@@ -211,7 +211,7 @@ class DilatedConv(nn.Module):
             (kSize, kSize),
             stride=stride,
             padding=(padding, padding),
-            bias=False,
+            bias=True,
             dilation=d,
         )
 
@@ -247,7 +247,7 @@ class ChannelWiseDilatedConv(nn.Module):
                 stride=stride,
                 padding=(padding , 0),
                 groups=nIn,
-                bias=False,
+                bias=True,
                 dilation=d,
             ),
             nn.Conv2d(
@@ -257,7 +257,7 @@ class ChannelWiseDilatedConv(nn.Module):
                 stride=stride,
                 padding=(0 , padding),
                 groups=nIn,
-                bias=False,
+                bias=True,
                 dilation=d,
             ),
         )
@@ -270,7 +270,7 @@ class ChannelWiseDilatedConv(nn.Module):
                 stride=stride,
                 padding=(0 , padding),
                 groups=nIn,
-                bias=False,
+                bias=True,
                 dilation=d,
             ),
             nn.Conv2d(
@@ -280,7 +280,7 @@ class ChannelWiseDilatedConv(nn.Module):
                 stride=stride,
                 padding=(padding , 0),
                 groups=nIn,
-                bias=False,
+                bias=True,
                 dilation=d,
             ),
         )
@@ -559,9 +559,9 @@ class AuxiliaryNetwork(nn.Module):
     def __init__(self, nIn, nOut, stride=1):
         super().__init__()
         # self.ea = ExternalAttention(d_model=nIn)
-        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=False),nn.ReLU())
-        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=False), nn.ReLU())
-        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=False), nn.ReLU())
+        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=True),nn.ReLU())
+        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=True), nn.ReLU())
+        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=True), nn.ReLU())
 
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
