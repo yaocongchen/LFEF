@@ -284,6 +284,7 @@ class ChannelWiseDilatedConv(nn.Module):
                 dilation=d,
             ),
         )
+        self.conv_1x1 = nn.Sequential(nn.Conv2d(nOut * 2, nOut * 2, 1, 1),nn.InstanceNorm2d(nOut * 2, affine=True), nn.ReLU(nOut * 2))
 
     def forward(self, input):
         """
@@ -295,6 +296,8 @@ class ChannelWiseDilatedConv(nn.Module):
         output_3113 = self.conv_3113(x1)
         output_1331 = self.conv_1331(x2)
         output = torch.cat([output_3113, output_1331], 1)
+        output = self.conv_1x1(output)
+
         output = channel_shuffle(output, 2)
 
         return output
