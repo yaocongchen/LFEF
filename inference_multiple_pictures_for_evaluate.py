@@ -184,8 +184,8 @@ def image_overlap(input_image, filename_no_extension, names, mask_image):
     img2 = img2.resize(imgSize)
     img3 = img3.resize(imgSize)
 
-    blendImage = image_process.overlap_v2(img1, img2, read_method="PIL_RGBA")
-    blendImage_mask = image_process.overlap_v2(img1, img3, read_method="PIL_RGBA")
+    blendImage = image_process.overlap_PIL(img1, img2)
+    blendImage_mask = image_process.overlap_PIL(img1, img3)
 
     # Display image 顯示影像
     # blendImage.show()
