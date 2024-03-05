@@ -240,7 +240,7 @@ def smoke_segmentation(
         mean_miou += (iou_np.item() - mean_miou) / n_element  # 別人研究出的算平均的方法
         image_stitching(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename), iou_np, customssim_np, hd_np, dice_np)
         iou_list.append(iou_np)
-        # i += 1
+
     return iou_list, mean_miou
 
 
@@ -266,11 +266,24 @@ if __name__ == "__main__":
     time_train = []
     time_start = time.time()
     iou_list,miou = smoke_segmentation(args["test_directory"], model, device, names, time_train, i)
-    plt.hist(iou_list, bins=100, edgecolor="black")
+    counts, bins, patches = plt.hist(iou_list, bins=100, edgecolor="black")
     plt.xlabel("IoU")
-    # plt.xticks(np.arange(5, 105, step=5))
     plt.ylabel("Number of Images")
-    plt.title(f"IoU Histogram \n mIoU:{miou:.2f}%")
+
+    # # 獲取直方圖的最高點
+    # max_count = int(max(counts))
+    # 顯示 miou的線 並顯示數值
+    plt.axvline(x=miou, color='r', linestyle='--', label=f'mIoU:{miou:.2f}%')
+
+
+    # plt.yticks(range(0, max_count+1, 5))
+    # 在 y=1 的位置繪製一條水平線
+    plt.axhline(y=1, color='y', linestyle='--', label='y=1')
+
+    # 顯示標籤
+    plt.legend()
+    
+    plt.title(f"IoU Histogram")
     
     save_path = f'./results/{names["image_stitching_dir_name"]}/IoU_histogram.png'
     plt.savefig(save_path)

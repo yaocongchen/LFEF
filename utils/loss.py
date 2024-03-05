@@ -124,9 +124,9 @@ def dice_coef(model_output, mask):
 
 def CustomLoss(model_output, mask):
     # s_iou = Sigmoid_IoU(model_output,mask)
-    iou = IoU(model_output,mask)
+    # iou = IoU(model_output,mask)
 
-    my_ssim = ssim_val(model_output,mask)
+    # my_ssim = ssim_val(model_output,mask)
 
     dice_loss = dice_coef(model_output,mask)
 
@@ -135,6 +135,6 @@ def CustomLoss(model_output, mask):
 
     # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - my_ssim) * (alpha/2)
     # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha)
-    total_loss = dice_loss
+    total_loss = loss_1 * (1 - alpha) + dice_loss * (alpha)
 
     return total_loss
