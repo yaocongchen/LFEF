@@ -63,6 +63,15 @@ def folders_and_files_name():
         os.makedirs("./results/" + save_image_stitching_dir_name)
     save_image_stitching_name = "image_stitching"
 
+    save_image_stitching_dir_down_name = "multiple_stitching_down"
+    if os.path.exists("./results/" + save_image_stitching_dir_down_name):
+        shutil.rmtree("./results/" + save_image_stitching_dir_down_name)
+        os.makedirs("./results/" + save_image_stitching_dir_down_name)
+    else:
+        # if not os.path.exists("./" + save_image_stitching_dir_name):
+        os.makedirs("./results/" + save_image_stitching_dir_down_name)
+    save_image_stitching_down_name = "image_stitching_down"
+
     names = {}
     names["smoke_semantic_dir_name"] = save_smoke_semantic_dir_name
     names["smoke_semantic_image_name"] = save_smoke_semantic_image_name
@@ -72,6 +81,8 @@ def folders_and_files_name():
     names["image_overlap_masks_name"] = save_image_overlap_masks_name
     names["image_stitching_dir_name"] = save_image_stitching_dir_name
     names["image_stitching_name"] = save_image_stitching_name
+    names["image_stitching_dir_down_name"] = save_image_stitching_dir_down_name
+    names["image_stitching_down_name"] = save_image_stitching_down_name
 
     return names
 
@@ -148,11 +159,14 @@ def image_stitching(input_image, filename_no_extension, names, mask_image, iou_n
     # draw.text((230, 950), "HD:   " + str(hd_np), fill=(255, 255, 255), font=font)
     draw.text((230, 930), "Dice: " + str(dice_np), fill=(255, 255, 255), font=font)
 
-
-    # bg.show()
     bg.save(
         f'./results/{names["image_stitching_dir_name"]}/{names["image_stitching_name"]}_{filename_no_extension}.jpg'
     )
+    if iou_np < 20:
+        bg.save(
+        f'./results/{names["image_stitching_dir_down_name"]}/{names["image_stitching_down_name"]}_{filename_no_extension}.jpg'
+        )
+
 
     return
 
