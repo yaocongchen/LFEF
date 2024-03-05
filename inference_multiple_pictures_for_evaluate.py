@@ -266,9 +266,10 @@ if __name__ == "__main__":
     time_train = []
     time_start = time.time()
     iou_list,miou = smoke_segmentation(args["test_directory"], model, device, names, time_train, i)
-    plt.hist(iou_list, bins=len(iou_list))
+    plt.hist(iou_list, bins=100, edgecolor="black")
     plt.xlabel("IoU")
-    plt.ylabel("Frequency")
+    # plt.xticks(np.arange(5, 105, step=5))
+    plt.ylabel("Number of Images")
     plt.title(f"IoU Histogram \n mIoU:{miou:.2f}%")
     
     save_path = f'./results/{names["image_stitching_dir_name"]}/IoU_histogram.png'

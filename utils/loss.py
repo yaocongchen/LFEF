@@ -115,17 +115,26 @@ def ssim_val(model_output, mask):
     
     return msssim
 
+def dice_coef(model_output, mask):
+    model_output = (model_output > 0.5).float()
+    intersection = torch.sum(model_output * mask)
+    union = torch.sum(model_output) + torch.sum(mask)
+    dice = 1 - (2.0 * intersection + 1) / (union + 1)  # 加上平滑項
+    return dice
+
 def CustomLoss(model_output, mask):
     # s_iou = Sigmoid_IoU(model_output,mask)
     iou = IoU(model_output,mask)
 
     my_ssim = ssim_val(model_output,mask)
 
+    dice_loss = dice_coef(model_output,mask)
+
     loss_1 = L(model_output, mask)
 
 
     # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - my_ssim) * (alpha/2)
     # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha)
-    total_loss = loss_1
+    total_loss = dice_loss
 
     return total_loss
