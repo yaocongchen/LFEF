@@ -236,55 +236,55 @@ class ChannelWiseDilatedConv(nn.Module):
            d: dilation rate
         """
         super().__init__()
-        # nIn = int(nIn_ori / 2)
-        # nOut = int(nOut_ori / 2)
+        nIn = int(nIn_ori / 2)
+        nOut = int(nOut_ori / 2)
         padding = int((kSize - 1) / 2) * d
         self.conv_3113 = nn.Sequential(
             nn.Conv2d(
-                nIn_ori,
-                nIn_ori,
+                nIn,
+                nIn,
                 (kSize, 1),
                 stride=stride,
                 padding=(padding , 0),
-                groups=nIn_ori,
+                groups=nIn,
                 bias=False,
                 dilation=d,
             ),
             nn.Conv2d(
-                nIn_ori,
-                nOut_ori,
+                nIn,
+                nOut,
                 (1, kSize),
                 stride=stride,
                 padding=(0 , padding),
-                groups=nIn_ori,
+                groups=nIn,
                 bias=False,
                 dilation=d,
             ),
         )
 
-        # self.conv_1331 = nn.Sequential(
-        #     nn.Conv2d(
-        #         nIn,
-        #         nIn,
-        #         (1, kSize),
-        #         stride=stride,
-        #         padding=(0 , padding),
-        #         groups=nIn,
-        #         bias=False,
-        #         dilation=d,
-        #     ),
-        #     nn.Conv2d(
-        #         nIn,
-        #         nOut,
-        #         (kSize, 1),
-        #         stride=stride,
-        #         padding=(padding , 0),
-        #         groups=nIn,
-        #         bias=False,
-        #         dilation=d,
-        #     ),
-        # )
-        # self.conv_1x1 = nn.Sequential(nn.Conv2d(nOut * 2, nOut * 2, 1, 1),nn.InstanceNorm2d(nOut * 2, affine=True), nn.ReLU(nOut * 2))
+        self.conv_1331 = nn.Sequential(
+            nn.Conv2d(
+                nIn,
+                nIn,
+                (1, kSize),
+                stride=stride,
+                padding=(0 , padding),
+                groups=nIn,
+                bias=False,
+                dilation=d,
+            ),
+            nn.Conv2d(
+                nIn,
+                nOut,
+                (kSize, 1),
+                stride=stride,
+                padding=(padding , 0),
+                groups=nIn,
+                bias=False,
+                dilation=d,
+            ),
+        )
+        self.conv_1x1 = nn.Sequential(nn.Conv2d(nOut * 2, nOut * 2, 1, 1),nn.InstanceNorm2d(nOut * 2, affine=True), nn.ReLU(nOut * 2))
 
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
@@ -298,12 +298,13 @@ class ChannelWiseDilatedConv(nn.Module):
            input: input feature map
            return: transformed feature map
         """
-        output = self.conv_3113(input)
-        # x1, x2 = channel_split(input)
-        # output_3113 = self.conv_3113(x1)
-        # output_1331 = self.conv_1331(x2)
-        # output = torch.cat([output_3113, output_1331], 1)
-        # output = self.conv_1x1(output)
+        # output = self.conv_3113(input)
+
+        x1, x2 = channel_split(input)
+        output_3113 = self.conv_3113(x1)
+        output_1331 = self.conv_1331(x2)
+        output = torch.cat([output_3113, output_1331], 1)
+        output = self.conv_1x1(output)
 
         # mix_input = self.avg_pool(input) + self.max_pool(input)
         # mix_input = self.conv_1x1_ori(mix_input)
