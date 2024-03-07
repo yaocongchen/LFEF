@@ -608,7 +608,7 @@ class AuxiliaryNetwork(nn.Module):
 class BrightnessAdjustment(nn.Module):
     def __init__(self):
         super().__init__()
-        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=2, padding=1)
+        self.conv1 = nn.Conv2d(1, 16, kernel_size=3, stride=2, padding=1)
         self.relu1 = nn.ReLU()
         self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1)
         self.relu2 = nn.ReLU()
@@ -616,7 +616,12 @@ class BrightnessAdjustment(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
-        x = self.conv1(input)
+        # 創建一個 Grayscale 轉換
+        grayscale_transform = transforms.Grayscale(num_output_channels=1)
+
+        # 將 RGB 圖像轉換為灰度圖像
+        gray_img = grayscale_transform(input)
+        x = self.conv1(gray_img)
         x = self.relu1(x)
         x = self.conv2(x)
         x = self.relu2(x)
@@ -736,12 +741,12 @@ class Net(nn.Module):
             input: Receives the input RGB image
             return: segmentation map
         """
-        # 將隨機旋轉應用於圖像
-        random_rotation = transforms.RandomRotation(degrees=(-45, 45))
+        # # 將隨機旋轉應用於圖像
+        # random_rotation = transforms.RandomRotation(degrees=(-45, 45))
 
-        input = random_rotation(input)
+        # input = random_rotation(input)
 
-        # input = self.brightness_adjustment(input)
+        input = self.brightness_adjustment(input)
         # stage 1
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
@@ -750,9 +755,9 @@ class Net(nn.Module):
         # inp2 = self.sample2(input)
 
         input_inverted = 1 - input
-        input_inverted = random_rotation(input_inverted)
+        # input_inverted = random_rotation(input_inverted)
 
-        # input_inverted = self.brightness_adjustment(input_inverted)
+        input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
         stage1_ewp_inverted_output = stage1_output * inverted_output
 
