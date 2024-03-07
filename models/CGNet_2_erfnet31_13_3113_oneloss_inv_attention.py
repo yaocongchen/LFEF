@@ -738,7 +738,7 @@ class Net(nn.Module):
             return: segmentation map
         """
         # 將隨機旋轉應用於圖像
-        input = random_rotation(input)
+        # input = random_rotation(input)
 
         # input = self.brightness_adjustment(input)
         # stage 1
@@ -749,7 +749,7 @@ class Net(nn.Module):
         # inp2 = self.sample2(input)
 
         input_inverted = 1 - input
-        input_inverted = random_rotation(input_inverted)
+        # input_inverted = random_rotation(input_inverted)
 
         # input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
