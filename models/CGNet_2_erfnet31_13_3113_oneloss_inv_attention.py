@@ -8,10 +8,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchinfo import summary
 from torch.nn import init
+from torchvision import transforms
 
 __all__ = ["Context_Guided_Network"]
 # Filter out variables, functions, and classes that other programs don't need or don't want when running cmd "from CGNet import *"
 
+# 定義一個隨機旋轉的轉換
+random_rotation = transforms.RandomRotation(degrees=(-45, 45))
 
 def channel_split(x):
     c = int(x.size()[1])
@@ -734,6 +737,8 @@ class Net(nn.Module):
             input: Receives the input RGB image
             return: segmentation map
         """
+        # 將隨機旋轉應用於圖像
+        input = random_rotation(input)
 
         # input = self.brightness_adjustment(input)
         # stage 1
@@ -744,6 +749,8 @@ class Net(nn.Module):
         # inp2 = self.sample2(input)
 
         input_inverted = 1 - input
+        input_inverted = random_rotation(input_inverted)
+
         # input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
         stage1_ewp_inverted_output = stage1_output * inverted_output
