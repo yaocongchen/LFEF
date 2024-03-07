@@ -17,6 +17,8 @@ from torch.autograd import Variable
 import wandb
 import torch.onnx
 from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import CyclicLR
 
 # import self-written modules
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
@@ -308,6 +310,10 @@ def main():
     optimizer = torch.optim.Adam(
         model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
     )
+
+    scheduler = StepLR(optimizer, step_size=1, gamma=0.95)
+    
+
     # 用SGD微調到最佳
     # optimizer = torch.optim.SGD(
     #     model.parameters(),
@@ -315,6 +321,7 @@ def main():
     #     momentum=0.9,
     #     weight_decay=1e-5,
     # )
+    # scheduler = CyclicLR(optimizer, base_lr=0.001, max_lr=0.01, step_size_up=100, step_size_down=100)
 
     # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
 
@@ -436,6 +443,8 @@ def main():
                 save_and_log_image(output, "./validation_data_captures", "best_output")
 
             save_mean_miou = mean_miou
+
+        scheduler.step()
 
     time_end = time.time()
     spend_time = int(time_end - time_start)
