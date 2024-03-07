@@ -14,7 +14,6 @@ __all__ = ["Context_Guided_Network"]
 # Filter out variables, functions, and classes that other programs don't need or don't want when running cmd "from CGNet import *"
 
 # 定義一個隨機旋轉的轉換
-random_rotation = transforms.RandomRotation(degrees=(-45, 45))
 
 def channel_split(x):
     c = int(x.size()[1])
@@ -738,6 +737,8 @@ class Net(nn.Module):
             return: segmentation map
         """
         # 將隨機旋轉應用於圖像
+        random_rotation = transforms.RandomRotation(degrees=(-45, 45))
+
         input = random_rotation(input)
 
         # input = self.brightness_adjustment(input)
