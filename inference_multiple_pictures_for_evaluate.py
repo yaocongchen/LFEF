@@ -21,68 +21,26 @@ import visualization_codes.utils.image_process as image_process
 model_name = str(network_model)
 print("model_name:", model_name)
 
+def create_directory(directory_name):
+    directory_path = f"./results/{directory_name}"
+    if os.path.exists(directory_path):
+        shutil.rmtree(directory_path)
+    os.makedirs(directory_path)
+    return directory_name
+
 def folders_and_files_name():
-    # Set save folder and save name 設定存檔資料夾與存檔名稱
-    save_smoke_semantic_dir_name = "multiple_result"
-    if os.path.exists("./results/" + save_smoke_semantic_dir_name):
-        shutil.rmtree(
-            "./results/" + save_smoke_semantic_dir_name
-        )  # Delete the original folder and content 將原有的資料夾與內容刪除
-        os.makedirs(
-            "./results/" + save_smoke_semantic_dir_name
-        )  # Create new folder 創建新的資料夾
-    else:
-        # if not os.path.exists("./" + save_smoke_semantic_dir_name):
-        os.makedirs("./results/" + save_smoke_semantic_dir_name)
-    save_smoke_semantic_image_name = "smoke_semantic_image"
-
-    save_image_overlap_dir_name = "multiple_overlap"
-    if os.path.exists("./results/" + save_image_overlap_dir_name):
-        shutil.rmtree("./results/" + save_image_overlap_dir_name)
-        os.makedirs("./results/" + save_image_overlap_dir_name)
-    else:
-        # if not os.path.exists("./" + save_image_overlap_dir_name):
-        os.makedirs("./results/" + save_image_overlap_dir_name)
-    save_image_overlap_name = "image_overlap"
-
-    save_image_overlap_masks_dir_name = "multiple_overlap_masks"
-    if os.path.exists("./results/" + save_image_overlap_masks_dir_name):
-        shutil.rmtree("./results/" + save_image_overlap_masks_dir_name)
-        os.makedirs("./results/" + save_image_overlap_masks_dir_name)
-    else:
-        # if not os.path.exists("./" + save_image_overlap_dir_name):
-        os.makedirs("./results/" + save_image_overlap_masks_dir_name)
-    save_image_overlap_masks_name = "image_overlap_masks"
-
-    save_image_stitching_dir_name = "multiple_stitching"
-    if os.path.exists("./results/" + save_image_stitching_dir_name):
-        shutil.rmtree("./results/" + save_image_stitching_dir_name)
-        os.makedirs("./results/" + save_image_stitching_dir_name)
-    else:
-        # if not os.path.exists("./" + save_image_stitching_dir_name):
-        os.makedirs("./results/" + save_image_stitching_dir_name)
-    save_image_stitching_name = "image_stitching"
-
-    save_image_stitching_dir_down_name = "multiple_stitching_down"
-    if os.path.exists("./results/" + save_image_stitching_dir_down_name):
-        shutil.rmtree("./results/" + save_image_stitching_dir_down_name)
-        os.makedirs("./results/" + save_image_stitching_dir_down_name)
-    else:
-        # if not os.path.exists("./" + save_image_stitching_dir_name):
-        os.makedirs("./results/" + save_image_stitching_dir_down_name)
-    save_image_stitching_down_name = "image_stitching_down"
-
-    names = {}
-    names["smoke_semantic_dir_name"] = save_smoke_semantic_dir_name
-    names["smoke_semantic_image_name"] = save_smoke_semantic_image_name
-    names["image_overlap_dir_name"] = save_image_overlap_dir_name
-    names["image_overlap_name"] = save_image_overlap_name
-    names["image_overlap_masks_dir_name"] = save_image_overlap_masks_dir_name
-    names["image_overlap_masks_name"] = save_image_overlap_masks_name
-    names["image_stitching_dir_name"] = save_image_stitching_dir_name
-    names["image_stitching_name"] = save_image_stitching_name
-    names["image_stitching_dir_down_name"] = save_image_stitching_dir_down_name
-    names["image_stitching_down_name"] = save_image_stitching_down_name
+    names = {
+        "smoke_semantic_dir_name": create_directory("multiple_result"),
+        "smoke_semantic_image_name": "smoke_semantic_image",
+        "image_overlap_dir_name": create_directory("multiple_overlap"),
+        "image_overlap_name": "image_overlap",
+        "image_overlap_masks_dir_name": create_directory("multiple_overlap_masks"),
+        "image_overlap_masks_name": "image_overlap_masks",
+        "image_stitching_dir_name": create_directory("multiple_stitching"),
+        "image_stitching_name": "image_stitching",
+        "image_stitching_dir_down_name": create_directory("multiple_stitching_down"),
+        "image_stitching_down_name": "image_stitching_down",
+    }
 
     return names
 
