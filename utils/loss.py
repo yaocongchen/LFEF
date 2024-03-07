@@ -4,7 +4,7 @@ import numpy as np
 from skimage.metrics import structural_similarity
 from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
 
-alpha = 0.5
+alpha = 0.2
 lambda_reg = 0.01
 
 S = nn.Sigmoid()
@@ -135,6 +135,5 @@ def CustomLoss(model_output, mask):
 
     # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - my_ssim) * (alpha/2)
     # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha)
-    total_loss = loss_1 + dice_loss * (alpha)
-
+    total_loss = loss_1 * (1 - alpha) + dice_loss * (alpha)
     return total_loss
