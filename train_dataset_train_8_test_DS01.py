@@ -445,7 +445,7 @@ def main():
 
             save_mean_miou = mean_miou
 
-        scheduler.step()
+        # scheduler.step()
 
     time_end = time.time()
     spend_time = int(time_end - time_start)
