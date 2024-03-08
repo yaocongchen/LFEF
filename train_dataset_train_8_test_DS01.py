@@ -313,7 +313,7 @@ def main():
 
     # scheduler = StepLR(optimizer, step_size=1, gamma=0.95)
     # 創建一個學習率排程
-    scheduler = CyclicLR(optimizer, base_lr=0.001, max_lr=0.01, step_size_up=100, step_size_down=100, cycle_momentum=False)    
+    # scheduler = CyclicLR(optimizer, base_lr=0.001, max_lr=0.01, step_size_up=100, step_size_down=100, cycle_momentum=False)    
     
     # 用SGD微調到最佳
     # optimizer = torch.optim.SGD(
