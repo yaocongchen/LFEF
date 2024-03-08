@@ -62,7 +62,7 @@ class ConvINReLU(nn.Module):
         )
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
-        self.act = nn.ReLU(nOut)
+        self.act = nn.Sigmoid()
 
     def forward(self, input):
         """
@@ -86,7 +86,7 @@ class INReLU(nn.Module):
         super().__init__()
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
-        self.act = nn.ReLU(nOut)
+        self.act = nn.Sigmoid()
 
     def forward(self, input):
         """
@@ -286,7 +286,7 @@ class ChannelWiseDilatedConv(nn.Module):
         #         dilation=d,
         #     ),
         # )
-        # self.conv_1x1 = nn.Sequential(nn.Conv2d(nOut * 2, nOut * 2, 1, 1),nn.InstanceNorm2d(nOut * 2, affine=True), nn.ReLU(nOut * 2))
+        # self.conv_1x1 = nn.Sequential(nn.Conv2d(nOut * 2, nOut * 2, 1, 1),nn.InstanceNorm2d(nOut * 2, affine=True), nn.Sigmoid(nOut * 2))
 
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
@@ -395,7 +395,7 @@ class ContextGuidedBlock_Down(nn.Module):
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
         self.in_norm = nn.InstanceNorm2d(4 * nOut, affine=True)
-        self.act = nn.ReLU(4 * nOut)
+        self.act = nn.Sigmoid()
         self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.F_glo = FGlo(nOut, reduction)
@@ -555,7 +555,7 @@ class non_bottleneck_1d(nn.Module):
             bias=False,
             dilation=(1, dilated),
         )
-        self.relu = nn.ReLU(chann)
+        self.relu = nn.Sigmoid()
         # self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
         self.in_norm2 = nn.InstanceNorm2d(chann, affine=True)
 
@@ -580,9 +580,9 @@ class AuxiliaryNetwork(nn.Module):
     def __init__(self, nIn, nOut, stride=1):
         super().__init__()
         # self.ea = ExternalAttention(d_model=nIn)
-        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=False),nn.ReLU())
-        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=False), nn.ReLU())
-        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=False), nn.ReLU())
+        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=False),nn.Sigmoid())
+        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=False), nn.Sigmoid())
+        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=False), nn.Sigmoid())
 
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
@@ -609,9 +609,9 @@ class BrightnessAdjustment(nn.Module):
     def __init__(self):
         super().__init__()
         self.conv1 = nn.Conv2d(1, 16, kernel_size=3, stride=2, padding=1)
-        self.relu1 = nn.ReLU()
+        self.relu1 = nn.Sigmoid()
         self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1)
-        self.relu2 = nn.ReLU()
+        self.relu2 = nn.Sigmoid()
         self.fc = nn.Linear(32 * 64 * 64, 1)  # 調整全連接層的輸入大小
         self.sigmoid = nn.Sigmoid()
 
@@ -710,12 +710,12 @@ class Net(nn.Module):
         # self.conv_64_to_128 = nn.Conv2d(64, 128, kernel_size=1, stride=1, padding=0, bias=False)
         # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
-        # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.ReLU())
+        # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.Sigmoid())
         
         # self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        # self.conv_32_to_1 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
-        # self.conv_128_to_1 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
-        # self.conv_256_to_1 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
+        # self.conv_32_to_1 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.Sigmoid())
+        # self.conv_128_to_1 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.Sigmoid())
+        # self.conv_256_to_1 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.Sigmoid())
 
 #================================================================================================#
         self.conv_256_to_128 = nn.Conv2d(256, 128, kernel_size=(1, 1), stride=1,padding=0)
@@ -730,7 +730,7 @@ class Net(nn.Module):
         self.conv_96_to_1_IN = nn.InstanceNorm2d(1, affine=True)
         self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
 
-        self.relu = nn.ReLU()
+        self.relu = nn.Sigmoid()
 #================================================================================================#
         
         self.sigmoid = nn.Sigmoid()
