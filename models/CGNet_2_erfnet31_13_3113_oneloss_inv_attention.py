@@ -333,7 +333,7 @@ class FGlo(nn.Module):
             nn.Linear(channel, channel // reduction),
             nn.ReLU(inplace=True),
             nn.Linear(channel // reduction, channel),
-            nn.ReLU(),
+            nn.Sigmoid(),
         )
 
     def forward(self, x):
