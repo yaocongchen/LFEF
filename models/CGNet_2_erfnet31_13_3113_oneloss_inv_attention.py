@@ -746,7 +746,7 @@ class Net(nn.Module):
 
         # input = random_rotation(input)
 
-        input = self.brightness_adjustment(input)
+        # input = self.brightness_adjustment(input)
         # stage 1
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
@@ -757,7 +757,7 @@ class Net(nn.Module):
         input_inverted = 1 - input
         # input_inverted = random_rotation(input_inverted)
 
-        input_inverted = self.brightness_adjustment(input_inverted)
+        # input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
         stage1_ewp_inverted_output = stage1_output * inverted_output
 
