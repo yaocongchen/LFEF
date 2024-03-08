@@ -306,22 +306,23 @@ def main():
         drop_last=True,
     )
 
-    # # 先用Adam測試模型能力
-    # optimizer = torch.optim.Adam(
-    #     model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
-    # )
+    # 先用Adam測試模型能力
+    optimizer = torch.optim.Adam(
+        model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
+    )
 
     # scheduler = StepLR(optimizer, step_size=1, gamma=0.95)
+    # 創建一個學習率排程
+    scheduler = CyclicLR(optimizer, base_lr=0.001, max_lr=0.01, step_size_up=100, step_size_down=100, cycle_momentum=False)    
     
-
     # 用SGD微調到最佳
-    optimizer = torch.optim.SGD(
-        model.parameters(),
-        lr=float(args["learning_rate"]),
-        momentum=0.9,
-        weight_decay=1e-5,
-    )
-    scheduler = CyclicLR(optimizer, base_lr=0.001, max_lr=0.01, step_size_up=100, step_size_down=100)
+    # optimizer = torch.optim.SGD(
+    #     model.parameters(),
+    #     lr=float(args["learning_rate"]),
+    #     momentum=0.9,
+    #     weight_decay=1e-5,
+    # )
+    # scheduler = CyclicLR(optimizer, base_lr=0.001, max_lr=0.01, step_size_up=100, step_size_down=100)
 
     # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
 
