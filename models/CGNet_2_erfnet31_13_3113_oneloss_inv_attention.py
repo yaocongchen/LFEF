@@ -407,11 +407,11 @@ class ContextGuidedBlock_Down(nn.Module):
         # self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
 
     def forward(self, input):
-        output = self.conv1x1(input)
-        loc = self.F_loc(output)
-        sur = self.F_sur(output)
-        sur_4 = self.F_sur_4(output)
-        sur_8 = self.F_sur_8(output)
+        input_conv_1x1 = self.conv1x1(input)
+        loc = self.F_loc(input_conv_1x1)
+        sur = self.F_sur(input_conv_1x1)
+        sur_4 = self.F_sur_4(input_conv_1x1)
+        sur_8 = self.F_sur_8(input_conv_1x1)
 
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
@@ -432,6 +432,7 @@ class ContextGuidedBlock_Down(nn.Module):
         # ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
         # output = output * ea_output
+        output = output + input_conv_1x1
         
         return output
 
