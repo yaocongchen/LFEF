@@ -587,7 +587,7 @@ class AuxiliaryNetwork(nn.Module):
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
 
-        self.relu = nn.ReLU()
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
         # b, c, w, h = input.size()
@@ -600,7 +600,7 @@ class AuxiliaryNetwork(nn.Module):
         output = self.conv_layer3(output)
         output = self.avg_pool(output) + self.max_pool(output)
 
-        output = self.relu(output)
+        output = self.sigmoid(output)
 
         return output
     
