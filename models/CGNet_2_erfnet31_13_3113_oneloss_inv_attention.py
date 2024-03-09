@@ -400,6 +400,8 @@ class ContextGuidedBlock_Down(nn.Module):
 
         self.F_glo = FGlo(nOut, reduction)
 
+        self.relu = nn.ReLU()
+
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
 
@@ -432,13 +434,14 @@ class ContextGuidedBlock_Down(nn.Module):
         # ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
         # output = output * ea_output
-        output = output * input_conv_1x1
+        output = output + input_conv_1x1
+        output = self.relu(output)
         
         return output
 
 
 class ContextGuidedBlock(nn.Module):
-    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16, mul=True):
+    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16, add=True):
         """
         args:
            nIn: number of input channels
@@ -458,8 +461,10 @@ class ContextGuidedBlock(nn.Module):
         self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 4)
 
         self.in_relu = INReLU(4*n)
-        self.mul = mul
+        self.add = add
         self.F_glo = FGlo(4*n, reduction)
+
+        self.relu = nn.ReLU()
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
@@ -481,8 +486,9 @@ class ContextGuidedBlock(nn.Module):
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
         # if residual version
-        if self.mul:
-            output = input * output
+        if self.add:
+            output = input + output
+            output = self.relu(output)
 
         # b, c, w, h = input.size()
         # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
