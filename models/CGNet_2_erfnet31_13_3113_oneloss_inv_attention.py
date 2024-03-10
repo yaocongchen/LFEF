@@ -400,6 +400,8 @@ class ContextGuidedBlock_Down(nn.Module):
 
         self.F_glo = FGlo(nOut, reduction)
 
+        self.conv1x1_2 = ConvINReLU(2 * nOut, nOut, 1, 1)  # 1x1 Conv is employed to reduce the computation
+        self.in_norm_2 = nn.InstanceNorm2d(nOut, affine=True)
         self.relu = nn.ReLU()
 
         # self.ea = ExternalAttention(d_model=nIn)
@@ -434,7 +436,9 @@ class ContextGuidedBlock_Down(nn.Module):
         # ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
         # output = output * ea_output
-        output = output + input_conv_1x1
+        output = torch.cat([input_conv_1x1, output], 1)
+        output = self.conv1x1_2(output)
+        output = self.in_norm_2(output)
         output = self.relu(output)
         
         return output
@@ -464,6 +468,8 @@ class ContextGuidedBlock(nn.Module):
         self.add = add
         self.F_glo = FGlo(4*n, reduction)
 
+        self.conv1x1_2 = ConvINReLU(2*nOut, nOut, 1, 1)  # 1x1 Conv is employed to reduce the computation
+        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
         self.relu = nn.ReLU()
 
         # self.ea = ExternalAttention(d_model=nIn)
@@ -487,7 +493,9 @@ class ContextGuidedBlock(nn.Module):
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
         # if residual version
         if self.add:
-            output = input + output
+            output = torch.cat([input, output], 1)
+            output = self.conv1x1_2(output)
+            output = self.in_norm(output)
             output = self.relu(output)
 
         # b, c, w, h = input.size()
