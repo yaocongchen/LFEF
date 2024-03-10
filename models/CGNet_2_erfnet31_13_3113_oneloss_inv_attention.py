@@ -400,8 +400,6 @@ class ContextGuidedBlock_Down(nn.Module):
 
         self.F_glo = FGlo(nOut, reduction)
 
-        self.conv1x1_2 = ConvINReLU(2 * nOut, nOut, 1, 1)  # 1x1 Conv is employed to reduce the computation
-        self.in_norm_2 = nn.InstanceNorm2d(nOut, affine=True)
         self.relu = nn.ReLU()
 
         # self.ea = ExternalAttention(d_model=nIn)
@@ -436,9 +434,8 @@ class ContextGuidedBlock_Down(nn.Module):
         # ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
         # output = output * ea_output
-        output = torch.cat([input_conv_1x1, output], 1)
-        output = self.conv1x1_2(output)
-        output = self.in_norm_2(output)
+
+        output = output + input_conv_1x1
         output = self.relu(output)
         
         return output
@@ -468,8 +465,6 @@ class ContextGuidedBlock(nn.Module):
         self.add = add
         self.F_glo = FGlo(4*n, reduction)
 
-        self.conv1x1_2 = ConvINReLU(2*nOut, nOut, 1, 1)  # 1x1 Conv is employed to reduce the computation
-        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
         self.relu = nn.ReLU()
 
         # self.ea = ExternalAttention(d_model=nIn)
@@ -493,9 +488,7 @@ class ContextGuidedBlock(nn.Module):
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
         # if residual version
         if self.add:
-            output = torch.cat([input, output], 1)
-            output = self.conv1x1_2(output)
-            output = self.in_norm(output)
+            output = output + input
             output = self.relu(output)
 
         # b, c, w, h = input.size()
@@ -653,7 +646,7 @@ class Net(nn.Module):
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
 
-    def __init__(self, classes=1, M=3, N=3, dropout_flag=False):
+    def __init__(self, classes=1, M=2, N=2, dropout_flag=False):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
