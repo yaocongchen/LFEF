@@ -435,8 +435,8 @@ class ContextGuidedBlock_Down(nn.Module):
 
         # output = output * ea_output
 
-        output = output + input_conv_1x1
-        output = self.relu(output)
+        # output = output + input_conv_1x1
+        # output = self.relu(output)
         
         return output
 
@@ -487,9 +487,9 @@ class ContextGuidedBlock(nn.Module):
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
         # if residual version
-        if self.add:
-            output = output + input
-            output = self.relu(output)
+        # if self.add:
+        #     output = output + input
+        #     output = self.relu(output)
 
         # b, c, w, h = input.size()
         # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
