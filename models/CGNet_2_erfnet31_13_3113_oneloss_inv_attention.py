@@ -487,8 +487,8 @@ class ContextGuidedBlock(nn.Module):
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
         # if residual version
-        # if self.add:
-        #     output = output + input
+        if self.add:
+            output = output + input
         #     output = self.relu(output)
 
         # b, c, w, h = input.size()
