@@ -6,7 +6,7 @@ from skimage.metrics import structural_similarity
 from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
 
 alpha = 0.2
-lambda_reg = 0.5
+lambda_reg = 0.2
 
 S = nn.Sigmoid()
 L = nn.BCELoss(reduction="mean")
