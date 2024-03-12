@@ -124,6 +124,8 @@ def dice_coef(model_output, mask):
     return dice
 
 def boundary_loss(pred, target):
+
+    pred = (pred > 0.5).float()
     # 計算邊界
     pred_boundary = F.max_pool2d(1 - pred, kernel_size=3, stride=1, padding=1) - (1 - pred)
     target_boundary = F.max_pool2d(1 - target, kernel_size=3, stride=1, padding=1) - (1 - target)
