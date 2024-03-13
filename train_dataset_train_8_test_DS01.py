@@ -17,8 +17,7 @@ from torch.autograd import Variable
 import wandb
 import torch.onnx
 from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import StepLR
-from torch.optim.lr_scheduler import CyclicLR
+import torch.optim.lr_scheduler as lr_scheduler
 
 # import self-written modules
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
@@ -308,8 +307,10 @@ def main():
 
     # 先用Adam測試模型能力
     optimizer = torch.optim.Adam(
-        model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
+        model.parameters(), lr=float(args["learning_rate"])
     )
+    # # 定義一個當訓練損失停止下降時就將學習率減半的調度器
+    # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10, factor=0.5)
 
     # scheduler = StepLR(optimizer, step_size=1, gamma=0.95)
     # 創建一個學習率排程
@@ -508,7 +509,7 @@ if __name__ == "__main__":
         "-wd",
         "--weight_decay",
         type=float,
-        default=0.0005,
+        default=0.00001,
         help="weight decay for training",
     )
     ap.add_argument(
