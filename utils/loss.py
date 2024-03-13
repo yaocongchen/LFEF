@@ -5,7 +5,7 @@ import numpy as np
 from skimage.metrics import structural_similarity
 from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
 
-alpha = 0.2
+alpha = 0.5
 lambda_reg = 0.2
 
 S = nn.Sigmoid()
@@ -125,7 +125,7 @@ def dice_coef(model_output, mask):
 
 def boundary_loss(pred, target):
 
-
+    model_output = (model_output > 0.5).float()
     # 計算邊界
     pred_boundary = F.max_pool2d(1 - pred, kernel_size=3, stride=1, padding=1) - (1 - pred)
     target_boundary = F.max_pool2d(1 - target, kernel_size=3, stride=1, padding=1) - (1 - target)
@@ -136,7 +136,6 @@ def boundary_loss(pred, target):
     return boundary_loss
 
 def CustomLoss(model_output, mask):
-    model_output = (model_output > 0.5).float()
     # s_iou = Sigmoid_IoU(model_output,mask)
     # iou = IoU(model_output,mask)
 
@@ -150,7 +149,7 @@ def CustomLoss(model_output, mask):
 
     # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - my_ssim) * (alpha/2)
     # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha)
-    # total_loss = loss_1 * (1 - alpha) + loss_2 * alpha
-    total_loss = loss_1 
+    total_loss = loss_1 * (1 - alpha) + loss_2 * alpha
+    # total_loss = loss_1 
     
     return total_loss
