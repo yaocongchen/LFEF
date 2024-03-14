@@ -446,7 +446,15 @@ def main():
 
             save_mean_miou = mean_miou
 
-        # scheduler.step()
+        scheduler.step()
+        current_lr = optimizer.param_groups[0]['lr']
+        print(f"current_lr: {current_lr}")
+        if args["wandb_name"] != "no":
+            wandb.log(
+                {
+                    "lr": current_lr,
+                }
+            )
 
     time_end = time.time()
     spend_time = int(time_end - time_start)
