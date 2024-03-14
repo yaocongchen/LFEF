@@ -664,7 +664,7 @@ class Net(nn.Module):
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
 
-        # self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
+        self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
 
 
         # stage 2
@@ -762,12 +762,12 @@ class Net(nn.Module):
         # inp1 = self.sample1(input)
         # inp2 = self.sample2(input)
 
-        # input_inverted = 1 - input
-        # # input_inverted = random_rotation(input_inverted)
+        input_inverted = 1 - input
+        # input_inverted = random_rotation(input_inverted)
 
-        # # input_inverted = self.brightness_adjustment(input_inverted)
-        # inverted_output = self.aux_net(input_inverted)
-        # stage1_ewp_inverted_output = stage1_output * inverted_output
+        # input_inverted = self.brightness_adjustment(input_inverted)
+        inverted_output = self.aux_net(input_inverted)
+        stage1_ewp_inverted_output = stage1_output * inverted_output
 
 
         # stage 2
