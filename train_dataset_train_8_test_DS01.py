@@ -446,7 +446,7 @@ def main():
 
             save_mean_miou = mean_miou
 
-        scheduler.step()
+        scheduler.step(save_mean_miou)
         current_lr = optimizer.param_groups[0]['lr']
         print(f"current_lr: {current_lr}")
         if args["wandb_name"] != "no":
