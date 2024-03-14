@@ -310,7 +310,7 @@ def main():
         model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
     )
     # 定義一個當訓練損失停止下降時就將學習率減半的調度器
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10, factor=0.5)
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=10, factor=0.5)
 
     # scheduler = StepLR(optimizer, step_size=1, gamma=0.95)
     # 創建一個學習率排程
