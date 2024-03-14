@@ -254,6 +254,38 @@ def valid_epoch(model, validation_data_loader, device, epoch):
         onnx_img_image,
     )
 
+# class CustomScheduler:
+#     def __init__(self, optimizer, patience=3, factor=0.5, cooldown=10):
+#         self.optimizer = optimizer
+#         self.patience = patience
+#         self.factor = factor
+#         self.cooldown = cooldown
+#         self.counter = 0
+#         self.cooldown_counter = 0
+#         self.best_score = None
+#         self.original_lr = optimizer.param_groups[0]['lr']
+#         self.lr_decrease_counter = 0
+
+#     def step(self, score):
+#         if self.best_score is None or score > self.best_score:
+#             self.best_score = score
+#             self.counter = 0
+#             self.cooldown_counter = 0
+#             self.lr_decrease_counter = 0
+#         else:
+#             self.counter += 1
+#             if self.counter >= self.patience:
+#                 if self.cooldown_counter == 0 and self.lr_decrease_counter < 3:
+#                     for param_group in self.optimizer.param_groups:
+#                         param_group['lr'] *= self.factor
+#                     self.cooldown_counter = self.cooldown
+#                     self.lr_decrease_counter += 1
+#                 else:
+#                     self.cooldown_counter -= 1
+#                     if self.cooldown_counter == 0:
+#                         for param_group in self.optimizer.param_groups:
+#                             param_group['lr'] = self.original_lr
+#                         self.counter = 0
 
 def main():
     config = configparser.ConfigParser()
@@ -310,7 +342,8 @@ def main():
         model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
     )
     # 定義一個當訓練損失停止下降時就將學習率減半的調度器
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=10, factor=0.5)
+    # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=10, factor=0.5)
+    # scheduler = CustomScheduler(optimizer, patience=10, factor=0.5, cooldown=10)
 
     # scheduler = StepLR(optimizer, step_size=1, gamma=0.95)
     # 創建一個學習率排程
@@ -446,15 +479,15 @@ def main():
 
             save_mean_miou = mean_miou
 
-        scheduler.step(save_mean_miou)
-        current_lr = optimizer.param_groups[0]['lr']
-        print(f"current_lr: {current_lr}")
-        if args["wandb_name"] != "no":
-            wandb.log(
-                {
-                    "lr": current_lr,
-                }
-            )
+        # scheduler.step(save_mean_miou)
+        # current_lr = optimizer.param_groups[0]['lr']
+        # print(f"current_lr: {current_lr}")
+        # if args["wandb_name"] != "no":
+        #     wandb.log(
+        #         {
+        #             "lr": current_lr,
+        #         }
+        #     )
 
     time_end = time.time()
     spend_time = int(time_end - time_start)
