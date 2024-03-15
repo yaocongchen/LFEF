@@ -192,7 +192,6 @@ class ChannelWiseConv(nn.Module):
            return: transformed feature map
         """
         output = self.conv(input)
-
         return output
 
 
@@ -292,6 +291,7 @@ class ChannelWiseDilatedConv(nn.Module):
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         # self.conv_1x1_ori = nn.Sequential(nn.Conv2d(nOut_ori, nOut_ori, 1, 1),nn.InstanceNorm2d(nOut_ori, affine=True))
+        # self.sigmoid = nn.Sigmoid()
 
 
     def forward(self, input):
@@ -379,7 +379,7 @@ class ContextGuidedBlock_Down(nn.Module):
     the size of feature map divided 2, (H,W,C)---->(H/2, W/2, 2C)
     """
 
-    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16):
+    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16, stage=2):
         """
         args:
            nIn: the channel of input feature map
@@ -394,13 +394,23 @@ class ContextGuidedBlock_Down(nn.Module):
         self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 4)
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
-        self.conv1x1_2 =  nn.Conv2d(4 * nOut, nOut, kernel_size=1, stride=1, padding=0, bias=False)
-        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
-        self.act = nn.ReLU(nOut)
+        self.in_norm = nn.InstanceNorm2d(4 * nOut, affine=True)
+        self.act = nn.ReLU(4 * nOut)
+        self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+
+        self.conv_3x3xc = nn.Conv2d(nOut, nOut, (3, 3), stride=1, padding=1, bias=False)
+
+        if stage ==3:
+            nOut = nOut // 4
+        else:
+            nOut = nOut
+            
+        self.conv_3x3 = nn.Conv2d(nOut, nOut, (3, 3), stride=1, padding=1, bias=False)
+        # self.conv_3x3xh = nn.Conv2d(nOut, nOut, (3, 3), stride=1, padding=1, bias=False)
+
+        self.sigmoid = nn.Sigmoid()
 
         self.F_glo = FGlo(nOut, reduction)
-
-        self.relu = nn.ReLU()
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
@@ -409,23 +419,41 @@ class ContextGuidedBlock_Down(nn.Module):
         # self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
 
     def forward(self, input):
-        input_conv_1x1 = self.conv1x1(input)
-        loc = self.F_loc(input_conv_1x1)
-        sur = self.F_sur(input_conv_1x1)
-        sur_4 = self.F_sur_4(input_conv_1x1)
-        sur_8 = self.F_sur_8(input_conv_1x1)
-
+        output = self.conv1x1(input)
+        loc = self.F_loc(output)
+        sur = self.F_sur(output)
+        sur_4 = self.F_sur_4(output)
+        sur_8 = self.F_sur_8(output)
 
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
-        joi_feat = self.conv1x1_2(joi_feat)
         joi_feat = self.in_norm(joi_feat)
         # joi_feat = F.layer_norm(joi_feat, joi_feat.size()[1:])
         joi_feat = self.act(joi_feat)
+        joi_feat = self.reduce(joi_feat)  # channel= nOut
 
 
-        output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
+        bchw = self.conv_3x3xc(joi_feat)
+
+        # b*c*h*w--->b*w*h*c
+        bChw_to_bwhC = joi_feat.permute(0, 3, 2, 1) 
+        bwhC = self.conv_3x3(bChw_to_bwhC)
+        # b*w*h*c--->b*c*w*h
+        bwhC_to_bChw = bwhC.permute(0, 3, 2, 1)
+
+        # b*c*h*w--->b*h*c*w
+        bChw_to_bhCw = joi_feat.permute(0, 2, 1, 3)
+        bhCw = self.conv_3x3(bChw_to_bhCw)
+        # b*c*w*h--->b*w*h*c
+        bhCw_to_bChw = bhCw.permute(0, 2, 1, 3)
+
+        Cubic_cross_attention = bchw + bwhC_to_bChw + bhCw_to_bChw
+        Cubic_cross_attention = self.sigmoid(Cubic_cross_attention)
+        output = joi_feat * Cubic_cross_attention
+
+
+        # output = self.F_glo(output)  # F_glo is employed to refine the joint feature
 
         # b, c, w, h = input.size()
         # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
@@ -436,15 +464,12 @@ class ContextGuidedBlock_Down(nn.Module):
         # ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
 
         # output = output * ea_output
-
-        # output = output + input_conv_1x1
-        # output = self.relu(output)
         
         return output
 
 
 class ContextGuidedBlock(nn.Module):
-    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16, add=True):
+    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16, add=True ,stage=2):
         """
         args:
            nIn: number of input channels
@@ -463,12 +488,22 @@ class ContextGuidedBlock(nn.Module):
         self.F_sur_4 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 2)
         self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 4)
 
-        self.conv1x1_2 =  nn.Conv2d(4 * n, nOut, kernel_size=1, stride=1, padding=0, bias=False)
-        self.in_relu = INReLU(nOut)
-        self.add = add
-        self.F_glo = FGlo(nOut, reduction)
+        self.in_relu = INReLU(4*n)
 
-        # self.relu = nn.ReLU()
+        self.conv_3x3xc = nn.Conv2d(nOut, nOut, (3, 3), stride=1, padding=1, bias=False)
+
+        if stage ==3:
+            nOut = nOut // 4
+        else:
+            nOut = nOut
+            
+        self.conv_3x3 = nn.Conv2d(nOut, nOut, (3, 3), stride=1, padding=1, bias=False)
+        # self.conv_3x3xh = nn.Conv2d(nOut, nOut, (3, 3), stride=1, padding=1, bias=False)
+
+        self.sigmoid = nn.Sigmoid()
+
+        self.add = add
+        self.F_glo = FGlo(4*n, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
@@ -482,17 +517,35 @@ class ContextGuidedBlock(nn.Module):
         sur = self.F_sur(output)
         sur_4 = self.F_sur_4(output)
         sur_8 = self.F_sur_8(output)
-
+        
         #joi_feat = torch.cat([loc, sur], 1)
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
-        joi_feat = self.conv1x1_2(joi_feat)
+
         joi_feat = self.in_relu(joi_feat)
 
-        output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
-        # if residual version
-        if self.add:
-            output = output + input
-        #     output = self.relu(output)
+        bchw = self.conv_3x3xc(joi_feat)
+
+        # b*c*h*w--->b*w*h*c
+        bChw_to_bwhC = joi_feat.permute(0, 3, 2, 1) 
+        bwhC = self.conv_3x3(bChw_to_bwhC)
+        # b*w*h*c--->b*c*w*h
+        bwhC_to_bChw = bwhC.permute(0, 3, 2, 1)
+
+        # b*c*h*w--->b*h*c*w
+        bChw_to_bhCw = joi_feat.permute(0, 2, 1, 3)
+        bhCw = self.conv_3x3(bChw_to_bhCw)
+        # b*c*w*h--->b*w*h*c
+        bhCw_to_bChw = bhCw.permute(0, 2, 1, 3)
+
+        Cubic_cross_attention = bchw + bwhC_to_bChw + bhCw_to_bChw
+        Cubic_cross_attention = self.sigmoid(Cubic_cross_attention)
+        output = joi_feat * Cubic_cross_attention
+
+
+        # output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
+        # # if residual version
+        # if self.add:
+        #     output = input + output
 
         # b, c, w, h = input.size()
         # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
@@ -598,7 +651,7 @@ class AuxiliaryNetwork(nn.Module):
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
 
-        self.sigmoid = nn.Sigmoid()
+        self.relu = nn.ReLU()
 
     def forward(self, input):
         # b, c, w, h = input.size()
@@ -611,7 +664,7 @@ class AuxiliaryNetwork(nn.Module):
         output = self.conv_layer3(output)
         output = self.avg_pool(output) + self.max_pool(output)
 
-        output = self.sigmoid(output)
+        output = self.relu(output)
 
         return output
     
@@ -672,12 +725,12 @@ class Net(nn.Module):
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            32, 64,dilation_rate=2, reduction=8
+            32, 64,dilation_rate=2, reduction=8, stage=2
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
             self.level2.append(
-                ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
+                ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8, stage=2)
             )  # CG block
         self.in_relu_2 = INReLU(128)
         # self.bn_relu_2_2 = BNReLU(128 + 3)
@@ -685,12 +738,12 @@ class Net(nn.Module):
 
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
-            128, 128, dilation_rate=4, reduction=16
+            128, 128, dilation_rate=4, reduction=16 , stage=3
         )
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
             self.level3.append(
-                ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
+                ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16, stage=3)
             )  # CG bloc
         self.in_relu_3 = INReLU(256)
 
@@ -774,7 +827,7 @@ class Net(nn.Module):
 
 
         # stage 2
-        initial_stage2_output = self.level2_0(stage1_output)  # down-sampled
+        initial_stage2_output = self.level2_0(stage1_ewp_inverted_output)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -807,7 +860,7 @@ class Net(nn.Module):
 
         final_stage3_output = self.in_relu_3(torch.cat([initial_stage3_output, processed_stage3_output], 1))
 
-        # stage1_ewp_inverted_output_up = self.upsample(stage1_output)
+        # stage1_ewp_inverted_output_up = self.upsample(stage1_ewp_inverted_output)
         # stage1_ewp_inverted_output_up = self.conv_32_to_1(stage1_ewp_inverted_output_up)
 
         # final_stage2_output_up = self.upsample(final_stage2_output)
