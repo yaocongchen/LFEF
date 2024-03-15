@@ -185,7 +185,7 @@ class ChannelWiseConv(nn.Module):
             bias=False,
         )
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
-        self.relu = nn.ReLU(nOut)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
         """
@@ -195,7 +195,7 @@ class ChannelWiseConv(nn.Module):
         """
         output = self.conv(input)
         output = self.in_norm(output)
-        output = self.relu(output)
+        output = self.sigmoid(output)
 
         return output
 
@@ -297,7 +297,7 @@ class ChannelWiseDilatedConv(nn.Module):
         # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         # self.conv_1x1_ori = nn.Sequential(nn.Conv2d(nOut_ori, nOut_ori, 1, 1),nn.InstanceNorm2d(nOut_ori, affine=True))
         self.in_norm = nn.InstanceNorm2d(nOut_ori, affine=True)
-        self.relu = nn.ReLU(nOut_ori)
+        self.sigmoid = nn.Sigmoid()
 
 
     def forward(self, input):
@@ -308,7 +308,7 @@ class ChannelWiseDilatedConv(nn.Module):
         """
         output = self.conv_3113(input)
         output = self.in_norm(output)
-        output = self.relu(output)
+        output = self.sigmoid(output)
 
         # x1, x2 = channel_split(input)
         # output_3113 = self.conv_3113(x1)
