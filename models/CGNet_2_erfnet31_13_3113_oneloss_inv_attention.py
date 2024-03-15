@@ -184,6 +184,8 @@ class ChannelWiseConv(nn.Module):
             groups=nIn,
             bias=False,
         )
+        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
+        self.relu = nn.ReLU(nOut)
 
     def forward(self, input):
         """
@@ -192,6 +194,9 @@ class ChannelWiseConv(nn.Module):
            return: transformed feature map
         """
         output = self.conv(input)
+        output = self.in_norm(output)
+        output = self.relu(output)
+
         return output
 
 
@@ -291,7 +296,8 @@ class ChannelWiseDilatedConv(nn.Module):
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         # self.conv_1x1_ori = nn.Sequential(nn.Conv2d(nOut_ori, nOut_ori, 1, 1),nn.InstanceNorm2d(nOut_ori, affine=True))
-        # self.sigmoid = nn.Sigmoid()
+        self.in_norm = nn.InstanceNorm2d(nOut_ori, affine=True)
+        self.relu = nn.ReLU(nOut_ori)
 
 
     def forward(self, input):
@@ -301,6 +307,8 @@ class ChannelWiseDilatedConv(nn.Module):
            return: transformed feature map
         """
         output = self.conv_3113(input)
+        output = self.in_norm(output)
+        output = self.relu(output)
 
         # x1, x2 = channel_split(input)
         # output_3113 = self.conv_3113(x1)
@@ -394,9 +402,9 @@ class ContextGuidedBlock_Down(nn.Module):
         self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 4)
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
-        self.in_norm = nn.InstanceNorm2d(4 * nOut, affine=True)
-        self.act = nn.ReLU(4 * nOut)
-        self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+        self.conv1x1_2 =  nn.Conv2d(4 * nOut, nOut, kernel_size=1, stride=1, padding=0, bias=False)
+        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
+        self.act = nn.ReLU(nOut)
 
         self.F_glo = FGlo(nOut, reduction)
 
@@ -415,13 +423,21 @@ class ContextGuidedBlock_Down(nn.Module):
         sur_4 = self.F_sur_4(input_conv_1x1)
         sur_8 = self.F_sur_8(input_conv_1x1)
 
-        joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
+        input_mul_loc = input_conv_1x1 * loc
+        input_mul_sur = input_conv_1x1 * sur
+        input_mul_sur_4 = input_conv_1x1 * sur_4
+        input_mul_sur_8 = input_conv_1x1 * sur_8
+
+        joi_feat = torch.cat([input_mul_loc, input_mul_sur, input_mul_sur_4, input_mul_sur_8], 1)  #  the joint feature
+
+        # joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
+        joi_feat = self.conv1x1_2(joi_feat)
         joi_feat = self.in_norm(joi_feat)
         # joi_feat = F.layer_norm(joi_feat, joi_feat.size()[1:])
         joi_feat = self.act(joi_feat)
-        joi_feat = self.reduce(joi_feat)  # channel= nOut
+
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
 
@@ -461,11 +477,12 @@ class ContextGuidedBlock(nn.Module):
         self.F_sur_4 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 2)
         self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 4)
 
-        self.in_relu = INReLU(4*n)
+        self.conv1x1_2 =  nn.Conv2d(4 * n, nOut, kernel_size=1, stride=1, padding=0, bias=False)
+        self.in_relu = INReLU(nOut)
         self.add = add
-        self.F_glo = FGlo(4*n, reduction)
+        self.F_glo = FGlo(nOut, reduction)
 
-        self.relu = nn.ReLU()
+        # self.relu = nn.ReLU()
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
@@ -479,10 +496,17 @@ class ContextGuidedBlock(nn.Module):
         sur = self.F_sur(output)
         sur_4 = self.F_sur_4(output)
         sur_8 = self.F_sur_8(output)
+
+        input_mul_loc = output * loc
+        input_mul_sur = output * sur
+        input_mul_sur_4 = output * sur_4
+        input_mul_sur_8 = output * sur_8
+
+        joi_feat = torch.cat([input_mul_loc, input_mul_sur, input_mul_sur_4, input_mul_sur_8], 1)  #  the joint feature
         
         #joi_feat = torch.cat([loc, sur], 1)
-        joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
-
+        # joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
+        joi_feat = self.conv1x1_2(joi_feat)
         joi_feat = self.in_relu(joi_feat)
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
@@ -720,25 +744,25 @@ class Net(nn.Module):
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.ReLU())
         
-        self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        self.conv_32_to_1 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
-        self.conv_128_to_1 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
-        self.conv_256_to_1 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
+        # self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
+        # self.conv_32_to_1 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
+        # self.conv_128_to_1 = nn.Sequential(nn.Conv2d(128, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
+        # self.conv_256_to_1 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
 
 #================================================================================================#
-        # self.conv_256_to_128 = nn.Conv2d(256, 128, kernel_size=(1, 1), stride=1,padding=0)
-        # self.conv_256_to_128_IN = nn.InstanceNorm2d(128, affine=True)
-        # self.upsample_to_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
+        self.conv_256_to_128 = nn.Conv2d(256, 128, kernel_size=(1, 1), stride=1,padding=0)
+        self.conv_256_to_128_IN = nn.InstanceNorm2d(128, affine=True)
+        self.upsample_to_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
 
-        # self.conv_256_to_32 = nn.Conv2d(256, 32, kernel_size=(1, 1), stride=1,padding=0)
-        # self.conv_256_to_32_IN = nn.InstanceNorm2d(32, affine=True)
-        # self.upsample_to_128x128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
+        self.conv_256_to_32 = nn.Conv2d(256, 32, kernel_size=(1, 1), stride=1,padding=0)
+        self.conv_256_to_32_IN = nn.InstanceNorm2d(32, affine=True)
+        self.upsample_to_128x128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
 
-        # self.conv_96_to_1 = nn.Conv2d(64, 1, kernel_size=(1, 1), stride=1,padding=0)
-        # self.conv_96_to_1_IN = nn.InstanceNorm2d(1, affine=True)
-        # self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
+        self.conv_96_to_1 = nn.Conv2d(64, 1, kernel_size=(1, 1), stride=1,padding=0)
+        self.conv_96_to_1_IN = nn.InstanceNorm2d(1, affine=True)
+        self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
 
-        # self.relu = nn.ReLU()
+        self.relu = nn.ReLU()
 #================================================================================================#
         
         self.sigmoid = nn.Sigmoid()
@@ -804,41 +828,41 @@ class Net(nn.Module):
 
         final_stage3_output = self.in_relu_3(torch.cat([initial_stage3_output, processed_stage3_output], 1))
 
-        stage1_ewp_inverted_output_up = self.upsample(stage1_output)
-        stage1_ewp_inverted_output_up = self.conv_32_to_1(stage1_ewp_inverted_output_up)
+        # stage1_ewp_inverted_output_up = self.upsample(stage1_output)
+        # stage1_ewp_inverted_output_up = self.conv_32_to_1(stage1_ewp_inverted_output_up)
 
-        final_stage2_output_up = self.upsample(final_stage2_output)
-        final_stage2_output_up = self.conv_128_to_1(final_stage2_output_up)
+        # final_stage2_output_up = self.upsample(final_stage2_output)
+        # final_stage2_output_up = self.conv_128_to_1(final_stage2_output_up)
 
-        final_stage3_output_up = self.upsample(final_stage3_output)
-        final_stage3_output_up = self.conv_256_to_1(final_stage3_output_up)
+        # final_stage3_output_up = self.upsample(final_stage3_output)
+        # final_stage3_output_up = self.conv_256_to_1(final_stage3_output_up)
 
-        output = torch.cat([stage1_ewp_inverted_output_up, final_stage2_output_up, final_stage3_output_up], 1)
-        output = self.classifier(output)
+        # output = torch.cat([stage1_ewp_inverted_output_up, final_stage2_output_up, final_stage3_output_up], 1)
+        # output = self.classifier(output)
 
 #================================================================================================#
-        # upsample_stage3_output = self.upsample_to_64x64(final_stage3_output)
-        # convolved_stage3_output = self.conv_256_to_128(upsample_stage3_output)
-        # convolved_stage3_output = self.conv_256_to_128_IN(convolved_stage3_output)
-        # # convolved_stage3_output = F.layer_norm(convolved_stage3_output, convolved_stage3_output.size()[1:])
-        # convolved_stage3_output = self.relu(convolved_stage3_output)
+        upsample_stage3_output = self.upsample_to_64x64(final_stage3_output)
+        convolved_stage3_output = self.conv_256_to_128(upsample_stage3_output)
+        convolved_stage3_output = self.conv_256_to_128_IN(convolved_stage3_output)
+        # convolved_stage3_output = F.layer_norm(convolved_stage3_output, convolved_stage3_output.size()[1:])
+        convolved_stage3_output = self.relu(convolved_stage3_output)
 
-        # stage3_cat_stage2_output = torch.cat([convolved_stage3_output, final_stage2_output], 1)
-        # upsample_stage2_output = self.upsample_to_128x128(stage3_cat_stage2_output)
-        # convolved_stage2_output = self.conv_256_to_32(upsample_stage2_output)
-        # convolved_stage2_output = self.conv_256_to_32_IN(convolved_stage2_output)
-        # # convolved_stage2_output = F.layer_norm(convolved_stage2_output, convolved_stage2_output.size()[1:])
-        # convolved_stage2_output = self.relu(convolved_stage2_output)
+        stage3_cat_stage2_output = torch.cat([convolved_stage3_output, final_stage2_output], 1)
+        upsample_stage2_output = self.upsample_to_128x128(stage3_cat_stage2_output)
+        convolved_stage2_output = self.conv_256_to_32(upsample_stage2_output)
+        convolved_stage2_output = self.conv_256_to_32_IN(convolved_stage2_output)
+        # convolved_stage2_output = F.layer_norm(convolved_stage2_output, convolved_stage2_output.size()[1:])
+        convolved_stage2_output = self.relu(convolved_stage2_output)
 
-        # stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_output], 1)
-        # upsample_stage1_output = self.upsample_to_256x256(stage2_cat_stage1_output)
-        # convolved_stage1_output = self.conv_96_to_1(upsample_stage1_output)
-        # convolved_stage1_output = self.conv_96_to_1_IN(convolved_stage1_output)
-        # # convolved_stage1_output = F.layer_norm(convolved_stage1_output, convolved_stage1_output.size()[1:])
-        # convolved_stage1_output = self.relu(convolved_stage1_output)
+        stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_output], 1)
+        upsample_stage1_output = self.upsample_to_256x256(stage2_cat_stage1_output)
+        convolved_stage1_output = self.conv_96_to_1(upsample_stage1_output)
+        convolved_stage1_output = self.conv_96_to_1_IN(convolved_stage1_output)
+        # convolved_stage1_output = F.layer_norm(convolved_stage1_output, convolved_stage1_output.size()[1:])
+        convolved_stage1_output = self.relu(convolved_stage1_output)
 #================================================================================================#
 
-        output = self.sigmoid(output)
+        output = self.sigmoid(convolved_stage1_output)
 
         return output
 
