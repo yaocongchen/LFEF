@@ -181,7 +181,7 @@ def smoke_segmentation(
         frame_RGBA = frame_image.convert("RGBA")
 
         if blend_image == True:
-            blendImage = image_process.overlap_PIL(
+            blendImage = image_process.overlap_v2(
                 frame_RGBA, output_np_RGBA, read_method="OpenCV_BGRA"
             )
             output_np = blendImage.convert("RGB")

@@ -150,7 +150,7 @@ def image_overlap(input_image, i, names):
     img1 = img1.resize(imgSize)
     img2 = img2.resize(imgSize)
 
-    blendImage = image_process.overlap_PIL(img1, img2, read_method="PIL_RGBA")
+    blendImage = image_process.overlap_v2(img1, img2, read_method="PIL_RGBA")
 
     # Display image 顯示影像
     # blendImage.show()
