@@ -387,7 +387,7 @@ class ContextGuidedBlock_Down(nn.Module):
 
 
 class ContextGuidedBlock(nn.Module):
-    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16, add=True):
+    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16, M=0, N=0, rotation_angle=180, add=True):
         """
         args:
            nIn: number of input channels
@@ -395,6 +395,10 @@ class ContextGuidedBlock(nn.Module):
            add: if true, residual learning
         """
         super().__init__()
+        self.M = M
+        self.N = N
+        self.roatation_angle = rotation_angle
+
         n = int(nOut / 4)
         self.conv1x1 = ConvINReLU(
             nIn, n, 1, 1
@@ -417,6 +421,13 @@ class ContextGuidedBlock(nn.Module):
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
 
     def forward(self, input):
+        print(self.M, self.N)
+        if self.M == 0 or self.N == 0:
+            output = TF.rotate(input, self.roatation_angle)
+        elif self.M == 1 or self.N == 1:
+            # 水平翻轉 input
+            output = torch.flip(input, [3])
+
         output = self.conv1x1(input)
         loc = self.F_loc(output)
         sur = self.F_sur(output)
@@ -432,6 +443,12 @@ class ContextGuidedBlock(nn.Module):
         # if residual version
         if self.add:
             output = input + output
+
+        if self.M == 2 or self.N == 2:
+            output = TF.rotate(output, -self.roatation_angle)
+        elif self.M == 3 or self.N == 3:
+            # 水平翻轉 output
+            output = torch.flip(output, [3])
 
         # b, c, w, h = input.size()
         # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
@@ -592,8 +609,6 @@ class Net(nn.Module):
 
         self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
 
-        self.rotation_angle = rotation_angle
-
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
             32, 64,dilation_rate=2, reduction=8
@@ -601,7 +616,7 @@ class Net(nn.Module):
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
             self.level2.append(
-                ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
+                ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8, M=i, N=-1, rotation_angle=rotation_angle, add=True)
             )  # CG block
         self.in_relu_2 = INReLU(128)
         # self.bn_relu_2_2 = BNReLU(128 + 3)
@@ -613,8 +628,9 @@ class Net(nn.Module):
         )
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
+            print(i)
             self.level3.append(
-                ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
+                ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16, M=-1, N=i, rotation_angle=rotation_angle, add=True)
             )  # CG bloc
         self.in_relu_3 = INReLU(256)
 
@@ -700,9 +716,8 @@ class Net(nn.Module):
         stage1_ewp_inverted_output = stage1_output * inverted_output
 
         
-        stage1_ewp_inverted_output_rotated = TF.rotate(stage1_ewp_inverted_output, self.rotation_angle)
         # stage 2
-        initial_stage2_output = self.level2_0(stage1_ewp_inverted_output_rotated)  # down-sampled
+        initial_stage2_output = self.level2_0(stage1_ewp_inverted_output)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -711,8 +726,6 @@ class Net(nn.Module):
                 processed_stage2_output = layer(processed_stage2_output)
 
         final_stage2_output = self.in_relu_2(torch.cat([initial_stage2_output, processed_stage2_output], 1))
-
-        final_stage2_output = TF.rotate(final_stage2_output, -self.rotation_angle)
 
 
         # b, c, w, h = initial_stage2_output.size()
