@@ -387,7 +387,7 @@ class ContextGuidedBlock_Down(nn.Module):
 
 
 class ContextGuidedBlock(nn.Module):
-    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16, M=0, N=0, rotation_angle=180, add=True):
+    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16, M=-1, N=-1, rotation_angle=180, add=True):
         """
         args:
            nIn: number of input channels
@@ -421,7 +421,6 @@ class ContextGuidedBlock(nn.Module):
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
 
     def forward(self, input):
-        print(self.M, self.N)
         if self.M == 0 or self.N == 0:
             output = TF.rotate(input, self.roatation_angle)
         elif self.M == 1 or self.N == 1:
@@ -444,9 +443,9 @@ class ContextGuidedBlock(nn.Module):
         if self.add:
             output = input + output
 
-        if self.M == 2 or self.N == 2:
+        if self.M == 0 or self.N == 0:
             output = TF.rotate(output, -self.roatation_angle)
-        elif self.M == 3 or self.N == 3:
+        elif self.M == 1 or self.N == 1:
             # 水平翻轉 output
             output = torch.flip(output, [3])
 
@@ -628,7 +627,6 @@ class Net(nn.Module):
         )
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
-            print(i)
             self.level3.append(
                 ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16, M=-1, N=i, rotation_angle=rotation_angle, add=True)
             )  # CG bloc
