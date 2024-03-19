@@ -442,10 +442,10 @@ class ContextGuidedBlock(nn.Module):
         # if residual version
         if self.add:
             output = input + output
-
-        if self.M == 0 or self.N == 0:
+            
+        if self.M % 2 == 0 or self.N % 2 == 0:
             output = TF.rotate(output, -self.roatation_angle)
-        elif self.M == 1 or self.N == 1:
+        elif self.M % 2 == 1 or self.N % 2  == 1:
             # 水平翻轉 output
             output = torch.flip(output, [3])
 
