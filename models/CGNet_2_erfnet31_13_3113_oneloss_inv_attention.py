@@ -422,10 +422,8 @@ class ContextGuidedBlock(nn.Module):
 
     def forward(self, input):
         if self.M % 2 == 0 or self.N % 2 == 0:
-            print("rotation")
             output = TF.rotate(input, self.roatation_angle)
         elif self.M % 2 == 1 or self.N % 2  == 1:
-            print("flip")
             # 水平翻轉 input
             output = torch.flip(input, [3])
 
