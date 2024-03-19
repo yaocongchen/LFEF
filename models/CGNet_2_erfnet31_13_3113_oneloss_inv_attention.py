@@ -421,9 +421,11 @@ class ContextGuidedBlock(nn.Module):
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
 
     def forward(self, input):
-        if self.M == 0 or self.N == 0:
+        if self.M % 2 == 0 or self.N % 2 == 0:
+            print("rotation")
             output = TF.rotate(input, self.roatation_angle)
-        elif self.M == 1 or self.N == 1:
+        elif self.M % 2 == 1 or self.N % 2  == 1:
+            print("flip")
             # 水平翻轉 input
             output = torch.flip(input, [3])
 
@@ -588,7 +590,7 @@ class Net(nn.Module):
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
 
-    def __init__(self, classes=1, M=3, N=3, dropout_flag=False, rotation_angle=180):
+    def __init__(self, classes=1, M=9, N=9, dropout_flag=False, rotation_angle=180):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
