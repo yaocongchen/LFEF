@@ -442,7 +442,7 @@ class ContextGuidedBlock(nn.Module):
         # if residual version
         if self.add:
             output = input + output
-            
+
         if self.M % 2 == 0 or self.N % 2 == 0:
             output = TF.rotate(output, -self.roatation_angle)
         elif self.M % 2 == 1 or self.N % 2  == 1:
@@ -588,7 +588,7 @@ class Net(nn.Module):
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
 
-    def __init__(self, classes=1, M=9, N=9, dropout_flag=False, rotation_angle=180):
+    def __init__(self, classes=1, M=4, N=4, dropout_flag=False, rotation_angle=180):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
@@ -617,9 +617,10 @@ class Net(nn.Module):
             self.level2.append(
                 ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8, M=i, N=-1, rotation_angle=rotation_angle, add=True)
             )  # CG block
+
+        self.conv_128_to_64 = nn.Conv2d(128, 64, kernel_size=1, stride=1, padding=0, bias=False)
         self.in_relu_2 = INReLU(128)
         # self.bn_relu_2_2 = BNReLU(128 + 3)
-
         
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
@@ -721,7 +722,15 @@ class Net(nn.Module):
             if i == 0:
                 processed_stage2_output = layer(initial_stage2_output)
             else:
-                processed_stage2_output = layer(processed_stage2_output)
+                if i % 2 == 1:
+                    processed_stage2_output = layer(processed_stage2_output)
+                    processed_stage2_output_rotated = processed_stage2_output
+                elif i % 2 == 0:
+                    processed_stage2_output = layer(processed_stage2_output)
+                    processed_stage2_output_flipped = processed_stage2_output
+                    processed_stage2_output = torch.cat([processed_stage2_output_rotated, processed_stage2_output_flipped], 1)
+                    processed_stage2_output = self.conv_128_to_64(processed_stage2_output)
+
 
         final_stage2_output = self.in_relu_2(torch.cat([initial_stage2_output, processed_stage2_output], 1))
 
