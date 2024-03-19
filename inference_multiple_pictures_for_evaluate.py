@@ -246,7 +246,9 @@ if __name__ == "__main__":
     # max_count = int(max(counts))
     # 顯示 miou的線 並顯示數值
     plt.axvline(x=miou, color='r', linestyle='--', label=f'mIoU:{miou:.2f}%')
-
+    std_iou = np.std(iou_list)
+    plt.axvline(x=miou + std_iou, color='m', linestyle='--', label=f'mIoU+std:{miou + std_iou:.2f}%')
+    plt.axvline(x=miou - std_iou, color='m', linestyle='--', label=f'mIoU-std:{miou - std_iou:.2f}%')
 
     # plt.yticks(range(0, max_count+1, 5))
     # 在 y=1 的位置繪製一條水平線
@@ -255,7 +257,7 @@ if __name__ == "__main__":
     # 顯示標籤
     plt.legend()
     
-    plt.title(f"IoU Histogram")
+    plt.title(f"IoU Histogram \n std:{std_iou:.2f}%")
     
     save_path = f'./results/{names["image_stitching_dir_name"]}/IoU_histogram.png'
     plt.savefig(save_path)
