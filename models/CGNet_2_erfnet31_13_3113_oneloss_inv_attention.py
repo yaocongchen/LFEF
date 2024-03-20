@@ -8,13 +8,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchinfo import summary
 from torch.nn import init
-import torchvision.transforms.functional as TF
+from torchvision import transforms
 
 __all__ = ["Context_Guided_Network"]
 # Filter out variables, functions, and classes that other programs don't need or don't want when running cmd "from CGNet import *"
 
+# 定義一個隨機旋轉的轉換
 
-def split(x):
+def channel_split(x):
     c = int(x.size()[1])
     c1 = round(c * 0.5)
     x1 = x[
@@ -227,7 +228,7 @@ class DilatedConv(nn.Module):
 
 
 class ChannelWiseDilatedConv(nn.Module):
-    def __init__(self, nIn, nOut, kSize, stride=1, d=1):
+    def __init__(self, nIn_ori, nOut_ori, kSize, stride=1, d=1):
         """
         args:
            nIn: number of input channels
@@ -237,29 +238,61 @@ class ChannelWiseDilatedConv(nn.Module):
            d: dilation rate
         """
         super().__init__()
+        # nIn = int(nIn_ori / 2)
+        # nOut = int(nOut_ori / 2)
         padding = int((kSize - 1) / 2) * d
-        self.conv = nn.Sequential(
+        self.conv_3113 = nn.Sequential(
             nn.Conv2d(
-                nIn,
-                nIn,
+                nIn_ori,
+                nIn_ori,
                 (kSize, 1),
                 stride=stride,
                 padding=(padding , 0),
-                groups=nIn,
+                groups=nIn_ori,
                 bias=False,
                 dilation=d,
             ),
             nn.Conv2d(
-                nIn,
-                nOut,
+                nIn_ori,
+                nOut_ori,
                 (1, kSize),
                 stride=stride,
                 padding=(0 , padding),
-                groups=nIn,
+                groups=nIn_ori,
                 bias=False,
                 dilation=d,
             ),
         )
+
+        # self.conv_1331 = nn.Sequential(
+        #     nn.Conv2d(
+        #         nIn,
+        #         nIn,
+        #         (1, kSize),
+        #         stride=stride,
+        #         padding=(0 , padding),
+        #         groups=nIn,
+        #         bias=False,
+        #         dilation=d,
+        #     ),
+        #     nn.Conv2d(
+        #         nIn,
+        #         nOut,
+        #         (kSize, 1),
+        #         stride=stride,
+        #         padding=(padding , 0),
+        #         groups=nIn,
+        #         bias=False,
+        #         dilation=d,
+        #     ),
+        # )
+        # self.conv_1x1 = nn.Sequential(nn.Conv2d(nOut * 2, nOut * 2, 1, 1),nn.InstanceNorm2d(nOut * 2, affine=True), nn.ReLU(nOut * 2))
+
+        # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
+        # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
+        # self.conv_1x1_ori = nn.Sequential(nn.Conv2d(nOut_ori, nOut_ori, 1, 1),nn.InstanceNorm2d(nOut_ori, affine=True))
+        # self.sigmoid = nn.Sigmoid()
+
 
     def forward(self, input):
         """
@@ -267,7 +300,24 @@ class ChannelWiseDilatedConv(nn.Module):
            input: input feature map
            return: transformed feature map
         """
-        output = self.conv(input)
+        output = self.conv_3113(input)
+
+        # x1, x2 = channel_split(input)
+        # output_3113 = self.conv_3113(x1)
+        # output_1331 = self.conv_1331(x2)
+        # output = torch.cat([output_3113, output_1331], 1)
+        # output = self.conv_1x1(output)
+
+        # mix_input = self.avg_pool(input) + self.max_pool(input)
+        # mix_input = self.conv_1x1_ori(mix_input)
+        # mix_input = self.sigmoid(mix_input)
+
+        # output_mul_input = output * mix_input
+
+        # output =  output + output_mul_input
+
+        # output = channel_shuffle(output, 2)
+
         return output
 
 
@@ -337,7 +387,7 @@ class ContextGuidedBlock_Down(nn.Module):
         """
         super().__init__()
         self.conv1x1 = ConvINReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
-
+        
         self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
         self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate)
         self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 2)
@@ -476,11 +526,11 @@ class non_bottleneck_1d(nn.Module):
         super().__init__()
 
         self.conv3x1_1 = nn.Conv2d(
-            chann, chann, (3, 1), stride=1, padding=(1, 0), bias=True
+            chann, chann, (3, 1), stride=1, padding=(1, 0), bias=False
         )
 
         self.conv1x3_1 = nn.Conv2d(
-            chann, chann, (1, 3), stride=1, padding=(0, 1), bias=True
+            chann, chann, (1, 3), stride=1, padding=(0, 1), bias=False
         )
 
         # self.bn1 = nn.BatchNorm2d(chann, eps=1e-03)
@@ -492,7 +542,7 @@ class non_bottleneck_1d(nn.Module):
             (3, 1),
             stride=1,
             padding=(1 * dilated, 0),
-            bias=True,
+            bias=False,
             dilation=(dilated, 1),
         )
 
@@ -502,7 +552,7 @@ class non_bottleneck_1d(nn.Module):
             (1, 3),
             stride=1,
             padding=(0, 1 * dilated),
-            bias=True,
+            bias=False,
             dilation=(1, dilated),
         )
         self.relu = nn.ReLU(chann)
@@ -558,13 +608,29 @@ class AuxiliaryNetwork(nn.Module):
 class BrightnessAdjustment(nn.Module):
     def __init__(self):
         super().__init__()
-        self.brightness = nn.Parameter(torch.tensor([1.0]))
+        self.conv1 = nn.Conv2d(1, 16, kernel_size=3, stride=2, padding=1)
+        self.relu1 = nn.ReLU()
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1)
+        self.relu2 = nn.ReLU()
+        self.fc = nn.Linear(32 * 64 * 64, 1)  # 調整全連接層的輸入大小
+        self.sigmoid = nn.Sigmoid()
 
-    def forward(self, input_image):
+    def forward(self, input):
+        # 創建一個 Grayscale 轉換
+        grayscale_transform = transforms.Grayscale(num_output_channels=1)
 
-        adjusted_image = input_image * self.brightness
-        return adjusted_image  
-    
+        # 將 RGB 圖像轉換為灰度圖像
+        gray_img = grayscale_transform(input)
+        x = self.conv1(gray_img)
+        x = self.relu1(x)
+        x = self.conv2(x)
+        x = self.relu2(x)
+        x = x.view(x.size(0), -1)  # 將特徵圖攤平
+        x = self.fc(x)
+        brightness = self.sigmoid(x)
+        output = input * brightness.view(-1, 1, 1, 1)
+
+        return output
 
 
 class Net(nn.Module):
@@ -572,7 +638,7 @@ class Net(nn.Module):
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
 
-    def __init__(self, classes=1, M=3, N=3, dropout_flag=False, rotation_angle=180):
+    def __init__(self, classes=1, M=3, N=3, dropout_flag=False):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
@@ -585,6 +651,9 @@ class Net(nn.Module):
         self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
         self.level1_2 = non_bottleneck_1d(32, 2)
+        self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
+        self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
+        self.conv1x1_IN_Relu = nn.Sequential(nn.Conv2d(32 *3 , 32, kernel_size=1, stride=1, padding=0), nn.InstanceNorm2d(32, affine=True), nn.ReLU())
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
@@ -592,7 +661,6 @@ class Net(nn.Module):
 
         self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
 
-        self.rotation_angle = rotation_angle
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
@@ -606,7 +674,7 @@ class Net(nn.Module):
         self.in_relu_2 = INReLU(128)
         # self.bn_relu_2_2 = BNReLU(128 + 3)
 
-        
+
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
             128, 128, dilation_rate=4, reduction=16
@@ -646,17 +714,6 @@ class Net(nn.Module):
         # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.ReLU())
-                        
-        # self.upsample_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
-        # self.conv_32_to_32 = nn.Sequential(nn.Conv2d(32, 32, kernel_size=(1, 1), padding=0,stride=2,groups=1), nn.InstanceNorm2d(32, affine = True), nn.ReLU())
-        # self.conv_128_to_64 = nn.Sequential(nn.Conv2d(128, 64, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(64, affine = True), nn.ReLU())
-        # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(128, affine = True), nn.ReLU())
-
-        # self.conv1x1_224_to_64 = nn.Sequential(nn.Conv2d(224, 64, kernel_size=(1, 1), padding=1,groups=1), nn.InstanceNorm2d(64, affine = True), nn.ReLU())
-        # self.upsample_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
-        # self.conv_64_to_1 = nn.Conv2d(64, 1, kernel_size=(1, 1), padding=0,groups=1)
-                        
-#================================================================================================#
         
         # self.upsample = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
         # self.conv_32_to_1 = nn.Sequential(nn.Conv2d(32, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
@@ -687,22 +744,33 @@ class Net(nn.Module):
             input: Receives the input RGB image
             return: segmentation map
         """
+        # # 將隨機旋轉應用於圖像
+        # random_rotation = transforms.RandomRotation(degrees=(-45, 45))
 
+        # input = random_rotation(input)
+
+        # input = self.brightness_adjustment(input)
         # stage 1
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
         stage1_output = self.level1_2(stage1_output)
+        stage1_output_max_pool = self.max_pool(stage1_output)
+        stage1_output_avg_pool = self.avg_pool(stage1_output)
+        stage1_output = torch.cat([stage1_output, stage1_output_max_pool, stage1_output_avg_pool], 1)
+        stage1_output = self.conv1x1_IN_Relu(stage1_output)
         # inp1 = self.sample1(input)
         # inp2 = self.sample2(input)
 
         input_inverted = 1 - input
+        # input_inverted = random_rotation(input_inverted)
+
+        # input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
         stage1_ewp_inverted_output = stage1_output * inverted_output
 
-        
-        stage1_ewp_inverted_output_rotated = TF.rotate(stage1_ewp_inverted_output, self.rotation_angle)
+
         # stage 2
-        initial_stage2_output = self.level2_0(stage1_ewp_inverted_output_rotated)  # down-sampled
+        initial_stage2_output = self.level2_0(stage1_ewp_inverted_output)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -711,8 +779,6 @@ class Net(nn.Module):
                 processed_stage2_output = layer(processed_stage2_output)
 
         final_stage2_output = self.in_relu_2(torch.cat([initial_stage2_output, processed_stage2_output], 1))
-
-        final_stage2_output = TF.rotate(final_stage2_output, -self.rotation_angle)
 
 
         # b, c, w, h = initial_stage2_output.size()
@@ -737,20 +803,6 @@ class Net(nn.Module):
 
         final_stage3_output = self.in_relu_3(torch.cat([initial_stage3_output, processed_stage3_output], 1))
 
-        # final_stage3_output_up = self.upsample_64x64(final_stage3_output)
-        # final_stage3_output_conv = self.conv_256_to_128(final_stage3_output_up)
-
-        # final_stage2_output_conv = self.conv_128_to_64(final_stage2_output)
-
-        # stage1_ewp_inverted_output_conv = self.conv_32_to_32(stage1_ewp_inverted_output)
-
-
-        # output = torch.cat([final_stage3_output_conv, final_stage2_output_conv, stage1_ewp_inverted_output_conv], 1)
-        # output = self.conv1x1_224_to_64(output)
-        # output = self.upsample_256x256(output)
-        # output = self.conv_64_to_1(output)
-
-#================================================================================================#
         # stage1_ewp_inverted_output_up = self.upsample(stage1_ewp_inverted_output)
         # stage1_ewp_inverted_output_up = self.conv_32_to_1(stage1_ewp_inverted_output_up)
 
@@ -782,10 +834,10 @@ class Net(nn.Module):
         convolved_stage1_output = self.conv_96_to_1(upsample_stage1_output)
         convolved_stage1_output = self.conv_96_to_1_IN(convolved_stage1_output)
         # convolved_stage1_output = F.layer_norm(convolved_stage1_output, convolved_stage1_output.size()[1:])
-        output = self.relu(convolved_stage1_output)
+        convolved_stage1_output = self.relu(convolved_stage1_output)
 #================================================================================================#
 
-        output = self.sigmoid(output)
+        output = self.sigmoid(convolved_stage1_output)
 
         return output
 
