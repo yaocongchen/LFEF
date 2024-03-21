@@ -587,7 +587,7 @@ class AuxiliaryNetwork(nn.Module):
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
 
-        self.conv1x1 = nn.Conv2d(nOut * 3, nOut, kernel_size=1, stride=1, padding=0, bias=True)
+        self.conv1x1 = nn.Conv2d(nOut, nOut, kernel_size=1, stride=1, padding=0, bias=True)
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
 
         self.sigmoid = nn.Sigmoid()
@@ -603,12 +603,11 @@ class AuxiliaryNetwork(nn.Module):
         output = self.conv_layer3(output)
 
         output_avg_pool = self.avg_pool(output)
+        output_avg_pool_sigmoid = self.sigmoid(output_avg_pool)
         output_max_pool = self.max_pool(output)
-        output = torch.cat([output, output_avg_pool, output_max_pool], 1)
-        output = self.conv1x1(output)
-        output = self.in_norm(output)
+        output_max_pool_sigmoid = self.sigmoid(output_max_pool)
 
-        output = self.sigmoid(output)
+        output = output * output_avg_pool_sigmoid * output_max_pool_sigmoid
 
         return output
     
@@ -661,7 +660,6 @@ class Net(nn.Module):
         self.level1_2 = non_bottleneck_1d(32, 2)
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
-        self.conv1x1_IN_Relu = nn.Sequential(nn.Conv2d(32 *3 , 32, kernel_size=1, stride=1, padding=0), nn.InstanceNorm2d(32, affine=True), nn.ReLU())
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
@@ -672,7 +670,7 @@ class Net(nn.Module):
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            32, 64,dilation_rate=2, reduction=8
+            64, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -764,8 +762,10 @@ class Net(nn.Module):
         stage1_output = self.level1_2(stage1_output)
         stage1_output_max_pool = self.max_pool(stage1_output)
         stage1_output_avg_pool = self.avg_pool(stage1_output)
-        stage1_output = torch.cat([stage1_output, stage1_output_max_pool, stage1_output_avg_pool], 1)
-        stage1_output = self.conv1x1_IN_Relu(stage1_output)
+        stage1_output_max_pool_sigmoid = self.sigmoid(stage1_output_max_pool)
+        stage1_output_avg_pool_sigmoid = self.sigmoid(stage1_output_avg_pool)
+        stage1_output = stage1_output * stage1_output_max_pool_sigmoid * stage1_output_avg_pool_sigmoid
+
         # inp1 = self.sample1(input)
         # inp2 = self.sample2(input)
 
@@ -774,7 +774,7 @@ class Net(nn.Module):
 
         # input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
-        stage1_ewp_inverted_output = stage1_output * inverted_output
+        stage1_ewp_inverted_output = torch.cat([stage1_output, inverted_output], 1)
 
 
         # stage 2
