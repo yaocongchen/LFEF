@@ -58,7 +58,7 @@ class ConvINReLU(nn.Module):
             (kSize, kSize),
             stride=stride,
             padding=(padding, padding),
-            bias=True,
+            bias=False,
         )
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
@@ -117,7 +117,7 @@ class ConvIN(nn.Module):
             (kSize, kSize),
             stride=stride,
             padding=(padding, padding),
-            bias=True,
+            bias=False,
         )
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
@@ -151,7 +151,7 @@ class Conv(nn.Module):
             (kSize, kSize),
             stride=stride,
             padding=(padding, padding),
-            bias=True,
+            bias=False,
         )
 
     def forward(self, input):
@@ -182,7 +182,7 @@ class ChannelWiseConv(nn.Module):
             stride=stride,
             padding=(padding, padding),
             groups=nIn,
-            bias=True,
+            bias=False,
         )
 
     def forward(self, input):
@@ -213,7 +213,7 @@ class DilatedConv(nn.Module):
             (kSize, kSize),
             stride=stride,
             padding=(padding, padding),
-            bias=True,
+            bias=False,
             dilation=d,
         )
 
@@ -249,7 +249,7 @@ class ChannelWiseDilatedConv(nn.Module):
                 stride=stride,
                 padding=(padding , 0),
                 groups=nIn_ori,
-                bias=True,
+                bias=False,
                 dilation=d,
             ),
             nn.Conv2d(
@@ -259,7 +259,7 @@ class ChannelWiseDilatedConv(nn.Module):
                 stride=stride,
                 padding=(0 , padding),
                 groups=nIn_ori,
-                bias=True,
+                bias=False,
                 dilation=d,
             ),
         )
@@ -272,7 +272,7 @@ class ChannelWiseDilatedConv(nn.Module):
         #         stride=stride,
         #         padding=(0 , padding),
         #         groups=nIn,
-        #         bias=True,
+        #         bias=False,
         #         dilation=d,
         #     ),
         #     nn.Conv2d(
@@ -282,7 +282,7 @@ class ChannelWiseDilatedConv(nn.Module):
         #         stride=stride,
         #         padding=(padding , 0),
         #         groups=nIn,
-        #         bias=True,
+        #         bias=False,
         #         dilation=d,
         #     ),
         # )
@@ -346,8 +346,8 @@ class FGlo(nn.Module):
 
 #     def __init__(self, d_model,S=64):
 #         super().__init__()
-#         self.mk=nn.Linear(d_model,S,bias=True)
-#         self.mv=nn.Linear(S,d_model,bias=True)
+#         self.mk=nn.Linear(d_model,S,bias=False)
+#         self.mv=nn.Linear(S,d_model,bias=False)
 #         self.softmax=nn.Softmax(dim=1)
 #         self.init_weights()
 
@@ -401,7 +401,7 @@ class ContextGuidedBlock_Down(nn.Module):
         self.F_glo = FGlo(nOut, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
-        # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=True)
+        # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
 
         # self.avg_pool = nn.AvgPool2d(3, stride=2, padding=1)
         # self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
@@ -461,7 +461,7 @@ class ContextGuidedBlock(nn.Module):
         self.F_glo = FGlo(4*n, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
-        # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=True)
+        # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
 
         # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
@@ -526,11 +526,11 @@ class non_bottleneck_1d(nn.Module):
         super().__init__()
 
         self.conv3x1_1 = nn.Conv2d(
-            chann, chann, (3, 1), stride=1, padding=(1, 0), bias=True
+            chann, chann, (3, 1), stride=1, padding=(1, 0), bias=False
         )
 
         self.conv1x3_1 = nn.Conv2d(
-            chann, chann, (1, 3), stride=1, padding=(0, 1), bias=True
+            chann, chann, (1, 3), stride=1, padding=(0, 1), bias=False
         )
 
         # self.bn1 = nn.BatchNorm2d(chann, eps=1e-03)
@@ -542,7 +542,7 @@ class non_bottleneck_1d(nn.Module):
             (3, 1),
             stride=1,
             padding=(1 * dilated, 0),
-            bias=True,
+            bias=False,
             dilation=(dilated, 1),
         )
 
@@ -552,7 +552,7 @@ class non_bottleneck_1d(nn.Module):
             (1, 3),
             stride=1,
             padding=(0, 1 * dilated),
-            bias=True,
+            bias=False,
             dilation=(1, dilated),
         )
         self.relu = nn.ReLU(chann)
@@ -580,15 +580,12 @@ class AuxiliaryNetwork(nn.Module):
     def __init__(self, nIn, nOut, stride=1):
         super().__init__()
         # self.ea = ExternalAttention(d_model=nIn)
-        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=True),nn.ReLU())
-        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=True), nn.ReLU())
-        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=True), nn.ReLU())
+        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=False),nn.ReLU())
+        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=False), nn.ReLU())
+        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=False), nn.ReLU())
 
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
-
-        self.conv1x1 = nn.Conv2d(nOut, nOut, kernel_size=1, stride=1, padding=0, bias=True)
-        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
 
         self.sigmoid = nn.Sigmoid()
 
@@ -601,13 +598,9 @@ class AuxiliaryNetwork(nn.Module):
         output = self.conv_layer1(input)
         output = self.conv_layer2(output)
         output = self.conv_layer3(output)
+        output = self.avg_pool(output) + self.max_pool(output)
 
-        output_avg_pool = self.avg_pool(output)
-        output_avg_pool_sigmoid = self.sigmoid(output_avg_pool)
-        output_max_pool = self.max_pool(output)
-        output_max_pool_sigmoid = self.sigmoid(output_max_pool)
-
-        output = output * output_avg_pool_sigmoid * output_max_pool_sigmoid
+        output = self.sigmoid(output)
 
         return output
     
@@ -658,8 +651,6 @@ class Net(nn.Module):
         self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
         self.level1_2 = non_bottleneck_1d(32, 2)
-        self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
-        self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
@@ -670,7 +661,7 @@ class Net(nn.Module):
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            64, 64,dilation_rate=2, reduction=8
+            32, 64,dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -683,7 +674,7 @@ class Net(nn.Module):
 
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
-            128, 128, dilation_rate=4, reduction=16
+            64, 128, dilation_rate=4, reduction=16
         )
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
@@ -716,7 +707,7 @@ class Net(nn.Module):
         
 
         # self.external_attention = ExternalAttention(d_model=64)
-        # self.conv_64_to_128 = nn.Conv2d(64, 128, kernel_size=1, stride=1, padding=0, bias=True)
+        # self.conv_64_to_128 = nn.Conv2d(64, 128, kernel_size=1, stride=1, padding=0, bias=False)
         # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         # self.conv_256_to_128 = nn.Sequential(nn.Conv2d(256, 128, kernel_size=(1, 1), padding=0), nn.ReLU())
@@ -727,16 +718,16 @@ class Net(nn.Module):
         # self.conv_256_to_1 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
 
 #================================================================================================#
-        self.conv_256_to_128 = nn.Conv2d(256, 128, kernel_size=(1, 1), stride=1,padding=0)
-        self.conv_256_to_128_IN = nn.InstanceNorm2d(128, affine=True)
+        self.conv_128_to_64 = nn.Conv2d(128, 64, kernel_size=(1, 1), stride=1,padding=0)
+        self.conv_128_to_64_IN = nn.InstanceNorm2d(64, affine=True)
         self.upsample_to_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
 
-        self.conv_256_to_32 = nn.Conv2d(256, 32, kernel_size=(1, 1), stride=1,padding=0)
-        self.conv_256_to_32_IN = nn.InstanceNorm2d(32, affine=True)
+        self.conv_64_to_32 = nn.Conv2d(64, 32, kernel_size=(1, 1), stride=1,padding=0)
+        self.conv_64_to_32_IN = nn.InstanceNorm2d(32, affine=True)
         self.upsample_to_128x128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
 
-        self.conv_96_to_1 = nn.Conv2d(64, 1, kernel_size=(1, 1), stride=1,padding=0)
-        self.conv_96_to_1_IN = nn.InstanceNorm2d(1, affine=True)
+        self.conv_32_to_1 = nn.Conv2d(32, 1, kernel_size=(1, 1), stride=1,padding=0)
+        self.conv_32_to_1_IN = nn.InstanceNorm2d(1, affine=True)
         self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
 
         self.relu = nn.ReLU()
@@ -760,12 +751,6 @@ class Net(nn.Module):
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
         stage1_output = self.level1_2(stage1_output)
-        stage1_output_max_pool = self.max_pool(stage1_output)
-        stage1_output_avg_pool = self.avg_pool(stage1_output)
-        stage1_output_max_pool_sigmoid = self.sigmoid(stage1_output_max_pool)
-        stage1_output_avg_pool_sigmoid = self.sigmoid(stage1_output_avg_pool)
-        stage1_output = stage1_output * stage1_output_max_pool_sigmoid * stage1_output_avg_pool_sigmoid
-
         # inp1 = self.sample1(input)
         # inp2 = self.sample2(input)
 
@@ -774,7 +759,7 @@ class Net(nn.Module):
 
         # input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
-        stage1_ewp_inverted_output = torch.cat([stage1_output, inverted_output], 1)
+        stage1_ewp_inverted_output = stage1_output * inverted_output
 
 
         # stage 2
@@ -786,7 +771,8 @@ class Net(nn.Module):
             else:
                 processed_stage2_output = layer(processed_stage2_output)
 
-        final_stage2_output = self.in_relu_2(torch.cat([initial_stage2_output, processed_stage2_output], 1))
+        final_stage2_output = initial_stage2_output + processed_stage2_output
+        final_stage2_output = self.relu(final_stage2_output)
 
 
         # b, c, w, h = initial_stage2_output.size()
@@ -809,7 +795,8 @@ class Net(nn.Module):
             else:
                 processed_stage3_output = layer(processed_stage3_output)
 
-        final_stage3_output = self.in_relu_3(torch.cat([initial_stage3_output, processed_stage3_output], 1))
+        final_stage3_output = initial_stage3_output + processed_stage3_output
+        final_stage3_output = self.relu(final_stage3_output)
 
         # stage1_ewp_inverted_output_up = self.upsample(stage1_ewp_inverted_output)
         # stage1_ewp_inverted_output_up = self.conv_32_to_1(stage1_ewp_inverted_output_up)
@@ -825,24 +812,23 @@ class Net(nn.Module):
 
 #================================================================================================#
         upsample_stage3_output = self.upsample_to_64x64(final_stage3_output)
-        convolved_stage3_output = self.conv_256_to_128(upsample_stage3_output)
-        convolved_stage3_output = self.conv_256_to_128_IN(convolved_stage3_output)
+        convolved_stage3_output = self.conv_128_to_64(upsample_stage3_output)
+        convolved_stage3_output = self.conv_128_to_64_IN(convolved_stage3_output)
         # convolved_stage3_output = F.layer_norm(convolved_stage3_output, convolved_stage3_output.size()[1:])
-        convolved_stage3_output = self.relu(convolved_stage3_output)
+        convolved_stage3_output = self.sigmoid(convolved_stage3_output)
 
-        stage3_cat_stage2_output = torch.cat([convolved_stage3_output, final_stage2_output], 1)
-        upsample_stage2_output = self.upsample_to_128x128(stage3_cat_stage2_output)
-        convolved_stage2_output = self.conv_256_to_32(upsample_stage2_output)
-        convolved_stage2_output = self.conv_256_to_32_IN(convolved_stage2_output)
+        stage3_mul_stage2_output = final_stage2_output * convolved_stage3_output
+        upsample_stage2_output = self.upsample_to_128x128(stage3_mul_stage2_output)
+        convolved_stage2_output = self.conv_64_to_32(upsample_stage2_output)
+        convolved_stage2_output = self.conv_64_to_32_IN(convolved_stage2_output)
         # convolved_stage2_output = F.layer_norm(convolved_stage2_output, convolved_stage2_output.size()[1:])
-        convolved_stage2_output = self.relu(convolved_stage2_output)
+        convolved_stage2_output = self.sigmoid(convolved_stage2_output)
 
-        stage2_cat_stage1_output = torch.cat([convolved_stage2_output, stage1_output], 1)
-        upsample_stage1_output = self.upsample_to_256x256(stage2_cat_stage1_output)
-        convolved_stage1_output = self.conv_96_to_1(upsample_stage1_output)
-        convolved_stage1_output = self.conv_96_to_1_IN(convolved_stage1_output)
+        stage2_mul_stage1_output = stage1_ewp_inverted_output * convolved_stage2_output
+        upsample_stage1_output = self.upsample_to_256x256(stage2_mul_stage1_output)
+        convolved_stage1_output = self.conv_32_to_1(upsample_stage1_output)
+        convolved_stage1_output = self.conv_32_to_1_IN(convolved_stage1_output)
         # convolved_stage1_output = F.layer_norm(convolved_stage1_output, convolved_stage1_output.size()[1:])
-        convolved_stage1_output = self.relu(convolved_stage1_output)
 #================================================================================================#
 
         output = self.sigmoid(convolved_stage1_output)
