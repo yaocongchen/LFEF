@@ -587,6 +587,9 @@ class AuxiliaryNetwork(nn.Module):
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
 
+        self.conv1x1 = nn.Conv2d(nOut * 3, nOut, kernel_size=1, stride=1, padding=0, bias=True)
+        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
+
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
@@ -598,7 +601,12 @@ class AuxiliaryNetwork(nn.Module):
         output = self.conv_layer1(input)
         output = self.conv_layer2(output)
         output = self.conv_layer3(output)
-        output = self.avg_pool(output) + self.max_pool(output)
+
+        output_avg_pool = self.avg_pool(output)
+        output_max_pool = self.max_pool(output)
+        output = torch.cat([output, output_avg_pool, output_max_pool], 1)
+        output = self.conv1x1(output)
+        output = self.in_norm(output)
 
         output = self.sigmoid(output)
 
