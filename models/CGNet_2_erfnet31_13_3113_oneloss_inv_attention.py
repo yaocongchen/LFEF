@@ -598,9 +598,7 @@ class AuxiliaryNetwork(nn.Module):
         output = self.conv_layer1(input)
         output = self.conv_layer2(output)
         output = self.conv_layer3(output)
-        output = self.avg_pool(output) + self.max_pool(output)
 
-        output = self.sigmoid(output)
 
         return output
     
@@ -631,7 +629,28 @@ class BrightnessAdjustment(nn.Module):
         output = input * brightness.view(-1, 1, 1, 1)
 
         return output
+class GRUCell(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        super(GRUCell, self).__init__()
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.update_gate = nn.Conv2d(input_size + hidden_size, hidden_size, 1)
+        self.reset_gate = nn.Conv2d(input_size + hidden_size, hidden_size, 1)
+        self.candidate_state = nn.Conv2d(input_size + hidden_size, hidden_size, 1)
 
+        self.relu = nn.ReLU()
+
+    def forward(self, input, aux_input):
+        combined = torch.cat((input, aux_input), dim=1)
+
+        update = torch.sigmoid(self.update_gate(combined))
+        reset = torch.sigmoid(self.reset_gate(combined))
+
+        candidate_input = torch.cat((input, reset * aux_input), dim=1)
+        candidate_state = self.relu(self.candidate_state(candidate_input))
+
+        new_state = (1 - update) * aux_input + update * candidate_state
+        return new_state
 
 class Net(nn.Module):
     """
@@ -652,11 +671,15 @@ class Net(nn.Module):
         self.level1_1 = non_bottleneck_1d(32, 1)
         self.level1_2 = non_bottleneck_1d(32, 2)
 
+        self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
+        self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
+
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
 
         self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
+        self.gru_cell = GRUCell(32, 32)
 
 
         # stage 2
@@ -751,6 +774,7 @@ class Net(nn.Module):
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
         stage1_output = self.level1_2(stage1_output)
+
         # inp1 = self.sample1(input)
         # inp2 = self.sample2(input)
 
@@ -759,11 +783,12 @@ class Net(nn.Module):
 
         # input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
-        stage1_ewp_inverted_output = stage1_output * inverted_output
+
+        gru_output = self.gru_cell(stage1_output, inverted_output)
 
 
         # stage 2
-        initial_stage2_output = self.level2_0(stage1_ewp_inverted_output)  # down-sampled
+        initial_stage2_output = self.level2_0(gru_output)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -824,7 +849,7 @@ class Net(nn.Module):
         # convolved_stage2_output = F.layer_norm(convolved_stage2_output, convolved_stage2_output.size()[1:])
         convolved_stage2_output = self.sigmoid(convolved_stage2_output)
 
-        stage2_mul_stage1_output = stage1_ewp_inverted_output * convolved_stage2_output
+        stage2_mul_stage1_output = gru_output * convolved_stage2_output
         upsample_stage1_output = self.upsample_to_256x256(stage2_mul_stage1_output)
         convolved_stage1_output = self.conv_32_to_1(upsample_stage1_output)
         convolved_stage1_output = self.conv_32_to_1_IN(convolved_stage1_output)
