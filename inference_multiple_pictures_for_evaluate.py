@@ -179,30 +179,39 @@ def smoke_segmentation(
     mean_miou = 0
     images_dir = os.path.join(directory,"images")
     masks_dir = os.path.join(directory,"masks")
+
     pbar = tqdm((os.listdir(images_dir)), total=len(os.listdir(images_dir)))
     filename = sorted(os.listdir(images_dir), key=lambda name: int(name.split('.')[0]))
+
     for filename in pbar:
         filename_no_extension = os.path.splitext(filename)[0] 
         smoke_input_image = read_image(os.path.join(images_dir, filename)).to(device)
         transform = transforms.Resize([256, 256],antialias=True)
+
         smoke_input_image = transform(smoke_input_image)
         smoke_input_image = (smoke_input_image) / 255.0
         smoke_input_image = smoke_input_image.unsqueeze(0).to(device)
+
         mask_input_image = read_image(os.path.join(masks_dir, filename)).to(device)
         mask_input_image = transform(mask_input_image)
         mask_input_image = (mask_input_image) / 255.0
         mask_input_image = mask_input_image.unsqueeze(0).to(device)
+
         output = smoke_semantic(smoke_input_image, model, device, time_train, i)
+
         iou = utils.metrics.IoU(output, mask_input_image)
         customssim = utils.metrics.ssim_val(output, mask_input_image)
         hd = utils.metrics.Sobel_hausdorffDistance_metric(output, mask_input_image, device)
         dice = utils.metrics.dice_coef(output, mask_input_image)
+
         output = (output > 0.5).float()
         torchvision.utils.save_image(
             output,
             f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg',
         )
+
         image_overlap(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename))
+
         iou_np = np.round(iou.cpu().detach().numpy() * 100, 2)
         customssim_np = np.round(customssim.cpu().detach().numpy() * 100, 2)
         hd_np = hd.cpu().detach().numpy()
@@ -210,7 +219,9 @@ def smoke_segmentation(
 
         n_element += 1
         mean_miou += (iou_np.item() - mean_miou) / n_element  # 別人研究出的算平均的方法
+
         image_stitching(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename), iou_np, customssim_np, hd_np, dice_np)
+        
         iou_list.append(iou_np)
 
     return iou_list, mean_miou
@@ -237,7 +248,9 @@ if __name__ == "__main__":
     i = 0
     time_train = []
     time_start = time.time()
+    
     iou_list,miou = smoke_segmentation(args["test_directory"], model, device, names, time_train, i)
+
     counts, bins, patches = plt.hist(iou_list, bins=100, edgecolor="black")
     plt.xlabel("IoU")
     plt.ylabel("Number of Images")
