@@ -744,10 +744,12 @@ class Net(nn.Module):
         self.conv_128_to_64 = nn.Conv2d(128, 64, kernel_size=(1, 1), stride=1,padding=0)
         self.conv_128_to_64_IN = nn.InstanceNorm2d(64, affine=True)
         self.upsample_to_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
+        self.stage3_gru_stage2 = GRUCell(64, 64)
 
         self.conv_64_to_32 = nn.Conv2d(64, 32, kernel_size=(1, 1), stride=1,padding=0)
         self.conv_64_to_32_IN = nn.InstanceNorm2d(32, affine=True)
         self.upsample_to_128x128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
+        self.stage2_gru_stage1 = GRUCell(32, 32)
 
         self.conv_32_to_1 = nn.Conv2d(32, 1, kernel_size=(1, 1), stride=1,padding=0)
         self.conv_32_to_1_IN = nn.InstanceNorm2d(1, affine=True)
@@ -840,17 +842,17 @@ class Net(nn.Module):
         convolved_stage3_output = self.conv_128_to_64(upsample_stage3_output)
         convolved_stage3_output = self.conv_128_to_64_IN(convolved_stage3_output)
         # convolved_stage3_output = F.layer_norm(convolved_stage3_output, convolved_stage3_output.size()[1:])
-        convolved_stage3_output = self.sigmoid(convolved_stage3_output)
 
-        stage3_mul_stage2_output = final_stage2_output * convolved_stage3_output
-        upsample_stage2_output = self.upsample_to_128x128(stage3_mul_stage2_output)
+        stage3_gru_stage2_output = self.stage3_gru_stage2(convolved_stage3_output, final_stage2_output)
+
+        upsample_stage2_output = self.upsample_to_128x128(stage3_gru_stage2_output)
         convolved_stage2_output = self.conv_64_to_32(upsample_stage2_output)
         convolved_stage2_output = self.conv_64_to_32_IN(convolved_stage2_output)
         # convolved_stage2_output = F.layer_norm(convolved_stage2_output, convolved_stage2_output.size()[1:])
-        convolved_stage2_output = self.sigmoid(convolved_stage2_output)
 
-        stage2_mul_stage1_output = gru_output * convolved_stage2_output
-        upsample_stage1_output = self.upsample_to_256x256(stage2_mul_stage1_output)
+        stage2_gru_stage1_output = self.stage2_gru_stage1(convolved_stage2_output, gru_output)  
+
+        upsample_stage1_output = self.upsample_to_256x256(stage2_gru_stage1_output)
         convolved_stage1_output = self.conv_32_to_1(upsample_stage1_output)
         convolved_stage1_output = self.conv_32_to_1_IN(convolved_stage1_output)
         # convolved_stage1_output = F.layer_norm(convolved_stage1_output, convolved_stage1_output.size()[1:])
