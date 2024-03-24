@@ -388,15 +388,16 @@ class ContextGuidedBlock_Down(nn.Module):
         super().__init__()
         self.conv1x1 = ConvINReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
         
-        self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
-        self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate)
-        self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 2)
-        self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 4)
+        n2 = int(nOut / 2)
+        self.F_loc = ChannelWiseConv(n2, n2, 3, 1)
+        self.F_sur = ChannelWiseDilatedConv(n2, n2, 3, 1, dilation_rate)
+        self.F_sur_4 = ChannelWiseDilatedConv(n2, n2, 3, 1, dilation_rate * 2)
+        self.F_sur_8 = ChannelWiseDilatedConv(n2, n2, 3, 1, dilation_rate * 4)
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
-        self.in_norm = nn.InstanceNorm2d(4 * nOut, affine=True)
-        self.act = nn.ReLU(4 * nOut)
-        self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+        self.in_norm = nn.InstanceNorm2d(4 * n2, affine=True)
+        self.act = nn.ReLU(4 * n2)
+        self.reduce = Conv(4 * n2, n2, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.F_glo = FGlo(nOut, reduction)
 
@@ -408,10 +409,11 @@ class ContextGuidedBlock_Down(nn.Module):
 
     def forward(self, input):
         output = self.conv1x1(input)
-        loc = self.F_loc(output)
-        sur = self.F_sur(output)
-        sur_4 = self.F_sur_4(output)
-        sur_8 = self.F_sur_8(output)
+        x1, x2 = channel_split(output)
+        loc = self.F_loc(x1)
+        sur = self.F_sur(x1)
+        sur_4 = self.F_sur_4(x1)
+        sur_8 = self.F_sur_8(x1)
 
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
@@ -420,6 +422,8 @@ class ContextGuidedBlock_Down(nn.Module):
         # joi_feat = F.layer_norm(joi_feat, joi_feat.size()[1:])
         joi_feat = self.act(joi_feat)
         joi_feat = self.reduce(joi_feat)  # channel= nOut
+
+        joi_feat = torch.cat([joi_feat, x2], 1)  #  joint feature and the feature of the second branch
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
 
@@ -445,10 +449,12 @@ class ContextGuidedBlock(nn.Module):
            add: if true, residual learning
         """
         super().__init__()
-        n = int(nOut / 4)
+        n2 = int(nIn / 2)
+        n = int(n2 / 4)
         self.conv1x1 = ConvINReLU(
-            nIn, n, 1, 1
+            n2, n, 1, 1
         )  # 1x1 Conv is employed to reduce the computation
+
         self.F_loc = ChannelWiseConv(n, n, 3, 1)  # local feature
         self.F_sur = ChannelWiseDilatedConv(
             n, n, 3, 1, dilation_rate
@@ -458,7 +464,7 @@ class ContextGuidedBlock(nn.Module):
 
         self.in_relu = INReLU(4*n)
         self.add = add
-        self.F_glo = FGlo(4*n, reduction)
+        self.F_glo = FGlo(nOut, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=False)
@@ -467,16 +473,19 @@ class ContextGuidedBlock(nn.Module):
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
 
     def forward(self, input):
-        output = self.conv1x1(input)
-        loc = self.F_loc(output)
-        sur = self.F_sur(output)
-        sur_4 = self.F_sur_4(output)
-        sur_8 = self.F_sur_8(output)
+        x1, x2 = channel_split(input)
+        x1 = self.conv1x1(x1)
+        loc = self.F_loc(x1)
+        sur = self.F_sur(x1)
+        sur_4 = self.F_sur_4(x1)
+        sur_8 = self.F_sur_8(x1)
         
         #joi_feat = torch.cat([loc, sur], 1)
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
 
         joi_feat = self.in_relu(joi_feat)
+
+        joi_feat = torch.cat([joi_feat, x2], 1)  #  joint feature and the feature of the second branch
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
         # if residual version
@@ -842,14 +851,14 @@ class Net(nn.Module):
         # convolved_stage3_output = F.layer_norm(convolved_stage3_output, convolved_stage3_output.size()[1:])
         convolved_stage3_output = self.sigmoid(convolved_stage3_output)
 
-        stage3_mul_stage2_output = final_stage2_output + convolved_stage3_output
+        stage3_mul_stage2_output = final_stage2_output * convolved_stage3_output
         upsample_stage2_output = self.upsample_to_128x128(stage3_mul_stage2_output)
         convolved_stage2_output = self.conv_64_to_32(upsample_stage2_output)
         convolved_stage2_output = self.conv_64_to_32_IN(convolved_stage2_output)
         # convolved_stage2_output = F.layer_norm(convolved_stage2_output, convolved_stage2_output.size()[1:])
         convolved_stage2_output = self.sigmoid(convolved_stage2_output)
 
-        stage2_mul_stage1_output = gru_output + convolved_stage2_output
+        stage2_mul_stage1_output = gru_output * convolved_stage2_output
         upsample_stage1_output = self.upsample_to_256x256(stage2_mul_stage1_output)
         convolved_stage1_output = self.conv_32_to_1(upsample_stage1_output)
         convolved_stage1_output = self.conv_32_to_1_IN(convolved_stage1_output)
