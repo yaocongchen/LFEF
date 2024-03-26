@@ -143,7 +143,7 @@ def l2_normalize(x, dim=None, epsilon=1e-12):
 
 def contrastive_loss(image_feat, cond_feat, temperature=0.07):
     """Calculates contrastive loss."""
-    image_feat = F.normalize(image_feat, -1)
+    image_feat = l2_normalize(image_feat, -1)
     cond_feat = l2_normalize(cond_feat, -1)
     
     bs = image_feat.shape[0]
