@@ -23,6 +23,13 @@ import torch.optim.lr_scheduler as lr_scheduler
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
 import utils
 
+import torchvision.models as models
+import torch.nn as nn
+model_vgg16 = models.vgg16()
+
+model_vgg16.features[0] = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1) 
+model = model_vgg16.cuda()
+
 CONFIG_FILE = "import_dataset_path.cfg"
 
 onnx_img_image = []
@@ -151,7 +158,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch):
 
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
-        loss = utils.loss.CustomLoss(output, mask_image)
+        loss = utils.loss.CustomLoss(output, mask_image, model_vgg16)
         iou = utils.metrics.IoU(output, mask_image)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
@@ -212,7 +219,7 @@ def valid_epoch(model, validation_data_loader, device, epoch):
         with torch.no_grad():
             output = model(img_image)
 
-        loss = utils.loss.CustomLoss(output, mask_image)
+        loss = utils.loss.CustomLoss(output, mask_image, model_vgg16)
         iou = utils.metrics.IoU(output, mask_image)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)

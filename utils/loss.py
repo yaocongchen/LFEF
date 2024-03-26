@@ -158,7 +158,7 @@ def contrastive_loss(image_feat, cond_feat, temperature=0.07):
     loss = loss_img2cond + loss_cond2img
     return loss
 
-def CustomLoss(model_output, mask):
+def CustomLoss(model_output, mask, model_vgg16):
     # s_iou = Sigmoid_IoU(model_output,mask)
     # iou = IoU(model_output,mask)
 
@@ -168,16 +168,9 @@ def CustomLoss(model_output, mask):
 
     loss_1 = L(model_output, mask)
 
-    model = models.vgg16(pretrained=True)
-
-    model_output = model_output.cuda()
-    mask = mask.cuda()
-
-    model.features[0] = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1) 
-    model = model.cuda()
     with torch.no_grad():
-        model_output = model(model_output)
-        mask = model(mask)
+        model_output = model_vgg16(model_output)
+        mask = model_vgg16(mask)
 
 
     loss_2 = contrastive_loss(model_output, mask)
