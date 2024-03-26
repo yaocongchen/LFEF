@@ -168,10 +168,8 @@ def CustomLoss(model_output, mask, model_vgg16):
 
     loss_1 = L(model_output, mask)
 
-    with torch.no_grad():
-        model_output = model_vgg16(model_output)
-        mask = model_vgg16(mask)
-
+    model_output = torch.sum(model_vgg16(model_output), dim=[2, 3])
+    mask = torch.sum(model_vgg16(mask), dim=[2, 3])
 
     loss_2 = contrastive_loss(model_output, mask)
 
@@ -185,18 +183,40 @@ def CustomLoss(model_output, mask, model_vgg16):
     return total_loss
 
 
+def CustomLoss_test(model_output, mask):
+    # s_iou = Sigmoid_IoU(model_output,mask)
+    # iou = IoU(model_output,mask)
 
+    # my_ssim = ssim_val(model_output,mask)
+
+    # dice_loss = dice_coef(model_output,mask)
+
+    loss_1 = L(model_output, mask)
+
+
+
+    # loss_2 = boundary_loss(model_output, mask)
+
+    # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - my_ssim) * (alpha/2)
+    # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha)
+    total_loss = loss_1
+    # total_loss = loss_1 
+    
+    return total_loss
 if __name__ == '__main__':
     import torch
     x = torch.randn(2, 1, 256, 256)
-    model = models.vgg16(pretrained=True)
+    model = models.vgg16(weights=['VGG16_Weights.DEFAULT'])
     model.features[0] = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1) 
-    print(model.features(x).shape)
+    model_vgg16 = nn.Sequential(model.features)
+    print(model_vgg16)
+    #print(model.features(x).shape)
 
-    out = model.features(x)
-    print(model)
+
+    out = model_vgg16(x)
+    print(out.shape)
     f1 = torch.sum(out, dim=[2, 3])
-    print(f1.shape)
+    #print(f1.shape)
   
 
 

@@ -114,7 +114,7 @@ def smoke_segmentation(model,device, names, args):
         # # 移除 hook
         # handle.remove()
 
-        loss = utils.loss.CustomLoss(output, mask_image)
+        loss = utils.loss.CustomLoss_test(output, mask_image)
         iou = utils.metrics.IoU(output, mask_image)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
