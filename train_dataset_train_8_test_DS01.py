@@ -30,6 +30,7 @@ model_vgg16 = models.vgg16(weights=['VGG16_Weights.IMAGENET1K_V1`'])
 model_vgg16.features[0] = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1) 
 model_vgg16 = nn.Sequential(model_vgg16.features)
 model_vgg16 = model_vgg16.cuda()
+model_vgg16.eval().requires_grad_(False)
 
 CONFIG_FILE = "import_dataset_path.cfg"
 
