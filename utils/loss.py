@@ -170,23 +170,15 @@ def CustomLoss(model_output, mask):
 
     model = models.vgg16(pretrained=True)
 
-
-
     model_output = model_output.cuda()
     mask = mask.cuda()
-
 
     model.features[0] = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1) 
     model = model.cuda()
     with torch.no_grad():
-    # 这里执行模型的推理或评估操作，梯度不会被计算
         model_output = model(model_output)
         mask = model(mask)
 
-    print(model_output.shape)
-    print(mask.shape)
-    # model_output = torch.sum(model_output, dim=[2, 3])
-    # mask = torch.sum(mask, dim=[2, 3])
 
     loss_2 = contrastive_loss(model_output, mask)
 
