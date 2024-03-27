@@ -158,7 +158,7 @@ def contrastive_loss(image_feat, cond_feat, temperature=0.07):
     loss = loss_img2cond + loss_cond2img
     return loss
 
-def CustomLoss(model_output, mask, model_vgg16):
+def CustomLoss(model_output, mask):
     # s_iou = Sigmoid_IoU(model_output,mask)
     # iou = IoU(model_output,mask)
 
