@@ -17,14 +17,19 @@ __all__ = ["Context_Guided_Network"]
 
 def channel_split(x):
     c = int(x.size()[1])
-    c1 = round(c * 0.5)
-    x1 = x[
-        :, :c1, :, :
-    ].contiguous()  # contiguous: the memory location remains unchanged
-    x2 = x[:, c1:, :, :].contiguous()  # contiguous：記憶體位置不變
+    #分割4個通道
 
-    return x1, x2
+    c1 = round(c / 4)
+    c2 = round(c / 4)
+    c3 = round(c / 4)
+    c4 = c - c1 - c2 - c3
 
+    x1 = x[:, 0:c1, :, :]
+    x2 = x[:, c1:c1 + c2, :, :]
+    x3 = x[:, c1 + c2:c1 + c2 + c3, :, :]
+    x4 = x[:, c1 + c2 + c3:c1 + c2 + c3 + c4, :, :]
+
+    return x1, x2, x3, x4
 
 def channel_shuffle(x, groups):
     batchsize, num_channels, height, width = x.data.size()
@@ -447,7 +452,7 @@ class ContextGuidedBlock(nn.Module):
         super().__init__()
         n = int(nOut / 4)
         self.conv1x1 = ConvINReLU(
-            nIn, n, 1, 1
+            nIn, nOut, 1, 1
         )  # 1x1 Conv is employed to reduce the computation
         self.F_loc = ChannelWiseConv(n, n, 3, 1)  # local feature
         self.F_sur = ChannelWiseDilatedConv(
@@ -468,10 +473,11 @@ class ContextGuidedBlock(nn.Module):
 
     def forward(self, input):
         output = self.conv1x1(input)
-        loc = self.F_loc(output)
-        sur = self.F_sur(output)
-        sur_4 = self.F_sur_4(output)
-        sur_8 = self.F_sur_8(output)
+        x1, x2, x3, x4 = channel_split(output)
+        loc = self.F_loc(x1)
+        sur = self.F_sur(x2)
+        sur_4 = self.F_sur_4(x3)
+        sur_8 = self.F_sur_8(x4)
         
         #joi_feat = torch.cat([loc, sur], 1)
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
