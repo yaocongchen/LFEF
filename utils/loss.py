@@ -168,32 +168,10 @@ def CustomLoss(model_output, mask, model_vgg16):
 
     loss_1 = L(model_output, mask)
 
-    model_output = torch.sum(model_vgg16(model_output), dim=[2, 3])
-    mask = torch.sum(model_vgg16(mask), dim=[2, 3])
+    # model_output = torch.sum(model_vgg16(model_output), dim=[2, 3])
+    # mask = torch.sum(model_vgg16(mask), dim=[2, 3])
 
-    loss_2 = contrastive_loss(model_output, mask)
-
-    # loss_2 = boundary_loss(model_output, mask)
-
-    # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - my_ssim) * (alpha/2)
-    # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha)
-    total_loss = loss_1 + loss_2
-    # total_loss = loss_1 
-    
-    return total_loss
-
-
-def CustomLoss_test(model_output, mask):
-    # s_iou = Sigmoid_IoU(model_output,mask)
-    # iou = IoU(model_output,mask)
-
-    # my_ssim = ssim_val(model_output,mask)
-
-    # dice_loss = dice_coef(model_output,mask)
-
-    loss_1 = L(model_output, mask)
-
-
+    # loss_2 = contrastive_loss(model_output, mask)
 
     # loss_2 = boundary_loss(model_output, mask)
 
@@ -203,6 +181,7 @@ def CustomLoss_test(model_output, mask):
     # total_loss = loss_1 
     
     return total_loss
+
 if __name__ == '__main__':
     import torch
     x = torch.randn(2, 1, 256, 256)
