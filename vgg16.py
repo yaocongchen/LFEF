@@ -325,9 +325,9 @@ def main():
     model_vgg16 = nn.Sequential(model_vgg16.features, new_layers)
     model = model_vgg16
 
-    # c = utils.metrics.Calculate(model)
-    # model_size = c.get_model_size()
-    # flops, params = c.get_params()
+    c = utils.metrics.Calculate(model)
+    model_size = c.get_model_size()
+    flops, params = c.get_params()
 
     model, device = check_number_of_GPUs(model)
 
