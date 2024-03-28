@@ -8,7 +8,7 @@ def set_save_dir_names(args):
     if not os.path.exists(args["save_dir"]):
         os.makedirs(args["save_dir"])
 
-def create_model_state_dict(args, epoch, model, optimizer, mean_loss, mean_miou, save_mean_miou):
+def create_model_state_dict(epoch, model, optimizer, mean_loss, mean_miou, save_mean_miou):
     state = {
         "epoch": epoch,
         "model_state_dict": model.state_dict(),
@@ -27,7 +27,7 @@ def time_processing(spend_time):
 
     return time_dict
 
-def wandb_information(model_name, model_size, flops, params, model, train_images, train_masks,args):
+def wandb_information(args, model_name, model_size, flops, params, model, train_images, train_masks):
     wandb.init(
         # Initialize wandb 初始化wandb
         # set the wandb project where this run will be logged

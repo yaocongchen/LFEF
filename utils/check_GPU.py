@@ -12,7 +12,7 @@ def check_have_GPU(args):
             )  # 例外事件跳出
 
 
-def check_number_of_GPUs(model,args):
+def check_number_of_GPUs(args, model):
     if args["device"] == "GPU":
         # args.gpu_nums = 1
         if torch.cuda.device_count() > 1:

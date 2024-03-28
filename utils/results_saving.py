@@ -3,7 +3,7 @@ import torchvision
 import wandb
 import time
 
-def save_model_and_state(model, state, mean_loss, mean_miou, onnx_img_image, path, filename, args):
+def save_model_and_state(args, model, state, mean_loss, mean_miou, onnx_img_image, path, filename):
     torch.save(state, f"{path}{filename}_checkpoint.pth")
     torch.save(model.state_dict(), f"{path}{filename}.pth")
     # torch.onnx.export(model, onnx_img_image, f"{path}{filename}.onnx", verbose=False)
@@ -13,7 +13,7 @@ def save_model_and_state(model, state, mean_loss, mean_miou, onnx_img_image, pat
         wandb.save(f"{path}{filename}.pth", base_path="./")
         # wandb.save(f"{path}{filename}.onnx", base_path="./")
 
-def save_and_log_image(image, path, filename, args):
+def save_and_log_image(args, image, path, filename):
     full_path = f"{path}/{filename}.jpg"
     torchvision.utils.save_image(image, full_path)
     if args["wandb_name"] != "no":

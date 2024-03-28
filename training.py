@@ -7,7 +7,7 @@ import utils.loss
 import utils.metrics
 import utils
 
-def train_epoch(model, training_data_loader, device, optimizer, epoch, args):
+def train_epoch(args, model, training_data_loader, device, optimizer, epoch):
     model.train()
     cudnn.benchmark = True
     count = 0
@@ -91,7 +91,7 @@ def train_epoch(model, training_data_loader, device, optimizer, epoch, args):
     return RGB_image, mask_image, output
 
 
-def valid_epoch(model, validation_data_loader, device, epoch, args):
+def valid_epoch(args ,model, validation_data_loader, device, epoch):
     n_element = 0
     mean_loss = 0
     mean_miou = 0

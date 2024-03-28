@@ -12,7 +12,6 @@ import time
 import wandb
 import torch.onnx
 
-# import self-written modules
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
 from utils.setup_utils import set_save_dir_names, create_model_state_dict, time_processing, wandb_information, parse_arguments
 from utils.check_GPU import check_have_GPU, check_number_of_GPUs
@@ -31,24 +30,20 @@ def main():
     train_images, train_masks, training_data_loader, validation_data_loader = data_processing(args)
 
     save_mean_miou = 0
-    # save_mean_miou_s = 0
     check_have_GPU(args)
-    # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
-    # Cudnn函式庫輔助加速(如遇到架構上無法配合請予以關閉)
-    cudnn.enabled = True
+    
+    cudnn.enabled = True  # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
 
-    # Model import 模型導入
     model = network_model.Net()
 
     c = Calculate(model)
     model_size = c.get_model_size()
     flops, params = c.get_params()
 
-    model, device = check_number_of_GPUs(model, args)
+    model, device = check_number_of_GPUs(args, model)
 
     set_save_dir_names(args)
 
-    # 先用Adam測試模型能力
     optimizer = torch.optim.Adam(
         model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
     )
@@ -58,12 +53,12 @@ def main():
     start_epoch = 1
 
     if args["wandb_name"] != "no":
-        wandb_information(model_name, model_size, flops, params, model, train_images, train_masks,args)
+        wandb_information(args, model_name, model_size, flops, params, model, train_images, train_masks)
 
     if args["resume"]:
         if os.path.isfile(
             args["resume"]
-        ):  # There is a specified file in the path 路徑中有指定檔案
+        ):
             if args["wandb_name"] != "no":
                 checkpoint = torch.load(wandb.restore(args["resume"]).name)
             else:
@@ -87,14 +82,14 @@ def main():
     if not os.path.exists("./validation_data_captures/"):
         os.makedirs("./validation_data_captures/")
 
-    time_start = time.time()  # Training start time 訓練開始時間
+    time_start = time.time()
 
     for epoch in range(start_epoch, args["epochs"] + 1):
         train_RGB_image, train_mask_image, train_output = train_epoch(
-            model, training_data_loader, device, optimizer, epoch, args
+            args, model, training_data_loader, device, optimizer, epoch
         )
 
-        torch.cuda.empty_cache()  # 刪除不需要的變數
+        torch.cuda.empty_cache()
 
         (
             mean_loss,
@@ -103,33 +98,33 @@ def main():
             mask_image,
             output,
             onnx_img_image,
-        ) = valid_epoch(model, validation_data_loader, device, epoch, args)
+        ) = valid_epoch(args, model, validation_data_loader, device, epoch)
         
 
-        state = create_model_state_dict(args, epoch, model, optimizer, mean_loss, mean_miou, save_mean_miou)
-        save_model_and_state(model, state,  mean_loss, mean_miou, onnx_img_image,args["save_dir"], "last", args)
+        state = create_model_state_dict(epoch, model, optimizer, mean_loss, mean_miou, save_mean_miou)
+        save_model_and_state(args, model, state,  mean_loss, mean_miou, onnx_img_image,args["save_dir"], "last")
         save_experiment_details(args, model_name, train_images, train_masks)
 
 
         if args["save_train_image"] != "no":
-            save_and_log_image(train_RGB_image, "./training_data_captures", "train_RGB_image", args)
-            save_and_log_image(train_mask_image, "./training_data_captures", "train_mask_image", args)
-            save_and_log_image(train_output, "./training_data_captures", "train_output", args)
+            save_and_log_image(args, train_RGB_image, "./training_data_captures", "train_RGB_image")
+            save_and_log_image(args, train_mask_image, "./training_data_captures", "train_mask_image")
+            save_and_log_image(args, train_output, "./training_data_captures", "train_output")
 
         if args["save_validation_image_last"] != "no":
-            save_and_log_image(RGB_image, "./validation_data_captures", "last_RGB_image", args)
-            save_and_log_image(mask_image, "./validation_data_captures", "last_mask_image", args)
-            save_and_log_image(output, "./validation_data_captures", "last_output", args)
+            save_and_log_image(args, RGB_image, "./validation_data_captures", "last_RGB_image")
+            save_and_log_image(args, mask_image, "./validation_data_captures", "last_mask_image")
+            save_and_log_image(args, output, "./validation_data_captures", "last_output")
 
 
         if mean_miou > save_mean_miou:
             print("best_loss: %.3f , best_miou: %.3f" % (mean_loss, mean_miou))
-            save_model_and_state(model, state,  mean_loss, mean_miou, onnx_img_image,args["save_dir"], "best", args)
+            save_model_and_state(args, model, state,  mean_loss, mean_miou, onnx_img_image,args["save_dir"], "best")
             
             if args["save_validation_image_best"] != "no":
-                save_and_log_image(RGB_image, "./validation_data_captures", "best_RGB_image", args)
-                save_and_log_image(mask_image, "./validation_data_captures", "best_mask_image", args)
-                save_and_log_image(output, "./validation_data_captures", "best_output", args)
+                save_and_log_image(args, RGB_image, "./validation_data_captures", "best_RGB_image")
+                save_and_log_image(args, mask_image, "./validation_data_captures", "best_mask_image")
+                save_and_log_image(args, output, "./validation_data_captures", "best_output")
 
             save_mean_miou = mean_miou
 
