@@ -482,8 +482,8 @@ class ContextGuidedBlock(nn.Module):
         #joi_feat = torch.cat([loc, sur], 1)
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
 
-        input = self.sigmoid(input)
-        joi_feat = joi_feat * input
+        input_sig = self.sigmoid(input)
+        joi_feat = joi_feat * input_sig
         joi_feat = self.conv3113(joi_feat)
 
         joi_feat = self.in_relu(joi_feat)
