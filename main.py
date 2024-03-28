@@ -16,7 +16,7 @@ import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  #
 from utils.setup_utils import set_save_dir_names, create_model_state_dict, time_processing, wandb_information, parse_arguments
 from utils.check_GPU import check_have_GPU, check_number_of_GPUs
 from utils.metrics import Calculate
-from data_processing import data_processing
+from data_processing import data_processing_train_8_val_DS01
 from training import train_epoch, valid_epoch
 from utils.results_saving import save_model_and_state, save_and_log_image, save_experiment_details
 
@@ -27,7 +27,7 @@ model_name = str(network_model)
 print("model_name:", model_name)
 
 def main():
-    train_images, train_masks, training_data_loader, validation_data_loader = data_processing(args)
+    train_images, train_masks, training_data_loader, validation_data_loader = data_processing_train_8_val_DS01(args)
 
     save_mean_miou = 0
     check_have_GPU(args)
