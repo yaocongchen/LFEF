@@ -8,6 +8,17 @@ def set_save_dir_names(args):
     if not os.path.exists(args["save_dir"]):
         os.makedirs(args["save_dir"])
 
+def create_model_state_dict(args, epoch, model, optimizer, mean_loss, mean_miou, save_mean_miou):
+    state = {
+        "epoch": epoch,
+        "model_state_dict": model.state_dict(),
+        "optimizer_state_dict": optimizer.state_dict(),
+        "loss": mean_loss,
+        "miou": mean_miou,
+        "best_miou": save_mean_miou,
+    }
+    return state
+
 def time_processing(spend_time):
     time_dict = {}
     time_dict["time_day"], spend_time = divmod(spend_time, 86400)
