@@ -459,6 +459,9 @@ class ContextGuidedBlock(nn.Module):
         self.F_sur_4 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 2)
         self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 4)
 
+        self.sigmoid = nn.Sigmoid()
+
+        self.conv3113 = ChannelWiseConv(4 * n, 4 * n, 3, 1)  # 3x3 Conv is employed to fuse the joint feature
         self.in_relu = INReLU(4*n)
         self.add = add
         self.F_glo = FGlo(4*n, reduction)
@@ -478,6 +481,10 @@ class ContextGuidedBlock(nn.Module):
         
         #joi_feat = torch.cat([loc, sur], 1)
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
+
+        input = self.sigmoid(input)
+        joi_feat = joi_feat * input
+        joi_feat = self.conv3113(joi_feat)
 
         joi_feat = self.in_relu(joi_feat)
 
