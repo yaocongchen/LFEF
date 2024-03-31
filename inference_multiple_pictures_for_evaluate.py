@@ -18,77 +18,49 @@ from utils.inference import smoke_semantic
 import visualization_codes.utils.image_process as image_process
 # import visualization_codes.process_utils_cython_version.image_process_utils_cython as image_process
 
+model_name = str(network_model)
+print("model_name:", model_name)
+
+def create_directory(directory_name):
+    directory_path = f"./results/{directory_name}"
+    if os.path.exists(directory_path):
+        shutil.rmtree(directory_path)
+    os.makedirs(directory_path)
+    return directory_name
+
 def folders_and_files_name():
-    # Set save folder and save name 設定存檔資料夾與存檔名稱
-    save_smoke_semantic_dir_name = "multiple_result"
-    if os.path.exists("./results/" + save_smoke_semantic_dir_name):
-        shutil.rmtree(
-            "./results/" + save_smoke_semantic_dir_name
-        )  # Delete the original folder and content 將原有的資料夾與內容刪除
-        os.makedirs(
-            "./results/" + save_smoke_semantic_dir_name
-        )  # Create new folder 創建新的資料夾
-    else:
-        # if not os.path.exists("./" + save_smoke_semantic_dir_name):
-        os.makedirs("./results/" + save_smoke_semantic_dir_name)
-    save_smoke_semantic_image_name = "smoke_semantic_image"
-
-    save_image_overlap_dir_name = "multiple_overlap"
-    if os.path.exists("./results/" + save_image_overlap_dir_name):
-        shutil.rmtree("./results/" + save_image_overlap_dir_name)
-        os.makedirs("./results/" + save_image_overlap_dir_name)
-    else:
-        # if not os.path.exists("./" + save_image_overlap_dir_name):
-        os.makedirs("./results/" + save_image_overlap_dir_name)
-    save_image_overlap_name = "image_overlap"
-
-    save_image_overlap_masks_dir_name = "multiple_overlap_masks"
-    if os.path.exists("./results/" + save_image_overlap_masks_dir_name):
-        shutil.rmtree("./results/" + save_image_overlap_masks_dir_name)
-        os.makedirs("./results/" + save_image_overlap_masks_dir_name)
-    else:
-        # if not os.path.exists("./" + save_image_overlap_dir_name):
-        os.makedirs("./results/" + save_image_overlap_masks_dir_name)
-    save_image_overlap_masks_name = "image_overlap_masks"
-
-    save_image_stitching_dir_name = "multiple_stitching"
-    if os.path.exists("./results/" + save_image_stitching_dir_name):
-        shutil.rmtree("./results/" + save_image_stitching_dir_name)
-        os.makedirs("./results/" + save_image_stitching_dir_name)
-    else:
-        # if not os.path.exists("./" + save_image_stitching_dir_name):
-        os.makedirs("./results/" + save_image_stitching_dir_name)
-    save_image_stitching_name = "image_stitching"
-
-    names = {}
-    names["smoke_semantic_dir_name"] = save_smoke_semantic_dir_name
-    names["smoke_semantic_image_name"] = save_smoke_semantic_image_name
-    names["image_overlap_dir_name"] = save_image_overlap_dir_name
-    names["image_overlap_name"] = save_image_overlap_name
-    names["image_overlap_masks_dir_name"] = save_image_overlap_masks_dir_name
-    names["image_overlap_masks_name"] = save_image_overlap_masks_name
-    names["image_stitching_dir_name"] = save_image_stitching_dir_name
-    names["image_stitching_name"] = save_image_stitching_name
+    names = {
+        "smoke_semantic_dir_name": create_directory("multiple_result"),
+        "smoke_semantic_image_name": "smoke_semantic_image",
+        "image_overlap_dir_name": create_directory("multiple_overlap"),
+        "image_overlap_name": "image_overlap",
+        "image_overlap_masks_dir_name": create_directory("multiple_overlap_masks"),
+        "image_overlap_masks_name": "image_overlap_masks",
+        "image_stitching_dir_name": create_directory("multiple_stitching"),
+        "image_stitching_name": "image_stitching",
+        "image_stitching_dir_down_name": create_directory("multiple_stitching_down"),
+        "image_stitching_down_name": "image_stitching_down",
+    }
 
     return names
 
 iou_list = []
 # Merge all resulting images 合併所有產生之圖像
-def image_stitching(input_image, i, names, mask_image, iou_np):
+def image_stitching(input_image, filename_no_extension, names, mask_image, iou_np, customssim_np, hd_np, dice_np):
     bg = Image.new(
-        "RGB", (605, 940), "#000000"
+        "RGB", (605, 980), "#000000"
     )  # Produces a 1200 x 300 all black image 產生一張 1200x300 的全黑圖片
     # Load two images 載入兩張影像
     img1 = Image.open(input_image)
     img2 = Image.open(mask_image)
     img3 = Image.open(
-        f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{i}.png'
+        f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png'
     )
     img4 = Image.open(
-        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg'
+        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg'
     )
     img5 = Image.open(
-        f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{i}.png'
+        f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png'
     )
 
     # Check if the two images are the same size 檢查兩張影像大小是否一致
@@ -141,22 +113,28 @@ def image_stitching(input_image, i, names, mask_image, iou_np):
 
 
     draw.text((230, 910), "IoU:  " + str(iou_np) + "%", fill=(255, 255, 255), font=font)
+    # draw.text((230, 930), "SSIM: " + str(customssim_np) + "%", fill=(255, 255, 255), font=font)
+    # draw.text((230, 950), "HD:   " + str(hd_np), fill=(255, 255, 255), font=font)
+    draw.text((230, 930), "Dice: " + str(dice_np), fill=(255, 255, 255), font=font)
 
-
-    # bg.show()
     bg.save(
-        f'./results/{names["image_stitching_dir_name"]}/{names["image_stitching_name"]}_{i}.jpg'
+        f'./results/{names["image_stitching_dir_name"]}/{names["image_stitching_name"]}_{filename_no_extension}.jpg'
     )
+    if iou_np < 20:
+        bg.save(
+        f'./results/{names["image_stitching_dir_down_name"]}/{names["image_stitching_down_name"]}_{filename_no_extension}.jpg'
+        )
+
 
     return
 
 
 # The trained feature map is fuse d with the original image 訓練出的特徵圖融合原圖
-def image_overlap(input_image, i, names, mask_image):
+def image_overlap(input_image, filename_no_extension, names, mask_image):
     img1 = Image.open(input_image)
     img1 = img1.convert("RGBA")
     img2 = Image.open(
-        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg'
+        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg'
     )
     img3 = Image.open(mask_image)
 
@@ -164,7 +142,7 @@ def image_overlap(input_image, i, names, mask_image):
     # binary_image = image_process.gray_to_binary(img2)
 
     # binary_image.save(
-    #     f'./results/{names["image_binary_dir_name"]}/{names["image_binary_name"]}_{i}.jpg'
+    #     f'./results/{names["image_binary_dir_name"]}/{names["image_binary_name"]}_{filename_no_extension}.jpg'
     # )
 
     img2 = img2.convert("RGBA")
@@ -184,10 +162,10 @@ def image_overlap(input_image, i, names, mask_image):
     # Display image 顯示影像
     # blendImage.show()
     blendImage.save(
-        f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{i}.png'
+        f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png'
     )
     blendImage_mask.save(
-        f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{i}.png'
+        f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png'
     )
 
     return
@@ -197,33 +175,56 @@ def image_overlap(input_image, i, names, mask_image):
 def smoke_segmentation(
     directory: str, model: str, device: torch.device, names: dict, time_train, i
 ):
+    n_element = 0
+    mean_miou = 0
     images_dir = os.path.join(directory,"images")
     masks_dir = os.path.join(directory,"masks")
+
     pbar = tqdm((os.listdir(images_dir)), total=len(os.listdir(images_dir)))
+    filename = sorted(os.listdir(images_dir), key=lambda name: int(name.split('.')[0]))
+
     for filename in pbar:
+        filename_no_extension = os.path.splitext(filename)[0] 
         smoke_input_image = read_image(os.path.join(images_dir, filename)).to(device)
         transform = transforms.Resize([256, 256],antialias=True)
+
         smoke_input_image = transform(smoke_input_image)
         smoke_input_image = (smoke_input_image) / 255.0
         smoke_input_image = smoke_input_image.unsqueeze(0).to(device)
+
         mask_input_image = read_image(os.path.join(masks_dir, filename)).to(device)
         mask_input_image = transform(mask_input_image)
         mask_input_image = (mask_input_image) / 255.0
         mask_input_image = mask_input_image.unsqueeze(0).to(device)
+
         output = smoke_semantic(smoke_input_image, model, device, time_train, i)
-        iou = utils.metrics.IoU(output, mask_input_image)        
+
+        iou = utils.metrics.IoU(output, mask_input_image)
+        customssim = utils.metrics.ssim_val(output, mask_input_image)
+        hd = utils.metrics.Sobel_hausdorffDistance_metric(output, mask_input_image, device)
+        dice = utils.metrics.dice_coef(output, mask_input_image)
+
         output = (output > 0.5).float()
-        i += 1
         torchvision.utils.save_image(
             output,
-            f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg',
+            f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg',
         )
-        image_overlap(os.path.join(images_dir, filename), i, names, os.path.join(masks_dir, filename))
+
+        image_overlap(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename))
+
         iou_np = np.round(iou.cpu().detach().numpy() * 100, 2)
-        image_stitching(os.path.join(images_dir, filename), i, names, os.path.join(masks_dir, filename), iou_np)
+        customssim_np = np.round(customssim.cpu().detach().numpy() * 100, 2)
+        hd_np = hd.cpu().detach().numpy()
+        dice_np = dice.cpu().detach().numpy()
+
+        n_element += 1
+        mean_miou += (iou_np.item() - mean_miou) / n_element  # 別人研究出的算平均的方法
+
+        image_stitching(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename), iou_np, customssim_np, hd_np, dice_np)
+        
         iou_list.append(iou_np)
 
-    return iou_list
+    return iou_list, mean_miou
 
 
 if __name__ == "__main__":
@@ -238,7 +239,7 @@ if __name__ == "__main__":
     print(f"inference_multiple_Dataset on device {device}.")
 
     names = folders_and_files_name()
-    print(names)
+    # print(names)
     # Calculate the total execution time 計算總執行時間
     model = network_model.Net().to(device)
     model.load_state_dict(torch.load(args["model_path"], map_location=device))
@@ -247,15 +248,47 @@ if __name__ == "__main__":
     i = 0
     time_train = []
     time_start = time.time()
-    iou_list = smoke_segmentation(args["test_directory"], model, device, names, time_train, i)
-    plt.hist(iou_list, bins=len(iou_list))
+    
+    iou_list,miou = smoke_segmentation(args["test_directory"], model, device, names, time_train, i)
+
+    counts, bins, patches = plt.hist(iou_list, bins=100, edgecolor="black")
     plt.xlabel("IoU")
-    plt.ylabel("Frequency")
-    plt.title("IoU Histogram")
+    plt.ylabel("Number of Images")
+
+    # # 獲取直方圖的最高點
+    # max_count = int(max(counts))
+    # 顯示 miou的線 並顯示數值
+    plt.axvline(x=miou, color='r', linestyle='--', label=f'mIoU:{miou:.2f}%')
+    std_iou = np.std(iou_list)
+    plt.axvline(x=miou + std_iou, color='m', linestyle='--', label=f'mIoU+std:{miou + std_iou:.2f}%')
+    plt.axvline(x=miou - std_iou, color='m', linestyle='--', label=f'mIoU-std:{miou - std_iou:.2f}%')
+
+    # plt.yticks(range(0, max_count+1, 5))
+    # 在 y=1 的位置繪製一條水平線
+    plt.axhline(y=1, color='y', linestyle='--', label='y=1')
+
+    # 顯示標籤
+    plt.legend()
+    
+    plt.title(f"IoU Histogram \n std:{std_iou:.2f}%")
     
     save_path = f'./results/{names["image_stitching_dir_name"]}/IoU_histogram.png'
     plt.savefig(save_path)
 
+    c = utils.metrics.Calculate(model)
+    model_size = c.get_model_size()
+    flops, params = c.get_params()
+
+    with open(f"./results/{names['image_stitching_dir_name']}/log.txt", "w") as f:
+        f.write(f"{model_name}\n"
+                f"test directory: {args['test_directory']}\n"
+                f"model path: {args['model_path']}\n"
+                f"model size: {model_size}\n"
+                f"flops: {flops}\n"
+                f"params: {params}\n"
+                f"mIoU: {miou:.2f}%\n"
+                f"update time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}\n")
+        
     total_image = len(os.listdir(args["test_directory"]))
     time_end = time.time()
     spend_time = int(time_end - time_start)
@@ -265,4 +298,4 @@ if __name__ == "__main__":
     # print(total_image)
 
     # Calculate FPS
-    print("FPS:{:.1f}".format(total_image / (time_end - time_start)))
+    print("FPS:{:.3f}".format(total_image / spend_time))

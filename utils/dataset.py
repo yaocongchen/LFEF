@@ -100,6 +100,7 @@ class DatasetSegmentation(Dataset):
 
         c_img = c_img.astype("float32")  # Normalized 歸一化
         c_img = c_img / 255.0
+        # c_img = c_img * 2 - 1 # Normalized 歸一化[-1,1]
 
         out_rgb = torch.from_numpy(c_img).float()
         out_mask = torch.from_numpy(c_mask).float()

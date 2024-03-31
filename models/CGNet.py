@@ -399,6 +399,8 @@ class Net(nn.Module):
                     if m.bias is not None:
                         m.bias.data.zero_()
 
+        self.simgoid = nn.Sigmoid()
+
     def forward(self, input):
         """
         args:
@@ -441,6 +443,8 @@ class Net(nn.Module):
         out = F.interpolate(
             classifier, input.size()[2:], mode="bilinear", align_corners=False
         )  # Upsample score map, factor=8
+
+        out = self.simgoid(out)
         return out
 
 
