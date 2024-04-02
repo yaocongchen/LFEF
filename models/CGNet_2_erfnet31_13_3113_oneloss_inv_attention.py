@@ -749,15 +749,15 @@ class Net(nn.Module):
         # self.conv_256_to_1 = nn.Sequential(nn.Conv2d(256, 1, kernel_size=(1, 1), padding=0,groups=1), nn.InstanceNorm2d(1, affine = True), nn.ReLU())
 
 #================================================================================================#
-        self.conv_128_to_64 = nn.Conv2d(128, 64, kernel_size=(1, 1), stride=1,padding=0)
+        self.conv_128_to_64 = nn.Conv2d(128, 64, kernel_size=(3, 3), stride=1,padding=1,groups=64,bias=True)
         self.conv_128_to_64_IN = nn.InstanceNorm2d(64, affine=True)
         self.upsample_to_64x64 = nn.Upsample(size=(64, 64), mode="bilinear", align_corners=True)
 
-        self.conv_64_to_32 = nn.Conv2d(64, 32, kernel_size=(1, 1), stride=1,padding=0)
+        self.conv_64_to_32 = nn.Conv2d(64, 32, kernel_size=(3, 3), stride=1,padding=1,groups=32,bias=True)
         self.conv_64_to_32_IN = nn.InstanceNorm2d(32, affine=True)
         self.upsample_to_128x128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
 
-        self.conv_32_to_1 = nn.Conv2d(32, 1, kernel_size=(1, 1), stride=1,padding=0)
+        self.conv_32_to_1 = nn.Conv2d(32, 1, kernel_size=(3, 3), stride=1,padding=1,groups=1,bias=True)
         self.conv_32_to_1_IN = nn.InstanceNorm2d(1, affine=True)
         self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
 
