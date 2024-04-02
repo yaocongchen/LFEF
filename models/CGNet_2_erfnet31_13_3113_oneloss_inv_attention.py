@@ -394,8 +394,9 @@ class ContextGuidedBlock_Down(nn.Module):
         self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 4)
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
-        self.conv3x3 = nn.Conv2d(4 * nOut, nOut, 3, 1, 1,groups = nOut, bias=True)
-        self.in_relu = INReLU(nOut)
+        self.in_norm = nn.InstanceNorm2d(4 * nOut, affine=True)
+        self.act = nn.ReLU(4 * nOut)
+        self.reduce = Conv(4 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.F_glo = FGlo(nOut, reduction)
 
@@ -415,9 +416,10 @@ class ContextGuidedBlock_Down(nn.Module):
         joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
-        joi_feat = self.conv3x3(joi_feat)
-        joi_feat = self.in_relu(joi_feat)
+        joi_feat = self.in_norm(joi_feat)
         # joi_feat = F.layer_norm(joi_feat, joi_feat.size()[1:])
+        joi_feat = self.act(joi_feat)
+        joi_feat = self.reduce(joi_feat)  # channel= nOut
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
 
@@ -456,8 +458,8 @@ class ContextGuidedBlock(nn.Module):
         self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 4)
 
         self.sigmoid = nn.Sigmoid()
-        self.conv3x3 = nn.Conv2d(4 * n, nOut, 3, 1, 1,groups = nOut, bias=True)
-        # self.conv3113 = ChannelWiseConv(4 * n, 4 * n, 3, 1)  # 3x3 Conv is employed to fuse the joint feature
+
+        self.conv3113 = ChannelWiseConv(4 * n, 4 * n, 3, 1)  # 3x3 Conv is employed to fuse the joint feature
         self.in_relu = INReLU(4*n)
         self.add = add
         self.F_glo = FGlo(4*n, reduction)
@@ -480,8 +482,7 @@ class ContextGuidedBlock(nn.Module):
 
         input_sig = self.sigmoid(input)
         joi_feat = joi_feat * input_sig
-        joi_feat = self.conv3x3(joi_feat)
-        # joi_feat = self.conv3113(joi_feat)
+        joi_feat = self.conv3113(joi_feat)
 
         joi_feat = self.in_relu(joi_feat)
 
