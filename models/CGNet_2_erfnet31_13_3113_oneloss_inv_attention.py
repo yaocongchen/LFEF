@@ -660,6 +660,49 @@ class GRUCell(nn.Module):
         new_state = (1 - update) * aux_input + update * candidate_state
         return new_state
 
+class AttentionModule(nn.Module):
+    def __init__(self, in_channels):
+        super().__init__()
+        self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
+        self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
+        self.conv = nn.Conv2d(in_channels*2, in_channels, 1, bias=True)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        avg_out = self.avg_pool(x)
+        max_out = self.max_pool(x)
+        out = torch.cat([avg_out, max_out], dim=1)
+        out = self.conv(out)
+        return self.sigmoid(out)
+
+
+class F3_Attention(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.attention_c = AttentionModule(64)
+        self.attention_h = AttentionModule(64)
+        self.attention_w = AttentionModule(64)
+
+    def forward(self, x):
+        # Channel attention
+        ca = self.attention_c(x) * x
+
+        # Height attention
+        xh = x.permute(0, 2, 3, 1)  # Change shape to [batch_size, height, width, channels]
+        ha = self.attention_h(xh)
+        ha = ha.permute(0, 3, 1, 2)  # Change shape back to [batch_size, channels, height, width]
+        ha = ha * x
+
+        # Width attention
+        xw = x.permute(0, 3, 2, 1)  # Change shape to [batch_size, width, height, channels]
+        wa = self.attention_w(xw)
+        wa = wa.permute(0, 3, 2, 1)  # Change shape back to [batch_size, channels, height, width]
+        wa = wa * x
+        
+        # Concatenate along the channel axis
+        out = ca + ha + wa
+        return out
+
 class Net(nn.Module):
     """
     This class defines the proposed Context Guided Network (CGNet) in this work.
@@ -689,6 +732,7 @@ class Net(nn.Module):
         self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
         self.gru_cell = GRUCell(32, 32)
 
+        self.attention = F3_Attention()
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
@@ -795,6 +839,7 @@ class Net(nn.Module):
         gru_output = self.gru_cell(stage1_output, inverted_output)
 
 
+
         # stage 2
         initial_stage2_output = self.level2_0(gru_output)  # down-sampled
 
@@ -805,6 +850,7 @@ class Net(nn.Module):
                 processed_stage2_output = layer(processed_stage2_output)
 
         final_stage2_output = initial_stage2_output + processed_stage2_output
+        final_stage2_output = self.attention(final_stage2_output)
         final_stage2_output = self.relu(final_stage2_output)
 
 
