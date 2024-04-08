@@ -665,7 +665,7 @@ class AttentionModule(nn.Module):
         super().__init__()
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
-        self.conv = nn.Conv2d(in_channels*2, in_channels, 1, bias=True)
+        self.conv = nn.Conv2d(in_channels*2, in_channels, 3, padding=1, groups=in_channels,bias=True)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
