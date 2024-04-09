@@ -389,9 +389,9 @@ class ContextGuidedBlock_Down(nn.Module):
         self.conv1x1 = ConvINReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
         
         self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
-        self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate)
-        self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 2)
-        self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate * 4)
+        self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 3)
+        self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 5)
+        self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 7)
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
         self.in_norm = nn.InstanceNorm2d(4 * nOut, affine=True)
@@ -452,10 +452,10 @@ class ContextGuidedBlock(nn.Module):
         )  # 1x1 Conv is employed to reduce the computation
         self.F_loc = ChannelWiseConv(n, n, 3, 1)  # local feature
         self.F_sur = ChannelWiseDilatedConv(
-            n, n, 3, 1, dilation_rate
+            n, n, 3, 1, 3
         )  # surrounding context
-        self.F_sur_4 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 2)
-        self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, dilation_rate * 4)
+        self.F_sur_4 = ChannelWiseDilatedConv(n, n, 3, 1, 5)
+        self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, 7)
 
         self.sigmoid = nn.Sigmoid()
 
@@ -850,8 +850,9 @@ class Net(nn.Module):
                 processed_stage2_output = layer(processed_stage2_output)
 
         final_stage2_output = initial_stage2_output + processed_stage2_output
-        final_stage2_output = self.attention(final_stage2_output)
-        final_stage2_output = self.relu(final_stage2_output)
+        final_stage2_output_attention = self.attention(final_stage2_output)
+        final_stage2_output_attention = final_stage2_output + final_stage2_output_attention
+        final_stage2_output_attention_relu = self.relu(final_stage2_output_attention)
 
 
         # b, c, w, h = initial_stage2_output.size()
@@ -867,7 +868,7 @@ class Net(nn.Module):
 
 
         # stage 3
-        initial_stage3_output = self.level3_0(final_stage2_output)  # down-sampled
+        initial_stage3_output = self.level3_0(final_stage2_output_attention_relu)  # down-sampled
         for i, layer in enumerate(self.level3):
             if i == 0:
                 processed_stage3_output = layer(initial_stage3_output)
