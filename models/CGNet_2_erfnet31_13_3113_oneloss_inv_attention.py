@@ -391,7 +391,7 @@ class ContextGuidedBlock_Down(nn.Module):
         self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
         self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 3)
         self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 5)
-        self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 8)
+        self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 7)
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
         self.in_norm = nn.InstanceNorm2d(4 * nOut, affine=True)
