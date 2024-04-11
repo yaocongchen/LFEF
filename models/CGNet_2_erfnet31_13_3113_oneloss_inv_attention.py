@@ -850,9 +850,9 @@ class Net(nn.Module):
                 processed_stage2_output = layer(processed_stage2_output)
 
         final_stage2_output = initial_stage2_output + processed_stage2_output
-        final_stage2_output_attention = self.attention(final_stage2_output)
-        final_stage2_output_attention = final_stage2_output + final_stage2_output_attention
-        final_stage2_output_attention_relu = self.relu(final_stage2_output_attention)
+        # final_stage2_output_attention = self.attention(final_stage2_output)
+        # final_stage2_output_attention = final_stage2_output + final_stage2_output_attention
+        final_stage2_output = self.relu(final_stage2_output)
 
 
         # b, c, w, h = initial_stage2_output.size()
@@ -868,7 +868,7 @@ class Net(nn.Module):
 
 
         # stage 3
-        initial_stage3_output = self.level3_0(final_stage2_output_attention_relu)  # down-sampled
+        initial_stage3_output = self.level3_0(final_stage2_output)  # down-sampled
         for i, layer in enumerate(self.level3):
             if i == 0:
                 processed_stage3_output = layer(initial_stage3_output)
