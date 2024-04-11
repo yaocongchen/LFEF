@@ -756,10 +756,6 @@ class Net(nn.Module):
             self.level3.append(
                 ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
             )  # CG bloc
-
-        self.conv3x3_in_rule = nn.Sequential(nn.Conv2d(128, 64, kernel_size=(3, 3), padding=1,groups=64), nn.InstanceNorm2d(64, affine=True), nn.ReLU())
-        self.conv1x1_IN = nn.Sequential(nn.Conv2d(64, 1, kernel_size=(1, 1), padding=0), nn.InstanceNorm2d(1, affine=True))
-
         self.in_relu_3 = INReLU(256)
 
 
@@ -879,11 +875,6 @@ class Net(nn.Module):
             else:
                 processed_stage3_output = layer(processed_stage3_output)
 
-        processed_stage3_output_aux = self.conv3x3_in_rule(processed_stage3_output)
-        processed_stage3_output_aux = self.upsample_to_256x256(processed_stage3_output_aux)
-        processed_stage3_output_aux = self.conv1x1_IN(processed_stage3_output_aux)
-        processed_stage3_output_aux = self.sigmoid(processed_stage3_output_aux)
-
         final_stage3_output = initial_stage3_output + processed_stage3_output
         final_stage3_output = self.relu(final_stage3_output)
 
@@ -922,11 +913,11 @@ class Net(nn.Module):
 
         output = self.sigmoid(convolved_stage1_output)
 
-        return output , processed_stage3_output_aux
+        return output
 
 if __name__ == "__main__":
     model = Net()
     x = torch.randn(16, 3, 256, 256)
-    output,aux = model(x)
-    # print(output.shape)
+    output = model(x)
+    print(output.shape)
     summary(model,input_data=x,verbose=1)
