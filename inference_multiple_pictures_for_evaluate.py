@@ -197,7 +197,7 @@ def smoke_segmentation(
         mask_input_image = (mask_input_image) / 255.0
         mask_input_image = mask_input_image.unsqueeze(0).to(device)
 
-        output = smoke_semantic(smoke_input_image, model, device, time_train, i)
+        output, aux = smoke_semantic(smoke_input_image, model, device, time_train, i)
 
         iou = utils.metrics.IoU(output, mask_input_image)
         customssim = utils.metrics.ssim_val(output, mask_input_image)

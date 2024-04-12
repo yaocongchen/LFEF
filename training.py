@@ -32,7 +32,7 @@ def train_epoch(args, model, training_data_loader, device, optimizer, epoch):
             mask_image, requires_grad=True
         )  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
 
-        output = model(img_image)
+        output, aux = model(img_image)
 
         # torchvision.utils.save_image(
         #     img_image, "./training_data_captures/" + "img_image" + ".jpg"
@@ -47,7 +47,7 @@ def train_epoch(args, model, training_data_loader, device, optimizer, epoch):
 
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
 
-        loss = utils.loss.CustomLoss(output, mask_image)
+        loss = utils.loss.CustomLoss(output, aux, mask_image)
         iou = utils.metrics.IoU(output, mask_image)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
@@ -106,7 +106,7 @@ def valid_epoch(args ,model, validation_data_loader, device, epoch):
         onnx_img_image = img_image
 
         with torch.no_grad():
-            output = model(img_image)
+            output, aux = model(img_image)
 
         loss = utils.loss.CustomLoss(output, mask_image)
         iou = utils.metrics.IoU(output, mask_image)
