@@ -86,7 +86,7 @@ class INReLU(nn.Module):
         super().__init__()
         # self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
-        self.act = nn.ReLU(nOut)
+        self.act = nn.ReLU()
 
     def forward(self, input):
         """
@@ -731,6 +731,7 @@ class Net(nn.Module):
 
         self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
         self.gru_cell = GRUCell(32, 32)
+        self.in_relu_stage1 = INReLU(32)
 
         self.attention = F3_Attention()
 
@@ -743,7 +744,7 @@ class Net(nn.Module):
             self.level2.append(
                 ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
-        self.in_relu_2 = INReLU(128)
+        self.in_relu_stage2 = INReLU(64)
         # self.bn_relu_2_2 = BNReLU(128 + 3)
 
 
@@ -756,12 +757,10 @@ class Net(nn.Module):
             self.level3.append(
                 ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
             )  # CG bloc
+        self.in_relu_stage3 = INReLU(128)
 
         self.conv3x3_in_rule = nn.Sequential(nn.Conv2d(128, 64, kernel_size=(3, 3), padding=1,groups=64), nn.InstanceNorm2d(64, affine=True), nn.ReLU())
         self.conv1x1_IN = nn.Sequential(nn.Conv2d(64, 1, kernel_size=(1, 1), padding=0), nn.InstanceNorm2d(1, affine=True))
-
-        self.in_relu_3 = INReLU(256)
-
 
         if dropout_flag:
             print("have droput layer")
@@ -841,7 +840,7 @@ class Net(nn.Module):
         inverted_output = self.aux_net(input_inverted)
 
         gru_output = self.gru_cell(stage1_output, inverted_output)
-        gru_output = self.relu(gru_output)
+        gru_output = self.in_relu_stage1(gru_output)
 
 
         # stage 2
@@ -856,7 +855,7 @@ class Net(nn.Module):
         final_stage2_output = initial_stage2_output + processed_stage2_output
         # final_stage2_output_attention = self.attention(final_stage2_output)
         # final_stage2_output_attention = final_stage2_output + final_stage2_output_attention
-        final_stage2_output = self.relu(final_stage2_output)
+        final_stage2_output = self.in_relu_stage2(final_stage2_output)
 
 
         # b, c, w, h = initial_stage2_output.size()
@@ -885,7 +884,7 @@ class Net(nn.Module):
         processed_stage3_output_aux = self.sigmoid(processed_stage3_output_aux)
 
         final_stage3_output = initial_stage3_output + processed_stage3_output
-        final_stage3_output = self.relu(final_stage3_output)
+        final_stage3_output = self.in_relu_stage3(final_stage3_output)
 
         # stage1_ewp_inverted_output_up = self.upsample(stage1_ewp_inverted_output)
         # stage1_ewp_inverted_output_up = self.conv_32_to_1(stage1_ewp_inverted_output_up)
