@@ -103,7 +103,7 @@ def smoke_segmentation(model,device, names, args):
         # 註冊 hook 到模型的中間層
         # handle = model.main_net.conv11_128.register_forward_hook(hook_fn)
         with torch.no_grad():
-            output = smoke_semantic(img_image, model, device, time_train, i)
+            output, aux = smoke_semantic(img_image, model, device, time_train, i)
         # feature = check_feature.check_feature(32)
         # print("output.shape:", outputs[0].shape )
 

@@ -841,7 +841,7 @@ class Net(nn.Module):
         inverted_output = self.aux_net(input_inverted)
 
         gru_output = self.gru_cell(stage1_output, inverted_output)
-
+        gru_output = self.relu(gru_output)
 
 
         # stage 2
