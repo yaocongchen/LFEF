@@ -49,7 +49,8 @@ def main():
     )
 
     model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
-
+    torch.set_float32_matmul_precision('high')
+    
     start_epoch = 1
 
     if args["wandb_name"] != "no":
