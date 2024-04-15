@@ -48,7 +48,7 @@ def main():
         model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
     )
 
-    # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
+    model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
 
     start_epoch = 1
 
