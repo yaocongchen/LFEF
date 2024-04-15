@@ -665,7 +665,7 @@ class AttentionModule(nn.Module):
         super().__init__()
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
-        self.conv = nn.Conv2d(in_channels*2, in_channels, 1, bias=True)
+        self.conv = nn.Conv2d(in_channels*2, in_channels, 1, groups=in_channels,bias=True)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
@@ -733,8 +733,6 @@ class Net(nn.Module):
         self.gru_cell = GRUCell(32, 32)
         self.in_relu_stage1 = INReLU(32)
 
-        self.attention = F3_Attention()
-
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
             32, 64,dilation_rate=2, reduction=8
@@ -744,6 +742,8 @@ class Net(nn.Module):
             self.level2.append(
                 ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
+
+        self.attention = F3_Attention()
         self.in_relu_stage2 = INReLU(64)
         # self.bn_relu_2_2 = BNReLU(128 + 3)
 
@@ -853,9 +853,9 @@ class Net(nn.Module):
                 processed_stage2_output = layer(processed_stage2_output)
 
         final_stage2_output = initial_stage2_output + processed_stage2_output
-        # final_stage2_output_attention = self.attention(final_stage2_output)
+        final_stage2_output_attention = self.attention(final_stage2_output)
         # final_stage2_output_attention = final_stage2_output + final_stage2_output_attention
-        final_stage2_output = self.in_relu_stage2(final_stage2_output)
+        final_stage2_output = self.in_relu_stage2(final_stage2_output_attention)
 
 
         # b, c, w, h = initial_stage2_output.size()
