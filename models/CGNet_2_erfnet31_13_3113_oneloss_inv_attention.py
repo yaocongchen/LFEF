@@ -702,7 +702,50 @@ class F3_Attention(nn.Module):
         # Concatenate along the channel axis
         out = ca + ha + wa
         return out
+class SpatialTransformerNet(nn.Module):
+    def __init__(self):
+        super(SpatialTransformerNet, self).__init__()
+        # 定位网络
+        self.localization = nn.Sequential(
+            # 初始输入尺寸: [batch_size, 3, 256, 256]
+            nn.Conv2d(3, 8, kernel_size=7, padding=3),
+            nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 8, 128, 128]
+            nn.ReLU(True),
+            
+            nn.Conv2d(8, 16, kernel_size=5, padding=2),
+            nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 16, 64, 64]
+            nn.ReLU(True),
+            
+            nn.Conv2d(16, 32, kernel_size=3, padding=1),
+            nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 32, 32, 32]
+            nn.ReLU(True),
+            
+            nn.Conv2d(32, 32, kernel_size=3, padding=1),
+            nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 32, 16, 16]
+            nn.ReLU(True),
+        )
+        
+        # 透过全连接层预测仿射变换参数θ
+        self.fc_loc = nn.Sequential(
+            nn.Linear(32 * 16 * 16, 128),
+            nn.ReLU(True),
+            nn.Linear(128, 3 * 2)
+        )
 
+        # 使用标识变换初始化权重/偏置
+        self.fc_loc[2].weight.data.zero_()
+        self.fc_loc[2].bias.data.copy_(torch.tensor([1, 0, 0, 0, 1, 0], dtype=torch.float))
+
+    def forward(self, x):
+        xs = self.localization(x)
+        xs = xs.view(-1, 32 * 16 * 16)
+        theta = self.fc_loc(xs)
+        theta = theta.view(-1, 2, 3)
+        
+        grid = F.affine_grid(theta, x.size(), align_corners=False)
+        x = F.grid_sample(x, grid, align_corners=False)
+        return x
+    
 class Net(nn.Module):
     """
     This class defines the proposed Context Guided Network (CGNet) in this work.
@@ -717,6 +760,7 @@ class Net(nn.Module):
         """
         super().__init__()
         self.brightness_adjustment = BrightnessAdjustment()
+        self.stn = SpatialTransformerNet()
 
         self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
@@ -826,6 +870,7 @@ class Net(nn.Module):
 
         # input = self.brightness_adjustment(input)
         # stage 1
+        input = self.stn(input)
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
         stage1_output = self.level1_2(stage1_output)
