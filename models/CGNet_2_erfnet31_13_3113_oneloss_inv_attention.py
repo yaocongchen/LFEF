@@ -743,7 +743,7 @@ class Net(nn.Module):
                 ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
 
-        self.attention = F3_Attention()
+        # self.attention = F3_Attention()
         self.in_relu_stage2 = INReLU(64)
         # self.bn_relu_2_2 = BNReLU(128 + 3)
 
@@ -853,9 +853,9 @@ class Net(nn.Module):
                 processed_stage2_output = layer(processed_stage2_output)
 
         final_stage2_output = initial_stage2_output + processed_stage2_output
-        final_stage2_output_attention = self.attention(final_stage2_output)
+        # final_stage2_output_attention = self.attention(final_stage2_output)
         # final_stage2_output_attention = final_stage2_output + final_stage2_output_attention
-        final_stage2_output = self.in_relu_stage2(final_stage2_output_attention)
+        final_stage2_output = self.in_relu_stage2(final_stage2_output)
 
 
         # b, c, w, h = initial_stage2_output.size()
