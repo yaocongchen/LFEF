@@ -676,33 +676,6 @@ class AttentionModule(nn.Module):
         return self.sigmoid(out)
 
 
-class F3_Attention(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.attention_c = AttentionModule(64)
-        self.attention_h = AttentionModule(64)
-        self.attention_w = AttentionModule(64)
-
-    def forward(self, x):
-        # Channel attention
-        ca = self.attention_c(x) * x
-
-        # Height attention
-        xh = x.permute(0, 2, 3, 1)  # Change shape to [batch_size, height, width, channels]
-        ha = self.attention_h(xh)
-        ha = ha.permute(0, 3, 1, 2)  # Change shape back to [batch_size, channels, height, width]
-        ha = ha * x
-
-        # Width attention
-        xw = x.permute(0, 3, 2, 1)  # Change shape to [batch_size, width, height, channels]
-        wa = self.attention_w(xw)
-        wa = wa.permute(0, 3, 2, 1)  # Change shape back to [batch_size, channels, height, width]
-        wa = wa * x
-        
-        # Concatenate along the channel axis
-        out = ca + ha + wa
-        return out
-
 class Net(nn.Module):
     """
     This class defines the proposed Context Guided Network (CGNet) in this work.
@@ -733,7 +706,6 @@ class Net(nn.Module):
         self.gru_cell = GRUCell(32, 32)
         self.in_relu_stage1 = INReLU(32)
 
-        self.attention = F3_Attention()
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
