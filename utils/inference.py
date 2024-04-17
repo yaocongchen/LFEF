@@ -11,7 +11,7 @@ def smoke_semantic(input_image, model, device, time_train, i):
     start_time = time.time()
 
     with torch.no_grad():
-        output = model(input_image)  # Import model 導進模型
+        output, aux = model(input_image)  # Import model 導進模型
 
     if device == torch.device("cuda"):
         torch.cuda.synchronize()  # wait for cuda to finish (cuda is asynchronous!)
@@ -32,7 +32,7 @@ def smoke_semantic(input_image, model, device, time_train, i):
     # #Calculate FPS
     # print("Model_FPS: {:.1f}".format(1/(time_end-start_time)))
 
-    return output
+    return output, aux
 
 
 if __name__ == "__main__":

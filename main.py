@@ -13,7 +13,7 @@ import wandb
 import torch.onnx
 
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
-from utils.setup_utils import set_save_dir_names, create_model_state_dict, time_processing, wandb_information, parse_arguments
+from utils.main_setup_utils import set_save_dir_names, create_model_state_dict, time_processing, wandb_information, parse_arguments
 from utils.check_GPU import check_have_GPU, check_number_of_GPUs
 from utils.metrics import Calculate
 from data_processing import data_processing_train_8_val_DS01
@@ -48,8 +48,9 @@ def main():
         model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
     )
 
-    # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
-
+    model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
+    torch.set_float32_matmul_precision('high')
+    
     start_epoch = 1
 
     if args["wandb_name"] != "no":

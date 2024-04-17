@@ -197,7 +197,7 @@ def smoke_segmentation(
         mask_input_image = (mask_input_image) / 255.0
         mask_input_image = mask_input_image.unsqueeze(0).to(device)
 
-        output = smoke_semantic(smoke_input_image, model, device, time_train, i)
+        output, aux = smoke_semantic(smoke_input_image, model, device, time_train, i)
 
         iou = utils.metrics.IoU(output, mask_input_image)
         customssim = utils.metrics.ssim_val(output, mask_input_image)
@@ -242,14 +242,27 @@ if __name__ == "__main__":
     # print(names)
     # Calculate the total execution time 計算總執行時間
     model = network_model.Net().to(device)
-    model.load_state_dict(torch.load(args["model_path"], map_location=device))
 
+    c = utils.metrics.Calculate(model)
+    model_size = c.get_model_size()
+    flops, params = c.get_params()
+
+    model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
+    torch.set_float32_matmul_precision('high')
+    model.load_state_dict(torch.load(args["model_path"], map_location=device))
     model.eval()
+
     i = 0
     time_train = []
     time_start = time.time()
     
     iou_list,miou = smoke_segmentation(args["test_directory"], model, device, names, time_train, i)
+    
+
+    images_dir = os.path.join(args["test_directory"],"images")
+    total_image = len(os.listdir(images_dir))
+    time_end = time.time()
+    utils.metrics.report_fps_and_time(total_image, time_start, time_end)
 
     counts, bins, patches = plt.hist(iou_list, bins=100, edgecolor="black")
     plt.xlabel("IoU")
@@ -275,9 +288,6 @@ if __name__ == "__main__":
     save_path = f'./results/{names["image_stitching_dir_name"]}/IoU_histogram.png'
     plt.savefig(save_path)
 
-    c = utils.metrics.Calculate(model)
-    model_size = c.get_model_size()
-    flops, params = c.get_params()
 
     with open(f"./results/{names['image_stitching_dir_name']}/log.txt", "w") as f:
         f.write(f"{model_name}\n"
@@ -289,13 +299,4 @@ if __name__ == "__main__":
                 f"mIoU: {miou:.2f}%\n"
                 f"update time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}\n")
         
-    total_image = len(os.listdir(args["test_directory"]))
-    time_end = time.time()
-    spend_time = int(time_end - time_start)
-    time_min = spend_time // 60
-    time_sec = spend_time % 60
-    print("totally cost:", f"{time_min}m {time_sec}s")
-    # print(total_image)
 
-    # Calculate FPS
-    print("FPS:{:.3f}".format(total_image / spend_time))

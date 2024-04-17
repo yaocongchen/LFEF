@@ -158,27 +158,46 @@ def contrastive_loss(image_feat, cond_feat, temperature=0.07):
     loss = loss_img2cond + loss_cond2img
     return loss
 
-def CustomLoss(model_output, mask):
-    # s_iou = Sigmoid_IoU(model_output,mask)
-    # iou = IoU(model_output,mask)
+# def CustomLoss(model_output, mask):
+#     # s_iou = Sigmoid_IoU(model_output,mask)
+#     # iou = IoU(model_output,mask)
 
-    # my_ssim = ssim_val(model_output,mask)
+#     # my_ssim = ssim_val(model_output,mask)
 
-    # dice_loss = dice_coef(model_output,mask)
+#     dice_loss = dice_coef(model_output,mask)
 
+#     loss_1 = L(model_output, mask)
+
+#     # model_output = torch.sum(model_vgg16(model_output), dim=[2, 3])
+#     # mask = torch.sum(model_vgg16(mask), dim=[2, 3])
+
+#     # loss_2 = contrastive_loss(model_output, mask)
+
+#     # loss_2 = boundary_loss(model_output, mask)
+
+#     # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - my_ssim) * (alpha/2)
+#     total_loss = loss_1 * (1 - alpha) + (1 - dice_loss) * (alpha)
+#     # total_loss = loss_1
+#     # total_loss = loss_1 
+    
+#     return total_loss
+
+def CustomLoss(*args, **kwargs):
+    model_output = args[0]
+    mask = args[-1] 
+    
+    # dice_loss = dice_coef(model_output, mask)
     loss_1 = L(model_output, mask)
+    
 
-    # model_output = torch.sum(model_vgg16(model_output), dim=[2, 3])
-    # mask = torch.sum(model_vgg16(mask), dim=[2, 3])
-
-    # loss_2 = contrastive_loss(model_output, mask)
-
-    # loss_2 = boundary_loss(model_output, mask)
-
-    # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha/2) + (1 - my_ssim) * (alpha/2)
-    # total_loss = loss_1 * (1 - alpha) + (1 - iou) * (alpha)
-    total_loss = loss_1
-    # total_loss = loss_1 
+    if len(args) == 2:  # 只有 model_output 和 mask
+        total_loss = loss_1
+    elif len(args) == 3:  # model_output, aux, 和 mask
+        aux = args[1]
+        loss_2 = L(aux, mask)
+        total_loss = loss_1 * (1 - alpha) + loss_2 * alpha
+    else:
+        raise ValueError("Unsupported number of arguments")
     
     return total_loss
 
