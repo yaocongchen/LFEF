@@ -207,25 +207,36 @@ class Calculate:
 
     # Display calculation amount and parameter amount 顯示計算量與參數量
     def Calculations_and_parameters(self):
-        macs, params = get_model_complexity_info(
+        FLOPs, params = get_model_complexity_info(
             self.model,
             (3, 256, 256),
             as_strings=True,
             print_per_layer_stat=False,
             verbose=False,
         )  # Calculation model calculation amount and parameter amount print_per_layer_stat: List the parameter amount and calculation amount of each layer
+        assert FLOPs is not None, 'FLOPs is None'
+        assert params is not None, 'Params is None'
         print(
-            "{:<30}  {:<8}".format("Computational complexity(FLOPs): ", macs)
+            "{:<30}  {:<8}".format("Computational complexity(FLOPs): ", FLOPs)
         )  # 計算模型計算量與參數量 print_per_layer_stat：列出每一層的參數量與計算量
         print("{:<30}  {:<8}".format("Number of parameters: ", params))
-        return macs, params
+        return FLOPs, params
 
     def get_model_size(self):
         return self.model_size
 
     def get_params(self):
         return self.params
-
+    
+def report_fps_and_time(total_image, time_start, time_end):
+    fps = total_image / (time_end - time_start)
+    fps = round(fps, 1)
+    print(f"FPS:{fps}")
+    spend_time = int(time_end - time_start )
+    time_min = spend_time // 60
+    time_sec = spend_time % 60
+    print("totally cost:", f"{time_min}m {time_sec}s")
+    return fps, time_min, time_sec
 
 if __name__ == "__main__":
     x = torch.rand(1, 1, 3, 3)

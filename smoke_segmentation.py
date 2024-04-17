@@ -9,14 +9,18 @@ from visualization_codes import (
     inference_video,
     inference_video_to_frames,
 )
+from utils.metrics import report_fps_and_time
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
 
 
 def smoke_segmentation(args,device):
     model = network_model.Net().to(device)
+    model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
+    torch.set_float32_matmul_precision('high')
     model.load_state_dict(torch.load(args["model_path"], map_location=device))
 
     model.eval()
+
 
     source = args["source"]
 
@@ -33,14 +37,7 @@ def smoke_segmentation(args,device):
             args["source"], model, device, names, time_train, i
         )
         time_end = time.time()
-        spend_time = int(time_end - time_start)
-        time_min = spend_time // 60
-        time_sec = spend_time % 60
-        print("totally cost:", f"{time_min}m {time_sec}s")
-        # print(total_image)
-
-        # Calculate FPS
-        print("folder_process_FPS:{:.1f}".format(total_image / (time_end - time_start)))
+        fps, time_min, time_sec = report_fps_and_time(total_image, time_start, time_end)
 
     else:
         root, extension = os.path.splitext(source)
