@@ -48,7 +48,7 @@ def folders_and_files_name():
 iou_list = []
 
 
-def load_and_process_image(path, size=(256, 256), border=5):
+def load_and_process_image_with_border(path, size=(256, 256), border=5):
     img = Image.open(path)
     img = img.resize(size)
     img = ImageOps.expand(img, border, "#ffffff")
@@ -57,13 +57,13 @@ def load_and_process_image(path, size=(256, 256), border=5):
 def image_stitching(input_image, filename_no_extension, names, mask_image, iou_np, customssim_np, hd_np, dice_np):
     bg = Image.new("RGB", (905, 980), "#000000")
 
-    img1 = load_and_process_image(input_image)
-    img2 = load_and_process_image(mask_image)
-    img3 = load_and_process_image(f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png')
-    img4 = load_and_process_image(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg')
-    img5 = load_and_process_image(f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png')
-    img6 = load_and_process_image(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg')
-    img7 = load_and_process_image(f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}_aux.png')
+    img1 = load_and_process_image_with_border(input_image)
+    img2 = load_and_process_image_with_border(mask_image)
+    img3 = load_and_process_image_with_border(f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png')
+    img4 = load_and_process_image_with_border(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg')
+    img5 = load_and_process_image_with_border(f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png')
+    img6 = load_and_process_image_with_border(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg')
+    img7 = load_and_process_image_with_border(f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}_aux.png')
 
 
     draw = ImageDraw.Draw(bg)
@@ -94,19 +94,19 @@ def image_stitching(input_image, filename_no_extension, names, mask_image, iou_n
 
     return
 
-def load_and_process_image(path, size=(256, 256)):
+def load_and_process_image_rgba(path, size=(256, 256)):
     img = Image.open(path)
     img = img.convert("RGBA")
     img = img.resize(size)
     return img
 # The trained feature map is fuse d with the original image 訓練出的特徵圖融合原圖
 def image_overlap(input_image, filename_no_extension, names, mask_image):
-    img1 = load_and_process_image(input_image)
-    img2 = load_and_process_image(
+    img1 = load_and_process_image_rgba(input_image)
+    img2 = load_and_process_image_rgba(
         f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg'
     )
-    img3 = load_and_process_image(mask_image)
-    img4 = load_and_process_image(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg')
+    img3 = load_and_process_image_rgba(mask_image)
+    img4 = load_and_process_image_rgba(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg')
 
     blendImage = image_process.overlap_v2(img1, img2, read_method="PIL_RGBA")
     blendImage_mask = image_process.overlap_v2(img1, img3, read_method="PIL_RGBA")
@@ -125,31 +125,29 @@ def image_overlap(input_image, filename_no_extension, names, mask_image):
     return
 
 
+def load_and_process_image_torch(path, device, transform):
+    img = read_image(path).to(device)
+    img = transform(img)
+    img = img / 255.0
+    img = img.unsqueeze(0).to(device)
+    return img
 # Main function 主函式
-def smoke_segmentation(
-    directory: str, model: str, device: torch.device, names: dict, time_train, i
-):
+def smoke_segmentation(directory: str, model: str, device: torch.device, names: dict, time_train, i):
     n_element = 0
     mean_miou = 0
     images_dir = os.path.join(directory,"images")
     masks_dir = os.path.join(directory,"masks")
+
+    transform = transforms.Resize([256, 256],antialias=True)
 
     pbar = tqdm((os.listdir(images_dir)), total=len(os.listdir(images_dir)))
     filename = sorted(os.listdir(images_dir), key=lambda name: int(name.split('.')[0]))
 
     for filename in pbar:
         filename_no_extension = os.path.splitext(filename)[0] 
-        smoke_input_image = read_image(os.path.join(images_dir, filename)).to(device)
-        transform = transforms.Resize([256, 256],antialias=True)
 
-        smoke_input_image = transform(smoke_input_image)
-        smoke_input_image = (smoke_input_image) / 255.0
-        smoke_input_image = smoke_input_image.unsqueeze(0).to(device)
-
-        mask_input_image = read_image(os.path.join(masks_dir, filename)).to(device)
-        mask_input_image = transform(mask_input_image)
-        mask_input_image = (mask_input_image) / 255.0
-        mask_input_image = mask_input_image.unsqueeze(0).to(device)
+        smoke_input_image = load_and_process_image_torch(os.path.join(images_dir, filename), device, transform)
+        mask_input_image = load_and_process_image_torch(os.path.join(masks_dir, filename), device, transform)
 
         output, aux = smoke_semantic(smoke_input_image, model, device, time_train, i)
 
