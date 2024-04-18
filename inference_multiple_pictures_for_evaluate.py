@@ -32,6 +32,7 @@ def folders_and_files_name():
     names = {
         "smoke_semantic_dir_name": create_directory("multiple_result"),
         "smoke_semantic_image_name": "smoke_semantic_image",
+        "smoke_semantic_aux_name": "smoke_semantic_aux",
         "image_overlap_dir_name": create_directory("multiple_overlap"),
         "image_overlap_name": "image_overlap",
         "image_overlap_masks_dir_name": create_directory("multiple_overlap_masks"),
@@ -54,13 +55,16 @@ def load_and_process_image(path, size=(256, 256), border=5):
     return img
 # Merge all resulting images 合併所有產生之圖像
 def image_stitching(input_image, filename_no_extension, names, mask_image, iou_np, customssim_np, hd_np, dice_np):
-    bg = Image.new("RGB", (605, 980), "#000000")
+    bg = Image.new("RGB", (905, 980), "#000000")
 
     img1 = load_and_process_image(input_image)
     img2 = load_and_process_image(mask_image)
     img3 = load_and_process_image(f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png')
     img4 = load_and_process_image(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg')
     img5 = load_and_process_image(f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png')
+    img6 = load_and_process_image(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg')
+    img7 = load_and_process_image(f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}_aux.png')
+
 
     draw = ImageDraw.Draw(bg)
     font = ImageFont.truetype("/usr/share/fonts/truetype/ubuntu/Ubuntu-BI.ttf", 20)
@@ -75,6 +79,11 @@ def image_stitching(input_image, filename_no_extension, names, mask_image, iou_n
     draw.text((380, 320), "Model Output", fill=(255, 255, 255), font=font)
     bg.paste(img4, (320, 350))
     bg.paste(img5, (320, 630))
+
+    draw.text((670, 320), "Auxiliary Output", fill=(255, 255, 255), font=font)
+    bg.paste(img6, (620, 350))
+    bg.paste(img7, (620, 630))
+
 
     draw.text((230, 910), "IoU:  " + str(iou_np) + "%", fill=(255, 255, 255), font=font)
     draw.text((230, 930), "Dice: " + str(dice_np), fill=(255, 255, 255), font=font)
@@ -97,15 +106,20 @@ def image_overlap(input_image, filename_no_extension, names, mask_image):
         f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg'
     )
     img3 = load_and_process_image(mask_image)
+    img4 = load_and_process_image(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg')
 
     blendImage = image_process.overlap_v2(img1, img2, read_method="PIL_RGBA")
     blendImage_mask = image_process.overlap_v2(img1, img3, read_method="PIL_RGBA")
+    blendImage_aux = image_process.overlap_v2(img1, img4, read_method="PIL_RGBA")
 
     blendImage.save(
         f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png'
     )
     blendImage_mask.save(
         f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png'
+    )
+    blendImage_aux.save(
+        f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}_aux.png'
     )
 
     return
@@ -145,9 +159,14 @@ def smoke_segmentation(
         dice = utils.metrics.dice_coef(output, mask_input_image)
 
         output = (output > 0.5).float()
+        aux = (aux > 0.5).float()
         torchvision.utils.save_image(
             output,
             f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg',
+        )
+        torchvision.utils.save_image(
+            aux,
+            f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg',
         )
 
         image_overlap(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename))
