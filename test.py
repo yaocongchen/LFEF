@@ -23,12 +23,6 @@ model_name = str(network_model)
 print("model_name:", model_name)
 
 
-outputs = []
-# 設置一個函數來處理中間層的輸出
-def hook_fn(module, input, output):
-    # print(f"Output shape of intermediate layer: {output.shape}")
-    outputs.append(output)
-
 # Main function 主函式
 def smoke_segmentation(model, device, names, args):
     print("test_data:", args["test_images"])
@@ -63,19 +57,9 @@ def smoke_segmentation(model, device, names, args):
         img_image = RGB_image.to(device)
         mask_image = mask_image.to(device)
 
-        # 註冊 hook 到模型的中間層
-        # handle = model.main_net.conv11_128.register_forward_hook(hook_fn)
         with torch.no_grad():
             output, aux = smoke_semantic(img_image, model, device, time_train, i)
-        # feature = check_feature.check_feature(32)
-        # print("output.shape:", outputs[0].shape )
 
-        # print("outputs.shape:", type(outputs[0]))
-        # feature = check_feature.check_feature(1).to(device)
-        # feat = feature(outputs[0])
-
-        # # 移除 hook
-        # handle.remove()
 
         loss = utils.loss.CustomLoss(output, mask_image)
         iou = utils.metrics.IoU(output, mask_image)
@@ -106,7 +90,6 @@ def smoke_segmentation(model, device, names, args):
             (RGB_image, "test_RGB_image"),
             (mask_image, "test_mask_image"),
             (output, "test_output"),
-            # (feat, "test_check_feature"),  # Uncomment this line if you want to include 'feat'
         ]
 
         for image, label in images_and_labels:
