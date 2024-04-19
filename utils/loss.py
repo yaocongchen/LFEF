@@ -158,6 +158,17 @@ def contrastive_loss(image_feat, cond_feat, temperature=0.07):
     loss = loss_img2cond + loss_cond2img
     return loss
 
+def Subtraction_plot(model_output, mask):
+    model_output = (model_output > 0.5).float()
+    mask_BHW = mask.shape[0] * mask.shape[2] * mask.shape[3]
+    Subtraction_plot =  model_output - mask
+    sum_of_ones = torch.sum(Subtraction_plot[Subtraction_plot == 1])    
+    sum_of_neg_ones = torch.abs(torch.sum(Subtraction_plot[Subtraction_plot == -1]))
+    # seg_error_rate = sum_of_ones / mask_BHW
+    # seg_miss_rate = sum_of_neg_ones / mask_BHW
+    total_error_rate = (sum_of_ones + sum_of_neg_ones) / mask_BHW
+    return total_error_rate
+
 # def CustomLoss(model_output, mask):
 #     # s_iou = Sigmoid_IoU(model_output,mask)
 #     # iou = IoU(model_output,mask)
@@ -188,14 +199,14 @@ def CustomLoss(*args, **kwargs):
     
     # dice_loss = dice_coef(model_output, mask)
     loss_1 = L(model_output, mask)
-    
 
     if len(args) == 2:  # 只有 model_output 和 mask
         total_loss = loss_1
     elif len(args) == 3:  # model_output, aux, 和 mask
         aux = args[1]
         loss_2 = L(aux, mask)
-        total_loss = loss_1 * (1 - alpha) + loss_2 * alpha
+        loss_3 = Subtraction_plot(model_output, mask)
+        total_loss = loss_1 * (1 - alpha) + loss_2 * alpha + loss_3 * alpha
     else:
         raise ValueError("Unsupported number of arguments")
     
