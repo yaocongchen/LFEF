@@ -205,8 +205,7 @@ def CustomLoss(*args, **kwargs):
     elif len(args) == 3:  # model_output, aux, 和 mask
         aux = args[1]
         loss_2 = L(aux, mask)
-        loss_3 = Subtraction_plot(model_output, mask)
-        total_loss = loss_1 * (1 - alpha) + loss_2 * alpha + loss_3 * alpha
+        total_loss = loss_1 * (1 - alpha) + loss_2 * alpha 
     else:
         raise ValueError("Unsupported number of arguments")
     
