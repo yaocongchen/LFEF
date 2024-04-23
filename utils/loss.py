@@ -5,12 +5,14 @@ import numpy as np
 from skimage.metrics import structural_similarity
 from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
 import torchvision.models as models
+import segmentation_models_pytorch as smp
 
 alpha = 0.4
 lambda_reg = 0.2
 
 S = nn.Sigmoid()
 L = nn.BCELoss(reduction="mean")
+smp_loss = smp.losses.DiceLoss(mode="binary")
 
 
 # def Sigmoid_IoU(
@@ -198,15 +200,14 @@ def CustomLoss(*args, **kwargs):
     mask = args[-1] 
     
     # dice_loss = dice_coef(model_output, mask)
-    loss_1 = L(model_output, mask)
+    loss_1 = smp_loss(model_output, mask)
 
     if len(args) == 2:  # 只有 model_output 和 mask
         total_loss = loss_1
     elif len(args) == 3:  # model_output, aux, 和 mask
         aux = args[1]
-        loss_2 = L(aux, mask)
-        loss_3 = dice_coef(model_output, mask)
-        total_loss = loss_1 * (1 - alpha) + loss_2 * (alpha/2) + loss_3 * (alpha/2)
+        loss_2 = smp_loss(aux, mask)
+        total_loss = loss_1 * (1 - alpha) + loss_2 * (alpha/2)
     else:
         raise ValueError("Unsupported number of arguments")
     
