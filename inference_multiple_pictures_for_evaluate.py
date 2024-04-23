@@ -10,6 +10,7 @@ from torchvision.io import read_image
 from PIL import Image, ImageOps ,ImageDraw, ImageFont
 import numpy as np
 import matplotlib.pyplot as plt
+import segmentation_models_pytorch as smp
 
 import utils
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
@@ -148,10 +149,14 @@ def smoke_segmentation(directory: str, model: str, device: torch.device, names: 
 
         smoke_input_image = load_and_process_image_torch(os.path.join(images_dir, filename), device, transform)
         mask_input_image = load_and_process_image_torch(os.path.join(masks_dir, filename), device, transform)
+        mask_input_image = mask_input_image.long()
 
         output, aux = smoke_semantic(smoke_input_image, model, device, time_train, i)
 
-        iou = utils.metrics.IoU(output, mask_input_image)
+        # iou = utils.metrics.IoU(output, mask_input_image)
+        tp, fp, fn, tn = smp.metrics.get_stats(output, mask_input_image, mode='binary', threshold=0.5)
+        iou = smp.metrics.iou_score(tp, fp, fn, tn, reduction='micro')
+        mask_input_image = mask_input_image.float()
         customssim = utils.metrics.ssim_val(output, mask_input_image)
         hd = utils.metrics.Sobel_hausdorffDistance_metric(output, mask_input_image, device)
         dice = utils.metrics.dice_coef(output, mask_input_image)

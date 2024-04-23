@@ -11,6 +11,7 @@ import time
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 import wandb
+import segmentation_models_pytorch as smp
 
 import utils
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model
@@ -55,14 +56,17 @@ def smoke_segmentation(model, device, names, args):
     pbar = tqdm((testing_data_loader), total=len(testing_data_loader))
     for RGB_image, mask_image in pbar:
         img_image = RGB_image.to(device)
-        mask_image = mask_image.to(device)
+        mask_image = mask_image.to(device).long()
 
         with torch.no_grad():
             output, aux = smoke_semantic(img_image, model, device, time_train, i)
 
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        iou = utils.metrics.IoU(output, mask_image)
+        tp, fp, fn, tn = smp.metrics.get_stats(output, mask_image, mode='binary', threshold=0.5)
+        iou = smp.metrics.iou_score(tp, fp, fn, tn, reduction='micro')
+        # iou = utils.metrics.IoU(output, mask_image)
+        mask_image = mask_image.float()
         customssim = utils.metrics.ssim_val(output, mask_image)
         hd = utils.metrics.Sobel_hausdorffDistance_metric(output, mask_image, device)
 

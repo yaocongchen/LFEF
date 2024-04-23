@@ -12,7 +12,7 @@ lambda_reg = 0.2
 
 S = nn.Sigmoid()
 L = nn.BCELoss(reduction="mean")
-smp_loss = smp.losses.TverskyLoss(mode = 'binary')
+smp_loss = smp.losses.LovaszLoss(mode='binary')
 
 
 # def Sigmoid_IoU(
