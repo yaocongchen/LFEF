@@ -6,7 +6,7 @@ from skimage.metrics import structural_similarity
 from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
 import torchvision.models as models
 
-alpha = 0.2
+alpha = 0.4
 lambda_reg = 0.2
 
 S = nn.Sigmoid()
@@ -205,7 +205,8 @@ def CustomLoss(*args, **kwargs):
     elif len(args) == 3:  # model_output, aux, 和 mask
         aux = args[1]
         loss_2 = L(aux, mask)
-        total_loss = loss_1 * (1 - alpha) + loss_2 * alpha 
+        loss_3 = dice_coef(model_output, mask)
+        total_loss = loss_1 * (1 - alpha) + loss_2 * (alpha/2) + loss_3 * (alpha/2)
     else:
         raise ValueError("Unsupported number of arguments")
     
