@@ -207,7 +207,7 @@ def CustomLoss(*args, **kwargs):
     elif len(args) == 3:  # model_output, aux, 和 mask
         aux = args[1]
         loss_2 = smp_loss(aux, mask)
-        total_loss = loss_1 * (1 - alpha) + loss_2 * (alpha/2)
+        total_loss = loss_1 * (1 - alpha) + loss_2 * (alpha)
     else:
         raise ValueError("Unsupported number of arguments")
     
