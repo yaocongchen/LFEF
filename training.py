@@ -23,7 +23,7 @@ def train_epoch(args, model, training_data_loader, device, optimizer, epoch):
     # for iteration,(img_image, mask_image) in enumerate(training_data_loader):
     for RGB_image, mask_image in pbar:
         img_image = RGB_image.to(device)
-        mask_image = mask_image.to(device).long()
+        mask_image = mask_image.to(device)
         # onnx_img_image = img_image
 
         img_image = img_image.requires_grad_(True)
@@ -44,8 +44,10 @@ def train_epoch(args, model, training_data_loader, device, optimizer, epoch):
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
         
         loss = utils.loss.CustomLoss(output,aux, mask_image)
+        mask_image = mask_image.long()
         tp, fp, fn, tn = smp.metrics.get_stats(output, mask_image, mode='binary', threshold=0.5)
         iou = smp.metrics.iou_score(tp, fp, fn, tn, reduction='micro')
+        mask_image = mask_image.float()
         # iou = utils.metrics.IoU(output, mask_image)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
@@ -100,15 +102,17 @@ def valid_epoch(args ,model, validation_data_loader, device, epoch):
     pbar = tqdm((validation_data_loader), total=len(validation_data_loader))
     for RGB_image, mask_image in pbar:
         img_image = RGB_image.to(device)
-        mask_image = mask_image.to(device).long()
+        mask_image = mask_image.to(device)
         onnx_img_image = img_image
 
         with torch.no_grad():
             output, aux = model(img_image)
 
         loss = utils.loss.CustomLoss(output, mask_image)
+        mask_image = mask_image.long()
         tp, fp, fn, tn = smp.metrics.get_stats(output, mask_image, mode='binary', threshold=0.5)
         iou = smp.metrics.iou_score(tp, fp, fn, tn, reduction='micro')
+        mask_image = mask_image.float()
         # iou = utils.metrics.IoU(output, mask_image)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)

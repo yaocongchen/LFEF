@@ -149,11 +149,11 @@ def smoke_segmentation(directory: str, model: str, device: torch.device, names: 
 
         smoke_input_image = load_and_process_image_torch(os.path.join(images_dir, filename), device, transform)
         mask_input_image = load_and_process_image_torch(os.path.join(masks_dir, filename), device, transform)
-        mask_input_image = mask_input_image.long()
 
         output, aux = smoke_semantic(smoke_input_image, model, device, time_train, i)
 
         # iou = utils.metrics.IoU(output, mask_input_image)
+        mask_input_image = mask_input_image.long()
         tp, fp, fn, tn = smp.metrics.get_stats(output, mask_input_image, mode='binary', threshold=0.5)
         iou = smp.metrics.iou_score(tp, fp, fn, tn, reduction='micro')
         mask_input_image = mask_input_image.float()

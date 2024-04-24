@@ -200,13 +200,13 @@ def CustomLoss(*args, **kwargs):
     mask = args[-1] 
     
     # dice_loss = dice_coef(model_output, mask)
-    loss_1 = smp_loss(model_output, mask)
+    loss_1 = L(model_output, mask)
 
     if len(args) == 2:  # 只有 model_output 和 mask
         total_loss = loss_1
     elif len(args) == 3:  # model_output, aux, 和 mask
         aux = args[1]
-        loss_2 = smp_loss(aux, mask)
+        loss_2 = L(aux, mask)
         total_loss = loss_1 * (1 - alpha) + loss_2 * alpha
     else:
         raise ValueError("Unsupported number of arguments")
