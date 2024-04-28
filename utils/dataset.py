@@ -23,18 +23,6 @@ IMG_SCALING = (1, 1)
 #     rgb_final = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
 #     return rgb_final
 
-def add_noise(image):
-    # 生成高斯雜訊
-    mean = 0
-    var = 10
-    sigma = var ** 0.5
-    gaussian = np.random.normal(mean, sigma, image.shape) 
-
-    # 將高斯雜訊添加到影像上
-    noisy_image = np.clip(image + gaussian, 0, 255).astype(np.uint8)
-
-    return noisy_image
-
 
 def split_list(lst, ratio=0.8):
     split_index = int(len(lst) * ratio)
@@ -99,7 +87,7 @@ class DatasetSegmentation(Dataset):
         masks_path = y
 
         c_img = imread(images_path)
-        c_img = add_noise(c_img)
+        # c_img = cv2_brightness_augment(c_img)
 
         c_mask = imread(masks_path)
 
