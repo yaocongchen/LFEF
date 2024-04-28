@@ -902,11 +902,7 @@ if __name__ == "__main__":
     x = torch.randn(16, 3, 256, 256)
     output,aux = model(x)
     # print(output.shape)
-<<<<<<< HEAD
     summary(model,input_data=x,verbose=1)
     # print(output.shape)
     #print(aux.shape)
     # print(output.shape)
-=======
-    summary(model,input_data=x,verbose=1)
->>>>>>> parent of 209c961 (git test1)
