@@ -903,4 +903,3 @@ if __name__ == "__main__":
     output,aux = model(x)
     # print(output.shape)
     summary(model,input_data=x,verbose=1)
-    print(output.shape)
