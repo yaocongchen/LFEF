@@ -224,7 +224,7 @@ if __name__ == '__main__':
 
 
     out = model_vgg16(x)
-    print(out.shape)
+    # print(out.shape)
     f1 = torch.sum(out, dim=[2, 3])
     #print(f1.shape)
   
