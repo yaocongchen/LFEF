@@ -87,7 +87,6 @@ class DatasetSegmentation(Dataset):
         masks_path = y
 
         c_img = imread(images_path)
-        c_img = cv2.cvtColor(c_img, cv2.COLOR_BGR2GRAY)
         # c_img = cv2_brightness_augment(c_img)
 
         c_mask = imread(masks_path)
@@ -103,12 +102,11 @@ class DatasetSegmentation(Dataset):
         c_img = c_img / 255.0
         # c_img = c_img * 2 - 1 # Normalized 歸一化[-1,1]
 
-        out_gray = torch.from_numpy(c_img).float()
-        out_gray = out_gray.unsqueeze(2)
+        out_rgb = torch.from_numpy(c_img).float()
         out_mask = torch.from_numpy(c_mask).float()
 
         return (
-            out_gray.permute(2, 0, 1).contiguous(),
+            out_rgb.permute(2, 0, 1).contiguous(),
             out_mask.permute(2, 0, 1).contiguous(),
         )
 
