@@ -41,6 +41,54 @@ def channel_shuffle(x, groups):
 
     return x
 
+class SpatialTransformerNet(nn.Module):
+    def __init__(self, in_chs, stn_hw=16):
+        super().__init__()
+        self.in_chs = in_chs
+        self.stn_hw = stn_hw
+        # 定位网络
+        self.localization = nn.Sequential(
+            # 初始输入尺寸: [batch_size, 3, 256, 256]
+            nn.Conv2d(in_chs, in_chs*2, kernel_size=7, padding=3),
+            nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 8, 128, 128]
+            nn.ReLU(True),
+            
+            nn.Conv2d(in_chs*2, in_chs, kernel_size=5, padding=2),
+            nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 16, 64, 64]
+            nn.ReLU(True),
+            
+            # nn.Conv2d(16, 32, kernel_size=3, padding=1),
+            # nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 32, 32, 32]
+            # nn.ReLU(True),
+            
+            # nn.Conv2d(32, 32, kernel_size=3, padding=1),
+            # nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 32, 16, 16]
+            # nn.ReLU(True),
+        )
+        
+        # 透过全连接层预测仿射变换参数θ
+        self.fc_loc = nn.Sequential(
+            nn.Linear(in_chs * self.stn_hw * self.stn_hw, 128),
+            nn.ReLU(True),
+            nn.Linear(128, 3 * 2)
+        )
+
+        # 使用标识变换初始化权重/偏置
+        self.fc_loc[2].weight.data.zero_()
+        self.fc_loc[2].bias.data.copy_(torch.tensor([1, 0, 0, 0, 1, 0], dtype=torch.float))
+
+    def forward(self, x):
+        in_chs = self.in_chs
+        stn_hw = self.stn_hw
+        xs = self.localization(x)
+        xs = xs.view(-1, in_chs * stn_hw * stn_hw)
+        theta = self.fc_loc(xs)
+        theta = theta.view(-1, 2, 3)
+        
+        grid = F.affine_grid(theta, x.size(), align_corners=False)
+        x = F.grid_sample(x, grid, align_corners=False)
+        return x
+    
 class ConvINReLU(nn.Module):
     def __init__(self, nIn, nOut, kSize, stride=1):
         """
@@ -379,7 +427,7 @@ class ContextGuidedBlock_Down(nn.Module):
     the size of feature map divided 2, (H,W,C)---->(H/2, W/2, 2C)
     """
 
-    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16):
+    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16, stn_hw = 16):
         """
         args:
            nIn: the channel of input feature map
@@ -387,16 +435,17 @@ class ContextGuidedBlock_Down(nn.Module):
         """
         super().__init__()
         self.conv1x1 = ConvINReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
-        
-        self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
-        self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 3)
+        n = nOut // 2
+        self.stn = SpatialTransformerNet(n, stn_hw)
+        self.F_loc = ChannelWiseConv(n, n, 3, 1)
+        self.F_sur = ChannelWiseDilatedConv(n, n, 3, 1, 3)
         # self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 5)
         # self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 7)
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
-        self.in_norm = nn.InstanceNorm2d(2 * nOut, affine=True)
-        self.act = nn.ReLU(2 * nOut)
-        self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+        self.in_norm = nn.InstanceNorm2d(4 * n, affine=True)
+        self.act = nn.ReLU(4 * n)
+        self.reduce = Conv(4 * n, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.F_glo = FGlo(nOut, reduction)
 
@@ -408,12 +457,19 @@ class ContextGuidedBlock_Down(nn.Module):
 
     def forward(self, input):
         output = self.conv1x1(input)
-        loc = self.F_loc(output)
-        sur = self.F_sur(output)
+        x1, x2 = channel_split(output)
+        loc_x1 = self.F_loc(x1)
+        sur_x1 = self.F_sur(x1)
+
+        x2 = self.stn(x2)
+        loc_x2 = self.F_loc(x2)
+        sur_x2 = self.F_sur(x2)
+
+
         # sur_4 = self.F_sur_4(output)
         # sur_8 = self.F_sur_8(output)
 
-        joi_feat = torch.cat([loc, sur], 1)  #  the joint feature
+        joi_feat = torch.cat([loc_x1, sur_x1, loc_x2, sur_x2], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
         joi_feat = self.in_norm(joi_feat)
@@ -709,7 +765,7 @@ class Net(nn.Module):
 
         # stage 2
         self.level2_0 = ContextGuidedBlock_Down(
-            32, 64,dilation_rate=2, reduction=8
+            32, 64,dilation_rate=2, reduction=8, stn_hw=16
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -722,7 +778,7 @@ class Net(nn.Module):
 
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
-            64, 128, dilation_rate=4, reduction=16
+            64, 128, dilation_rate=4, reduction=16, stn_hw=8
         )
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
@@ -743,17 +799,17 @@ class Net(nn.Module):
             self.classifier = nn.Sequential(Conv(3, classes, 1, 1))
 
 
-        # # init weights
-        # for m in self.modules():
-        #     classname = m.__class__.__name__
-        #     if classname.find("Conv2d") != -1:
-        #         nn.init.kaiming_normal_(m.weight)
-        #         if m.bias is not None:
-        #             m.bias.data.zero_()
-        #         elif classname.find("ConvTranspose2d") != -1:
-        #             nn.init.kaiming_normal_(m.weight)
-        #             if m.bias is not None:
-        #                 m.bias.data.zero_()
+        # init weights
+        for m in self.modules():
+            classname = m.__class__.__name__
+            if classname.find("Conv2d") != -1:
+                nn.init.kaiming_normal_(m.weight)
+                if m.bias is not None:
+                    m.bias.data.zero_()
+                elif classname.find("ConvTranspose2d") != -1:
+                    nn.init.kaiming_normal_(m.weight)
+                    if m.bias is not None:
+                        m.bias.data.zero_()
         
 
         # self.external_attention = ExternalAttention(d_model=64)
