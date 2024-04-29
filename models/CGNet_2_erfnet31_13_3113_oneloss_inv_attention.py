@@ -41,6 +41,50 @@ def channel_shuffle(x, groups):
 
     return x
 
+class SpatialTransformerNet(nn.Module):
+    def __init__(self):
+        super(SpatialTransformerNet, self).__init__()
+        # 定位网络
+        self.localization = nn.Sequential(
+            # 初始输入尺寸: [batch_size, 3, 256, 256]
+            nn.Conv2d(32, 8, kernel_size=7, padding=3),
+            nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 8, 128, 128]
+            nn.ReLU(True),
+            
+            nn.Conv2d(8, 16, kernel_size=5, padding=2),
+            nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 16, 64, 64]
+            nn.ReLU(True),
+            
+            nn.Conv2d(16, 32, kernel_size=3, padding=1),
+            nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 32, 32, 32]
+            nn.ReLU(True),
+            
+            nn.Conv2d(32, 32, kernel_size=3, padding=1),
+            nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 32, 16, 16]
+            nn.ReLU(True),
+        )
+        
+        # 透过全连接层预测仿射变换参数θ
+        self.fc_loc = nn.Sequential(
+            nn.Linear(32 * 16 * 16, 128),
+            nn.ReLU(True),
+            nn.Linear(128, 3 * 2)
+        )
+
+        # 使用标识变换初始化权重/偏置
+        self.fc_loc[2].weight.data.zero_()
+        self.fc_loc[2].bias.data.copy_(torch.tensor([1, 0, 0, 0, 1, 0], dtype=torch.float))
+
+    def forward(self, x):
+        xs = self.localization(x)
+        xs = xs.view(-1, 32 * 16 * 16)
+        theta = self.fc_loc(xs)
+        theta = theta.view(-1, 2, 3)
+        
+        grid = F.affine_grid(theta, x.size(), align_corners=False)
+        x = F.grid_sample(x, grid, align_corners=False)
+        return x
+    
 class ConvINReLU(nn.Module):
     def __init__(self, nIn, nOut, kSize, stride=1):
         """
@@ -387,7 +431,8 @@ class ContextGuidedBlock_Down(nn.Module):
         """
         super().__init__()
         self.conv1x1 = ConvINReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
-        
+        self.stn = SpatialTransformerNet()
+        nOut = nOut // 2
         self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
         self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 3)
         # self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 5)
@@ -408,8 +453,15 @@ class ContextGuidedBlock_Down(nn.Module):
 
     def forward(self, input):
         output = self.conv1x1(input)
-        loc = self.F_loc(output)
-        sur = self.F_sur(output)
+        x1, x2 = channel_split(output)
+        loc_x1 = self.F_loc(x1)
+        sur_x1 = self.F_sur(x1)
+
+        x2 = self.stn(x2)
+        loc_x2 = self.F_loc(x2)
+        sur_x2 = self.F_sur(x2)
+
+
         # sur_4 = self.F_sur_4(output)
         # sur_8 = self.F_sur_8(output)
 
