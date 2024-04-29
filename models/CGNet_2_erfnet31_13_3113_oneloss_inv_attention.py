@@ -42,31 +42,32 @@ def channel_shuffle(x, groups):
     return x
 
 class SpatialTransformerNet(nn.Module):
-    def __init__(self):
-        super(SpatialTransformerNet, self).__init__()
+    def __init__(self, in_chs):
+        super().__init__()
+        self.in_chs = in_chs
         # 定位网络
         self.localization = nn.Sequential(
             # 初始输入尺寸: [batch_size, 3, 256, 256]
-            nn.Conv2d(32, 8, kernel_size=7, padding=3),
+            nn.Conv2d(in_chs, in_chs*2, kernel_size=7, padding=3),
             nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 8, 128, 128]
             nn.ReLU(True),
             
-            nn.Conv2d(8, 16, kernel_size=5, padding=2),
+            nn.Conv2d(in_chs*2, in_chs, kernel_size=5, padding=2),
             nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 16, 64, 64]
             nn.ReLU(True),
             
-            nn.Conv2d(16, 32, kernel_size=3, padding=1),
-            nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 32, 32, 32]
-            nn.ReLU(True),
+            # nn.Conv2d(16, 32, kernel_size=3, padding=1),
+            # nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 32, 32, 32]
+            # nn.ReLU(True),
             
-            nn.Conv2d(32, 32, kernel_size=3, padding=1),
-            nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 32, 16, 16]
-            nn.ReLU(True),
+            # nn.Conv2d(32, 32, kernel_size=3, padding=1),
+            # nn.MaxPool2d(2, stride=2), # 输出: [batch_size, 32, 16, 16]
+            # nn.ReLU(True),
         )
         
         # 透过全连接层预测仿射变换参数θ
         self.fc_loc = nn.Sequential(
-            nn.Linear(32 * 16 * 16, 128),
+            nn.Linear(in_chs * 16 * 16, 128),
             nn.ReLU(True),
             nn.Linear(128, 3 * 2)
         )
@@ -76,8 +77,9 @@ class SpatialTransformerNet(nn.Module):
         self.fc_loc[2].bias.data.copy_(torch.tensor([1, 0, 0, 0, 1, 0], dtype=torch.float))
 
     def forward(self, x):
+        in_chs = self.in_chs
         xs = self.localization(x)
-        xs = xs.view(-1, 32 * 16 * 16)
+        xs = xs.view(-1, in_chs * 16 * 16)
         theta = self.fc_loc(xs)
         theta = theta.view(-1, 2, 3)
         
@@ -431,17 +433,17 @@ class ContextGuidedBlock_Down(nn.Module):
         """
         super().__init__()
         self.conv1x1 = ConvINReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
-        self.stn = SpatialTransformerNet()
-        nOut = nOut // 2
-        self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
-        self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 3)
+        n = nOut // 2
+        self.stn = SpatialTransformerNet(n)
+        self.F_loc = ChannelWiseConv(n, n, 3, 1)
+        self.F_sur = ChannelWiseDilatedConv(n, n, 3, 1, 3)
         # self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 5)
         # self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 7)
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
-        self.in_norm = nn.InstanceNorm2d(2 * nOut, affine=True)
-        self.act = nn.ReLU(2 * nOut)
-        self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+        self.in_norm = nn.InstanceNorm2d(4 * n, affine=True)
+        self.act = nn.ReLU(4 * n)
+        self.reduce = Conv(4 * n, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.F_glo = FGlo(nOut, reduction)
 
@@ -465,7 +467,7 @@ class ContextGuidedBlock_Down(nn.Module):
         # sur_4 = self.F_sur_4(output)
         # sur_8 = self.F_sur_8(output)
 
-        joi_feat = torch.cat([loc, sur], 1)  #  the joint feature
+        joi_feat = torch.cat([loc_x1, sur_x1, loc_x2, sur_x2], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
         joi_feat = self.in_norm(joi_feat)
