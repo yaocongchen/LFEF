@@ -741,20 +741,7 @@ class Net(nn.Module):
             )
         else:
             self.classifier = nn.Sequential(Conv(3, classes, 1, 1))
-
-
-        # init weights
-        for m in self.modules():
-            classname = m.__class__.__name__
-            if classname.find("Conv2d") != -1:
-                nn.init.kaiming_normal_(m.weight)
-                if m.bias is not None:
-                    m.bias.data.zero_()
-                elif classname.find("ConvTranspose2d") != -1:
-                    nn.init.kaiming_normal_(m.weight)
-                    if m.bias is not None:
-                        m.bias.data.zero_()
-        
+ 
 
         # self.external_attention = ExternalAttention(d_model=64)
         # self.conv_64_to_128 = nn.Conv2d(64, 128, kernel_size=1, stride=1, padding=0, bias=True)
@@ -784,6 +771,18 @@ class Net(nn.Module):
 #================================================================================================#
         
         self.sigmoid = nn.Sigmoid()
+
+        # init weights
+        for m in self.modules():
+            classname = m.__class__.__name__
+            if classname.find("Conv2d") != -1:
+                nn.init.kaiming_normal_(m.weight)
+                if m.bias is not None:
+                    m.bias.data.zero_()
+                elif classname.find("ConvTranspose2d") != -1:
+                    nn.init.kaiming_normal_(m.weight)
+                    if m.bias is not None:
+                        m.bias.data.zero_()
 
     def forward(self, input):
         """
