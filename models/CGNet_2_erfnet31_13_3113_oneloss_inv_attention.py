@@ -639,7 +639,7 @@ class BrightnessAdjustment(nn.Module):
         return output
 class GRUCell(nn.Module):
     def __init__(self, input_size, hidden_size):
-        super(GRUCell, self).__init__()
+        super().__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.update_gate = nn.Conv2d(input_size + hidden_size, hidden_size, 1)
@@ -784,6 +784,14 @@ class Net(nn.Module):
                 nn.init.kaiming_normal_(m.weight)
                 if m.bias is not None:
                     m.bias.data.zero_()
+            elif classname.find("Linear") != -1:
+                nn.init.kaiming_normal_(m.weight)
+                if m.bias is not None:
+                    m.bias.data.zero_()
+            elif classname.find("InstanceNorm2d") != -1:
+                if m.affine:
+                    nn.init.normal_(m.weight, mean=1, std=0.02)
+                    nn.init.constant_(m.bias, 0)
                         
     def forward(self, input):
         """
