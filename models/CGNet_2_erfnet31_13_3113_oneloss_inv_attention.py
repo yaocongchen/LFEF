@@ -681,7 +681,7 @@ class Net(nn.Module):
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
 
-    def __init__(self, classes=1, M=3, N=3, dropout_flag=False):
+    def __init__(self, classes=1, M=3, N=21, dropout_flag=False):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
@@ -784,10 +784,10 @@ class Net(nn.Module):
                 nn.init.kaiming_normal_(m.weight)
                 if m.bias is not None:
                     m.bias.data.zero_()
-            elif classname.find("Linear") != -1:
-                nn.init.kaiming_normal_(m.weight)
-                if m.bias is not None:
-                    m.bias.data.zero_()
+            # elif classname.find("Linear") != -1:
+            #     nn.init.kaiming_normal_(m.weight)
+            #     if m.bias is not None:
+            #         m.bias.data.zero_()
             # elif classname.find("InstanceNorm2d") != -1:
             #     if m.affine:
             #         nn.init.normal_(m.weight, mean=1, std=0.02)
