@@ -681,7 +681,7 @@ class Net(nn.Module):
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """
 
-    def __init__(self, classes=1, M=3, N=21, dropout_flag=False):
+    def __init__(self, classes=1, M=3, N=3, dropout_flag=False):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
@@ -703,7 +703,8 @@ class Net(nn.Module):
 
 
         self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
-        self.gru_cell = GRUCell(32, 32)
+        # self.gru_cell = GRUCell(32, 32)
+        self.attention_module = AttentionModule(32)
         self.in_relu_stage1 = INReLU(32)
 
 
@@ -784,10 +785,10 @@ class Net(nn.Module):
                 nn.init.kaiming_normal_(m.weight)
                 if m.bias is not None:
                     m.bias.data.zero_()
-            # elif classname.find("Linear") != -1:
-            #     nn.init.kaiming_normal_(m.weight)
-            #     if m.bias is not None:
-            #         m.bias.data.zero_()
+            elif classname.find("Linear") != -1:
+                nn.init.kaiming_normal_(m.weight)
+                if m.bias is not None:
+                    m.bias.data.zero_()
             # elif classname.find("InstanceNorm2d") != -1:
             #     if m.affine:
             #         nn.init.normal_(m.weight, mean=1, std=0.02)
@@ -810,6 +811,8 @@ class Net(nn.Module):
         stage1_output = self.level1_1(stage1_output)
         stage1_output = self.level1_2(stage1_output)
 
+        stage1_output = self.attention_module(stage1_output)
+
         # inp1 = self.sample1(input)
         # inp2 = self.sample2(input)
 
@@ -818,13 +821,16 @@ class Net(nn.Module):
 
         # input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
+        inverted_output = self.attention_module(inverted_output)
 
-        gru_output = self.gru_cell(stage1_output, inverted_output)
-        gru_output = self.in_relu_stage1(gru_output)
+        
+        # gru_output = self.gru_cell(stage1_output, inverted_output)
+        attention_output = stage1_output + inverted_output
+        attention_output = self.in_relu_stage1(attention_output)
 
 
         # stage 2
-        initial_stage2_output = self.level2_0(gru_output)  # down-sampled
+        initial_stage2_output = self.level2_0(attention_output)  # down-sampled
 
         for i, layer in enumerate(self.level2):
             if i == 0:
@@ -893,8 +899,8 @@ class Net(nn.Module):
         # convolved_stage2_output = F.layer_norm(convolved_stage2_output, convolved_stage2_output.size()[1:])
         # convolved_stage2_output = self.sigmoid(convolved_stage2_output)
 
-        # stage2_mul_stage1_output = torch.cat([convolved_stage2_output, gru_output], 1)
-        stage2_add_stage1_output = convolved_stage2_output + gru_output
+        # stage2_mul_stage1_output = torch.cat([convolved_stage2_output, attention_output], 1)
+        stage2_add_stage1_output = convolved_stage2_output + attention_output
         upsample_stage1_output = self.upsample_to_256x256(stage2_add_stage1_output)
         convolved_stage1_output = self.conv_32_to_1(upsample_stage1_output)
         convolved_stage1_output = self.conv_32_to_1_IN(convolved_stage1_output)
