@@ -71,7 +71,7 @@ def parse_arguments():
     ap.add_argument(
         "-validation_dataset",
         "--validation_dataset_path",
-        default="Host_DS01",
+        default="Host_DS0123",
         help="use test dataset path",
     )
 

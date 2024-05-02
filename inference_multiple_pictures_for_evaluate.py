@@ -10,6 +10,7 @@ from torchvision.io import read_image
 from PIL import Image, ImageOps ,ImageDraw, ImageFont
 import numpy as np
 import matplotlib.pyplot as plt
+import segmentation_models_pytorch as smp
 
 import utils
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
@@ -32,6 +33,7 @@ def folders_and_files_name():
     names = {
         "smoke_semantic_dir_name": create_directory("multiple_result"),
         "smoke_semantic_image_name": "smoke_semantic_image",
+        "smoke_semantic_aux_name": "smoke_semantic_aux",
         "image_overlap_dir_name": create_directory("multiple_overlap"),
         "image_overlap_name": "image_overlap",
         "image_overlap_masks_dir_name": create_directory("multiple_overlap_masks"),
@@ -45,61 +47,29 @@ def folders_and_files_name():
     return names
 
 iou_list = []
+
+
+def load_and_process_image_with_border(path, size=(256, 256), border=5):
+    img = Image.open(path)
+    img = img.resize(size)
+    img = ImageOps.expand(img, border, "#ffffff")
+    return img
 # Merge all resulting images 合併所有產生之圖像
 def image_stitching(input_image, filename_no_extension, names, mask_image, iou_np, customssim_np, hd_np, dice_np):
-    bg = Image.new(
-        "RGB", (605, 980), "#000000"
-    )  # Produces a 1200 x 300 all black image 產生一張 1200x300 的全黑圖片
-    # Load two images 載入兩張影像
-    img1 = Image.open(input_image)
-    img2 = Image.open(mask_image)
-    img3 = Image.open(
-        f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png'
-    )
-    img4 = Image.open(
-        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg'
-    )
-    img5 = Image.open(
-        f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png'
-    )
+    bg = Image.new("RGB", (905, 980), "#000000")
 
-    # Check if the two images are the same size 檢查兩張影像大小是否一致
-    # print(img1.size)
-    # print(img2.size)
+    img1 = load_and_process_image_with_border(input_image)
+    img2 = load_and_process_image_with_border(mask_image)
+    img3 = load_and_process_image_with_border(f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png')
+    img4 = load_and_process_image_with_border(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg')
+    img5 = load_and_process_image_with_border(f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png')
+    img6 = load_and_process_image_with_border(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg')
+    img7 = load_and_process_image_with_border(f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}_aux.png')
 
-    # Specify target image size 指定目標圖片大小
-    imgSize = (256, 256)
 
-    # Change image size 改變影像大小
-    img1 = img1.resize(imgSize)
-    img2 = img2.resize(imgSize)
-    img3 = img3.resize(imgSize)
-    img4 = img4.resize(imgSize)
-    img5 = img5.resize(imgSize)
-
-    img1 = ImageOps.expand(
-        img1, 5, "#ffffff"
-    )  # Dilates edges, producing borders 擴張邊緣，產生邊框
-    img2 = ImageOps.expand(
-        img2, 5, "#ffffff"
-    )  # Dilates edges, producing borders 擴張邊緣，產生邊框
-    img3 = ImageOps.expand(
-        img3, 5, "#ffffff"
-    )  # Dilates edges, producing borders 擴張邊緣，產生邊框
-    img4 = ImageOps.expand(
-        img4, 5, "#ffffff"
-    )  # Dilates edges, producing borders 擴張邊緣，產生邊框
-    img5 = ImageOps.expand(
-        img5, 5, "#ffffff"
-    )  # Dilates edges, producing borders 擴張邊緣，產生邊框
-
-    # 創建一個繪圖對象
     draw = ImageDraw.Draw(bg)
-
-    # 選擇一種字體和字體大小
     font = ImageFont.truetype("/usr/share/fonts/truetype/ubuntu/Ubuntu-BI.ttf", 20)
 
-    # 在圖像上添加文字 顏色為紅色
     draw.text((230, 5), "Original Image", fill=(255, 255, 255), font=font)
     bg.paste(img1, (170, 40))
 
@@ -111,103 +81,95 @@ def image_stitching(input_image, filename_no_extension, names, mask_image, iou_n
     bg.paste(img4, (320, 350))
     bg.paste(img5, (320, 630))
 
+    draw.text((670, 320), "Auxiliary Output", fill=(255, 255, 255), font=font)
+    bg.paste(img6, (620, 350))
+    bg.paste(img7, (620, 630))
+
 
     draw.text((230, 910), "IoU:  " + str(iou_np) + "%", fill=(255, 255, 255), font=font)
-    # draw.text((230, 930), "SSIM: " + str(customssim_np) + "%", fill=(255, 255, 255), font=font)
-    # draw.text((230, 950), "HD:   " + str(hd_np), fill=(255, 255, 255), font=font)
     draw.text((230, 930), "Dice: " + str(dice_np), fill=(255, 255, 255), font=font)
 
-    bg.save(
-        f'./results/{names["image_stitching_dir_name"]}/{names["image_stitching_name"]}_{filename_no_extension}.jpg'
-    )
+    bg.save(f'./results/{names["image_stitching_dir_name"]}/{names["image_stitching_name"]}_{filename_no_extension}.jpg')
     if iou_np < 20:
-        bg.save(
-        f'./results/{names["image_stitching_dir_down_name"]}/{names["image_stitching_down_name"]}_{filename_no_extension}.jpg'
-        )
-
+        bg.save(f'./results/{names["image_stitching_dir_down_name"]}/{names["image_stitching_down_name"]}_{filename_no_extension}.jpg')
 
     return
 
-
+def load_and_process_image_rgba(path, size=(256, 256)):
+    img = Image.open(path)
+    img = img.convert("RGBA")
+    img = img.resize(size)
+    return img
 # The trained feature map is fuse d with the original image 訓練出的特徵圖融合原圖
 def image_overlap(input_image, filename_no_extension, names, mask_image):
-    img1 = Image.open(input_image)
-    img1 = img1.convert("RGBA")
-    img2 = Image.open(
+    img1 = load_and_process_image_rgba(input_image)
+    img2 = load_and_process_image_rgba(
         f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg'
     )
-    img3 = Image.open(mask_image)
-
-    # # img2 to binarization img2轉二值化
-    # binary_image = image_process.gray_to_binary(img2)
-
-    # binary_image.save(
-    #     f'./results/{names["image_binary_dir_name"]}/{names["image_binary_name"]}_{filename_no_extension}.jpg'
-    # )
-
-    img2 = img2.convert("RGBA")
-    img3 = img3.convert("RGBA")
-
-    # Specify target image size 指定目標圖片大小
-    imgSize = (256, 256)
-
-    # Change image size 改變影像大小
-    img1 = img1.resize(imgSize)
-    img2 = img2.resize(imgSize)
-    img3 = img3.resize(imgSize)
+    img3 = load_and_process_image_rgba(mask_image)
+    img4 = load_and_process_image_rgba(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg')
 
     blendImage = image_process.overlap_v2(img1, img2, read_method="PIL_RGBA")
     blendImage_mask = image_process.overlap_v2(img1, img3, read_method="PIL_RGBA")
+    blendImage_aux = image_process.overlap_v2(img1, img4, read_method="PIL_RGBA")
 
-    # Display image 顯示影像
-    # blendImage.show()
     blendImage.save(
         f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png'
     )
     blendImage_mask.save(
         f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png'
     )
+    blendImage_aux.save(
+        f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}_aux.png'
+    )
 
     return
 
 
+def load_and_process_image_torch(path, device, transform):
+    img = read_image(path).to(device)
+    img = transform(img)
+    img = img / 255.0
+    img = img.unsqueeze(0).to(device)
+    return img
 # Main function 主函式
-def smoke_segmentation(
-    directory: str, model: str, device: torch.device, names: dict, time_train, i
-):
+def smoke_segmentation(directory: str, model: str, device: torch.device, names: dict, time_train, i):
     n_element = 0
     mean_miou = 0
     images_dir = os.path.join(directory,"images")
     masks_dir = os.path.join(directory,"masks")
+
+    transform = transforms.Resize([256, 256],antialias=True)
 
     pbar = tqdm((os.listdir(images_dir)), total=len(os.listdir(images_dir)))
     filename = sorted(os.listdir(images_dir), key=lambda name: int(name.split('.')[0]))
 
     for filename in pbar:
         filename_no_extension = os.path.splitext(filename)[0] 
-        smoke_input_image = read_image(os.path.join(images_dir, filename)).to(device)
-        transform = transforms.Resize([256, 256],antialias=True)
 
-        smoke_input_image = transform(smoke_input_image)
-        smoke_input_image = (smoke_input_image) / 255.0
-        smoke_input_image = smoke_input_image.unsqueeze(0).to(device)
-
-        mask_input_image = read_image(os.path.join(masks_dir, filename)).to(device)
-        mask_input_image = transform(mask_input_image)
-        mask_input_image = (mask_input_image) / 255.0
-        mask_input_image = mask_input_image.unsqueeze(0).to(device)
+        smoke_input_image = load_and_process_image_torch(os.path.join(images_dir, filename), device, transform)
+        mask_input_image = load_and_process_image_torch(os.path.join(masks_dir, filename), device, transform)
 
         output, aux = smoke_semantic(smoke_input_image, model, device, time_train, i)
 
-        iou = utils.metrics.IoU(output, mask_input_image)
+        # iou = utils.metrics.IoU(output, mask_input_image)
+        mask_input_image = mask_input_image.long()
+        tp, fp, fn, tn = smp.metrics.get_stats(output, mask_input_image, mode='binary', threshold=0.5)
+        iou = smp.metrics.iou_score(tp, fp, fn, tn, reduction='micro')
+        mask_input_image = mask_input_image.float()
         customssim = utils.metrics.ssim_val(output, mask_input_image)
         hd = utils.metrics.Sobel_hausdorffDistance_metric(output, mask_input_image, device)
         dice = utils.metrics.dice_coef(output, mask_input_image)
 
         output = (output > 0.5).float()
+        aux = (aux > 0.5).float()
         torchvision.utils.save_image(
             output,
             f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg',
+        )
+        torchvision.utils.save_image(
+            aux,
+            f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg',
         )
 
         image_overlap(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename))

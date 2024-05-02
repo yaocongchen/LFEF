@@ -11,6 +11,7 @@ import time
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 import wandb
+import segmentation_models_pytorch as smp
 
 import utils
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model
@@ -22,12 +23,6 @@ from utils.metrics import report_fps_and_time
 model_name = str(network_model)
 print("model_name:", model_name)
 
-
-outputs = []
-# 設置一個函數來處理中間層的輸出
-def hook_fn(module, input, output):
-    # print(f"Output shape of intermediate layer: {output.shape}")
-    outputs.append(output)
 
 # Main function 主函式
 def smoke_segmentation(model, device, names, args):
@@ -63,22 +58,16 @@ def smoke_segmentation(model, device, names, args):
         img_image = RGB_image.to(device)
         mask_image = mask_image.to(device)
 
-        # 註冊 hook 到模型的中間層
-        # handle = model.main_net.conv11_128.register_forward_hook(hook_fn)
         with torch.no_grad():
             output, aux = smoke_semantic(img_image, model, device, time_train, i)
-        # feature = check_feature.check_feature(32)
-        # print("output.shape:", outputs[0].shape )
 
-        # print("outputs.shape:", type(outputs[0]))
-        # feature = check_feature.check_feature(1).to(device)
-        # feat = feature(outputs[0])
-
-        # # 移除 hook
-        # handle.remove()
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        iou = utils.metrics.IoU(output, mask_image)
+        mask_image = mask_image.long()
+        tp, fp, fn, tn = smp.metrics.get_stats(output, mask_image, mode='binary', threshold=0.5)
+        iou = smp.metrics.iou_score(tp, fp, fn, tn, reduction='micro')
+        mask_image = mask_image.float()
+        # iou = utils.metrics.IoU(output, mask_image)
         customssim = utils.metrics.ssim_val(output, mask_image)
         hd = utils.metrics.Sobel_hausdorffDistance_metric(output, mask_image, device)
 
@@ -106,7 +95,6 @@ def smoke_segmentation(model, device, names, args):
             (RGB_image, "test_RGB_image"),
             (mask_image, "test_mask_image"),
             (output, "test_output"),
-            # (feat, "test_check_feature"),  # Uncomment this line if you want to include 'feat'
         ]
 
         for image, label in images_and_labels:

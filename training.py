@@ -6,6 +6,7 @@ import wandb
 import utils.loss
 import utils.metrics
 import utils
+import segmentation_models_pytorch as smp
 
 def train_epoch(args, model, training_data_loader, device, optimizer, epoch):
     model.train()
@@ -25,12 +26,7 @@ def train_epoch(args, model, training_data_loader, device, optimizer, epoch):
         mask_image = mask_image.to(device)
         # onnx_img_image = img_image
 
-        img_image = Variable(
-            img_image, requires_grad=True
-        )  # Variable storage data supports almost all tensor operations, requires_grad=True: Derivatives can be obtained, and the backwards method can be used to calculate and accumulate gradients
-        mask_image = Variable(
-            mask_image, requires_grad=True
-        )  # Variable存放資料支援幾乎所有的tensor操作,requires_grad=True:可求導數，方可使用backwards的方法計算並累積梯度
+        img_image = img_image.requires_grad_(True)
 
         output, aux = model(img_image)
 
@@ -46,9 +42,13 @@ def train_epoch(args, model, training_data_loader, device, optimizer, epoch):
         
 
         optimizer.zero_grad()  # Clear before loss.backward() to avoid gradient residue 在loss.backward()前先清除，避免梯度殘留
-
+        
         loss = utils.loss.CustomLoss(output,aux, mask_image)
-        iou = utils.metrics.IoU(output, mask_image)
+        mask_image = mask_image.long()
+        tp, fp, fn, tn = smp.metrics.get_stats(output, mask_image, mode='binary', threshold=0.5)
+        iou = smp.metrics.iou_score(tp, fp, fn, tn, reduction='micro')
+        mask_image = mask_image.float()
+        # iou = utils.metrics.IoU(output, mask_image)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
 
@@ -109,7 +109,11 @@ def valid_epoch(args ,model, validation_data_loader, device, epoch):
             output, aux = model(img_image)
 
         loss = utils.loss.CustomLoss(output, mask_image)
-        iou = utils.metrics.IoU(output, mask_image)
+        mask_image = mask_image.long()
+        tp, fp, fn, tn = smp.metrics.get_stats(output, mask_image, mode='binary', threshold=0.5)
+        iou = smp.metrics.iou_score(tp, fp, fn, tn, reduction='micro')
+        mask_image = mask_image.float()
+        # iou = utils.metrics.IoU(output, mask_image)
         # iou_s = utils.metrics.Sigmoid_IoU(output, mask_image)
         # dice_coef = utils.metrics.dice_coef(output, mask_image, device)
 
