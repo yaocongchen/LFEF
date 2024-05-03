@@ -666,14 +666,14 @@ class AttentionModule(nn.Module):
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         self.conv = nn.Conv2d(in_channels*2, in_channels, 1, bias=True)
-        self.sigmoid = nn.Sigmoid()
+        self.relu = nn.ReLU()
 
     def forward(self, x):
         avg_out = self.avg_pool(x)
         max_out = self.max_pool(x)
         out = torch.cat([avg_out, max_out], dim=1)
         out = self.conv(out)
-        return self.sigmoid(out)
+        return self.relu(out)
 
 
 class Net(nn.Module):
@@ -785,14 +785,14 @@ class Net(nn.Module):
                 nn.init.kaiming_normal_(m.weight)
                 if m.bias is not None:
                     m.bias.data.zero_()
-            # elif classname.find("Linear") != -1:
-            #     nn.init.kaiming_normal_(m.weight)
-            #     if m.bias is not None:
-            #         m.bias.data.zero_()
-            # elif classname.find("InstanceNorm2d") != -1:
-            #     if m.affine:
-            #         nn.init.normal_(m.weight, mean=1, std=0.02)
-            #         nn.init.constant_(m.bias, 0)
+            elif classname.find("Linear") != -1:
+                nn.init.kaiming_normal_(m.weight)
+                if m.bias is not None:
+                    m.bias.data.zero_()
+            elif classname.find("InstanceNorm2d") != -1:
+                if m.affine:
+                    nn.init.normal_(m.weight, mean=1, std=0.02)
+                    nn.init.constant_(m.bias, 0)
                         
     def forward(self, input):
         """
