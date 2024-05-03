@@ -14,7 +14,7 @@ import torch.onnx
 
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
 from utils.main_setup_utils import set_save_dir_names, create_model_state_dict, time_processing, wandb_information, parse_arguments
-from utils.check_GPU import check_have_GPU, check_number_of_GPUs
+from utils.check_GPU import check_have_GPU, check_number_of_GPUs, set_seed
 from utils.metrics import Calculate
 from data_processing import data_processing_train_8_val_DS01
 from training import train_epoch, valid_epoch
@@ -26,10 +26,13 @@ onnx_img_image = []
 model_name = str(network_model)
 print("model_name:", model_name)
 
+seed = 42
+
 def main():
     train_images, train_masks, training_data_loader, validation_data_loader = data_processing_train_8_val_DS01(args)
 
     save_mean_miou = 0
+    set_seed(seed)
     check_have_GPU(args)
     
     cudnn.enabled = True  # The cudnn function library assists in acceleration(if you encounter a problem with the architecture, please turn it off)
