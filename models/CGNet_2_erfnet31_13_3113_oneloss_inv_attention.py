@@ -789,10 +789,10 @@ class Net(nn.Module):
                 nn.init.kaiming_normal_(m.weight)
                 if m.bias is not None:
                     m.bias.data.zero_()
-            elif classname.find("InstanceNorm2d") != -1:
-                if m.affine:
-                    nn.init.normal_(m.weight, mean=1, std=0.02)
-                    nn.init.constant_(m.bias, 0)
+            # elif classname.find("InstanceNorm2d") != -1:
+            #     if m.affine:
+            #         nn.init.normal_(m.weight, mean=1, std=0.02)
+            #         nn.init.constant_(m.bias, 0)
                         
     def forward(self, input):
         """
