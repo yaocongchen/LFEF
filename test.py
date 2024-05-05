@@ -140,6 +140,8 @@ if __name__ == "__main__":
     model_size = c.get_model_size()
     flops, params = c.get_params()
 
+    print(f"model path: {args['model_path']}")
+    
     # wandb.ai
     if args["wandb_name"] != "no":
         wandb_information(model_name, model_size, flops, params,args)
