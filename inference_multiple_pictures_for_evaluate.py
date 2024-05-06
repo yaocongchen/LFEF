@@ -95,31 +95,33 @@ def image_stitching(input_image, filename_no_extension, names, mask_image, iou_n
 
     return
 
-def load_and_process_image_rgba(path, size=(256, 256)):
+def load_and_process_image_rgba(path, size=(256, 256), gray=False):
     img = Image.open(path)
-    img = img.convert("RGBA")
+    if gray:
+        img = img.convert("L")
     img = img.resize(size)
+    img = np.array(img, dtype=np.int32)
     return img
 # The trained feature map is fuse d with the original image 訓練出的特徵圖融合原圖
 def image_overlap(input_image, filename_no_extension, names, mask_image):
     img1 = load_and_process_image_rgba(input_image)
     img2 = load_and_process_image_rgba(
-        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg'
+        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg', gray=True
     )
-    img3 = load_and_process_image_rgba(mask_image)
-    img4 = load_and_process_image_rgba(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg')
+    img3 = load_and_process_image_rgba(mask_image, gray=True)
+    img4 = load_and_process_image_rgba(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg', gray=True)
 
-    blendImage = image_process.overlap_v2(img1, img2, read_method="PIL_RGBA")
-    blendImage_mask = image_process.overlap_v2(img1, img3, read_method="PIL_RGBA")
-    blendImage_aux = image_process.overlap_v2(img1, img4, read_method="PIL_RGBA")
+    blendImage = image_process.overlap_v3(img1, img2, read_method="PIL_RGBA")
+    blendImage_mask = image_process.overlap_v3(img1, img3, read_method="PIL_RGBA")
+    blendImage_aux = image_process.overlap_v3(img1, img4, read_method="PIL_RGBA")
 
-    blendImage.save(
+    Image.fromarray(blendImage).save(
         f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png'
     )
-    blendImage_mask.save(
+    Image.fromarray(blendImage_mask).save(
         f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png'
     )
-    blendImage_aux.save(
+    Image.fromarray(blendImage_aux).save(
         f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}_aux.png'
     )
 
