@@ -1,4 +1,5 @@
 from PIL import Image
+import numpy as np
 
 
 def gray_to_binary(image):
@@ -77,3 +78,25 @@ def overlap_v2(image1, image2, read_method):
                 image.putpixel(dot, color_1)
 
     return image
+
+
+def overlap_v3(image1: np.ndarray, mask: np.ndarray, read_method):
+    # white_mask = (255, 255, 255, 255)
+    image = image1.copy()
+    if read_method == "PIL_RGBA":
+        color_fn = lambda x: np.add(x[mask_idx], np.array([255, 0, 0]))
+    elif read_method == "OpenCV_BGRA":
+        color_fn = lambda x: np.add(x[mask_idx], np.array([0, 0, 255]))
+
+    mask_idx = mask == 255
+    image[mask_idx] = color_fn(image) 
+    image = np.clip(image, 0, 255).astype(np.uint8) 
+    return image
+
+if __name__ == "__main__":
+    image1 = np.array(Image.open("/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/1_1.jpg"), dtype=np.int32)
+    image2 = np.array(Image.open("/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/gt/1_1.png"), dtype=np.int32)
+    blendImg = overlap_v3(image1, image2, "PIL_RGBA")
+    Image.fromarray(blendImg).show()
+    Image.fromarray(blendImg).save("blendImg_1.png")
+    print("overlap_v3 done")
