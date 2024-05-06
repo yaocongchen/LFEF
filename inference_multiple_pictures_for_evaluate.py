@@ -197,6 +197,7 @@ if __name__ == "__main__":
     ap.add_argument("-m", "--model_path", required=True, help="load model path")
     args = vars(ap.parse_args())
 
+    print(f"test directory: {args['test_directory']}")  # test directory 測試目錄
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print(f"inference_multiple_Dataset on device {device}.")
 
@@ -250,6 +251,8 @@ if __name__ == "__main__":
     save_path = f'./results/{names["image_stitching_dir_name"]}/IoU_histogram.png'
     plt.savefig(save_path)
 
+    print(f"mIoU: {miou:.2f}%")
+    print(f"update time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}")
 
     with open(f"./results/{names['image_stitching_dir_name']}/log.txt", "w") as f:
         f.write(f"{model_name}\n"

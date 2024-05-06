@@ -140,6 +140,8 @@ if __name__ == "__main__":
     model_size = c.get_model_size()
     flops, params = c.get_params()
 
+    print(f"model path: {args['model_path']}")
+    
     # wandb.ai
     if args["wandb_name"] != "no":
         wandb_information(model_name, model_size, flops, params,args)
@@ -154,6 +156,9 @@ if __name__ == "__main__":
     time_end = time.time()
     total_image = len(os.listdir(args["test_images"]))
     fps, time_min, time_sec = report_fps_and_time(total_image, time_start, time_end)
+
+    print(f"loss: {Avg_loss:.4f}")
+    print(f"mIoU: {Avg_miou:.2f}%")
     
     # wandb.ai
     if args["wandb_name"] != "no":
