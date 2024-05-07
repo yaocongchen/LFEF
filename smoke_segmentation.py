@@ -49,7 +49,7 @@ def smoke_segmentation(args,device):
             )
         elif extension in [".mp4", ".avi"]:
             binary_mode = True
-            blend_image = True
+            overlap_image = True
             if args["video_to_frames"] == "yes":
                 names = inference_video_to_frames.folders_and_files_name()
                 inference_video_to_frames.smoke_segmentation(
@@ -57,8 +57,7 @@ def smoke_segmentation(args,device):
                     model,
                     device,
                     names,
-                    binary_mode,
-                    blend_image,
+                    overlap_image,
                     time_train,
                     i,
                 )
@@ -68,7 +67,7 @@ def smoke_segmentation(args,device):
                     model,
                     device,
                     binary_mode,
-                    blend_image,
+                    overlap_image,
                     args["save_video"],
                     args["show_video"],
                     time_train,
@@ -76,7 +75,7 @@ def smoke_segmentation(args,device):
                 )
         elif root in ["0"]:  # camera
             binary_mode = True
-            blend_image = False
+            overlap_image = False
             if args["video_to_frames"] == "yes":
                 names = inference_video_to_frames.folders_and_files_name()
                 inference_video_to_frames.smoke_segmentation(
@@ -84,8 +83,7 @@ def smoke_segmentation(args,device):
                     model,
                     device,
                     names,
-                    binary_mode,
-                    blend_image,
+                    overlap_image,
                     time_train,
                     i,
                 )
@@ -95,7 +93,7 @@ def smoke_segmentation(args,device):
                     model,
                     device,
                     binary_mode,
-                    blend_image,
+                    overlap_image,
                     args["save_video"],
                     args["show_video"],
                     time_train,
