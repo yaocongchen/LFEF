@@ -13,82 +13,50 @@ import visualization_codes.utils.image_process as image_process
 # import visualization_codes.process_utils_cython_version.image_process_utils_cython as image_process
 
 
-def timeit(func):
-    def warp(*args, **kwargs):
-        start = time.time()
-        func(*args, **kwargs)
-        print(f"{func.__name__} time cost: {time.time()- start}")
-
-    return warp
-
-
 def files_name():
     # Set archive name 設定存檔名稱
     if not os.path.exists("./" + "results"):
         os.makedirs("./" + "results")
     save_smoke_semantic_image_name = "./results/smoke_semantic"
-    save_image_binary_name = "./results/binary"
     save_image_overlap_name = "./results/image_overlap"
     save_image_stitching_name = "./results/image_stitching"
 
     names = {}
     names["smoke_semantic_image_name"] = save_smoke_semantic_image_name
-    names["image_binary_name"] = save_image_binary_name
     names["image_overlap_name"] = save_image_overlap_name
     names["image_stitching_name"] = save_image_stitching_name
 
     return names
 
+def load_and_process_image(input_image, size=(256, 256)):
+    if isinstance(input_image, str):
+        img = Image.open(input_image)
+    else:
+        img = transforms.ToPILImage()(input_image)
+    img = img.resize(size)
+    img = ImageOps.expand(img, 20, "#ffffff")
+    return img
 
 # Merge all resulting images 合併所有產生之圖像
 def image_stitching(input_image, names):
-    bg = Image.new("RGB", (900, 300), "#000000")  # 產生一張 600x300 的全黑圖片
-    # Load two images 載入兩張影像
-    if type(input_image) == str:
-        img1 = Image.open(input_image)
-    else:
-        # numpy to pil
-        img1 = transforms.ToPILImage()(input_image)
-    img2 = Image.open(names["smoke_semantic_image_name"] + ".jpg")
-    img3 = Image.open(names["image_overlap_name"] + ".png")
-
-    # Check if the two images are the same size 檢查兩張影像大小是否一致
-    # print(img1.size)
-    # print(img2.size)
-
-    # Specify target image size 指定目標圖片大小
-    imgSize = (256, 256)
-
-    # Change image size 改變影像大小
-    img1 = img1.resize(imgSize)
-    img2 = img2.resize(imgSize)
-    img3 = img3.resize(imgSize)
-
-    img1 = ImageOps.expand(
-        img1, 20, "#ffffff"
-    )  # Dilates edges, producing borders 擴張邊緣，產生邊框
-    img2 = ImageOps.expand(
-        img2, 20, "#ffffff"
-    )  # Dilates edges, producing borders 擴張邊緣，產生邊框
-    img3 = ImageOps.expand(
-        img3, 20, "#ffffff"
-    )  # Dilates edges, producing borders 擴張邊緣，產生邊框
+    bg = Image.new("RGB", (900, 300), "#000000")
+    img1 = load_and_process_image(input_image)
+    img2 = load_and_process_image(names["smoke_semantic_image_name"] + ".jpg")
+    img3 = load_and_process_image(names["image_overlap_name"] + ".png")
 
     bg.paste(img1, (0, 0))
     bg.paste(img2, (300, 0))
     bg.paste(img3, (600, 0))
 
-    # bg.show()
     bg.save(names["image_stitching_name"] + ".jpg")
 
     return
 
 # The trained feature map is fused with the original image 訓練出的特徵圖融合原圖
 def image_overlap(input_image, names):
-    if type(input_image) == str:
+    if isinstance(input_image, str):
         img1 = Image.open(input_image)
     else:
-        # numpy to pil
         img1 = transforms.ToPILImage()(input_image)
     img2 = Image.open(f'{names["smoke_semantic_image_name"]}.jpg')
 
@@ -111,11 +79,6 @@ def smoke_segmentation(
     if type(input) == str:
         smoke_input_image = read_image(input)
     else:
-        # pil to numpy
-        # smoke_input_image = transforms.ToPILImage()(input)
-        # turn pil jpeg to Tensor
-        # smoke_input_image = transforms.ToTensor()(smoke_input_image)
-        # numpy to Tensor
         smoke_input_image = torch.from_numpy(input).float()
         smoke_input_image = smoke_input_image.permute(2, 0, 1).contiguous()
 
