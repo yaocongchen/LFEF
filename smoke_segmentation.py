@@ -21,7 +21,6 @@ def smoke_segmentation(args,device):
 
     model.eval()
 
-
     source = args["source"]
 
     time_train = []
@@ -48,7 +47,6 @@ def smoke_segmentation(args,device):
                 args["source"], model, device, names, time_train, i
             )
         elif extension in [".mp4", ".avi"]:
-            binary_mode = True
             overlap_image = True
             if args["video_to_frames"] == "yes":
                 names = inference_video_to_frames.folders_and_files_name()
@@ -66,7 +64,6 @@ def smoke_segmentation(args,device):
                     args["source"],
                     model,
                     device,
-                    binary_mode,
                     overlap_image,
                     args["save_video"],
                     args["show_video"],
@@ -74,7 +71,6 @@ def smoke_segmentation(args,device):
                     i,
                 )
         elif root in ["0"]:  # camera
-            binary_mode = True
             overlap_image = False
             if args["video_to_frames"] == "yes":
                 names = inference_video_to_frames.folders_and_files_name()
@@ -92,7 +88,6 @@ def smoke_segmentation(args,device):
                     args["source"],
                     model,
                     device,
-                    binary_mode,
                     overlap_image,
                     args["save_video"],
                     args["show_video"],

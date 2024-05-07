@@ -76,7 +76,7 @@ def image_overlap(input_image, names):
 def smoke_segmentation(
     input: str, model: str, device: torch.device, names: dict, time_train, i
 ):
-    if type(input) == str:
+    if isinstance(input, str):
         smoke_input_image = read_image(input)
     else:
         smoke_input_image = torch.from_numpy(input).float()

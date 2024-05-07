@@ -17,7 +17,7 @@ import visualization_codes.utils.image_process as image_process
 
 
 def create_directory(dir_name):
-    path = f"./results/{dir_name}"
+    path = f"./results/process_folder/{dir_name}"
     if os.path.exists(path):
         shutil.rmtree(path)
     os.makedirs(path)
@@ -51,15 +51,15 @@ def image_stitching(input_image, i, names):
     bg = Image.new("RGB", (900, 300), "#000000")
     image_paths = [
         input_image,
-        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg',
-        f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{i}.png'
+        f'./results/process_folder/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg',
+        f'./results/process_folder/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{i}.png'
     ]
 
     for idx, image_path in enumerate(image_paths):
         img = load_and_process_image(image_path)
         bg.paste(img, (300 * idx, 0))
 
-    bg.save(f'./results/{names["image_stitching_dir_name"]}/{names["image_stitching_name"]}_{i}.jpg')
+    bg.save(f'./results/process_folder/{names["image_stitching_dir_name"]}/{names["image_stitching_name"]}_{i}.jpg')
 
     return
 
@@ -67,7 +67,7 @@ def image_stitching(input_image, i, names):
 def image_overlap(input_image, i, names):
     img1 = Image.open(input_image)
     img2 = Image.open(
-        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg'
+        f'./results/process_folder/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg'
     )
 
     img1 = image_process.process_pil_to_np(img1, gray=False)
@@ -78,7 +78,7 @@ def image_overlap(input_image, i, names):
     # Display image 顯示影像
     # blendImage.show()
     Image.fromarray(blendImage).save(
-        f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{i}.png'
+        f'./results/process_folder/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{i}.png'
     )
 
     return
@@ -101,7 +101,7 @@ def smoke_segmentation(
         i += 1
         torchvision.utils.save_image(
             output,
-            f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg',
+            f'./results/process_folder/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg',
         )
         image_overlap(os.path.join(directory, filename), i, names)
         image_stitching(os.path.join(directory, filename), i, names)
