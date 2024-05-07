@@ -80,6 +80,14 @@ def overlap_v2(image1, image2, read_method):
     return image
 
 
+def load_and_process_image(path, size=(256, 256), gray=False):
+    img = Image.open(path)
+    if gray:
+        img = img.convert("L")
+    img = img.resize(size)
+    img = np.array(img, dtype=np.int32)
+    return img
+
 def overlap_v3(image1: np.ndarray, mask: np.ndarray, read_method):
     # white_mask = (255, 255, 255, 255)
     image = image1.copy()

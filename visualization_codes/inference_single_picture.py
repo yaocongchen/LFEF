@@ -87,6 +87,12 @@ def image_stitching(input_image, names):
 
     return
 
+def load_and_process_image(image, size=(256, 256), gray=False):
+    if gray:
+        image = image.convert("L")
+    image = image.resize(size)
+    image = np.array(image, dtype=np.float32)
+    return image
 
 # The trained feature map is fused with the original image 訓練出的特徵圖融合原圖
 def image_overlap(input_image, names):

@@ -130,13 +130,13 @@ def load_and_process_image(image, size=(256, 256), gray=False):
     if gray:
         image = image.convert("L")
     image = image.resize(size)
-    image = np.array(image, dytpe=np.float32)
+    image = np.array(image, dtype=np.float32)
     return image
 
 # The trained feature map is fuse d with the original image 訓練出的特徵圖融合原圖
 def image_overlap(input_image, i, names):
     img1 = Image.open(input_image)
-    img1 = img1.convert("RGBA")
+    # img1 = img1.convert("RGBA")
     img2 = Image.open(
         f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg'
     )
@@ -151,11 +151,11 @@ def image_overlap(input_image, i, names):
     img1 = load_and_process_image(img1, gray=False)
     img2 = load_and_process_image(img2, gray=True)
     
-    blendImage = image_process.overlap_v2(img1, img2, read_method="PIL_RGBA")
+    blendImage = image_process.overlap_v3(img1, img2, read_method="PIL_RGBA")
 
     # Display image 顯示影像
     # blendImage.show()
-    blendImage.save(
+    Image.fromarray(blendImage).save(
         f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{i}.png'
     )
 
