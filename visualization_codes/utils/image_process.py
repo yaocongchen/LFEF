@@ -86,7 +86,6 @@ def overlap_v2(image1, image2, read_method):
     return image
 
 def overlap_v3(image1: np.ndarray, mask: np.ndarray, read_method):
-    # white_mask = (255, 255, 255, 255)
     image = image1.copy()
     if read_method == "PIL_RGBA":
         color_fn = lambda x: np.add(x[mask_idx], np.array([255, 0, 0]))
