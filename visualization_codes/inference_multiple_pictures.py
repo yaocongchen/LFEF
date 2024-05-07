@@ -16,140 +16,62 @@ import visualization_codes.utils.image_process as image_process
 # import visualization_codes.process_utils_cython_version.image_process_utils_cython as image_process
 
 
+def create_directory(dir_name):
+    path = f"./results/{dir_name}"
+    if os.path.exists(path):
+        shutil.rmtree(path)
+    os.makedirs(path)
+
 def folders_and_files_name():
-    # Set save folder and save name 設定存檔資料夾與存檔名稱
-    save_smoke_semantic_dir_name = "multiple_result"
-    if os.path.exists("./results/" + save_smoke_semantic_dir_name):
-        shutil.rmtree(
-            "./results/" + save_smoke_semantic_dir_name
-        )  # Delete the original folder and content 將原有的資料夾與內容刪除
-        os.makedirs(
-            "./results/" + save_smoke_semantic_dir_name
-        )  # Create new folder 創建新的資料夾
-    else:
-        # if not os.path.exists("./" + save_smoke_semantic_dir_name):
-        os.makedirs("./results/" + save_smoke_semantic_dir_name)
-    save_smoke_semantic_image_name = "smoke_semantic_image"
+    dir_names = ["multiple_result", "multiple_overlap", "multiple_stitching"]
+    image_names = ["smoke_semantic_image", "image_overlap", "image_stitching"]
 
-    save_image_binary_dir_name = "multiple_binary"
-    if os.path.exists("./results/" + save_image_binary_dir_name):
-        shutil.rmtree("./results/" + save_image_binary_dir_name)
-        os.makedirs("./results/" + save_image_binary_dir_name)
-    else:
-        # if not os.path.exists("./" + save_image_binary_dir_name):
-        os.makedirs("./results/" + save_image_binary_dir_name)
-    save_image_binary_name = "binary"
+    for dir_name in dir_names:
+        create_directory(dir_name)
 
-    save_image_overlap_dir_name = "multiple_overlap"
-    if os.path.exists("./results/" + save_image_overlap_dir_name):
-        shutil.rmtree("./results/" + save_image_overlap_dir_name)
-        os.makedirs("./results/" + save_image_overlap_dir_name)
-    else:
-        # if not os.path.exists("./" + save_image_overlap_dir_name):
-        os.makedirs("./results/" + save_image_overlap_dir_name)
-    save_image_overlap_name = "image_overlap"
-
-    save_image_stitching_dir_name = "multiple_stitching"
-    if os.path.exists("./results/" + save_image_stitching_dir_name):
-        shutil.rmtree("./results/" + save_image_stitching_dir_name)
-        os.makedirs("./results/" + save_image_stitching_dir_name)
-    else:
-        # if not os.path.exists("./" + save_image_stitching_dir_name):
-        os.makedirs("./results/" + save_image_stitching_dir_name)
-    save_image_stitching_name = "image_stitching"
-
-    names = {}
-    names["smoke_semantic_dir_name"] = save_smoke_semantic_dir_name
-    names["smoke_semantic_image_name"] = save_smoke_semantic_image_name
-    names["image_binary_dir_name"] = save_image_binary_dir_name
-    names["image_binary_name"] = save_image_binary_name
-    names["image_overlap_dir_name"] = save_image_overlap_dir_name
-    names["image_overlap_name"] = save_image_overlap_name
-    names["image_stitching_dir_name"] = save_image_stitching_dir_name
-    names["image_stitching_name"] = save_image_stitching_name
+    names = {
+        "smoke_semantic_dir_name": dir_names[0],
+        "smoke_semantic_image_name": image_names[0],
+        "image_overlap_dir_name": dir_names[1],
+        "image_overlap_name": image_names[1],
+        "image_stitching_dir_name": dir_names[2],
+        "image_stitching_name": image_names[2],
+    }
 
     return names
 
+def load_and_process_image(image_path, size=(256, 256)):
+    img = Image.open(image_path)
+    img = img.resize(size)
+    img = ImageOps.expand(img, 20, "#ffffff")
+    return img
 
 # Merge all resulting images 合併所有產生之圖像
 def image_stitching(input_image, i, names):
-    bg = Image.new(
-        "RGB", (1200, 300), "#000000"
-    )  # Produces a 1200 x 300 all black image 產生一張 1200x300 的全黑圖片
-    # Load two images 載入兩張影像
-    img1 = Image.open(input_image)
-    img2 = Image.open(
-        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg'
-    )
-    img3 = Image.open(
-        f'./results/{names["image_binary_dir_name"]}/{names["image_binary_name"]}_{i}.jpg'
-    )
-    img4 = Image.open(
+    bg = Image.new("RGB", (900, 300), "#000000")
+    image_paths = [
+        input_image,
+        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg',
         f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{i}.png'
-    )
+    ]
 
-    # Check if the two images are the same size 檢查兩張影像大小是否一致
-    # print(img1.size)
-    # print(img2.size)
+    for idx, image_path in enumerate(image_paths):
+        img = load_and_process_image(image_path)
+        bg.paste(img, (300 * idx, 0))
 
-    # Specify target image size 指定目標圖片大小
-    imgSize = (256, 256)
-
-    # Change image size 改變影像大小
-    img1 = img1.resize(imgSize)
-    img2 = img2.resize(imgSize)
-    img3 = img3.resize(imgSize)
-    img4 = img4.resize(imgSize)
-
-    img1 = ImageOps.expand(
-        img1, 20, "#ffffff"
-    )  # Dilates edges, producing borders 擴張邊緣，產生邊框
-    img2 = ImageOps.expand(
-        img2, 20, "#ffffff"
-    )  # Dilates edges, producing borders 擴張邊緣，產生邊框
-    img3 = ImageOps.expand(
-        img3, 20, "#ffffff"
-    )  # Dilates edges, producing borders 擴張邊緣，產生邊框
-    img4 = ImageOps.expand(
-        img4, 20, "#ffffff"
-    )  # Dilates edges, producing borders 擴張邊緣，產生邊框
-
-    bg.paste(img1, (0, 0))
-    bg.paste(img2, (300, 0))
-    bg.paste(img3, (600, 0))
-    bg.paste(img4, (900, 0))
-
-    # bg.show()
-    bg.save(
-        f'./results/{names["image_stitching_dir_name"]}/{names["image_stitching_name"]}_{i}.jpg'
-    )
+    bg.save(f'./results/{names["image_stitching_dir_name"]}/{names["image_stitching_name"]}_{i}.jpg')
 
     return
-
-def load_and_process_image(image, size=(256, 256), gray=False):
-    if gray:
-        image = image.convert("L")
-    image = image.resize(size)
-    image = np.array(image, dtype=np.float32)
-    return image
 
 # The trained feature map is fuse d with the original image 訓練出的特徵圖融合原圖
 def image_overlap(input_image, i, names):
     img1 = Image.open(input_image)
-    # img1 = img1.convert("RGBA")
     img2 = Image.open(
         f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg'
     )
 
-    # img2 to binarization img2轉二值化
-    binary_image = image_process.gray_to_binary(img2)
-
-    binary_image.save(
-        f'./results/{names["image_binary_dir_name"]}/{names["image_binary_name"]}_{i}.jpg'
-    )
-
-    img1 = load_and_process_image(img1, gray=False)
-    img2 = load_and_process_image(img2, gray=True)
+    img1 = image_process.process_pil_to_np(img1, gray=False)
+    img2 = image_process.process_pil_to_np(img2, gray=True)
     
     blendImage = image_process.overlap_v3(img1, img2, read_method="PIL_RGBA")
 
