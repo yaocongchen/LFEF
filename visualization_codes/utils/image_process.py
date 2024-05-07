@@ -1,6 +1,12 @@
 from PIL import Image
 import numpy as np
 
+def process_pil_to_np(image, size=(256, 256), gray=False):
+    if gray:
+        image = image.convert("L")
+    image = image.resize(size)
+    image = np.array(image, dtype=np.int32)
+    return image
 
 def gray_to_binary(image):
     gray = image.convert("L")
@@ -79,9 +85,7 @@ def overlap_v2(image1, image2, read_method):
 
     return image
 
-
 def overlap_v3(image1: np.ndarray, mask: np.ndarray, read_method):
-    # white_mask = (255, 255, 255, 255)
     image = image1.copy()
     if read_method == "PIL_RGBA":
         color_fn = lambda x: np.add(x[mask_idx], np.array([255, 0, 0]))
