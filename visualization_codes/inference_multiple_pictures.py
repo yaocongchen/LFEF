@@ -4,6 +4,7 @@ import os
 import argparse
 import time
 import shutil
+import numpy as np
 from tqdm import tqdm
 from torchvision import transforms
 from torchvision.io import read_image
@@ -125,6 +126,12 @@ def image_stitching(input_image, i, names):
 
     return
 
+def load_and_process_image(image, size=(256, 256), gray=False):
+    if gray:
+        image = image.convert("L")
+    image = image.resize(size)
+    image = np.array(image, dytpe=np.float32)
+    return image
 
 # The trained feature map is fuse d with the original image 訓練出的特徵圖融合原圖
 def image_overlap(input_image, i, names):
@@ -141,15 +148,9 @@ def image_overlap(input_image, i, names):
         f'./results/{names["image_binary_dir_name"]}/{names["image_binary_name"]}_{i}.jpg'
     )
 
-    img2 = binary_image.convert("RGBA")
-
-    # Specify target image size 指定目標圖片大小
-    imgSize = (256, 256)
-
-    # Change image size 改變影像大小
-    img1 = img1.resize(imgSize)
-    img2 = img2.resize(imgSize)
-
+    img1 = load_and_process_image(img1, gray=False)
+    img2 = load_and_process_image(img2, gray=True)
+    
     blendImage = image_process.overlap_v2(img1, img2, read_method="PIL_RGBA")
 
     # Display image 顯示影像
