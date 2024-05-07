@@ -23,7 +23,7 @@ model_name = str(network_model)
 print("model_name:", model_name)
 
 def create_directory(directory_name):
-    directory_path = f"./results/{directory_name}"
+    directory_path = f"./results/evaluate_folder/{directory_name}"
     if os.path.exists(directory_path):
         shutil.rmtree(directory_path)
     os.makedirs(directory_path)
@@ -60,11 +60,11 @@ def image_stitching(input_image, filename_no_extension, names, mask_image, iou_n
 
     img1 = load_and_process_image_with_border(input_image)
     img2 = load_and_process_image_with_border(mask_image)
-    img3 = load_and_process_image_with_border(f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png')
-    img4 = load_and_process_image_with_border(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg')
-    img5 = load_and_process_image_with_border(f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png')
-    img6 = load_and_process_image_with_border(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg')
-    img7 = load_and_process_image_with_border(f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}_aux.png')
+    img3 = load_and_process_image_with_border(f'./results/evaluate_folder/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png')
+    img4 = load_and_process_image_with_border(f'./results/evaluate_folder/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg')
+    img5 = load_and_process_image_with_border(f'./results/evaluate_folder/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png')
+    img6 = load_and_process_image_with_border(f'./results/evaluate_folder/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg')
+    img7 = load_and_process_image_with_border(f'./results/evaluate_folder/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}_aux.png')
 
 
     draw = ImageDraw.Draw(bg)
@@ -89,9 +89,9 @@ def image_stitching(input_image, filename_no_extension, names, mask_image, iou_n
     draw.text((230, 910), "IoU:  " + str(iou_np) + "%", fill=(255, 255, 255), font=font)
     draw.text((230, 930), "Dice: " + str(dice_np), fill=(255, 255, 255), font=font)
 
-    bg.save(f'./results/{names["image_stitching_dir_name"]}/{names["image_stitching_name"]}_{filename_no_extension}.jpg')
+    bg.save(f'./results/evaluate_folder/{names["image_stitching_dir_name"]}/{names["image_stitching_name"]}_{filename_no_extension}.jpg')
     if iou_np < 20:
-        bg.save(f'./results/{names["image_stitching_dir_down_name"]}/{names["image_stitching_down_name"]}_{filename_no_extension}.jpg')
+        bg.save(f'./results/evaluate_folder/{names["image_stitching_dir_down_name"]}/{names["image_stitching_down_name"]}_{filename_no_extension}.jpg')
 
     return
 
@@ -99,10 +99,10 @@ def image_stitching(input_image, filename_no_extension, names, mask_image, iou_n
 def image_overlap(input_image, filename_no_extension, names, mask_image):
     img1 = Image.open(input_image)
     img2 = Image.open(
-        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg',
+        f'./results/evaluate_folder/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg',
     )
     img3 = Image.open(mask_image)
-    img4 = Image.open(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg',)
+    img4 = Image.open(f'./results/evaluate_folder/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg',)
 
     img1 = image_process.process_pil_to_np(img1, gray=False)
     img2 = image_process.process_pil_to_np(img2, gray=True)
@@ -114,13 +114,13 @@ def image_overlap(input_image, filename_no_extension, names, mask_image):
     blendImage_aux = image_process.overlap_v3(img1, img4, read_method="PIL_RGBA")
 
     Image.fromarray(blendImage).save(
-        f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png'
+        f'./results/evaluate_folder/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}.png'
     )
     Image.fromarray(blendImage_mask).save(
-        f'./results/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png'
+        f'./results/evaluate_folder/{names["image_overlap_masks_dir_name"]}/{names["image_overlap_masks_name"]}_{filename_no_extension}.png'
     )
     Image.fromarray(blendImage_aux).save(
-        f'./results/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}_aux.png'
+        f'./results/evaluate_folder/{names["image_overlap_dir_name"]}/{names["image_overlap_name"]}_{filename_no_extension}_aux.png'
     )
 
     return
@@ -165,11 +165,11 @@ def smoke_segmentation(directory: str, model: str, device: torch.device, names: 
         aux = (aux > 0.5).float()
         torchvision.utils.save_image(
             output,
-            f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg',
+            f'./results/evaluate_folder/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg',
         )
         torchvision.utils.save_image(
             aux,
-            f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg',
+            f'./results/evaluate_folder/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg',
         )
 
         image_overlap(os.path.join(images_dir, filename), filename_no_extension, names, os.path.join(masks_dir, filename))
@@ -248,13 +248,13 @@ if __name__ == "__main__":
     
     plt.title(f"IoU Histogram \n std:{std_iou:.2f}%")
     
-    save_path = f'./results/{names["image_stitching_dir_name"]}/IoU_histogram.png'
+    save_path = f'./results/evaluate_folder/IoU_histogram.png'
     plt.savefig(save_path)
 
     print(f"mIoU: {miou:.2f}%")
     print(f"update time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}")
 
-    with open(f"./results/{names['image_stitching_dir_name']}/log.txt", "w") as f:
+    with open(f"./results/evaluate_folder/log.txt", "w") as f:
         f.write(f"{model_name}\n"
                 f"test directory: {args['test_directory']}\n"
                 f"model path: {args['model_path']}\n"
