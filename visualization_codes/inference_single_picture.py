@@ -15,11 +15,10 @@ import visualization_codes.utils.image_process as image_process
 
 def files_name():
     # Set archive name 設定存檔名稱
-    if not os.path.exists("./" + "results"):
-        os.makedirs("./" + "results")
-    save_smoke_semantic_image_name = "./results/smoke_semantic"
-    save_image_overlap_name = "./results/image_overlap"
-    save_image_stitching_name = "./results/image_stitching"
+    os.makedirs("./results/process_image", exist_ok=True)
+    save_smoke_semantic_image_name = "./results/process_image/smoke_semantic"
+    save_image_overlap_name = "./results/process_image/image_overlap"
+    save_image_stitching_name = "./results/process_image/image_stitching"
 
     names = {}
     names["smoke_semantic_image_name"] = save_smoke_semantic_image_name

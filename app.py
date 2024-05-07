@@ -94,9 +94,9 @@ def process_and_display_image(model_file,image):
             time_train=time_train, 
             i=i
         )
-        smoke_semantic_image = np.array(Image.open("./results/smoke_semantic.jpg"))
-        image_stitching_image = np.array(Image.open("./results/image_stitching.jpg"))
-        image_overlap_image = np.array(Image.open("./results/image_overlap.png"))
+        smoke_semantic_image = np.array(Image.open("./results/process_image/smoke_semantic.jpg"))
+        image_stitching_image = np.array(Image.open("./results/process_image/image_stitching.jpg"))
+        image_overlap_image = np.array(Image.open("./results/process_image/image_overlap.png"))
         return smoke_semantic_image,image_stitching_image,image_overlap_image,use_model_file
     else:
         gr.Warning("Please choice your model file")
