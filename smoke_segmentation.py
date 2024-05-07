@@ -71,7 +71,7 @@ def smoke_segmentation(args,device):
                     i,
                 )
         elif root in ["0"]:  # camera
-            overlap_image = False
+            overlap_image = True
             if args["video_to_frames"] == "yes":
                 names = inference_video_to_frames.folders_and_files_name()
                 inference_video_to_frames.smoke_segmentation(

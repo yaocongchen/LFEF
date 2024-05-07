@@ -19,7 +19,7 @@ def save(video_W: int, video_H: int, video_FPS):
     save_file_name = time.strftime("%Y-%m-%d_%I:%M:%S_%p", time.localtime())
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     output = cv2.VideoWriter(
-        f"./results/process_video//{save_file_name}.mp4", fourcc, video_FPS, (video_W, video_H)
+        f"./results/process_video/{save_file_name}.mp4", fourcc, video_FPS, (video_W, video_H)
     )
     return output
 
@@ -40,13 +40,13 @@ def smoke_segmentation(
     video_path: str,
     model: str,
     device: torch.device,
-    blend_image: bool,
+    overlap_image: bool,
     save_video: str,
     show_video: str,
     time_train,
     i,
 ):
-    print("blend_image:", blend_image)
+    print("overlap_image:", overlap_image)
     print("save_video:", save_video)
     print("show_video:", show_video)
 
@@ -56,7 +56,7 @@ def smoke_segmentation(
     if video_path == "0":
         video_path = int(video_path)
     cap = cv2.VideoCapture(video_path)
-
+    
     # 設定擷取影像的尺寸大小
     video_W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     video_H = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -97,8 +97,8 @@ def smoke_segmentation(
         )  # 插值
         frame = frame.astype(np.int32)
 
-        if blend_image == True:
-            blendImage = image_process.overlap_v3(
+        if overlap_image == True:
+            overlapImage = image_process.overlap_v3(
                 frame, output_np, read_method="OpenCV_BGRA"
             )
 
@@ -108,10 +108,10 @@ def smoke_segmentation(
         start_time = time.time()
 
         if save_video == "True":
-            out.write(blendImage)
+            out.write(overlapImage)
 
         if show_video == "True":
-            cv2.imshow("frame", blendImage)
+            cv2.imshow("frame", overlapImage)
             # cv2.imshow('frame1',frame)
 
             if cv2.waitKey(1) == ord("q"):
