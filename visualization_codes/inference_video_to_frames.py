@@ -153,39 +153,39 @@ def smoke_segmentation(
         output_np = cv2.resize(
             output_np, (video_W, video_H), interpolation=cv2.INTER_AREA
         )  # 插值
-        output_np = Image.fromarray(output_np)
+        frame = frame.astype(np.int32)
 
-        # use torchvision method
-        # output_np = output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255)
-        # transform = transforms.Resize([video_H,video_W],antialias=True)    #插值
-        # output_np = transform(output_np)
+        # # use torchvision method
+        # # output_np = output.squeeze(0).mul(255).add_(0.5).clamp_(0, 255)
+        # # transform = transforms.Resize([video_H,video_W],antialias=True)    #插值
+        # # output_np = transform(output_np)
 
-        # PILtransform = transforms.ToPILImage()
-        # output_np = PILtransform(output_np)
+        # # PILtransform = transforms.ToPILImage()
+        # # output_np = PILtransform(output_np)
 
-        # output_np to binarization output_np轉二值化
-        binary_image = image_process.gray_to_binary(output_np)
-        save_binary_image = binary_image.convert("RGB")
-        save_binary_image = np.asarray(save_binary_image)
+        # # output_np to binarization output_np轉二值化
+        # binary_image = image_process.gray_to_binary(output_np)
+        # save_binary_image = binary_image.convert("RGB")
+        # save_binary_image = np.asarray(save_binary_image)
 
-        cv2.imwrite(
-            f'./results/{names["video_segmentation_dir_name"]}/{names["video_capture_image_name"]}_{i}.png',
-            save_binary_image,
-        )
-        if binary_mode == True:
-            output_np_RGBA = binary_image.convert("RGBA")
-        else:
-            output_np_RGBA = output_np.convert("RGBA")
+        # cv2.imwrite(
+        #     f'./results/{names["video_segmentation_dir_name"]}/{names["video_capture_image_name"]}_{i}.png',
+        #     save_binary_image,
+        # )
+        # if binary_mode == True:
+        #     output_np_RGBA = binary_image.convert("RGBA")
+        # else:
+        #     output_np_RGBA = output_np.convert("RGBA")
 
-        frame_image = Image.fromarray(frame)
-        frame_RGBA = frame_image.convert("RGBA")
+        # frame_image = Image.fromarray(frame)
+        # frame_RGBA = frame_image.convert("RGBA")
 
         if blend_image == True:
-            blendImage = image_process.overlap_v2(
-                frame_RGBA, output_np_RGBA, read_method="OpenCV_BGRA"
+            blendImage = image_process.overlap_v3(
+                frame, output_np, read_method="OpenCV_BGRA"
             )
-            output_np = blendImage.convert("RGB")
-        output_np = np.asarray(output_np)
+        #     output_np = blendImage.convert("RGB")
+        # output_np = np.asarray(output_np)
 
         cv2.imwrite(
             f'./results/{names["video_blend_dir_name"]}/{names["video_capture_image_name"]}_{i}.png',
@@ -239,7 +239,9 @@ if __name__ == "__main__":
     # save_video = True
 
     model = network_model.Net().to(device)
-    model.load_state_dict(torch.load(args["model_path"]))
+    model = torch.compile(model)
+    torch.set_float32_matmul_precision('high')
+    model.load_state_dict(torch.load(args["model_path"], map_location=device))
 
     model.eval()
 

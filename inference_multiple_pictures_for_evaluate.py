@@ -97,13 +97,18 @@ def image_stitching(input_image, filename_no_extension, names, mask_image, iou_n
 
 # The trained feature map is fuse d with the original image 訓練出的特徵圖融合原圖
 def image_overlap(input_image, filename_no_extension, names, mask_image):
-    img1 = image_process.load_and_process_image(input_image)
-    img2 = image_process.load_and_process_image(
-        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg', gray=True
+    img1 = Image.open(input_image)
+    img2 = Image.open(
+        f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg',
     )
-    img3 = image_process.load_and_process_image(mask_image, gray=True)
-    img4 = image_process.load_and_process_image(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg', gray=True)
+    img3 = Image.open(mask_image)
+    img4 = Image.open(f'./results/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_aux_name"]}_{filename_no_extension}.jpg',)
 
+    img1 = image_process.process_pil_to_np(img1, gray=False)
+    img2 = image_process.process_pil_to_np(img2, gray=True)
+    img3 = image_process.process_pil_to_np(img3, gray=True)
+    img4 = image_process.process_pil_to_np(img4, gray=True)
+    
     blendImage = image_process.overlap_v3(img1, img2, read_method="PIL_RGBA")
     blendImage_mask = image_process.overlap_v3(img1, img3, read_method="PIL_RGBA")
     blendImage_aux = image_process.overlap_v3(img1, img4, read_method="PIL_RGBA")

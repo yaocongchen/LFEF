@@ -42,7 +42,7 @@ def files_name():
 
 # Merge all resulting images 合併所有產生之圖像
 def image_stitching(input_image, names):
-    bg = Image.new("RGB", (1200, 300), "#000000")  # 產生一張 600x300 的全黑圖片
+    bg = Image.new("RGB", (900, 300), "#000000")  # 產生一張 600x300 的全黑圖片
     # Load two images 載入兩張影像
     if type(input_image) == str:
         img1 = Image.open(input_image)
@@ -50,8 +50,7 @@ def image_stitching(input_image, names):
         # numpy to pil
         img1 = transforms.ToPILImage()(input_image)
     img2 = Image.open(names["smoke_semantic_image_name"] + ".jpg")
-    img3 = Image.open(names["image_binary_name"] + ".jpg")
-    img4 = Image.open(names["image_overlap_name"] + ".png")
+    img3 = Image.open(names["image_overlap_name"] + ".png")
 
     # Check if the two images are the same size 檢查兩張影像大小是否一致
     # print(img1.size)
@@ -74,25 +73,15 @@ def image_stitching(input_image, names):
     img3 = ImageOps.expand(
         img3, 20, "#ffffff"
     )  # Dilates edges, producing borders 擴張邊緣，產生邊框
-    img4 = ImageOps.expand(
-        img4, 20, "#ffffff"
-    )  # Dilates edges, producing borders 擴張邊緣，產生邊框
+
     bg.paste(img1, (0, 0))
     bg.paste(img2, (300, 0))
     bg.paste(img3, (600, 0))
-    bg.paste(img4, (900, 0))
 
     # bg.show()
     bg.save(names["image_stitching_name"] + ".jpg")
 
     return
-
-def load_and_process_image(image, size=(256, 256), gray=False):
-    if gray:
-        image = image.convert("L")
-    image = image.resize(size)
-    image = np.array(image, dtype=np.float32)
-    return image
 
 # The trained feature map is fused with the original image 訓練出的特徵圖融合原圖
 def image_overlap(input_image, names):
@@ -101,27 +90,16 @@ def image_overlap(input_image, names):
     else:
         # numpy to pil
         img1 = transforms.ToPILImage()(input_image)
-    img1 = img1.convert("RGBA")
     img2 = Image.open(f'{names["smoke_semantic_image_name"]}.jpg')
 
-    # img2 to binarization img2轉二值化
-    binary_image = image_process.gray_to_binary(img2)
-
-    binary_image.save(f'{names["image_binary_name"]}.jpg')
-    img2 = binary_image.convert("RGBA")
-
-    # Specify target image size 指定目標圖片大小
-    imgSize = (256, 256)
-
-    # Change image size 改變影像大小
-    img1 = img1.resize(imgSize)
-    img2 = img2.resize(imgSize)
-
-    blendImage = image_process.overlap_v2(img1, img2, read_method="PIL_RGBA")
+    img1 = image_process.process_pil_to_np(img1, size=(256, 256), gray=False)
+    img2 = image_process.process_pil_to_np(img2, size=(256, 256), gray=True)
+    
+    blendImage = image_process.overlap_v3(img1, img2, read_method="PIL_RGBA")
 
     # Display image 顯示影像
     # blendImg.show()
-    blendImage.save(f'{names["image_overlap_name"]}.png')
+    Image.fromarray(blendImage).save(f'{names["image_overlap_name"]}.png')
 
     return
 
