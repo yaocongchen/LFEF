@@ -95,10 +95,9 @@ def process_and_display_image(model_file,image):
             i=i
         )
         smoke_semantic_image = np.array(Image.open("./results/smoke_semantic.jpg"))
-        binary_image = np.array(Image.open("./results/binary.jpg"))
         image_stitching_image = np.array(Image.open("./results/image_stitching.jpg"))
         image_overlap_image = np.array(Image.open("./results/image_overlap.png"))
-        return smoke_semantic_image,binary_image,image_stitching_image,image_overlap_image,use_model_file
+        return smoke_semantic_image,image_stitching_image,image_overlap_image,use_model_file
     else:
         gr.Warning("Please choice your model file")
         return
@@ -144,7 +143,6 @@ with gr.Blocks() as demo:
             image_input = gr.Image(label="Input Image",type="numpy")
             with gr.Row():
                 image_smoke_semantic = gr.Image(label="smoke semantic image",type="numpy")   
-                image_binary = gr.Image(label="binary image",type="numpy")
                 image_overlap = gr.Image(label="image overlap image",type="numpy")
             with gr.Column():
                 image_stitching = gr.Image(label="image stitching image",type="numpy")
@@ -152,7 +150,7 @@ with gr.Blocks() as demo:
 
     update_model_button.click(update_model_and_report_time,outputs=status)
     evaluate_and_report_dataset_button.click(evaluate_and_report_dataset, inputs=[model_file,operation_input], outputs=[loss, mIoU, mSSIM, hd, fps, spend_time, model_size, flops, params, use_model_file, use_Data_Source])
-    image_button.click(process_and_display_image, inputs=[model_file,image_input], outputs=[image_smoke_semantic, image_binary, image_stitching, image_overlap, use_model_file])
+    image_button.click(process_and_display_image, inputs=[model_file,image_input], outputs=[image_smoke_semantic, image_stitching, image_overlap, use_model_file])
     
 if __name__ == "__main__":
     # x = process_and_display_image(Image.open("/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/img/1_3.jpg"))
