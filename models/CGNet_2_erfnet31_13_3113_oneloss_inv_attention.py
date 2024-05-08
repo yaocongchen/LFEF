@@ -665,15 +665,16 @@ class AttentionModule(nn.Module):
         super().__init__()
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
-        self.conv = nn.Conv2d(in_channels*2, in_channels, 1, bias=True)
-        self.softmax = nn.Softmax(dim=1)
+        # self.conv = nn.Conv2d(in_channels*2, in_channels, 1, bias=True)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         avg_out = self.avg_pool(x)
         max_out = self.max_pool(x)
-        out = torch.cat([avg_out, max_out], dim=1)
-        out = self.conv(out)
-        return self.softmax(out)
+        out = avg_out + max_out
+        # out = torch.cat([avg_out, max_out], dim=1)
+        # out = self.conv(out)
+        return self.sigmoid(out)
 
 
 class Net(nn.Module):
