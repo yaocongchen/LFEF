@@ -10,7 +10,6 @@ def folders_and_files_name():
 
     return {
         "smoke_semantic_dir_name": save_smoke_semantic_dir_name,
-        "smoke_semantic_image_name": "smoke_semantic_image"
     }
 
 def wandb_information(model_name, model_size, flops, params,args):

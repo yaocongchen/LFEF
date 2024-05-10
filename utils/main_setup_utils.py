@@ -1,6 +1,20 @@
 import os
 import wandb
 import argparse
+import shutil
+
+def folders_and_files_name():
+    save_training_data_captures_dir_name = "./results/training_data_captures/"
+    shutil.rmtree(save_training_data_captures_dir_name, ignore_errors=True)
+    os.makedirs(save_training_data_captures_dir_name)
+    save_validation_data_captures_dir_name = "./results/validation_data_captures/"
+    shutil.rmtree(save_validation_data_captures_dir_name, ignore_errors=True)
+    os.makedirs(save_validation_data_captures_dir_name)
+
+    return {
+        "training_data_captures_dir_name": save_training_data_captures_dir_name,
+        "validation_data_captures_dir_name": save_validation_data_captures_dir_name,
+    }
 
 def set_model_save_dir_names(args):
     # args["model_save_dir"] = f'{args["model_save_dir"]}/bs{args["batch_size"]}e{args["epochs"]}/'
