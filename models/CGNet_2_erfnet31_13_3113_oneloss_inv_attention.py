@@ -666,14 +666,14 @@ class AttentionModule(nn.Module):
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         self.conv = nn.Conv2d(in_channels*2, in_channels, 1, bias=True)
-        self.softmax = nn.Softmax(dim=1)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         avg_out = self.avg_pool(x)
         max_out = self.max_pool(x)
         out = torch.cat([avg_out, max_out], dim=1)
         out = self.conv(out)
-        return self.softmax(out)
+        return self.sigmoid(out)
 
 
 class Net(nn.Module):
@@ -821,7 +821,7 @@ class Net(nn.Module):
 
         # input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
-        inverted_output = self.attention_module(inverted_output)
+        # inverted_output = self.attention_module(inverted_output)
 
         
         # gru_output = self.gru_cell(stage1_output, inverted_output)

@@ -14,8 +14,7 @@ import wandb
 import segmentation_models_pytorch as smp
 
 import utils
-import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model
-import check_feature
+import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model 
 from utils.inference import smoke_semantic
 from utils.test_setup_utils import wandb_information, folders_and_files_name, parse_arguments
 from utils.metrics import report_fps_and_time
@@ -47,7 +46,7 @@ def smoke_segmentation(model, device, names, args):
         drop_last=True,
     )
 
-    folders = ["test_RGB_image", "test_mask_image", "test_output", "test_check_feature"]
+    folders = ["test_RGB_image", "test_mask_image", "test_output"]
 
     for folder in folders:
         os.makedirs(f'./{names["smoke_semantic_dir_name"]}/{folder}', exist_ok=True)
