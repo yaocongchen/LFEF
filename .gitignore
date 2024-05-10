@@ -3,7 +3,7 @@ wandb/
 *avi
 validation_data_captures/
 training_data_captures/
-test_files/
+data/
 multiple_binary/
 multiple_overlap/
 multiple_result/
