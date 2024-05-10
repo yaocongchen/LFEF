@@ -20,7 +20,7 @@ def save_and_log_image(args, image, path, filename):
         wandb.log({filename: wandb.Image(full_path)})
 
 def save_experiment_details(args, model_name, train_images, train_masks):
-    with open(f"{args['save_dir']}/log.txt", "w") as f:
+    with open(f"{args['model_save_dir']}/log.txt", "w") as f:
         f.write(f"{model_name}\n"
                 f"train_images: {train_images}\n"
                 f"train_masks: {train_masks}\n"

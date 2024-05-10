@@ -1,15 +1,12 @@
 __pycache__/
 wandb/
 *avi
-validation_data_captures/
-training_data_captures/
-test_files/
+data/
 multiple_binary/
 multiple_overlap/
 multiple_result/
 multiple_stitching/
 results/
-testing_multiple_result/
 trained_models/
 flagged/
 .*

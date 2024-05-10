@@ -13,7 +13,7 @@ import wandb
 import torch.onnx
 
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
-from utils.main_setup_utils import set_save_dir_names, create_model_state_dict, time_processing, wandb_information, parse_arguments
+from utils.main_setup_utils import folders_and_files_name, set_model_save_dir_names, create_model_state_dict, time_processing, wandb_information, parse_arguments
 from utils.check_GPU import check_have_GPU, check_number_of_GPUs, set_seed
 from utils.metrics import Calculate
 from utils.data_processing import data_processing_train_8_val_DS01
@@ -45,7 +45,7 @@ def main():
 
     model, device = check_number_of_GPUs(args, model)
 
-    set_save_dir_names(args)
+    set_model_save_dir_names(args)
 
     optimizer = torch.optim.Adam(
         model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
@@ -81,11 +81,6 @@ def main():
         else:
             print("=====> no checkpoint found at '{}'".format(args["resume"]))
 
-    if not os.path.exists("./training_data_captures/"):
-        os.makedirs("./training_data_captures/")
-    if not os.path.exists("./validation_data_captures/"):
-        os.makedirs("./validation_data_captures/")
-
     time_start = time.time()
 
     for epoch in range(start_epoch, args["epochs"] + 1):
@@ -106,29 +101,29 @@ def main():
         
 
         state = create_model_state_dict(epoch, model, optimizer, mean_loss, mean_miou, save_mean_miou)
-        save_model_and_state(args, model, state,  mean_loss, mean_miou, onnx_img_image,args["save_dir"], "last")
+        save_model_and_state(args, model, state,  mean_loss, mean_miou, onnx_img_image,args["model_save_dir"], "last")
         save_experiment_details(args, model_name, train_images, train_masks)
 
 
         if args["save_train_image"] != "no":
-            save_and_log_image(args, train_RGB_image, "./training_data_captures", "train_RGB_image")
-            save_and_log_image(args, train_mask_image, "./training_data_captures", "train_mask_image")
-            save_and_log_image(args, train_output, "./training_data_captures", "train_output")
+            save_and_log_image(args, train_RGB_image, names["training_data_captures_dir_name"], "train_RGB_image")
+            save_and_log_image(args, train_mask_image, names["training_data_captures_dir_name"], "train_mask_image")
+            save_and_log_image(args, train_output, names["training_data_captures_dir_name"], "train_output")
 
         if args["save_validation_image_last"] != "no":
-            save_and_log_image(args, RGB_image, "./validation_data_captures", "last_RGB_image")
-            save_and_log_image(args, mask_image, "./validation_data_captures", "last_mask_image")
-            save_and_log_image(args, output, "./validation_data_captures", "last_output")
+            save_and_log_image(args, RGB_image, names["validation_data_captures_dir_name"], "last_RGB_image")
+            save_and_log_image(args, mask_image, names["validation_data_captures_dir_name"], "last_mask_image")
+            save_and_log_image(args, output, names["validation_data_captures_dir_name"], "last_output")
 
 
         if mean_miou > save_mean_miou:
             print("best_loss: %.3f , best_miou: %.3f" % (mean_loss, mean_miou))
-            save_model_and_state(args, model, state,  mean_loss, mean_miou, onnx_img_image,args["save_dir"], "best")
+            save_model_and_state(args, model, state,  mean_loss, mean_miou, onnx_img_image,args["model_save_dir"], "best")
             
             if args["save_validation_image_best"] != "no":
-                save_and_log_image(args, RGB_image, "./validation_data_captures", "best_RGB_image")
-                save_and_log_image(args, mask_image, "./validation_data_captures", "best_mask_image")
-                save_and_log_image(args, output, "./validation_data_captures", "best_output")
+                save_and_log_image(args, RGB_image, names["validation_data_captures_dir_name"], "best_RGB_image")
+                save_and_log_image(args, mask_image, names["validation_data_captures_dir_name"], "best_mask_image")
+                save_and_log_image(args, output, names["validation_data_captures_dir_name"], "best_output")
 
             save_mean_miou = mean_miou
 
@@ -142,5 +137,6 @@ def main():
 
 if __name__ == "__main__":
     args = parse_arguments()
+    names = folders_and_files_name()
     main()
     wandb.finish()

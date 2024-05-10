@@ -4,13 +4,12 @@ import argparse
 import shutil
 
 def folders_and_files_name():
-    save_smoke_semantic_dir_name = "testing_multiple_result"
+    save_smoke_semantic_dir_name = "./results/testing_multiple"
     shutil.rmtree(save_smoke_semantic_dir_name, ignore_errors=True)
     os.makedirs(save_smoke_semantic_dir_name)
 
     return {
         "smoke_semantic_dir_name": save_smoke_semantic_dir_name,
-        "smoke_semantic_image_name": "smoke_semantic_image"
     }
 
 def wandb_information(model_name, model_size, flops, params,args):
