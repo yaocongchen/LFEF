@@ -811,7 +811,7 @@ class Net(nn.Module):
         stage1_output = self.level1_1(stage1_output)
         stage1_output = self.level1_2(stage1_output)
 
-        # stage1_output = self.attention_module(stage1_output)
+        stage1_output = self.attention_module(stage1_output)
 
         # inp1 = self.sample1(input)
         # inp2 = self.sample2(input)
@@ -821,7 +821,7 @@ class Net(nn.Module):
 
         # input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
-        inverted_output = self.attention_module(inverted_output)
+        # inverted_output = self.attention_module(inverted_output)
 
         
         # gru_output = self.gru_cell(stage1_output, inverted_output)
