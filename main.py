@@ -81,11 +81,6 @@ def main():
         else:
             print("=====> no checkpoint found at '{}'".format(args["resume"]))
 
-    # if not os.path.exists("./training_data_captures/"):
-    #     os.makedirs("./training_data_captures/")
-    # if not os.path.exists("./validation_data_captures/"):
-    #     os.makedirs("./validation_data_captures/")
-
     time_start = time.time()
 
     for epoch in range(start_epoch, args["epochs"] + 1):

@@ -1,8 +1,6 @@
 __pycache__/
 wandb/
 *avi
-validation_data_captures/
-training_data_captures/
 data/
 multiple_binary/
 multiple_overlap/
