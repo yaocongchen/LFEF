@@ -13,7 +13,7 @@ import wandb
 import torch.onnx
 
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
-from utils.main_setup_utils import set_save_dir_names, create_model_state_dict, time_processing, wandb_information, parse_arguments
+from utils.main_setup_utils import set_model_save_dir_names, create_model_state_dict, time_processing, wandb_information, parse_arguments
 from utils.check_GPU import check_have_GPU, check_number_of_GPUs, set_seed
 from utils.metrics import Calculate
 from utils.data_processing import data_processing_train_8_val_DS01
@@ -45,7 +45,7 @@ def main():
 
     model, device = check_number_of_GPUs(args, model)
 
-    set_save_dir_names(args)
+    set_model_save_dir_names(args)
 
     optimizer = torch.optim.Adam(
         model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
@@ -106,7 +106,7 @@ def main():
         
 
         state = create_model_state_dict(epoch, model, optimizer, mean_loss, mean_miou, save_mean_miou)
-        save_model_and_state(args, model, state,  mean_loss, mean_miou, onnx_img_image,args["save_dir"], "last")
+        save_model_and_state(args, model, state,  mean_loss, mean_miou, onnx_img_image,args["model_save_dir"], "last")
         save_experiment_details(args, model_name, train_images, train_masks)
 
 
@@ -123,7 +123,7 @@ def main():
 
         if mean_miou > save_mean_miou:
             print("best_loss: %.3f , best_miou: %.3f" % (mean_loss, mean_miou))
-            save_model_and_state(args, model, state,  mean_loss, mean_miou, onnx_img_image,args["save_dir"], "best")
+            save_model_and_state(args, model, state,  mean_loss, mean_miou, onnx_img_image,args["model_save_dir"], "best")
             
             if args["save_validation_image_best"] != "no":
                 save_and_log_image(args, RGB_image, "./validation_data_captures", "best_RGB_image")

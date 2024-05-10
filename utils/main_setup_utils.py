@@ -2,11 +2,11 @@ import os
 import wandb
 import argparse
 
-def set_save_dir_names(args):
-    # args["save_dir"] = f'{args["save_dir"]}/bs{args["batch_size"]}e{args["epochs"]}/'
-    args["save_dir"] = f"{args['save_dir']}/"
-    if not os.path.exists(args["save_dir"]):
-        os.makedirs(args["save_dir"])
+def set_model_save_dir_names(args):
+    # args["model_save_dir"] = f'{args["model_save_dir"]}/bs{args["batch_size"]}e{args["epochs"]}/'
+    args["model_save_dir"] = f"{args['model_save_dir']}/"
+    if not os.path.exists(args["model_save_dir"]):
+        os.makedirs(args["model_save_dir"])
 
 def create_model_state_dict(epoch, model, optimizer, mean_loss, mean_miou, save_mean_miou):
     state = {
@@ -50,7 +50,7 @@ def wandb_information(args, model_name, model_size, flops, params, model, train_
             "epochs": args["epochs"],
             "learning_rate": args["learning_rate"],
             "weight_decay": args["weight_decay"],
-            "save_dir": args["save_dir"],
+            "model_save_dir": args["model_save_dir"],
             "resume": args["resume"],
         },
     )
@@ -117,7 +117,7 @@ def parse_arguments():
     )
     ap.add_argument(
         "-savedir",
-        "--save_dir",
+        "--model_save_dir",
         default="./trained_models/",
         help="directory to save the model snapshot",
     )
