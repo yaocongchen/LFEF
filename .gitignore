@@ -2,12 +2,7 @@ __pycache__/
 wandb/
 *avi
 data/
-multiple_binary/
-multiple_overlap/
-multiple_result/
-multiple_stitching/
 results/
 trained_models/
-flagged/
 .*
 !.gitignore
