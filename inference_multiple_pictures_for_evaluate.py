@@ -15,9 +15,8 @@ import segmentation_models_pytorch as smp
 import utils
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
 from utils.inference import smoke_semantic
-
 import visualization_codes.utils.image_process as image_process
-# import visualization_codes.process_utils_cython_version.image_process_utils_cython as image_process
+
 
 model_name = str(network_model)
 print("model_name:", model_name)
