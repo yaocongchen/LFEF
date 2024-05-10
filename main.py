@@ -17,7 +17,7 @@ from utils.main_setup_utils import set_save_dir_names, create_model_state_dict, 
 from utils.check_GPU import check_have_GPU, check_number_of_GPUs, set_seed
 from utils.metrics import Calculate
 from utils.data_processing import data_processing_train_8_val_DS01
-from training import train_epoch, valid_epoch
+from utils.training import train_epoch, valid_epoch
 from utils.results_saving import save_model_and_state, save_and_log_image, save_experiment_details
 
 
