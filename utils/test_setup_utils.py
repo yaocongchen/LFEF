@@ -4,7 +4,7 @@ import argparse
 import shutil
 
 def folders_and_files_name():
-    save_smoke_semantic_dir_name = "testing_multiple_result"
+    save_smoke_semantic_dir_name = "./results/testing_multiple"
     shutil.rmtree(save_smoke_semantic_dir_name, ignore_errors=True)
     os.makedirs(save_smoke_semantic_dir_name)
 
