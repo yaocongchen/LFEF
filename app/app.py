@@ -7,7 +7,11 @@ import os
 import PIL.Image as Image
 import numpy as np
 
-import test
+#定位到主目錄
+import sys
+sys.path.append("..")
+
+import val
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
 import utils
 from visualization_codes import inference_single_picture
@@ -16,7 +20,7 @@ from utils.test_setup_utils import folders_and_files_name
 model_name = str(network_model)
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-Model_folder = "./trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/"
+Model_folder = "../trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/"
 MODEL_LOG = Model_folder + "log.txt"
 
 
@@ -41,7 +45,7 @@ def evaluate_dataset(args):
     names = folders_and_files_name()
     model, model_size, flops, params = load_model(args)
     time_start = time.time()
-    Avg_loss, Avg_miou, Avg_mSSIM, Avg_hd = test.smoke_segmentation(model,device,names,args)
+    Avg_loss, Avg_miou, Avg_mSSIM, Avg_hd = val.smoke_segmentation(model,device,names,args)
     time_end = time.time()
     Avg_loss = round(Avg_loss, 4)
     Avg_miou = round(Avg_miou, 1)
@@ -103,7 +107,7 @@ def process_and_display_image(model_file,image):
         return
 
 def update_model_and_report_time():
-    os.system("bash ./check_trained_model_update.sh")
+    os.system("bash ../scripts/check_trained_model_update.sh")
     log_time = os.path.getmtime(MODEL_LOG)
     log_time_localtime = time.localtime(log_time)
     log_time_new = time.strftime("%Y-%m-%d %H:%M:%S", log_time_localtime)
