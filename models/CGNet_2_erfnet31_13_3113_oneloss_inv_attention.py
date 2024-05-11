@@ -592,10 +592,10 @@ class AuxiliaryNetwork(nn.Module):
         self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=True), nn.ReLU())
         self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=True), nn.ReLU())
 
-        self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
-        self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
+        # self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
+        # self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
 
-        self.sigmoid = nn.Sigmoid()
+        # self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
         # b, c, w, h = input.size()
@@ -692,11 +692,13 @@ class Net(nn.Module):
         self.brightness_adjustment = BrightnessAdjustment()
 
         self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
-        self.level1_1 = non_bottleneck_1d(32, 1)
-        self.level1_2 = non_bottleneck_1d(32, 2)
+        self.level1_1 = ConvINReLU(32, 32, 3, 1)
+        self.level1_2 = ConvINReLU(32, 32, 3, 1)
+        # self.level1_1 = non_bottleneck_1d(32, 1)
+        # self.level1_2 = non_bottleneck_1d(32, 2)
 
-        self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
-        self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
+        # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
+        # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
 
         self.sample1 = InputInjection(1)  # down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
@@ -821,7 +823,7 @@ class Net(nn.Module):
 
         # input_inverted = self.brightness_adjustment(input_inverted)
         inverted_output = self.aux_net(input_inverted)
-        # inverted_output = self.attention_module(inverted_output)
+        inverted_output = self.attention_module(inverted_output)
 
         
         # gru_output = self.gru_cell(stage1_output, inverted_output)

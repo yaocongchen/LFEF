@@ -2,12 +2,12 @@
 
 <!-- Implementation of paper - [YOLOv9: Learning What You Want to Learn Using Programmable Gradient Information](https://arxiv.org/abs/2402.13616) -->
 
-<div align="center">
+<!-- <div align="center">
     <a href="./">
         <img src="./figure/performance.png" width="79%"/>
     </a>
 </div>
-
+ -->
 
 ## Performance 
 
