@@ -2,7 +2,7 @@ import configparser
 from torch.utils.data import DataLoader
 import utils
 
-CONFIG_FILE = "import_dataset_path.cfg"
+CONFIG_FILE = "./config/import_dataset_path.cfg"
 
 def data_processing_train_8_val_DS01(args):
     config = configparser.ConfigParser()
