@@ -78,35 +78,26 @@ mIoU: 72.00%
 python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_downsample
 ```
 
-* "-train_dataset" : train_dataset_path, default="Host_SYN70K".
-* "-validation_dataset" : "validation_dataset_path", default="Host_DS0123".
-* "-ti" : "train_images",
-* "-tm" : "train_masks",
-* "-vi" : "validation_images",
-* "-vm" : "--validation_masks",
-* "-bs", "--batch_size",
-* "-nw", "--num_workers"
-* "-e", "--epochs"
-* "-lr","--learning_rate",
-* "-wd","--weight_decay",
-* "-savedir","--model_save_dir",
-* "-device", default="GPU",
-* "-gpus", type=str, default="0", help="defualt GPU devices(0,1)"
-* "-resume", default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint_sample.pth",
-        help="use this file to load last checkpoint for continuing training",  # Use this flag to load last checkpoint for training
-* "-wn","--wandb_name", default="no",
-        help="Name of the W&B run. Use 'no' to disable W&B.",
-* "-wid","--wandb_id",
-* "-sti", "--save_train_image",
-        type=str,
-        default="no",
-        help="wandb test name,but 'no' is not use wandb",
-* "-svil", "--save_validation_image_last",
-        default="no",
-        help="Save the last validation image. Use 'no' to disable this feature.",
-* "-svib","--save_validation_image_best",
-        default="no",
-        help="Save the best validation image. Use 'no' to disable this feature.",
+| 參數 | 描述 | 默認值 | 說明 |
+| --- | --- | --- | --- |
+| -ti | train_images | | |
+| -tm | train_masks | | |
+| -vi | validation_images | | |
+| -vm | validation_masks | | |
+| -bs | batch_size | | |
+| -nw | num_workers | | |
+| -e | epochs | | |
+| -lr | learning_rate | | |
+| -wd | weight_decay | | |
+| -savedir | model_save_dir | | |
+| -device | | GPU | |
+| -gpus | defualt GPU devices | 0 | |
+| -resume | use this file to load last checkpoint for continuing training | /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint_sample.pth | |
+| -wn | Name of the W&B run. Use 'no' to disable W&B. | no | |
+| -wid | --wandb_id | | |
+| -sti | wandb test name,but 'no' is not use wandb | no | |
+| -svil | Save the last validation image. Use 'no' to disable this feature. | no | |
+| -svib | Save the best validation image. Use 'no' to disable this feature. | no | |
 
 Single GPU training
 
