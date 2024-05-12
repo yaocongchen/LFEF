@@ -62,7 +62,7 @@ def smoke_segmentation(
     video_FPS = cap.get(cv2.CAP_PROP_FPS)
     # print(cv2.getBuildInformation())
     # Define the codec and create VideoWriter object
-    if save_video == "True":
+    if save_video:
         out = save(video_W, video_H, video_FPS)
 
     idx = 0
@@ -106,10 +106,10 @@ def smoke_segmentation(
         counter = 0
         start_time = time.time()
 
-        if save_video == "True":
+        if save_video:
             out.write(overlapImage)
 
-        if show_video == "True":
+        if show_video:
             cv2.imshow("frame", overlapImage)
             # cv2.imshow('frame1',frame)
 
@@ -120,7 +120,7 @@ def smoke_segmentation(
     # ====================================================
     # Release everything if job is finished
     cap.release()
-    if save_video == "True":
+    if save_video:
         out.release()
     cv2.destroyAllWindows()
 

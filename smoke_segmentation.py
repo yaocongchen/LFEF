@@ -48,7 +48,7 @@ def smoke_segmentation(args,device):
             )
         elif extension in [".mp4", ".avi"]:
             overlap_image = True
-            if args["video_to_frames"] == "yes":
+            if args["video_to_frames"]:
                 names = inference_video_to_frames.folders_and_files_name()
                 inference_video_to_frames.smoke_segmentation(
                     args["source"],
@@ -72,7 +72,7 @@ def smoke_segmentation(args,device):
                 )
         elif root in ["0"]:  # camera
             overlap_image = True
-            if args["video_to_frames"] == "yes":
+            if args["video_to_frames"]:
                 names = inference_video_to_frames.folders_and_files_name()
                 inference_video_to_frames.smoke_segmentation(
                     args["source"],
@@ -116,26 +116,20 @@ if __name__ == "__main__":
     ap.add_argument(
         "-vtf",
         "--video_to_frames",
-        type=str,
-        default="no",
-        required=False,
+        action='store_true',
         help="video to frames",
     )
     ap.add_argument(
         "-save",
         "--save_video",
-        type=str,
-        default="True",
-        required=False,
+        action='store_true',
         help="save video",
-    )  # argparse.ArgumentParser()無法辨識boolean
+    )
     ap.add_argument(
         "-show",
         "--show_video",
-        type=str,
-        default="True",
-        required=False,
-        help="save video",
+        action='store_true',
+        help="show video",
     )
     args = vars(ap.parse_args())
 
