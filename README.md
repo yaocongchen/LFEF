@@ -78,26 +78,23 @@ mIoU: 72.00%
 python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_downsample
 ```
 
-| 參數 | 描述 | 默認值 | 說明 |
+| Parameter | Description | Default Value | Notes |
 | --- | --- | --- | --- |
-| -ti | train_images | | |
-| -tm | train_masks | | |
-| -vi | validation_images | | |
-| -vm | validation_masks | | |
-| -bs | batch_size | | |
-| -nw | num_workers | | |
-| -e | epochs | | |
-| -lr | learning_rate | | |
-| -wd | weight_decay | | |
-| -savedir | model_save_dir | | |
-| -device | | GPU | |
-| -gpus | defualt GPU devices | 0 | |
-| -resume | use this file to load last checkpoint for continuing training | /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint_sample.pth | |
-| -wn | Name of the W&B run. Use 'no' to disable W&B. | no | |
-| -wid | --wandb_id | | |
-| -sti | wandb test name,but 'no' is not use wandb | no | |
-| -svil | Save the last validation image. Use 'no' to disable this feature. | no | |
-| -svib | Save the best validation image. Use 'no' to disable this feature. | no | |
+| -train_dataset,<br>--train_dataset_path | use dataset path | Host_SYN70K | |
+| -validation_dataset,<br> --validation_dataset_path | use test dataset path | Host_DS0123 | |
+| -ti,<br>--train_images | path to hazy training images | | |
+| -tm,<br>--train_masks | path to mask | | |
+| -vi,<br>--validation_images | path to hazy training images | | |
+| -vm,<br>--validation_masks | path to mask | | |
+| -bs,<br>--batch_size | set batch_size | 8 | |
+| -nw,<br>--num_workers | set num_workers | 1 | |
+| -e,<br>--epochs | number of epochs for training | 150 | |
+| -lr,<br>--learning_rate | learning rate for training | 0.001 | |
+| -wd,<br>--weight_decay | weight decay for training | 0.00001 | |
+| -savedir,<br>--model_save_dir | directory to save the model snapshot | ./trained_models/ | |
+| -device | running on CPU or GPU | GPU | |
+| -gpus | defualt GPU devices(0,1) | 0 | |
+| -resume | use this file to load last checkpoint for continuing training | | |
 
 Single GPU training
 
