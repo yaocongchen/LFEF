@@ -105,26 +105,25 @@ def main():
         save_experiment_details(args, model_name, train_images, train_masks)
 
 
-        if args["save_train_image"] != "no":
+        if args["save_train_image"]:
             save_and_log_image(args, train_RGB_image, names["training_data_captures_dir_name"], "train_RGB_image")
             save_and_log_image(args, train_mask_image, names["training_data_captures_dir_name"], "train_mask_image")
             save_and_log_image(args, train_output, names["training_data_captures_dir_name"], "train_output")
-
-        if args["save_validation_image_last"] != "no":
+        
+        if args["save_validation_image_last"]:
             save_and_log_image(args, RGB_image, names["validation_data_captures_dir_name"], "last_RGB_image")
             save_and_log_image(args, mask_image, names["validation_data_captures_dir_name"], "last_mask_image")
             save_and_log_image(args, output, names["validation_data_captures_dir_name"], "last_output")
-
-
+        
         if mean_miou > save_mean_miou:
             print("best_loss: %.3f , best_miou: %.3f" % (mean_loss, mean_miou))
             save_model_and_state(args, model, state,  mean_loss, mean_miou, onnx_img_image,args["model_save_dir"], "best")
             
-            if args["save_validation_image_best"] != "no":
+            if args["save_validation_image_best"]:
                 save_and_log_image(args, RGB_image, names["validation_data_captures_dir_name"], "best_RGB_image")
                 save_and_log_image(args, mask_image, names["validation_data_captures_dir_name"], "best_mask_image")
                 save_and_log_image(args, output, names["validation_data_captures_dir_name"], "best_output")
-
+        
             save_mean_miou = mean_miou
 
     time_end = time.time()
@@ -137,6 +136,6 @@ def main():
 
 if __name__ == "__main__":
     args = parse_arguments()
-    names = folders_and_files_name()
+    names = folders_and_files_name(args)
     main()
     wandb.finish()

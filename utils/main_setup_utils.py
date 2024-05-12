@@ -3,13 +3,16 @@ import wandb
 import argparse
 import shutil
 
-def folders_and_files_name():
+def folders_and_files_name(args):
     save_training_data_captures_dir_name = "./results/training_data_captures/"
-    shutil.rmtree(save_training_data_captures_dir_name, ignore_errors=True)
-    os.makedirs(save_training_data_captures_dir_name)
     save_validation_data_captures_dir_name = "./results/validation_data_captures/"
-    shutil.rmtree(save_validation_data_captures_dir_name, ignore_errors=True)
-    os.makedirs(save_validation_data_captures_dir_name)
+
+    if args["save_train_image"]:
+        shutil.rmtree(save_training_data_captures_dir_name, ignore_errors=True)
+        os.makedirs(save_training_data_captures_dir_name)
+    if args["save_validation_image_last"] or args["save_validation_image_best"]:
+        shutil.rmtree(save_validation_data_captures_dir_name, ignore_errors=True)
+        os.makedirs(save_validation_data_captures_dir_name)
 
     return {
         "training_data_captures_dir_name": save_training_data_captures_dir_name,
@@ -160,23 +163,20 @@ def parse_arguments():
     ap.add_argument(
         "-sti",
         "--save_train_image",
-        type=str,
-        default="no",
-        help="wandb test name,but 'no' is not use wandb",
+        action='store_true',
+        help="Save the training image. Include this argument to enable this feature.",
     )
     ap.add_argument(
         "-svil",
         "--save_validation_image_last",
-        type=str,
-        default="no",
-        help="Save the last validation image. Use 'no' to disable this feature.",
+        action='store_true',
+        help="Save the last validation image. Include this argument to enable this feature.",
     )
     ap.add_argument(
         "-svib",
         "--save_validation_image_best",
-        type=str,
-        default="no",
-        help="Save the best validation image. Use 'no' to disable this feature.",
+        action='store_true',
+        help="Save the best validation image. Include this argument to enable this feature.",
     )
     args = vars(
         ap.parse_args()
