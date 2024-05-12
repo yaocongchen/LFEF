@@ -80,18 +80,18 @@ python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_
 
 | Parameter | Description | Default Value | Notes |
 | --- | --- | --- | --- |
-| -train_dataset,<br>--train_dataset_path | use dataset path | Host_SYN70K | |
-| -validation_dataset,<br> --validation_dataset_path | use test dataset path | Host_DS0123 | |
-| -ti,<br>--train_images | path to hazy training images | | |
-| -tm,<br>--train_masks | path to mask | | |
-| -vi,<br>--validation_images | path to hazy training images | | |
-| -vm,<br>--validation_masks | path to mask | | |
-| -bs,<br>--batch_size | set batch_size | 8 | |
-| -nw,<br>--num_workers | set num_workers | 1 | |
-| -e,<br>--epochs | number of epochs for training | 150 | |
-| -lr,<br>--learning_rate | learning rate for training | 0.001 | |
-| -wd,<br>--weight_decay | weight decay for training | 0.00001 | |
-| -savedir,<br>--model_save_dir | directory to save the model snapshot | ./trained_models/ | |
+| -train_dataset<br>--train_dataset_path | use dataset path | Host_SYN70K | |
+| -validation_dataset<br>--validation_dataset_path | use test dataset path | Host_DS0123 | |
+| -ti<br>--train_images | path to hazy training images | | |
+| -tm<br>--train_masks | path to mask | | |
+| -vi<br>--validation_images | path to hazy training images | | |
+| -vm<br>--validation_masks | path to mask | | |
+| -bs<br>--batch_size | set batch_size | 8 | |
+| -nw<br>--num_workers | set num_workers | 1 | |
+| -e<br>--epochs | number of epochs for training | 150 | |
+| -lr<br>--learning_rate | learning rate for training | 0.001 | |
+| -wd<br>--weight_decay | weight decay for training | 0.00001 | |
+| -savedir<br>--model_save_dir | directory to save the model snapshot | ./trained_models/ | |
 | -device | running on CPU or GPU | GPU | |
 | -gpus | defualt GPU devices(0,1) | 0 | |
 | -resume | use this file to load last checkpoint for continuing training | | |
