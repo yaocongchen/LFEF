@@ -2,8 +2,9 @@ import os
 import wandb
 import argparse
 import shutil
+from typing import Dict, Any, Union
 
-def folders_and_files_name():
+def folders_and_files_name() -> Dict[str, str]:
     save_smoke_semantic_dir_name = "./results/testing_multiple"
     shutil.rmtree(save_smoke_semantic_dir_name, ignore_errors=True)
     os.makedirs(save_smoke_semantic_dir_name)
@@ -12,7 +13,7 @@ def folders_and_files_name():
         "smoke_semantic_dir_name": save_smoke_semantic_dir_name,
     }
 
-def wandb_information(model_name, model_size, flops, params,args):
+def wandb_information(args: Dict[str, Any], model_name: str, model_size: Union[int, float], flops: Union[int, float], params: Union[int, float]) -> None:
     wandb.init(
         project="lightssd-project-test",
         name=args["wandb_name"],
@@ -25,7 +26,7 @@ def wandb_information(model_name, model_size, flops, params,args):
         }
     )
 
-def parse_arguments():
+def parse_arguments() -> Dict[str, Any]:
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "-ti",
