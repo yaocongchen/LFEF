@@ -5,8 +5,9 @@ from sklearn.manifold import TSNE
 import argparse
 from glob import glob
 from PIL import Image
+from typing import List, Dict
 
-def load_images(image_paths):
+def load_images(image_paths: List[str]) -> np.ndarray:
     images = []
     for path in image_paths:
         image = Image.open(path)
@@ -15,7 +16,7 @@ def load_images(image_paths):
         images.append(image)
     return np.array(images)
 
-def main():
+def main(args: Dict[str, str]) -> None:
     data1_paths = glob(f"{args['dataset1']}/*.jpg")
     data2_paths = glob(f"{args['dataset2']}/*.png")
     data1 = load_images(data1_paths)
@@ -72,4 +73,4 @@ if __name__ == "__main__":
     ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
 
     args = vars(ap.parse_args())
-    main()
+    main(args)
