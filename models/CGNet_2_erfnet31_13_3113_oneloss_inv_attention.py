@@ -588,14 +588,20 @@ class AuxiliaryNetwork(nn.Module):
     def __init__(self, nIn, nOut, stride=1):
         super().__init__()
         # self.ea = ExternalAttention(d_model=nIn)
-        self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=True),nn.ReLU())
-        self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=True), nn.ReLU())
-        self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=True), nn.ReLU())
+        # self.conv_layer1 = nn.Sequential(nn.Conv2d(nIn, 8, kernel_size=3, stride=stride, padding=1, bias=True),nn.ReLU())
+        # self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=True), nn.ReLU())
+        # self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=True), nn.ReLU())
 
         # self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
         # self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
 
         # self.sigmoid = nn.Sigmoid()
+
+        self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
+        # self.level1_1 = ConvINReLU(32, 32, 3, 1)
+        # self.level1_2 = ConvINReLU(32, 32, 3, 1)
+        self.level1_1 = non_bottleneck_1d(32, 1)
+        self.level1_2 = non_bottleneck_1d(32, 2)
 
     def forward(self, input):
         # b, c, w, h = input.size()
@@ -603,9 +609,13 @@ class AuxiliaryNetwork(nn.Module):
 
         # ea_output = self.ea(input_3c)
         # ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
-        output = self.conv_layer1(input)
-        output = self.conv_layer2(output)
-        output = self.conv_layer3(output)
+        # output = self.conv_layer1(input)
+        # output = self.conv_layer2(output)
+        # output = self.conv_layer3(output)
+
+        output = self.level1_0(input)
+        output = self.level1_1(output)
+        output = self.level1_2(output)
 
 
         return output
@@ -692,10 +702,10 @@ class Net(nn.Module):
         self.brightness_adjustment = BrightnessAdjustment()
 
         self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
-        self.level1_1 = ConvINReLU(32, 32, 3, 1)
-        self.level1_2 = ConvINReLU(32, 32, 3, 1)
-        # self.level1_1 = non_bottleneck_1d(32, 1)
-        # self.level1_2 = non_bottleneck_1d(32, 2)
+        # self.level1_1 = ConvINReLU(32, 32, 3, 1)
+        # self.level1_2 = ConvINReLU(32, 32, 3, 1)
+        self.level1_1 = non_bottleneck_1d(32, 1)
+        self.level1_2 = non_bottleneck_1d(32, 2)
 
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
