@@ -74,8 +74,15 @@ mIoU: 72.00%
 
 <!-- Data preparation -->
 
+Single GPU training
+
 ``` shell
 python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_downsample
+```
+Multiple GPU training
+
+``` shell
+python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_downsample -gpus 0,1
 ```
 
 | Parameter | Description | Default Value |
@@ -101,20 +108,8 @@ python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_
 | -svil<br>--save_validation_image_last | Save the last validation image. Include this argument to enable this feature. | False |
 | -svib<br>--save_validation_image_best | Save the best validation image. Include this argument to enable this feature. | False |
 
-Single GPU training
-
-``` shell
-# train yolov9 models
-
-```
-
-Multiple GPU training
-
-``` shell
-# train yolov9 models
 
 
-```
 
 ## Inference
 
@@ -125,9 +120,7 @@ Multiple GPU training
 </div>
 
 ``` shell
-# inference smoke segmentation models
 python inference_multiple_pictures_for_evaluate.py -td /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/ -m /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/best.pth
-
 ```
 
 
@@ -153,7 +146,7 @@ python inference_multiple_pictures_for_evaluate.py -td /home/yaocong/Experimenta
 
 ## Acknowledgements
 
-<details><summary> <b>Expand</b> </summary>
+<!-- <details><summary> <b>Expand</b> </summary>
 
 * [https://github.com/AlexeyAB/darknet](https://github.com/AlexeyAB/darknet)
 * [https://github.com/WongKinYiu/yolor](https://github.com/WongKinYiu/yolor)
@@ -163,4 +156,4 @@ python inference_multiple_pictures_for_evaluate.py -td /home/yaocong/Experimenta
 * [https://github.com/ultralytics/yolov5](https://github.com/ultralytics/yolov5)
 * [https://github.com/meituan/YOLOv6](https://github.com/meituan/YOLOv6)
 
-</details>
+</details> -->
