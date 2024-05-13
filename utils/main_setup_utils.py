@@ -2,8 +2,11 @@ import os
 import wandb
 import argparse
 import shutil
+from typing import Dict, Union
+from torch.nn import Module
+from torch.optim import Optimizer
 
-def folders_and_files_name(args):
+def folders_and_files_name(args: Dict[str, Union[str, bool]]) -> Dict[str, str]:
     save_training_data_captures_dir_name = "./results/training_data_captures/"
     save_validation_data_captures_dir_name = "./results/validation_data_captures/"
 
@@ -19,13 +22,13 @@ def folders_and_files_name(args):
         "validation_data_captures_dir_name": save_validation_data_captures_dir_name,
     }
 
-def set_model_save_dir_names(args):
+def set_model_save_dir_names(args: Dict[str, Union[str, bool]]) -> None:
     # args["model_save_dir"] = f'{args["model_save_dir"]}/bs{args["batch_size"]}e{args["epochs"]}/'
     args["model_save_dir"] = f"{args['model_save_dir']}/"
     if not os.path.exists(args["model_save_dir"]):
         os.makedirs(args["model_save_dir"])
 
-def create_model_state_dict(epoch, model, optimizer, mean_loss, mean_miou, save_mean_miou):
+def create_model_state_dict(epoch: int, model: Module, optimizer: Optimizer, mean_loss: float, mean_miou: float, save_mean_miou: float) -> Dict[str, Union[int, float, Dict[str, float]]]:
     state = {
         "epoch": epoch,
         "model_state_dict": model.state_dict(),
@@ -36,7 +39,7 @@ def create_model_state_dict(epoch, model, optimizer, mean_loss, mean_miou, save_
     }
     return state
 
-def time_processing(spend_time):
+def time_processing(spend_time: float) -> Dict[str, float]:
     time_dict = {}
     time_dict["time_day"], spend_time = divmod(spend_time, 86400)
     time_dict["time_hour"], spend_time = divmod(spend_time, 3600)
@@ -44,7 +47,7 @@ def time_processing(spend_time):
 
     return time_dict
 
-def wandb_information(args, model_name, model_size, flops, params, model, train_images, train_masks):
+def wandb_information(args: Dict[str, Union[str, bool, int, float]], model_name: str, model_size: str, flops: str, params: str, model: Module, train_images: str, train_masks: str) -> None:
     wandb.init(
         # Initialize wandb 初始化wandb
         # set the wandb project where this run will be logged

@@ -2,6 +2,7 @@ import torch
 import argparse
 import os
 import time
+from typing import Dict, Any
 
 from visualization_codes import (
     inference_single_picture,
@@ -13,7 +14,7 @@ from utils.metrics import report_fps_and_time
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
 
 
-def smoke_segmentation(args,device):
+def smoke_segmentation(args: Dict[str, Any], device: torch.device) -> None:
     model = network_model.Net().to(device)
     model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
     torch.set_float32_matmul_precision('high')

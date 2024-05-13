@@ -6,6 +6,8 @@ from skimage.metrics import structural_similarity
 from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
 import torchvision.models as models
 import segmentation_models_pytorch as smp
+from typing import Any, Dict, Union, Tuple
+from torch import Tensor
 
 alpha = 0.2
 lambda_reg = 0.2
@@ -15,10 +17,8 @@ L = nn.BCELoss(reduction="mean")
 smp_loss = smp.losses.MCCLoss()
 
 
-def IoU(
-    model_output, mask, smooth=1
-):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
-    
+def IoU(model_output: Tensor, mask: Tensor, smooth: int = 1) -> Tensor:
+    # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
     model_output = (model_output > 0.5).float()
 
 
@@ -37,21 +37,21 @@ def IoU(
         (intersection + smooth) / (union + smooth), dim=0
     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
 
-def ssim_val(model_output, mask):
+def ssim_val(model_output: Tensor, mask: Tensor) -> Any:
 
     model_output = (model_output > 0.5).float()
     msssim = ssim(model_output, mask, data_range=1)
     
     return msssim
 
-def dice_coef(model_output, mask):
+def dice_coef(model_output: Tensor, mask: Tensor) -> Tensor:
     model_output = (model_output > 0.5).float()
     intersection = torch.sum(model_output * mask)
     union = torch.sum(model_output) + torch.sum(mask)
     dice = 1 - (2.0 * intersection + 1) / (union + 1)  # 加上平滑項
     return dice
 
-def boundary_loss(pred, target):
+def boundary_loss(pred: Tensor, target: Tensor) -> Tensor:
 
     pred = (pred > 0.5).float()
     # 計算邊界
@@ -63,7 +63,7 @@ def boundary_loss(pred, target):
     
     return boundary_loss
 
-def CustomLoss(*args, **kwargs):
+def CustomLoss(*args: Tensor, **kwargs: Any) -> Tensor:
     model_output = args[0]
     mask = args[-1] 
     

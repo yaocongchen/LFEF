@@ -8,12 +8,13 @@ import os
 from torchvision import transforms
 import threading
 from copy import deepcopy
+from typing import Union
 
 from utils.inference import smoke_semantic
 import visualization_codes.utils.image_process as image_process
 
 
-def save(video_W: int, video_H: int, video_FPS):
+def save(video_W: int, video_H: int, video_FPS: float) -> cv2.VideoWriter:
     os.makedirs("./results/process_video/", exist_ok=True)
     save_file_name = time.strftime("%Y-%m-%d_%I:%M:%S_%p", time.localtime())
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
@@ -23,7 +24,7 @@ def save(video_W: int, video_H: int, video_FPS):
     return output
 
 
-def image_pre_processing(input, device):
+def image_pre_processing(input: np.ndarray, device: torch.device) -> torch.Tensor:
     process_frame = torch.from_numpy(input).to(device)
     process_frame = process_frame.permute(2, 0, 1).contiguous()
     transform = transforms.Resize([256, 256], antialias=True)  # 插值
@@ -36,15 +37,15 @@ def image_pre_processing(input, device):
 
 # Main function 主函式
 def smoke_segmentation(
-    video_path: str,
+    video_path: Union[str, int],
     model: str,
     device: torch.device,
     overlap_image: bool,
-    save_video: str,
-    show_video: str,
-    time_train,
-    i,
-):
+    save_video: bool,
+    show_video: bool,
+    time_train: float,
+    i: int
+) -> None:
     print("overlap_image:", overlap_image)
     print("save_video:", save_video)
     print("show_video:", show_video)

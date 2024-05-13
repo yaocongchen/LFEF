@@ -6,17 +6,18 @@
 import torch
 import torchvision
 import os
-import argparse
 import time
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 import wandb
 import segmentation_models_pytorch as smp
+from typing import Dict, Any, Tuple
+from torch.nn import Module
 
 import utils
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model 
 from utils.inference import smoke_semantic
-from utils.test_setup_utils import wandb_information, folders_and_files_name, parse_arguments
+from utils.val_setup_utils import wandb_information, folders_and_files_name, parse_arguments
 from utils.metrics import report_fps_and_time
 
 model_name = str(network_model)
@@ -24,7 +25,7 @@ print("model_name:", model_name)
 
 
 # Main function 主函式
-def smoke_segmentation(model, device, names, args):
+def smoke_segmentation(args: Dict[str, Any], names: Dict[str, str], device: torch.device, model: Module) -> Tuple[float, float, float, float]:
     print("test_data:", args["test_images"])
 
     epoch_loss = []
@@ -125,12 +126,9 @@ def smoke_segmentation(model, device, names, args):
 
 if __name__ == "__main__":
     args = parse_arguments()
-
+    names = folders_and_files_name()
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print(f"Testing on device {device}.")
-
-    names = folders_and_files_name()
-
     model = network_model.Net().to(device)
 
     # Calculation model size parameter amount and calculation amount
@@ -143,7 +141,7 @@ if __name__ == "__main__":
     
     # wandb.ai
     if args["wandb_name"] != "no":
-        wandb_information(model_name, model_size, flops, params,args)
+        wandb_information(args, model_name, model_size, flops, params)
 
     model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
     torch.set_float32_matmul_precision('high')
@@ -151,7 +149,7 @@ if __name__ == "__main__":
     model.eval()
 
     time_start = time.time()
-    Avg_loss, Avg_miou, Avg_mSSIM, Avg_hd = smoke_segmentation(model, device, names, args)
+    Avg_loss, Avg_miou, Avg_mSSIM, Avg_hd = smoke_segmentation(args, names, device, model)
     time_end = time.time()
     total_image = len(os.listdir(args["test_images"]))
     fps, time_min, time_sec = report_fps_and_time(total_image, time_start, time_end)

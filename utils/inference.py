@@ -1,3 +1,6 @@
+from typing import List, Tuple
+from torch import Tensor
+from torch.nn import Module
 import torch
 import torchvision
 import torch.optim
@@ -7,7 +10,7 @@ from torchvision import transforms
 import time
 
 
-def smoke_semantic(input_image, model, device, time_train, i):
+def smoke_semantic(input_image: Tensor, model: Module, device: torch.device, time_train: List[float], i: int) -> Tuple[Tensor, Tensor]:
     start_time = time.time()
 
     with torch.no_grad():

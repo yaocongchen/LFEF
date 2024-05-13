@@ -9,19 +9,20 @@ from tqdm import tqdm
 from torchvision import transforms
 from torchvision.io import read_image
 from PIL import Image, ImageOps
+from typing import Dict, Tuple, Union
 
 from utils.inference import smoke_semantic
 
 import visualization_codes.utils.image_process as image_process
 
 
-def create_directory(dir_name):
+def create_directory(dir_name: str) -> None:
     path = f"./results/process_folder/{dir_name}"
     if os.path.exists(path):
         shutil.rmtree(path)
     os.makedirs(path)
 
-def folders_and_files_name():
+def folders_and_files_name() -> Dict[str, str]:
     dir_names = ["multiple_result", "multiple_overlap", "multiple_stitching"]
     image_names = ["smoke_semantic_image", "image_overlap", "image_stitching"]
 
@@ -39,14 +40,14 @@ def folders_and_files_name():
 
     return names
 
-def load_and_process_image(image_path, size=(256, 256)):
+def load_and_process_image(image_path: str, size: Tuple[int, int] = (256, 256)) -> Image:
     img = Image.open(image_path)
     img = img.resize(size)
     img = ImageOps.expand(img, 20, "#ffffff")
     return img
 
 # Merge all resulting images 合併所有產生之圖像
-def image_stitching(input_image, i, names):
+def image_stitching(input_image: str, i: int, names: Dict[str, str]) -> None:
     bg = Image.new("RGB", (900, 300), "#000000")
     image_paths = [
         input_image,
@@ -63,7 +64,7 @@ def image_stitching(input_image, i, names):
     return
 
 # The trained feature map is fuse d with the original image 訓練出的特徵圖融合原圖
-def image_overlap(input_image, i, names):
+def image_overlap(input_image: str, i: int, names: Dict[str, str]) -> None:
     img1 = Image.open(input_image)
     img2 = Image.open(
         f'./results/process_folder/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{i}.jpg'
@@ -85,8 +86,8 @@ def image_overlap(input_image, i, names):
 
 # Main function 主函式
 def smoke_segmentation(
-    directory: str, model: str, device: torch.device, names: dict, time_train, i
-):
+    directory: str, model: str, device: torch.device, names: Dict[str, str], time_train: float, i: int
+) -> None:
     i = 0
     pbar = tqdm((os.listdir(directory)), total=len(os.listdir(directory)))
     for filename in pbar:

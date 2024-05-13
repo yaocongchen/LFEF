@@ -9,6 +9,7 @@ from torchvision import transforms
 import threading
 from copy import deepcopy
 import shutil
+from typing import Dict, Union
 #定位到主目錄
 import sys
 sys.path.append("..")
@@ -18,13 +19,13 @@ from utils.inference import smoke_semantic
 import visualization_codes.utils.image_process as image_process
 
 
-def create_directory(dir_name):
+def create_directory(dir_name: str) -> None:
     path = f"./results/video_to_frames/{dir_name}"
     if os.path.exists(path):
         shutil.rmtree(path)
     os.makedirs(path)
 
-def folders_and_files_name():
+def folders_and_files_name() -> Dict[str, str]:
     dir_names = ["RGB_original_image", "segmentation_image", "overlap_image"]
     for dir_name in dir_names:
         create_directory(dir_name)
@@ -39,7 +40,7 @@ def folders_and_files_name():
     return names
 
 
-def save(video_W: int, video_H: int, video_FPS):
+def save(video_W: int, video_H: int, video_FPS: float) -> cv2.VideoWriter:
     os.makedirs("./results/video_to_frames", exist_ok=True)
     save_file_name = time.strftime("%Y-%m-%d_%I:%M:%S_%p", time.localtime())
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
@@ -49,7 +50,7 @@ def save(video_W: int, video_H: int, video_FPS):
     return output
 
 
-def image_pre_processing(input, device):
+def image_pre_processing(input: np.ndarray, device: torch.device) -> torch.Tensor:
     process_frame = torch.from_numpy(input).to(device)
     process_frame = process_frame.permute(2, 0, 1).contiguous()
     transform = transforms.Resize([256, 256], antialias=True)  # 插值
@@ -60,16 +61,15 @@ def image_pre_processing(input, device):
     return output
 
 
-# Main function 主函式
 def smoke_segmentation(
-    video_path: str,
-    model_input,
+    video_path: Union[str, int],
+    model_input: torch.nn.Module,
     device: torch.device,
-    names: dict,
+    names: Dict[str, str],
     overlap_image: bool,
-    time_train,
-    i,
-):
+    time_train: float,
+    i: int
+) -> None:
     i = 0
     print("overlap_image:", overlap_image)
 

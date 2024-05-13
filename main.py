@@ -11,6 +11,7 @@ import os
 import time
 import wandb
 import torch.onnx
+from typing import Dict, List, Any, Tuple
 
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
 from utils.main_setup_utils import folders_and_files_name, set_model_save_dir_names, create_model_state_dict, time_processing, wandb_information, parse_arguments
@@ -28,7 +29,8 @@ print("model_name:", model_name)
 
 seed = 42
 
-def main():
+
+def main(args: Dict[str, Any], names: Dict[str, str]) -> None:
     train_images, train_masks, training_data_loader, validation_data_loader = data_processing_train_8_val_DS01(args)
 
     save_mean_miou = 0
@@ -137,5 +139,5 @@ def main():
 if __name__ == "__main__":
     args = parse_arguments()
     names = folders_and_files_name(args)
-    main()
+    main(args, names)
     wandb.finish()

@@ -1,7 +1,9 @@
 import os
 import torch
+from typing import Dict, Tuple
+from torch.nn import Module
 
-def check_have_GPU(args):
+def check_have_GPU(args: Dict[str, str]) -> None:
     # Check have GPU device 確認是否有GPU裝置
     if args["device"] == "GPU":
         print("====> Use gpu id:'{}'".format(args["gpus"]))
@@ -12,7 +14,7 @@ def check_have_GPU(args):
             )  # 例外事件跳出
 
 
-def check_number_of_GPUs(args, model):
+def check_number_of_GPUs(args: Dict[str, str], model: Module) -> Tuple[Module, torch.device]:
     if args["device"] == "GPU":
         # args.gpu_nums = 1
         if torch.cuda.device_count() > 1:
@@ -32,7 +34,7 @@ def check_number_of_GPUs(args, model):
     return model, device
 
 # setting random seed
-def set_seed(seed):
+def set_seed(seed: int) -> None:
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)

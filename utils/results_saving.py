@@ -2,8 +2,11 @@ import torch
 import torchvision
 import wandb
 import time
+from typing import Dict, Union
+from torch import Tensor
+from torch.nn import Module
 
-def save_model_and_state(args, model, state, mean_loss, mean_miou, onnx_img_image, path, filename):
+def save_model_and_state(args: Dict[str, Union[str, bool]], model: Module, state: Dict, mean_loss: float, mean_miou: float, onnx_img_image: Tensor, path: str, filename: str) -> None:
     torch.save(state, f"{path}{filename}_checkpoint.pth")
     torch.save(model.state_dict(), f"{path}{filename}.pth")
     # torch.onnx.export(model, onnx_img_image, f"{path}{filename}.onnx", verbose=False)
@@ -13,13 +16,13 @@ def save_model_and_state(args, model, state, mean_loss, mean_miou, onnx_img_imag
         wandb.save(f"{path}{filename}.pth", base_path="./")
         # wandb.save(f"{path}{filename}.onnx", base_path="./")
 
-def save_and_log_image(args, image, path, filename):
+def save_and_log_image(args: Dict[str, Union[str, bool]], image: Tensor, path: str, filename: str) -> None:
     full_path = f"{path}/{filename}.jpg"
     torchvision.utils.save_image(image, full_path)
     if args["wandb_name"] != "no":
         wandb.log({filename: wandb.Image(full_path)})
 
-def save_experiment_details(args, model_name, train_images, train_masks):
+def save_experiment_details(args: Dict[str, Union[str, bool, int, float]], model_name: str, train_images: str, train_masks: str) -> None:
     with open(f"{args['model_save_dir']}/log.txt", "w") as f:
         f.write(f"{model_name}\n"
                 f"train_images: {train_images}\n"
