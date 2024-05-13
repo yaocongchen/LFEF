@@ -80,21 +80,26 @@ python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_
 
 | Parameter | Description | Default Value |
 | --- | --- | --- |
-| -train_dataset<br>--train_dataset_path | use dataset path | Host_SYN70K |
-| -validation_dataset<br>--validation_dataset_path | use test dataset path | Host_DS0123 |
-| -ti<br>--train_images | path to hazy training images | |
-| -tm<br>--train_masks | path to mask | |
-| -vi<br>--validation_images | path to hazy training images | |
-| -vm<br>--validation_masks | path to mask | |
-| -bs<br>--batch_size | set batch_size | 8 |
-| -nw<br>--num_workers | set num_workers | 1 |
-| -e<br>--epochs | number of epochs for training | 150 |
-| -lr<br>--learning_rate | learning rate for training | 0.001 |
-| -wd<br>--weight_decay | weight decay for training | 0.00001 |
-| -savedir<br>--model_save_dir | directory to save the model snapshot | ./trained_models/ |
-| -device | running on CPU or GPU | GPU |
-| -gpus | defualt GPU devices(0,1) | 0 |
-| -resume | use this file to load last checkpoint for continuing training | |
+| -train_dataset<br>--train_dataset_path | Path to the training dataset. | Host_SYN70K |
+| -validation_dataset<br>--validation_dataset_path | Path to the validation dataset. | Host_DS0123 |
+| -ti<br>--train_images | Path to the directory containing training images. | None |
+| -tm<br>--train_masks | Path to the directory containing training masks. | None |
+| -vi<br>--validation_images | Path to the directory containing validation images. | None |
+| -vm<br>--validation_masks | Path to the directory containing validation masks. | None |
+| -bs<br>--batch_size | Batch size for training. | 8 |
+| -nw<br>--num_workers | Number of workers for data loading. | 1 |
+| -e<br>--epochs | Number of epochs for training. | 150 |
+| -lr<br>--learning_rate | Learning rate for the optimizer. | 0.001 |
+| -wd<br>--weight_decay | Weight decay for the optimizer. | 0.00001 |
+| -savedir<br>--model_save_dir | Directory to save the trained models. | ./trained_models/ |
+| -device | Device to run the training on. Choose between 'CPU' and 'GPU'. | GPU |
+| -gpus | GPU devices to use for training. For multiple GPUs, separate by comma. | 0 |
+| -resume | Path to the last checkpoint. Use this to resume training. | /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint_sample.pth |
+| -wn<br>--wandb_name | Name of the Weights & Biases run. Use 'no' to disable Weights & Biases. | no |
+| -wid<br>--wandb_id | Weights & Biases run ID. | None |
+| -sti<br>--save_train_image | Save the training images. Include this argument to enable this feature. | False |
+| -svil<br>--save_validation_image_last | Save the last validation image. Include this argument to enable this feature. | False |
+| -svib<br>--save_validation_image_best | Save the best validation image. Include this argument to enable this feature. | False |
 
 Single GPU training
 
