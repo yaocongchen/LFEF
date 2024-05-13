@@ -94,7 +94,7 @@ python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_
 | -savedir<br>--model_save_dir | Directory to save the trained models. | ./trained_models/ |
 | -device | Device to run the training on. Choose between 'CPU' and 'GPU'. | GPU |
 | -gpus | GPU devices to use for training. For multiple GPUs, separate by comma. | 0 |
-| -resume | Path to the last checkpoint. Use this to resume training. | /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint_sample.pth |
+| -resume | Path to the last checkpoint. Use this to resume training. | ./trained_models/last_checkpoint_sample.pth |
 | -wn<br>--wandb_name | Name of the Weights & Biases run. Use 'no' to disable Weights & Biases. | no |
 | -wid<br>--wandb_id | Weights & Biases run ID. | None |
 | -sti<br>--save_train_image | Save the training images. Include this argument to enable this feature. | False |
