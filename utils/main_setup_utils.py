@@ -2,27 +2,33 @@ import os
 import wandb
 import argparse
 import shutil
+from typing import Dict, Union
+from torch.nn import Module
+from torch.optim import Optimizer
 
-def folders_and_files_name():
+def folders_and_files_name(args: Dict[str, Union[str, bool]]) -> Dict[str, str]:
     save_training_data_captures_dir_name = "./results/training_data_captures/"
-    shutil.rmtree(save_training_data_captures_dir_name, ignore_errors=True)
-    os.makedirs(save_training_data_captures_dir_name)
     save_validation_data_captures_dir_name = "./results/validation_data_captures/"
-    shutil.rmtree(save_validation_data_captures_dir_name, ignore_errors=True)
-    os.makedirs(save_validation_data_captures_dir_name)
+
+    if args["save_train_image"]:
+        shutil.rmtree(save_training_data_captures_dir_name, ignore_errors=True)
+        os.makedirs(save_training_data_captures_dir_name)
+    if args["save_validation_image_last"] or args["save_validation_image_best"]:
+        shutil.rmtree(save_validation_data_captures_dir_name, ignore_errors=True)
+        os.makedirs(save_validation_data_captures_dir_name)
 
     return {
         "training_data_captures_dir_name": save_training_data_captures_dir_name,
         "validation_data_captures_dir_name": save_validation_data_captures_dir_name,
     }
 
-def set_model_save_dir_names(args):
+def set_model_save_dir_names(args: Dict[str, Union[str, bool]]) -> None:
     # args["model_save_dir"] = f'{args["model_save_dir"]}/bs{args["batch_size"]}e{args["epochs"]}/'
     args["model_save_dir"] = f"{args['model_save_dir']}/"
     if not os.path.exists(args["model_save_dir"]):
         os.makedirs(args["model_save_dir"])
 
-def create_model_state_dict(epoch, model, optimizer, mean_loss, mean_miou, save_mean_miou):
+def create_model_state_dict(epoch: int, model: Module, optimizer: Optimizer, mean_loss: float, mean_miou: float, save_mean_miou: float) -> Dict[str, Union[int, float, Dict[str, float]]]:
     state = {
         "epoch": epoch,
         "model_state_dict": model.state_dict(),
@@ -33,7 +39,7 @@ def create_model_state_dict(epoch, model, optimizer, mean_loss, mean_miou, save_
     }
     return state
 
-def time_processing(spend_time):
+def time_processing(spend_time: float) -> Dict[str, float]:
     time_dict = {}
     time_dict["time_day"], spend_time = divmod(spend_time, 86400)
     time_dict["time_hour"], spend_time = divmod(spend_time, 3600)
@@ -41,7 +47,7 @@ def time_processing(spend_time):
 
     return time_dict
 
-def wandb_information(args, model_name, model_size, flops, params, model, train_images, train_masks):
+def wandb_information(args: Dict[str, Union[str, bool, int, float]], model_name: str, model_size: str, flops: str, params: str, model: Module, train_images: str, train_masks: str) -> None:
     wandb.init(
         # Initialize wandb 初始化wandb
         # set the wandb project where this run will be logged
@@ -80,106 +86,103 @@ def parse_arguments():
         "-train_dataset",
         "--train_dataset_path",
         default="Host_SYN70K",
-        help="use dataset path",
+        help="Path to the training dataset.",
     )
     ap.add_argument(
         "-validation_dataset",
         "--validation_dataset_path",
         default="Host_DS0123",
-        help="use test dataset path",
+        help="Path to the validation dataset.",
     )
 
     ap.add_argument(
         "-ti",
         "--train_images",
-        help="path to hazy training images",
+        help="Path to the directory containing training images.",
     )
     ap.add_argument(
         "-tm",
         "--train_masks",
-        help="path to mask",
+        help="Path to the directory containing training masks.",
     )
     ap.add_argument(
         "-vi",
         "--validation_images",
-        help="path to hazy training images",
+        help="Path to the directory containing validation images.",
     )
     ap.add_argument(
         "-vm",
         "--validation_masks",
-        help="path to mask",
+        help="Path to the directory containing validation masks.",
     )
 
-    ap.add_argument("-bs", "--batch_size", type=int, default=8, help="set batch_size")
-    ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
+    ap.add_argument("-bs", "--batch_size", type=int, default=8, help="Batch size for training.")
+    ap.add_argument("-nw", "--num_workers", type=int, default=1, help="Number of workers for data loading.")
     ap.add_argument(
-        "-e", "--epochs", type=int, default=150, help="number of epochs for training"
+        "-e", "--epochs", type=int, default=150, help="Number of epochs for training."
     )
     ap.add_argument(
         "-lr",
         "--learning_rate",
         type=float,
         default=0.001,
-        help="learning rate for training",
+        help="Learning rate for the optimizer.",
     )    
     ap.add_argument(
         "-wd",
         "--weight_decay",
         type=float,
         default=0.00001,
-        help="weight decay for training",
+        help="Weight decay for the optimizer.",
     )
     ap.add_argument(
         "-savedir",
         "--model_save_dir",
         default="./trained_models/",
-        help="directory to save the model snapshot",
+        help="Directory to save the trained models.",
     )
-    ap.add_argument("-device", default="GPU", help="running on CPU or GPU")
-    ap.add_argument("-gpus", type=str, default="0", help="defualt GPU devices(0,1)")
+    ap.add_argument("-device", default="GPU", help="Device to run the training on. Choose between 'CPU' and 'GPU'.")
+    ap.add_argument("-gpus", type=str, default="0", help="GPU devices to use for training. For multiple GPUs, separate by comma.")
     ap.add_argument(
         "-resume",
         type=str,
         default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint_sample.pth",
-        help="use this file to load last checkpoint for continuing training",
-    )  # Use this flag to load last checkpoint for training
+        help="Path to the last checkpoint. Use this to resume training.",
+    )
     ap.add_argument(
         "-wn",
         "--wandb_name",
         type=str,
         default="no",
-        help="Name of the W&B run. Use 'no' to disable W&B.",
+        help="Name of the Weights & Biases run. Use 'no' to disable Weights & Biases.",
     )
     ap.add_argument(
         "-wid",
         "--wandb_id",
         type=str,
         default=None,
-        help="wandb id",
+        help="Weights & Biases run ID.",
     )
     ap.add_argument(
         "-sti",
         "--save_train_image",
-        type=str,
-        default="no",
-        help="wandb test name,but 'no' is not use wandb",
+        action='store_true',
+        help="Save the training images. Include this argument to enable this feature.",
     )
     ap.add_argument(
         "-svil",
         "--save_validation_image_last",
-        type=str,
-        default="no",
-        help="Save the last validation image. Use 'no' to disable this feature.",
+        action='store_true',
+        help="Save the last validation image. Include this argument to enable this feature.",
     )
     ap.add_argument(
         "-svib",
         "--save_validation_image_best",
-        type=str,
-        default="no",
-        help="Save the best validation image. Use 'no' to disable this feature.",
+        action='store_true',
+        help="Save the best validation image. Include this argument to enable this feature.",
     )
     args = vars(
         ap.parse_args()
-    )  # Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
+    ) # Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
 
     return args

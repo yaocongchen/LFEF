@@ -5,8 +5,9 @@ from sklearn.manifold import TSNE
 import argparse
 from glob import glob
 from PIL import Image
+from typing import List, Dict
 
-def load_images(image_paths):
+def load_images(image_paths: List[str]) -> np.ndarray:
     images = []
     for path in image_paths:
         image = Image.open(path)
@@ -15,7 +16,7 @@ def load_images(image_paths):
         images.append(image)
     return np.array(images)
 
-def main():
+def main(args: Dict[str, str]) -> None:
     data1_paths = glob(f"{args['dataset1']}/*.jpg")
     data2_paths = glob(f"{args['dataset2']}/*.png")
     data1 = load_images(data1_paths)
@@ -53,23 +54,20 @@ def main():
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    # ap.add_argument(
-    #     "-td", "--test_directory", required=True, help="path to test images directory"
-    # )
     ap.add_argument(
         "-data1",
         "--dataset1",
         default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
-        help="path to dataset1",
+        help="Path to the first dataset for t-SNE visualization.",
     )
     ap.add_argument(
         "-data2",
         "--dataset2",
         default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/img/",
-        help="path to dataset2",
+        help="Path to the second dataset for t-SNE visualization.",
     )
-    ap.add_argument("-bs", "--batch_size", type=int, default=1, help="set batch_size")
-    ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
-
+    ap.add_argument("-bs", "--batch_size", type=int, default=1, help="Batch size for data loading.")
+    ap.add_argument("-nw", "--num_workers", type=int, default=1, help="Number of workers for data loading.")
+    
     args = vars(ap.parse_args())
-    main()
+    main(args)

@@ -78,35 +78,28 @@ mIoU: 72.00%
 python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_downsample
 ```
 
-* "-train_dataset" : train_dataset_path, default="Host_SYN70K".
-* "-validation_dataset" : "validation_dataset_path", default="Host_DS0123".
-* "-ti" : "train_images",
-* "-tm" : "train_masks",
-* "-vi" : "validation_images",
-* "-vm" : "--validation_masks",
-* "-bs", "--batch_size",
-* "-nw", "--num_workers"
-* "-e", "--epochs"
-* "-lr","--learning_rate",
-* "-wd","--weight_decay",
-* "-savedir","--model_save_dir",
-* "-device", default="GPU",
-* "-gpus", type=str, default="0", help="defualt GPU devices(0,1)"
-* "-resume", default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint_sample.pth",
-        help="use this file to load last checkpoint for continuing training",  # Use this flag to load last checkpoint for training
-* "-wn","--wandb_name", default="no",
-        help="Name of the W&B run. Use 'no' to disable W&B.",
-* "-wid","--wandb_id",
-* "-sti", "--save_train_image",
-        type=str,
-        default="no",
-        help="wandb test name,but 'no' is not use wandb",
-* "-svil", "--save_validation_image_last",
-        default="no",
-        help="Save the last validation image. Use 'no' to disable this feature.",
-* "-svib","--save_validation_image_best",
-        default="no",
-        help="Save the best validation image. Use 'no' to disable this feature.",
+| Parameter | Description | Default Value |
+| --- | --- | --- |
+| -train_dataset<br>--train_dataset_path | Path to the training dataset. | Host_SYN70K |
+| -validation_dataset<br>--validation_dataset_path | Path to the validation dataset. | Host_DS0123 |
+| -ti<br>--train_images | Path to the directory containing training images. | None |
+| -tm<br>--train_masks | Path to the directory containing training masks. | None |
+| -vi<br>--validation_images | Path to the directory containing validation images. | None |
+| -vm<br>--validation_masks | Path to the directory containing validation masks. | None |
+| -bs<br>--batch_size | Batch size for training. | 8 |
+| -nw<br>--num_workers | Number of workers for data loading. | 1 |
+| -e<br>--epochs | Number of epochs for training. | 150 |
+| -lr<br>--learning_rate | Learning rate for the optimizer. | 0.001 |
+| -wd<br>--weight_decay | Weight decay for the optimizer. | 0.00001 |
+| -savedir<br>--model_save_dir | Directory to save the trained models. | ./trained_models/ |
+| -device | Device to run the training on. Choose between 'CPU' and 'GPU'. | GPU |
+| -gpus | GPU devices to use for training. For multiple GPUs, separate by comma. | 0 |
+| -resume | Path to the last checkpoint. Use this to resume training. | /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint_sample.pth |
+| -wn<br>--wandb_name | Name of the Weights & Biases run. Use 'no' to disable Weights & Biases. | no |
+| -wid<br>--wandb_id | Weights & Biases run ID. | None |
+| -sti<br>--save_train_image | Save the training images. Include this argument to enable this feature. | False |
+| -svil<br>--save_validation_image_last | Save the last validation image. Include this argument to enable this feature. | False |
+| -svib<br>--save_validation_image_best | Save the best validation image. Include this argument to enable this feature. | False |
 
 Single GPU training
 

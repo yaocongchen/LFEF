@@ -6,6 +6,8 @@ import time
 import os
 import PIL.Image as Image
 import numpy as np
+from typing import Any, Dict, Tuple, Union, Optional
+import torch
 
 #定位到主目錄
 import sys
@@ -15,22 +17,22 @@ import val
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
 import utils
 from visualization_codes import inference_single_picture
-from utils.test_setup_utils import folders_and_files_name
+from utils.val_setup_utils import folders_and_files_name
 
 model_name = str(network_model)
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-Model_folder = "../trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/"
+Model_folder = "../trained_models/server/"
 MODEL_LOG = Model_folder + "log.txt"
 
 
-def choose_model_path(model_file):
+def choose_model_path(model_file: str) -> str:
     if model_file == "last.pth":
         return Model_folder + "last.pth"
     elif model_file == "best.pth":
         return Model_folder + "best.pth"
 
-def load_model(args):
+def load_model(args: Dict[str, Any]) -> Tuple[torch.nn.Module, int, int, int]:
     model = network_model.Net().to(device)
     c = utils.metrics.Calculate(model)
     model_size = c.get_model_size()
@@ -41,11 +43,11 @@ def load_model(args):
     model.eval()
     return model, model_size, flops, params
 
-def evaluate_dataset(args):
+def evaluate_dataset(args: Dict[str, Any]) -> Tuple[float, float, float, float, int, int, int, int, int, int]:
     names = folders_and_files_name()
     model, model_size, flops, params = load_model(args)
     time_start = time.time()
-    Avg_loss, Avg_miou, Avg_mSSIM, Avg_hd = val.smoke_segmentation(model,device,names,args)
+    Avg_loss, Avg_miou, Avg_mSSIM, Avg_hd = val.smoke_segmentation(args, names, device, model)
     time_end = time.time()
     Avg_loss = round(Avg_loss, 4)
     Avg_miou = round(Avg_miou, 1)
@@ -54,7 +56,7 @@ def evaluate_dataset(args):
     fps, time_min,time_sec = utils.metrics.report_fps_and_time(total_image, time_start, time_end)
     return Avg_loss, Avg_miou, Avg_mSSIM, Avg_hd, fps, time_min ,time_sec, model_size, flops, params
 
-def prepare_args(model_file,operation_input):
+def prepare_args(model_file: str, operation_input: str) -> Dict[str, Any]:
     MODEL_PATH = choose_model_path(model_file)
     return {
         "batch_size": 1,
@@ -66,7 +68,7 @@ def prepare_args(model_file,operation_input):
     }
 
 
-def evaluate_and_report_dataset(model_file,operation_input):
+def evaluate_and_report_dataset(model_file: str, operation_input: str) -> Optional[Tuple[float, float, float, float, str, str, int, int, int, str, str]]:
     if model_file in ["last.pth", "best.pth"]:
         use_model_file = model_file
         if operation_input in ["DS01", "DS02", "DS03", "Real"]:
@@ -81,7 +83,7 @@ def evaluate_and_report_dataset(model_file,operation_input):
         gr.Warning("Please choice your model file")
         return
 
-def process_and_display_image(model_file,image):
+def process_and_display_image(model_file: str, image: np.ndarray) -> Optional[Tuple[np.ndarray, np.ndarray, np.ndarray, str]]:
     if model_file in ["last.pth", "best.pth"]:
         use_model_file = model_file
         MODEL_PATH = choose_model_path(model_file)
@@ -106,7 +108,7 @@ def process_and_display_image(model_file,image):
         gr.Warning("Please choice your model file")
         return
 
-def update_model_and_report_time():
+def update_model_and_report_time() -> str:
     os.system("bash ../scripts/check_trained_model_update.sh")
     log_time = os.path.getmtime(MODEL_LOG)
     log_time_localtime = time.localtime(log_time)

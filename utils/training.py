@@ -7,8 +7,14 @@ import utils.loss
 import utils.metrics
 import utils
 import segmentation_models_pytorch as smp
+from typing import Dict, Union, Tuple
+from torch import Tensor
+from torch.nn import Module
+from torch.optim import Optimizer
+from torch.utils.data import DataLoader
+from torch.cuda import device
 
-def train_epoch(args, model, training_data_loader, device, optimizer, epoch):
+def train_epoch(args: Dict[str, Union[str, bool, int]], model: Module, training_data_loader: DataLoader, device: device, optimizer: Optimizer, epoch: int) -> Tuple[Tensor, Tensor, Tensor]:
     model.train()
     cudnn.benchmark = True
     count = 0
@@ -91,7 +97,7 @@ def train_epoch(args, model, training_data_loader, device, optimizer, epoch):
     return RGB_image, mask_image, output
 
 
-def valid_epoch(args ,model, validation_data_loader, device, epoch):
+def valid_epoch(args: Dict[str, Union[str, bool, int]], model: Module, validation_data_loader: DataLoader, device: device, epoch: int) -> Tuple[float, float, Tensor, Tensor, Tensor, Tensor]:
     n_element = 0
     mean_loss = 0
     mean_miou = 0

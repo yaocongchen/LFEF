@@ -8,12 +8,13 @@ import os
 from torchvision import transforms
 import threading
 from copy import deepcopy
+from typing import Union
 
 from utils.inference import smoke_semantic
 import visualization_codes.utils.image_process as image_process
 
 
-def save(video_W: int, video_H: int, video_FPS):
+def save(video_W: int, video_H: int, video_FPS: float) -> cv2.VideoWriter:
     os.makedirs("./results/process_video/", exist_ok=True)
     save_file_name = time.strftime("%Y-%m-%d_%I:%M:%S_%p", time.localtime())
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
@@ -23,7 +24,7 @@ def save(video_W: int, video_H: int, video_FPS):
     return output
 
 
-def image_pre_processing(input, device):
+def image_pre_processing(input: np.ndarray, device: torch.device) -> torch.Tensor:
     process_frame = torch.from_numpy(input).to(device)
     process_frame = process_frame.permute(2, 0, 1).contiguous()
     transform = transforms.Resize([256, 256], antialias=True)  # 插值
@@ -36,15 +37,15 @@ def image_pre_processing(input, device):
 
 # Main function 主函式
 def smoke_segmentation(
-    video_path: str,
+    video_path: Union[str, int],
     model: str,
     device: torch.device,
     overlap_image: bool,
-    save_video: str,
-    show_video: str,
-    time_train,
-    i,
-):
+    save_video: bool,
+    show_video: bool,
+    time_train: float,
+    i: int
+) -> None:
     print("overlap_image:", overlap_image)
     print("save_video:", save_video)
     print("show_video:", show_video)
@@ -62,7 +63,7 @@ def smoke_segmentation(
     video_FPS = cap.get(cv2.CAP_PROP_FPS)
     # print(cv2.getBuildInformation())
     # Define the codec and create VideoWriter object
-    if save_video == "True":
+    if save_video:
         out = save(video_W, video_H, video_FPS)
 
     idx = 0
@@ -106,10 +107,10 @@ def smoke_segmentation(
         counter = 0
         start_time = time.time()
 
-        if save_video == "True":
+        if save_video:
             out.write(overlapImage)
 
-        if show_video == "True":
+        if show_video:
             cv2.imshow("frame", overlapImage)
             # cv2.imshow('frame1',frame)
 
@@ -120,7 +121,7 @@ def smoke_segmentation(
     # ====================================================
     # Release everything if job is finished
     cap.release()
-    if save_video == "True":
+    if save_video:
         out.release()
     cv2.destroyAllWindows()
 
@@ -133,16 +134,14 @@ if __name__ == "__main__":
         "-vs",
         "--video_source",
         type=str,
-        default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/Dry_leaf_smoke_02.avi",
         required=True,
-        help="path to test video path",
+        help="Path to the video file to be tested.",
     )
     ap.add_argument(
         "-m",
         "--model_path",
-        default="/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs8e150/final.pth",
         required=True,
-        help="load model path",
+        help="Path to the trained model to be used for inference.",
     )
     args = vars(ap.parse_args())
 

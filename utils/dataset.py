@@ -1,5 +1,7 @@
 # %%
+from torch import Tensor
 from torch.utils.data import Dataset, DataLoader
+from typing import List, Tuple, Union
 from skimage.io import imread
 from glob import glob
 import cv2
@@ -8,7 +10,7 @@ import torch
 import random
 import os
 import platform
-import time
+
 
 IMG_SCALING = (1, 1)
 
@@ -24,7 +26,7 @@ IMG_SCALING = (1, 1)
 #     return rgb_final
 
 
-def split_list(lst, ratio=0.8):
+def split_list(lst: List[str], ratio: float = 0.8) -> Tuple[List[str], List[str]]:
     split_index = int(len(lst) * ratio)
     return lst[:split_index], lst[split_index:]
 
@@ -32,9 +34,9 @@ def split_list(lst, ratio=0.8):
 class DatasetSegmentation(Dataset):
     def __init__(
         self,
-        images_dir,
-        masks_dir,
-        mode="train",
+        images_dir: str,
+        masks_dir: str,
+        mode: str = "train",
     ):
         self.images_dir = images_dir
         self.masks_dir = masks_dir
@@ -73,10 +75,10 @@ class DatasetSegmentation(Dataset):
             print("Number of test Images:", len(self.test_x))
             self.data_dict = self.test_x
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.data_dict)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Tuple[Tensor, Tensor]:
         if platform.system() == "Linux":
             filename = self.data_dict[index].split("/")[-1].split(".")[0]
         elif platform.system() == "Windows":

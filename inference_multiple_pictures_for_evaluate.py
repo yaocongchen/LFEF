@@ -11,6 +11,9 @@ from PIL import Image, ImageOps ,ImageDraw, ImageFont
 import numpy as np
 import matplotlib.pyplot as plt
 import segmentation_models_pytorch as smp
+from typing import Dict, Any, Union, Tuple
+from torch.nn import Module
+from torchvision.transforms import Compose
 
 import utils
 import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
@@ -21,14 +24,14 @@ import visualization_codes.utils.image_process as image_process
 model_name = str(network_model)
 print("model_name:", model_name)
 
-def create_directory(directory_name):
+def create_directory(directory_name: str) -> str:
     directory_path = f"./results/evaluate_folder/{directory_name}"
     if os.path.exists(directory_path):
         shutil.rmtree(directory_path)
     os.makedirs(directory_path)
     return directory_name
 
-def folders_and_files_name():
+def folders_and_files_name() -> Dict[str, str]:
     names = {
         "smoke_semantic_dir_name": create_directory("multiple_result"),
         "smoke_semantic_image_name": "smoke_semantic_image",
@@ -48,13 +51,14 @@ def folders_and_files_name():
 iou_list = []
 
 
-def load_and_process_image_with_border(path, size=(256, 256), border=5):
+def load_and_process_image_with_border(path: str, size: Tuple[int, int] = (256, 256), border: int = 5) -> Image:
     img = Image.open(path)
     img = img.resize(size)
     img = ImageOps.expand(img, border, "#ffffff")
     return img
+
 # Merge all resulting images 合併所有產生之圖像
-def image_stitching(input_image, filename_no_extension, names, mask_image, iou_np, customssim_np, hd_np, dice_np):
+def image_stitching(input_image: str, filename_no_extension: str, names: Dict[str, str], mask_image: str, iou_np: float, customssim_np: float, hd_np: float, dice_np: float) -> None:
     bg = Image.new("RGB", (905, 980), "#000000")
 
     img1 = load_and_process_image_with_border(input_image)
@@ -95,7 +99,7 @@ def image_stitching(input_image, filename_no_extension, names, mask_image, iou_n
     return
 
 # The trained feature map is fuse d with the original image 訓練出的特徵圖融合原圖
-def image_overlap(input_image, filename_no_extension, names, mask_image):
+def image_overlap(input_image: str, filename_no_extension: str, names: Dict[str, str], mask_image: str) -> None:
     img1 = Image.open(input_image)
     img2 = Image.open(
         f'./results/evaluate_folder/{names["smoke_semantic_dir_name"]}/{names["smoke_semantic_image_name"]}_{filename_no_extension}.jpg',
@@ -125,18 +129,19 @@ def image_overlap(input_image, filename_no_extension, names, mask_image):
     return
 
 
-def load_and_process_image_torch(path, device, transform):
+def load_and_process_image_torch(path: str, device: torch.device, transform: Compose) -> torch.Tensor:
     img = read_image(path).to(device)
     img = transform(img)
     img = img / 255.0
     img = img.unsqueeze(0).to(device)
     return img
+
 # Main function 主函式
-def smoke_segmentation(directory: str, model: str, device: torch.device, names: dict, time_train, i):
+def smoke_segmentation(args: Dict[str, Any], names: Dict[str, str], device: torch.device, model: Module, time_train: Union[int, float], i: int) -> Tuple[list, float]:
     n_element = 0
     mean_miou = 0
-    images_dir = os.path.join(directory,"images")
-    masks_dir = os.path.join(directory,"masks")
+    images_dir = os.path.join(args["test_directory"],"images")
+    masks_dir = os.path.join(args["test_directory"],"masks")
 
     transform = transforms.Resize([256, 256],antialias=True)
 
@@ -191,16 +196,25 @@ def smoke_segmentation(directory: str, model: str, device: torch.device, names: 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument(
-        "-td", "--test_directory", required=True, help="path to test images directory"
+        "-td", 
+        "--test_directory", 
+        required=True, 
+        help="Path to the directory containing test images."
     )
-    ap.add_argument("-m", "--model_path", required=True, help="load model path")
+    ap.add_argument(
+        "-m", 
+        "--model_path", 
+        required=True, 
+        help="Path to the trained model to be used for evaluation."
+    )
     args = vars(ap.parse_args())
+
+    names = folders_and_files_name()
 
     print(f"test directory: {args['test_directory']}")  # test directory 測試目錄
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print(f"inference_multiple_Dataset on device {device}.")
 
-    names = folders_and_files_name()
     # print(names)
     # Calculate the total execution time 計算總執行時間
     model = network_model.Net().to(device)
@@ -218,7 +232,7 @@ if __name__ == "__main__":
     time_train = []
     time_start = time.time()
     
-    iou_list,miou = smoke_segmentation(args["test_directory"], model, device, names, time_train, i)
+    iou_list,miou = smoke_segmentation(args, names, device, model, time_train, i)
     
 
     images_dir = os.path.join(args["test_directory"],"images")

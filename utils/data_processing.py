@@ -1,10 +1,12 @@
 import configparser
+from typing import Dict, Tuple
 from torch.utils.data import DataLoader
 import utils
 
+
 CONFIG_FILE = "./config/import_dataset_path.cfg"
 
-def data_processing_train_8_val_DS01(args):
+def data_processing_train_8_val_DS01(args: Dict[str, str]) -> Tuple[str, str, DataLoader, DataLoader]:
     config = configparser.ConfigParser()
     config.read(CONFIG_FILE)
         
@@ -38,7 +40,7 @@ def data_processing_train_8_val_DS01(args):
 
     return train_images, train_masks, training_data_loader, validation_data_loader
 
-def data_processing_8_2(args):
+def data_processing_8_2(args: Dict[str, str]) -> Tuple[str, str, DataLoader, DataLoader]:
     config = configparser.ConfigParser()
     config.read(CONFIG_FILE)
 

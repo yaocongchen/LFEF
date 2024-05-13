@@ -2,19 +2,19 @@ import torch
 import torch.nn as nn
 from ptflops import get_model_complexity_info
 import torchvision.transforms as T
-from PIL import Image
 import numpy as np
-import time
 from skimage.metrics import structural_similarity
-import torchvision
+from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
+from typing import Tuple, Union
+from torch.nn import Module
+from torch import Tensor
+
+import utils.HausdorffDistance_losses as HD
 S = nn.Sigmoid()
 L = nn.BCELoss(reduction="mean")
-from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
-import utils.HausdorffDistance_losses as HD
 
-def Sigmoid_IoU(
-    model_output, mask, smooth=1
-):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
+def Sigmoid_IoU(model_output: Tensor, mask: Tensor, smooth: Union[int, float] = 1) -> Tensor: 
+    # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
     model_output = S(model_output)
     intersection = torch.sum(
         model_output * mask, dim=[1, 2, 3]
@@ -30,9 +30,8 @@ def Sigmoid_IoU(
     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
 
 
-def IoU(
-    model_output, mask, smooth=1
-):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
+def IoU(model_output: Tensor, mask: Tensor, smooth: Union[int, float] = 1) -> Tensor:
+    # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
     # model_output = S(model_output)
     # print("model_output:",model_output.shape)
 #==============================================================================================================#
@@ -85,7 +84,7 @@ def IoU(
         (intersection + smooth) / (union + smooth), dim=0
     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
 
-def ssim_val(model_output, mask):
+def ssim_val(model_output: Tensor, mask: Tensor) -> float:
 
     # model_output = (
     #     model_output.squeeze()
@@ -122,7 +121,7 @@ def ssim_val(model_output, mask):
     
     return msssim
 
-def Sobel_hausdorffDistance_metric(model_output, mask, device):
+def Sobel_hausdorffDistance_metric(model_output: Tensor, mask: Tensor, device: torch.device) -> float:
     #Sobel
     def Sobel_process(input):
         # gray_image_tensor = 0.2989 * input[:, 0, :, :] + 0.5870 * input[:, 1, :, :] + 0.1140 * input[:, 2, :, :]
@@ -163,7 +162,7 @@ def Sobel_hausdorffDistance_metric(model_output, mask, device):
 
     return hd
 
-def dice_coef(model_output, mask):
+def dice_coef(model_output: Tensor, mask: Tensor) -> float:
     model_output = (model_output > 0.5).float()
     intersection = torch.sum(model_output * mask)
     union = torch.sum(model_output) + torch.sum(mask)
@@ -186,13 +185,13 @@ def dice_coef(model_output, mask):
 
 
 class Calculate:
-    def __init__(self, model):
+    def __init__(self, model: Module):
         self.model = model
         self.model_size = self.Calculate_model_size()
         self.params = self.Calculations_and_parameters()
 
     # Calculate model size 計算模型大小
-    def Calculate_model_size(self):
+    def Calculate_model_size(self) -> str:
         param_size = 0
         for param in self.model.parameters():
             param_size += param.nelement() * param.element_size()
@@ -206,7 +205,7 @@ class Calculate:
         return model_size_mb
 
     # Display calculation amount and parameter amount 顯示計算量與參數量
-    def Calculations_and_parameters(self):
+    def Calculations_and_parameters(self) -> Tuple[str, str]:
         FLOPs, params = get_model_complexity_info(
             self.model,
             (3, 256, 256),
@@ -222,13 +221,13 @@ class Calculate:
         print("{:<30}  {:<8}".format("Number of parameters: ", params))
         return FLOPs, params
 
-    def get_model_size(self):
+    def get_model_size(self) -> str:
         return self.model_size
 
-    def get_params(self):
+    def get_params(self) -> Tuple[str, str]:
         return self.params
     
-def report_fps_and_time(total_image, time_start, time_end):
+def report_fps_and_time(total_image: int, time_start: float, time_end: float) -> Tuple[float, int, int]:
     fps = total_image / (time_end - time_start)
     fps = round(fps, 1)
     print(f"FPS:{fps}")
