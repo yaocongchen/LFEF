@@ -15,23 +15,6 @@ L = nn.BCELoss(reduction="mean")
 smp_loss = smp.losses.MCCLoss()
 
 
-# def Sigmoid_IoU(
-#     model_output, mask, smooth=1
-# ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
-#     model_output = S(model_output)
-#     intersection = torch.sum(
-#         model_output * mask, dim=[1, 2, 3]
-#     )  # Calculate the intersection 算出交集
-#     union = (
-#         torch.sum(model_output, dim=[1, 2, 3])
-#         + torch.sum(mask, dim=[1, 2, 3])
-#         - intersection
-#         + 1e-6
-#     )
-#     return torch.mean(
-#         (intersection + smooth) / (union + smooth), dim=0
-#     )  # 2*考慮重疊的部份 #計算模型輸出和真實標籤的Dice係數，用於評估二元分割模型的性能。參數model_output和mask分別為模型輸出和真實標籤，smooth是一個常數，用於避免分母為0的情況。
-
 def IoU(
     model_output, mask, smooth=1
 ):  # "Smooth" avoids a denominsator of 0 "Smooth"避免分母為0
@@ -138,38 +121,6 @@ def boundary_loss(pred, target):
     
     return boundary_loss
 
-def l2_normalize(x, dim=None, epsilon=1e-12):
-        square_sum = torch.sum(torch.square(x), dim=dim, keepdims=True)
-        x_inv_norm = torch.rsqrt(torch.maximum(square_sum, torch.ones_like(square_sum) * epsilon))
-        return torch.multiply(x, x_inv_norm)
-
-def contrastive_loss(image_feat, cond_feat, temperature=0.07):
-    """Calculates contrastive loss."""
-    image_feat = l2_normalize(image_feat, -1)
-    cond_feat = l2_normalize(cond_feat, -1)
-    
-    bs = image_feat.shape[0]
-    labels = torch.arange(bs, device=image_feat.device)
-
-    logits_img2cond = torch.matmul(image_feat, cond_feat.t()) / temperature
-    logits_cond2img = torch.matmul(cond_feat, image_feat.t()) / temperature
-    loss_img2cond = F.cross_entropy(logits_img2cond, labels)
-    loss_cond2img = F.cross_entropy(logits_cond2img, labels)
-    loss_img2cond = torch.mean(loss_img2cond)
-    loss_cond2img = torch.mean(loss_cond2img)
-    loss = loss_img2cond + loss_cond2img
-    return loss
-
-def Subtraction_plot(model_output, mask):
-    model_output = (model_output > 0.5).float()
-    mask_BHW = mask.shape[0] * mask.shape[2] * mask.shape[3]
-    Subtraction_plot =  model_output - mask
-    sum_of_ones = torch.sum(Subtraction_plot[Subtraction_plot == 1])    
-    sum_of_neg_ones = torch.abs(torch.sum(Subtraction_plot[Subtraction_plot == -1]))
-    # seg_error_rate = sum_of_ones / mask_BHW
-    # seg_miss_rate = sum_of_neg_ones / mask_BHW
-    total_error_rate = (sum_of_ones + sum_of_neg_ones) / mask_BHW
-    return total_error_rate
 
 # def CustomLoss(model_output, mask):
 #     # s_iou = Sigmoid_IoU(model_output,mask)
