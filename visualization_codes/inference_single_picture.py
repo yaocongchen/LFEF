@@ -96,9 +96,17 @@ def smoke_segmentation(
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument(
-        "-i", "--image", required=True, help="path to input image"
-    )  # If the name of the input file in the terminal has "(" ")", please rewrite it as "\(" "\)" #如果在terminal輸入檔案的名稱有"("  ")"請改寫為  "\("   "\)"
-    ap.add_argument("-m", "--model_path", required=True, help="load model path")
+        "-i", 
+        "--image", 
+        required=True, 
+        help="Path to the input image. If the name of the input file in the terminal has '(' or ')', please rewrite it as '\\(' or '\\)'."
+    )
+    ap.add_argument(
+        "-m", 
+        "--model_path", 
+        required=True, 
+        help="Path to the trained model to be used for inference."
+    )
     args = vars(ap.parse_args())
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")

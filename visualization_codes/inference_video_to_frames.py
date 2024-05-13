@@ -158,16 +158,14 @@ if __name__ == "__main__":
         "-vs",
         "--video_source",
         type=str,
-        default="/home/yaocong/Experimental/Dataset/smoke_video_dataset/Black_smoke_517.avi",
-        required=False,
-        help="path to test video path",
+        required=True,
+        help="Path to the video file to be tested.",
     )
     ap.add_argument(
         "-m",
         "--model_path",
-        default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/CGNet_best.pth",
-        required=False,
-        help="load model path",
+        required=True,
+        help="Path to the trained model to be used for inference.",
     )
     args = vars(ap.parse_args())
 

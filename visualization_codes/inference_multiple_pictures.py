@@ -112,9 +112,17 @@ def smoke_segmentation(
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument(
-        "-td", "--test_directory", required=True, help="path to test images directory"
+        "-td", 
+        "--test_directory", 
+        required=True, 
+        help="Path to the directory containing test images."
     )
-    ap.add_argument("-m", "--model_path", required=True, help="load model path")
+    ap.add_argument(
+        "-m", 
+        "--model_path", 
+        required=True, 
+        help="Path to the trained model to be used for inference."
+    )
     args = vars(ap.parse_args())
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")

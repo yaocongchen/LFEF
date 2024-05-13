@@ -54,23 +54,20 @@ def main(args: Dict[str, str]) -> None:
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    # ap.add_argument(
-    #     "-td", "--test_directory", required=True, help="path to test images directory"
-    # )
     ap.add_argument(
         "-data1",
         "--dataset1",
         default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/training_data/blendall/",
-        help="path to dataset1",
+        help="Path to the first dataset for t-SNE visualization.",
     )
     ap.add_argument(
         "-data2",
         "--dataset2",
         default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/img/",
-        help="path to dataset2",
+        help="Path to the second dataset for t-SNE visualization.",
     )
-    ap.add_argument("-bs", "--batch_size", type=int, default=1, help="set batch_size")
-    ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
-
+    ap.add_argument("-bs", "--batch_size", type=int, default=1, help="Batch size for data loading.")
+    ap.add_argument("-nw", "--num_workers", type=int, default=1, help="Number of workers for data loading.")
+    
     args = vars(ap.parse_args())
     main(args)

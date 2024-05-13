@@ -134,16 +134,14 @@ if __name__ == "__main__":
         "-vs",
         "--video_source",
         type=str,
-        default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/Dry_leaf_smoke_02.avi",
         required=True,
-        help="path to test video path",
+        help="Path to the video file to be tested.",
     )
     ap.add_argument(
         "-m",
         "--model_path",
-        default="/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs8e150/final.pth",
         required=True,
-        help="load model path",
+        help="Path to the trained model to be used for inference.",
     )
     args = vars(ap.parse_args())
 

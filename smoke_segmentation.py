@@ -103,34 +103,32 @@ if __name__ == "__main__":
         "-s",
         "--source",
         type=str,
-        default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/Dry_leaf_smoke_02.avi",
-        required=False,
-        help="path to test video path",
+        required=True,
+        help="Path to the image, video file, or directory to be tested.",
     )
     ap.add_argument(
         "-m",
         "--model_path",
-        default="/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs8e150/final.pth",
-        required=False,
-        help="load model path",
+        required=True,
+        help="Path to the trained model to be used for smoke segmentation.",
     )
     ap.add_argument(
         "-vtf",
         "--video_to_frames",
         action='store_true',
-        help="video to frames",
+        help="Convert the video to frames. Include this argument to enable this feature.",
     )
     ap.add_argument(
         "-save",
         "--save_video",
         action='store_true',
-        help="save video",
+        help="Save the output video. Include this argument to enable this feature.",
     )
     ap.add_argument(
         "-show",
         "--show_video",
         action='store_true',
-        help="show video",
+        help="Display the output video. Include this argument to enable this feature.",
     )
     args = vars(ap.parse_args())
 

@@ -196,9 +196,17 @@ def smoke_segmentation(args: Dict[str, Any], names: Dict[str, str], device: torc
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument(
-        "-td", "--test_directory", required=True, help="path to test images directory"
+        "-td", 
+        "--test_directory", 
+        required=True, 
+        help="Path to the directory containing test images."
     )
-    ap.add_argument("-m", "--model_path", required=True, help="load model path")
+    ap.add_argument(
+        "-m", 
+        "--model_path", 
+        required=True, 
+        help="Path to the trained model to be used for evaluation."
+    )
     args = vars(ap.parse_args())
 
     names = folders_and_files_name()

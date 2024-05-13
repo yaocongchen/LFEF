@@ -32,71 +32,23 @@ def parse_arguments() -> Dict[str, Any]:
         "-ti",
         "--test_images",
         default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/images/",
-        help="path to hazy training images",
+        help="Path to the directory containing test images.",
     )
     ap.add_argument(
         "-tm",
         "--test_masks",
         default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/masks/",
-        help="path to mask",
+        help="Path to the directory containing test masks.",
     )
-    # ap.add_argument(
-    #     "-ti",
-    #     "--test_images",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/Real/images/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--test_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/Real/masks/",
-    #     help="path to mask",
-    # )
-    # ap.add_argument(
-    #     "-ti",
-    #     "--test_images",
-    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/120k/img/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--test_masks",
-    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/120k/gt/",
-    #     help="path to mask",
-    # )
-    # ap.add_argument(
-    #     "-ti",
-    #     "--test_images",
-    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/t/img/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--test_masks",
-    #     default="/home/yaocong/Experimental/speed_smoke_segmentation/test_files/ttt/t/gt/",
-    #     help="path to mask",
-    # )
-    # ap.add_argument(
-    #     "-ti",
-    #     "--test_images",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/test/img/",
-    #     help="path to hazy training images",
-    # )
-    # ap.add_argument(
-    #     "-tm",
-    #     "--test_masks",
-    #     default="/home/yaocong/Experimental/Dataset/SMOKE5K_dataset/SMOKE5K/SMOKE5K/test/gt_/",
-    #     help="path to mask",
-    # )
-    ap.add_argument("-bs", "--batch_size", type=int, default=1, help="set batch_size")
-    ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
-    ap.add_argument("-m", "--model_path", required=False, default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth",help="load model path")
+    ap.add_argument("-bs", "--batch_size", type=int, default=1, help="Batch size for testing.")
+    ap.add_argument("-nw", "--num_workers", type=int, default=1, help="Number of workers for data loading during testing.")
+    ap.add_argument("-m", "--model_path", required=False, default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth",help="Path to the trained model to be used for testing.")
     ap.add_argument(
         "-wn",
         "--wandb_name",
         type=str,
         default="no",
-        help="wandb test name,but 'no' is not use wandb",
+        help="Name of the Weights & Biases run for testing. Use 'no' to disable Weights & Biases.",
     )
     args = vars(ap.parse_args())
 

@@ -86,88 +86,88 @@ def parse_arguments():
         "-train_dataset",
         "--train_dataset_path",
         default="Host_SYN70K",
-        help="use dataset path",
+        help="Path to the training dataset.",
     )
     ap.add_argument(
         "-validation_dataset",
         "--validation_dataset_path",
         default="Host_DS0123",
-        help="use test dataset path",
+        help="Path to the validation dataset.",
     )
 
     ap.add_argument(
         "-ti",
         "--train_images",
-        help="path to hazy training images",
+        help="Path to the directory containing training images.",
     )
     ap.add_argument(
         "-tm",
         "--train_masks",
-        help="path to mask",
+        help="Path to the directory containing training masks.",
     )
     ap.add_argument(
         "-vi",
         "--validation_images",
-        help="path to hazy training images",
+        help="Path to the directory containing validation images.",
     )
     ap.add_argument(
         "-vm",
         "--validation_masks",
-        help="path to mask",
+        help="Path to the directory containing validation masks.",
     )
 
-    ap.add_argument("-bs", "--batch_size", type=int, default=8, help="set batch_size")
-    ap.add_argument("-nw", "--num_workers", type=int, default=1, help="set num_workers")
+    ap.add_argument("-bs", "--batch_size", type=int, default=8, help="Batch size for training.")
+    ap.add_argument("-nw", "--num_workers", type=int, default=1, help="Number of workers for data loading.")
     ap.add_argument(
-        "-e", "--epochs", type=int, default=150, help="number of epochs for training"
+        "-e", "--epochs", type=int, default=150, help="Number of epochs for training."
     )
     ap.add_argument(
         "-lr",
         "--learning_rate",
         type=float,
         default=0.001,
-        help="learning rate for training",
+        help="Learning rate for the optimizer.",
     )    
     ap.add_argument(
         "-wd",
         "--weight_decay",
         type=float,
         default=0.00001,
-        help="weight decay for training",
+        help="Weight decay for the optimizer.",
     )
     ap.add_argument(
         "-savedir",
         "--model_save_dir",
         default="./trained_models/",
-        help="directory to save the model snapshot",
+        help="Directory to save the trained models.",
     )
-    ap.add_argument("-device", default="GPU", help="running on CPU or GPU")
-    ap.add_argument("-gpus", type=str, default="0", help="defualt GPU devices(0,1)")
+    ap.add_argument("-device", default="GPU", help="Device to run the training on. Choose between 'CPU' and 'GPU'.")
+    ap.add_argument("-gpus", type=str, default="0", help="GPU devices to use for training. For multiple GPUs, separate by comma.")
     ap.add_argument(
         "-resume",
         type=str,
         default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last_checkpoint_sample.pth",
-        help="use this file to load last checkpoint for continuing training",
-    )  # Use this flag to load last checkpoint for training
+        help="Path to the last checkpoint. Use this to resume training.",
+    )
     ap.add_argument(
         "-wn",
         "--wandb_name",
         type=str,
         default="no",
-        help="Name of the W&B run. Use 'no' to disable W&B.",
+        help="Name of the Weights & Biases run. Use 'no' to disable Weights & Biases.",
     )
     ap.add_argument(
         "-wid",
         "--wandb_id",
         type=str,
         default=None,
-        help="wandb id",
+        help="Weights & Biases run ID.",
     )
     ap.add_argument(
         "-sti",
         "--save_train_image",
         action='store_true',
-        help="Save the training image. Include this argument to enable this feature.",
+        help="Save the training images. Include this argument to enable this feature.",
     )
     ap.add_argument(
         "-svil",
@@ -183,6 +183,6 @@ def parse_arguments():
     )
     args = vars(
         ap.parse_args()
-    )  # Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
+    ) # Use vars() to access the value of ap.parse_args() like a dictionary 使用vars()是為了能像字典一樣訪問ap.parse_args()的值
 
     return args
