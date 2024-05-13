@@ -80,8 +80,8 @@ def main(args: Dict[str, Any], names: Dict[str, str]) -> None:
                     args["resume"], checkpoint["epoch"]
                 )
             )
-        else:
-            print("=====> no checkpoint found at '{}'".format(args["resume"]))
+    else:
+        print("=====> Resume from checkpoint not used")
 
     time_start = time.time()
 

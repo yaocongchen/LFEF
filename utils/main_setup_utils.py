@@ -146,7 +146,7 @@ def parse_arguments():
     ap.add_argument(
         "-resume",
         type=str,
-        default="./trained_models/last_checkpoint_sample.pth",
+        default=None,
         help="Path to the last checkpoint. Use this to resume training.",
     )
     ap.add_argument(
