@@ -597,12 +597,6 @@ class AuxiliaryNetwork(nn.Module):
 
         # self.sigmoid = nn.Sigmoid()
 
-        # self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
-        # # self.level1_1 = ConvINReLU(32, 32, 3, 1)
-        # # self.level1_2 = ConvINReLU(32, 32, 3, 1)
-        # self.level1_1 = non_bottleneck_1d(32, 1)
-        # self.level1_2 = non_bottleneck_1d(32, 2)
-
     def forward(self, input):
         # b, c, w, h = input.size()
         # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
@@ -612,10 +606,6 @@ class AuxiliaryNetwork(nn.Module):
         output = self.conv_layer1(input)
         output = self.conv_layer2(output)
         output = self.conv_layer3(output)
-
-        # output = self.level1_0(input)
-        # output = self.level1_1(output)
-        # output = self.level1_2(output)
 
 
         return output
@@ -701,10 +691,11 @@ class Net(nn.Module):
         super().__init__()
         self.brightness_adjustment = BrightnessAdjustment()
 
-        # self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_1 = ConvINReLU(32, 32, 3, 1)
+        self.level1_2 = ConvINReLU(32, 32, 3, 1)
         # self.level1_1 = non_bottleneck_1d(32, 1)
         # self.level1_2 = non_bottleneck_1d(32, 2)
-        self.level = AuxiliaryNetwork(3, 32, stride = 2)
 
         # self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         # self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
@@ -818,10 +809,9 @@ class Net(nn.Module):
 
         # input = self.brightness_adjustment(input)
         # stage 1
-        # stage1_output= self.level1_0(input)
-        # stage1_output = self.level1_1(stage1_output)
-        # stage1_output = self.level1_2(stage1_output)
-        stage1_output = self.level(input)
+        stage1_output= self.level1_0(input)
+        stage1_output = self.level1_1(stage1_output)
+        stage1_output = self.level1_2(stage1_output)
 
         stage1_output = self.attention_module(stage1_output)
 
