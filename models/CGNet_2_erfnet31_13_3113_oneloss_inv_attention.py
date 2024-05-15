@@ -393,10 +393,11 @@ class ContextGuidedBlock_Down(nn.Module):
         # self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 5)
         # self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 7)
 
-        # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
-        self.in_norm = nn.InstanceNorm2d(2 * nOut, affine=True)
-        self.act = nn.ReLU(2 * nOut)
         self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+
+        # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
+        self.in_norm = nn.InstanceNorm2d(nOut, affine=True)
+        self.act = nn.ReLU(nOut)
 
         self.F_glo = FGlo(nOut, reduction)
 
@@ -415,11 +416,11 @@ class ContextGuidedBlock_Down(nn.Module):
 
         joi_feat = torch.cat([loc, sur], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
+        joi_feat = self.reduce(joi_feat)  # channel= nOut
 
         joi_feat = self.in_norm(joi_feat)
         # joi_feat = F.layer_norm(joi_feat, joi_feat.size()[1:])
         joi_feat = self.act(joi_feat)
-        joi_feat = self.reduce(joi_feat)  # channel= nOut
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
 
@@ -459,7 +460,7 @@ class ContextGuidedBlock(nn.Module):
 
         self.sigmoid = nn.Sigmoid()
 
-        self.conv3113 = ChannelWiseConv(2 * n, 2 * n, 3, 1)  # 3x3 Conv is employed to fuse the joint feature
+        self.conv3113 = ChannelWiseConv(2 * n, 2 * n, 1, 1)  # 3x3 Conv is employed to fuse the joint feature
         self.in_relu = INReLU(2*n)
         self.add = add
         self.F_glo = FGlo(2*n, reduction)
