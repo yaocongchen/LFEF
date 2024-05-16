@@ -393,7 +393,7 @@ class ContextGuidedBlock_Down(nn.Module):
         # self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 5)
         # self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 7)
 
-        self.reduce = ChannelWiseConv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+        self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.in_relu = INReLU(nOut)
 
@@ -456,7 +456,7 @@ class ContextGuidedBlock(nn.Module):
 
         self.softmax = nn.Softmax(dim=1)
 
-        self.conv11 = ChannelWiseConv(2 * n, 2 * n, 1, 1)  # 3x3 Conv is employed to fuse the joint feature
+        self.conv11 = Conv(2 * n, 2 * n, 1, 1)  # 3x3 Conv is employed to fuse the joint feature
         self.in_relu = INReLU(2*n)
         self.add = add
         self.F_glo = FGlo(2*n, reduction)
