@@ -454,7 +454,7 @@ class ContextGuidedBlock(nn.Module):
         # self.F_sur_4 = ChannelWiseDilatedConv(n, n, 3, 1, 5)
         # self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, 7)
 
-        self.softmax = nn.Softmax(dim=1)
+        self.sigmoid = nn.Sigmoid()
 
         self.conv11 = Conv(2 * n, 2 * n, 1, 1)  # 3x3 Conv is employed to fuse the joint feature
         self.in_relu = INReLU(2*n)
@@ -477,7 +477,7 @@ class ContextGuidedBlock(nn.Module):
         joi_feat = torch.cat([loc, sur], 1)
         # joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
 
-        input_sig = self.softmax(input)
+        input_sig = self.sigmoid(input)
         joi_feat = joi_feat * input_sig
         joi_feat = self.conv11(joi_feat)
 
@@ -663,14 +663,14 @@ class AttentionModule(nn.Module):
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         self.conv = nn.Conv2d(in_channels*2, in_channels, 1, bias=True)
-        self.softmax = nn.Softmax(dim=1)
-
+        self.sigmoid = nn.Sigmoid()
+        
     def forward(self, x):
         avg_out = self.avg_pool(x)
         max_out = self.max_pool(x)
         out = torch.cat([avg_out, max_out], dim=1)
         out = self.conv(out)
-        return self.softmax(out)
+        return self.sigmoid(out)
 
 
 class Net(nn.Module):
