@@ -31,18 +31,18 @@ def parse_arguments() -> Dict[str, Any]:
     ap.add_argument(
         "-ti",
         "--test_images",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/images/",
+        required=True,
         help="Path to the directory containing test images.",
     )
     ap.add_argument(
         "-tm",
         "--test_masks",
-        default="/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/masks/",
+        required=True,
         help="Path to the directory containing test masks.",
     )
     ap.add_argument("-bs", "--batch_size", type=int, default=1, help="Batch size for testing.")
     ap.add_argument("-nw", "--num_workers", type=int, default=1, help="Number of workers for data loading during testing.")
-    ap.add_argument("-m", "--model_path", required=False, default="/home/yaocong/Experimental/speed_smoke_segmentation/trained_models/mynet_70k_data/CGnet_erfnet3_1_1_3_test_dilated/last.pth",help="Path to the trained model to be used for testing.")
+    ap.add_argument("-m", "--model_path", required=False, default="./trained_models/best.pth",help="Path to the trained model to be used for testing.")
     ap.add_argument(
         "-wn",
         "--wandb_name",

@@ -45,7 +45,7 @@ cd /yolov9
 [`best.pt`](https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-c-converted.pt)
 
 ``` shell
-# evaluate smoke segmentation models
+# Example
 python val.py -ti /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/images/ -tm /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/masks/ -m /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/best.pth
 
 ```
@@ -77,11 +77,13 @@ mIoU: 72.00%
 Single GPU training
 
 ``` shell
+# Example
 python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_downsample
 ```
 Multiple GPU training
 
 ``` shell
+# Example
 python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_downsample -gpus 0,1
 ```
 
@@ -119,9 +121,47 @@ python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_
     </a>
 </div>
 
+### val
+
 ``` shell
+# Example
+python val.py -ti /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/images/ -tm /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/masks/ -m /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last.pth
+```
+
+| Parameter | Description | Default Value |
+| --- | --- | --- |
+| -ti,<br>--test_images | Path to the directory containing test images. | None (required) |
+| -tm,<br>--test_masks | Path to the directory containing test masks. | None (required) |
+| -bs,<br>--batch_size | Batch size for testing. | 1 |
+| -nw,<br>--num_workers | Number of workers for data loading during testing. | 1 |
+| -m,<br>--model_path | Path to the trained model to be used for testing. | "./trained_models/best.pth" |
+| -wn,<br>--wandb_name | Name of the Weights & Biases run for testing. Use 'no' to disable Weights & Biases. | "no" |
+
+### Analytical model
+
+``` shell
+# Example
 python inference_multiple_pictures_for_evaluate.py -td /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/ -m /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/best.pth
 ```
+
+| Parameter | Description | Default Value |
+| --- | --- | --- |
+| -td,<br>--test_directory | Path to the directory containing test images. | None (required) |
+| -m,<br>--model_path | Path to the trained model to be used for evaluation. | None (required) |
+
+### Demo
+``` shell
+# Example
+python smoke_segmentation.py -s /home/yaocong/Experimental/Dataset/smoke_video_dataset/Black_smoke_517.avi -m /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/best.pth -show
+```
+
+| Parameter | Description | Default Value |
+| --- | --- | --- |
+| -s,<br>--source | Path to the image, video file, or directory to be tested. | None (required) |
+| -m,<br>--model_path | Path to the trained model to be used for smoke segmentation. | None (required) |
+| -vtf,<br>--video_to_frames | Convert the video to frames. Include this argument to enable this feature. | False |
+| -save,<br>--save_video | Save the output video. Include this argument to enable this feature. | False |
+| -show,<br>--show_video | Display the output video. Include this argument to enable this feature. | False |
 
 
 ## Citation
