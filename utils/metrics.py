@@ -185,8 +185,9 @@ def dice_coef(model_output: Tensor, mask: Tensor) -> float:
 
 
 class Calculate:
-    def __init__(self, model: Module):
+    def __init__(self, model: Module, input_size: torch.Size):
         self.model = model
+        self.input_size = tuple(input_size)
         self.model_size = self.Calculate_model_size()
         self.params = self.Calculations_and_parameters()
 
@@ -208,7 +209,7 @@ class Calculate:
     def Calculations_and_parameters(self) -> Tuple[str, str]:
         FLOPs, params = get_model_complexity_info(
             self.model,
-            (4, 256, 256),
+            self.input_size,
             as_strings=True,
             print_per_layer_stat=False,
             verbose=False,

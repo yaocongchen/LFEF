@@ -41,7 +41,9 @@ def main(args: Dict[str, Any], names: Dict[str, str]) -> None:
 
     model = network_model.Net()
 
-    c = Calculate(model)
+    sample = next(iter(training_data_loader))
+    sample_shape = sample[0].shape
+    c = Calculate(model,sample_shape[1:])
     model_size = c.get_model_size()
     flops, params = c.get_params()
 
