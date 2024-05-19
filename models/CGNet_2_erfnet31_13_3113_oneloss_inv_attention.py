@@ -181,7 +181,7 @@ class ChannelWiseConv(nn.Module):
             (kSize, kSize),
             stride=stride,
             padding=(padding, padding),
-            groups=nOut,
+            groups=nIn,
             bias=True,
         )
 
@@ -393,9 +393,10 @@ class ContextGuidedBlock_Down(nn.Module):
         # self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 5)
         # self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 7)
 
-        self.reduce = ChannelWiseConv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
-
-        self.in_relu = INReLU(nOut)
+        # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
+        self.in_norm = nn.InstanceNorm2d(2 * nOut, affine=True)
+        self.act = nn.ReLU(2 * nOut)
+        self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.F_glo = FGlo(nOut, reduction)
 
@@ -414,9 +415,11 @@ class ContextGuidedBlock_Down(nn.Module):
 
         joi_feat = torch.cat([loc, sur], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
-        joi_feat = self.reduce(joi_feat)  # channel= nOut
 
-        joi_feat = self.in_relu(joi_feat)
+        joi_feat = self.in_norm(joi_feat)
+        # joi_feat = F.layer_norm(joi_feat, joi_feat.size()[1:])
+        joi_feat = self.act(joi_feat)
+        joi_feat = self.reduce(joi_feat)  # channel= nOut
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
 
@@ -456,7 +459,7 @@ class ContextGuidedBlock(nn.Module):
 
         self.sigmoid = nn.Sigmoid()
 
-        self.conv11 = ChannelWiseConv(2 * n, 2 * n, 1, 1)  # 3x3 Conv is employed to fuse the joint feature
+        self.conv3113 = ChannelWiseConv(2 * n, 2 * n, 3, 1)  # 3x3 Conv is employed to fuse the joint feature
         self.in_relu = INReLU(2*n)
         self.add = add
         self.F_glo = FGlo(2*n, reduction)
@@ -479,7 +482,7 @@ class ContextGuidedBlock(nn.Module):
 
         input_sig = self.sigmoid(input)
         joi_feat = joi_feat * input_sig
-        joi_feat = self.conv11(joi_feat)
+        joi_feat = self.conv3113(joi_feat)
 
         joi_feat = self.in_relu(joi_feat)
 
@@ -589,10 +592,10 @@ class AuxiliaryNetwork(nn.Module):
         self.conv_layer2 = nn.Sequential(nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1, bias=True), nn.ReLU())
         self.conv_layer3 = nn.Sequential(nn.Conv2d(16, nOut, kernel_size=3, stride=1, padding=1, bias=True), nn.ReLU())
 
-        # self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
-        # self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
+        self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=1, padding = 1)
+        self.max_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding = 1)
 
-        # self.sigmoid = nn.Sigmoid()
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
         # b, c, w, h = input.size()
@@ -664,7 +667,7 @@ class AttentionModule(nn.Module):
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         self.conv = nn.Conv2d(in_channels*2, in_channels, 1, bias=True)
         self.sigmoid = nn.Sigmoid()
-        
+
     def forward(self, x):
         avg_out = self.avg_pool(x)
         max_out = self.max_pool(x)
@@ -688,7 +691,7 @@ class Net(nn.Module):
         super().__init__()
         self.brightness_adjustment = BrightnessAdjustment()
 
-        self.level1_0 = ConvINReLU(4, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
         self.level1_2 = non_bottleneck_1d(32, 2)
 
@@ -699,7 +702,7 @@ class Net(nn.Module):
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
 
-        self.aux_net = AuxiliaryNetwork(4, 32, stride = 2)
+        self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
         # self.gru_cell = GRUCell(32, 32)
         self.attention_module = AttentionModule(32)
         self.in_relu_stage1 = INReLU(32)
