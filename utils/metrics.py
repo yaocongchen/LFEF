@@ -208,7 +208,7 @@ class Calculate:
     def Calculations_and_parameters(self) -> Tuple[str, str]:
         FLOPs, params = get_model_complexity_info(
             self.model,
-            (3, 256, 256),
+            (4, 256, 256),
             as_strings=True,
             print_per_layer_stat=False,
             verbose=False,

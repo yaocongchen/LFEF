@@ -90,11 +90,12 @@ class DatasetSegmentation(Dataset):
 
         c_img = imread(images_path)
         # c_img = cv2_brightness_augment(c_img)
-
+        c_img_gray = cv2.cvtColor(c_img, cv2.COLOR_BGR2GRAY)
         c_mask = imread(masks_path)
 
         if IMG_SCALING is not None:
             c_img = cv2.resize(c_img, (256, 256), interpolation=cv2.INTER_AREA)  # 插值
+            c_img_gray = cv2.resize(c_img_gray, (256, 256), interpolation=cv2.INTER_AREA)
             c_mask = cv2.resize(c_mask, (256, 256), interpolation=cv2.INTER_AREA)
             c_mask = np.reshape(c_mask, (c_mask.shape[0], c_mask.shape[1], -1))
         c_mask = c_mask > 0
@@ -102,13 +103,18 @@ class DatasetSegmentation(Dataset):
 
         c_img = c_img.astype("float32")  # Normalized 歸一化
         c_img = c_img / 255.0
+        c_img_gray = c_img_gray.astype("float32")  # Normalized 歸一化
+        c_img_gray = c_img_gray / 255.0
         # c_img = c_img * 2 - 1 # Normalized 歸一化[-1,1]
 
         out_rgb = torch.from_numpy(c_img).float()
+        out_gray = torch.from_numpy(c_img_gray).float()
+        out_gray = out_gray.unsqueeze(2)
+        out_mix = torch.cat((out_rgb, out_gray), 2)
         out_mask = torch.from_numpy(c_mask).float()
 
         return (
-            out_rgb.permute(2, 0, 1).contiguous(),
+            out_mix.permute(2, 0, 1).contiguous(),
             out_mask.permute(2, 0, 1).contiguous(),
         )
 
@@ -145,8 +151,6 @@ if __name__ == "__main__":
     )
     validation_data_loader = DataLoader(
         validation_data,
-        batch_size=8,
-        shuffle=True,
         num_workers=1,
         pin_memory=True,
         drop_last=True,
