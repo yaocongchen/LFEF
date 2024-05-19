@@ -691,7 +691,7 @@ class Net(nn.Module):
         super().__init__()
         self.brightness_adjustment = BrightnessAdjustment()
 
-        self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_0 = ConvINReLU(4, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
         self.level1_2 = non_bottleneck_1d(32, 2)
 
@@ -702,7 +702,7 @@ class Net(nn.Module):
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
 
-        self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
+        self.aux_net = AuxiliaryNetwork(4, 32, stride = 2)
         # self.gru_cell = GRUCell(32, 32)
         self.attention_module = AttentionModule(32)
         self.in_relu_stage1 = INReLU(32)
