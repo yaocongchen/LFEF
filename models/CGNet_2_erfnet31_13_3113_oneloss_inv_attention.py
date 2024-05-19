@@ -807,6 +807,9 @@ class Net(nn.Module):
 
         # input = self.brightness_adjustment(input)
         # stage 1
+        input_gray = transforms.Grayscale(num_output_channels=1)(input)
+        input = torch.cat([input, input_gray], 1)
+        
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
         stage1_output = self.level1_2(stage1_output)
