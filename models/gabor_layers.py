@@ -47,7 +47,7 @@ class GaborLayer(nn.Module):
         ymin, ymax = -1, 1
         x_space = torch.linspace(xmin, xmax, kernel_size)
         y_space = torch.linspace(ymin, ymax, kernel_size)
-        (y, x) = torch.meshgrid(y_space, x_space)
+        (y, x) = torch.meshgrid(y_space, x_space, indexing='xy')
         # Unsqueeze for all orientations
         x, y = x.unsqueeze(dim=0), y.unsqueeze(dim=0)
         # Cosines and sines
@@ -188,7 +188,7 @@ class GaborLayerLearnable(nn.Module):
         ymin, ymax = -1, 1
         x_space = torch.linspace(xmin, xmax, kernel_size)
         y_space = torch.linspace(ymin, ymax, kernel_size)
-        (y, x) = torch.meshgrid(y_space, x_space)
+        (y, x) = torch.meshgrid(y_space, x_space, indexing='xy')
         # Unsqueeze for all orientations
         x, y = x.unsqueeze(dim=0), y.unsqueeze(dim=0)
         # Add as parameters
