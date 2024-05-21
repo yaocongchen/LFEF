@@ -9,6 +9,7 @@ import torch.nn.functional as F
 from torchinfo import summary
 from torch.nn import init
 from torchvision import transforms
+from models.gabor_layers import GaborLayer
 
 __all__ = ["Context_Guided_Network"]
 # Filter out variables, functions, and classes that other programs don't need or don't want when running cmd "from CGNet import *"
@@ -393,10 +394,9 @@ class ContextGuidedBlock_Down(nn.Module):
         # self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 5)
         # self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 7)
 
-        # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
-        self.in_norm = nn.InstanceNorm2d(2 * nOut, affine=True)
-        self.act = nn.ReLU(2 * nOut)
         self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+
+        self.in_relu = INReLU(nOut)
 
         self.F_glo = FGlo(nOut, reduction)
 
@@ -415,11 +415,9 @@ class ContextGuidedBlock_Down(nn.Module):
 
         joi_feat = torch.cat([loc, sur], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
-
-        joi_feat = self.in_norm(joi_feat)
-        # joi_feat = F.layer_norm(joi_feat, joi_feat.size()[1:])
-        joi_feat = self.act(joi_feat)
         joi_feat = self.reduce(joi_feat)  # channel= nOut
+
+        joi_feat = self.in_relu(joi_feat)
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
 
@@ -459,7 +457,7 @@ class ContextGuidedBlock(nn.Module):
 
         self.sigmoid = nn.Sigmoid()
 
-        self.conv3113 = ChannelWiseConv(2 * n, 2 * n, 3, 1)  # 3x3 Conv is employed to fuse the joint feature
+        self.conv11 = Conv(2 * n, 2 * n, 1, 1)  # 3x3 Conv is employed to fuse the joint feature
         self.in_relu = INReLU(2*n)
         self.add = add
         self.F_glo = FGlo(2*n, reduction)
@@ -482,7 +480,7 @@ class ContextGuidedBlock(nn.Module):
 
         input_sig = self.sigmoid(input)
         joi_feat = joi_feat * input_sig
-        joi_feat = self.conv3113(joi_feat)
+        joi_feat = self.conv11(joi_feat)
 
         joi_feat = self.in_relu(joi_feat)
 
@@ -675,7 +673,7 @@ class AttentionModule(nn.Module):
         out = self.conv(out)
         return self.sigmoid(out)
 
-
+        
 class Net(nn.Module):
     """
     This class defines the proposed Context Guided Network (CGNet) in this work.
@@ -690,6 +688,8 @@ class Net(nn.Module):
         """
         super().__init__()
         self.brightness_adjustment = BrightnessAdjustment()
+
+        self.gabor_conv = GaborLayer(4, 4, kernel_size=3, stride=1, padding=1, kernels=1)
 
         self.level1_0 = ConvINReLU(4, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
@@ -809,6 +809,8 @@ class Net(nn.Module):
         # stage 1
         input_gray = transforms.Grayscale(num_output_channels=1)(input)
         input = torch.cat([input, input_gray], 1)
+        
+        input = self.gabor_conv(input)
         
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
