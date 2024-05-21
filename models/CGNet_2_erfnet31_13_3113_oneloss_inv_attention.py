@@ -689,8 +689,6 @@ class Net(nn.Module):
         super().__init__()
         self.brightness_adjustment = BrightnessAdjustment()
 
-        self.gabor_conv = GaborLayer(1, 1, kernel_size=3, stride=1, padding=1, kernels=1)
-
         self.level1_0 = ConvINReLU(4, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
         self.level1_2 = non_bottleneck_1d(32, 2)
@@ -808,7 +806,6 @@ class Net(nn.Module):
         # input = self.brightness_adjustment(input)
         # stage 1
         input_gray = transforms.Grayscale(num_output_channels=1)(input)
-        input_gray = self.gabor_conv(input_gray)
         input = torch.cat([input, input_gray], 1)
         
         stage1_output= self.level1_0(input)
