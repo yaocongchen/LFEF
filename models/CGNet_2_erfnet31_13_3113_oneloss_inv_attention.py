@@ -717,7 +717,7 @@ class Net(nn.Module):
             )  # CG block
         self.in_relu_stage2 = INReLU(64)
         # self.bn_relu_2_2 = BNReLU(128 + 3)
-
+        self.conv_stage2 = nn.Conv2d(64, 1, kernel_size=1, stride=1, padding=0, bias=True)
 
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
@@ -729,6 +729,8 @@ class Net(nn.Module):
                 ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
             )  # CG bloc
         self.in_relu_stage3 = INReLU(128)
+
+        self.conv_stage3 = nn.Conv2d(128, 1, kernel_size=1, stride=1, padding=0, bias=True)
 
         self.conv3x3_in_rule = nn.Sequential(nn.Conv2d(128, 64, kernel_size=(3, 3), padding=1,groups=64), nn.InstanceNorm2d(64, affine=True), nn.ReLU())
         self.conv1x1_IN = nn.Sequential(nn.Conv2d(64, 1, kernel_size=(1, 1), padding=0), nn.InstanceNorm2d(1, affine=True))
@@ -843,7 +845,9 @@ class Net(nn.Module):
         # final_stage2_output_attention = self.attention(final_stage2_output)
         # final_stage2_output_attention = final_stage2_output + final_stage2_output_attention
         final_stage2_output = self.in_relu_stage2(final_stage2_output)
-
+        final_stage2_output = self.conv_stage2(final_stage2_output)
+        final_stage2_output = self.sigmoid(final_stage2_output)
+        final_stage2_output = final_stage2_output * processed_stage2_output
 
         # b, c, w, h = initial_stage2_output.size()
         # initial_stage2_output_3channel = initial_stage2_output.view(b, c, w * h).permute(0, 2, 1)
@@ -872,6 +876,9 @@ class Net(nn.Module):
 
         final_stage3_output = initial_stage3_output + processed_stage3_output
         final_stage3_output = self.in_relu_stage3(final_stage3_output)
+        final_stage3_output = self.conv_stage3(final_stage3_output)
+        final_stage3_output = self.sigmoid(final_stage3_output)
+        final_stage3_output = final_stage3_output * processed_stage3_output
 
         # stage1_ewp_inverted_output_up = self.upsample(stage1_ewp_inverted_output)
         # stage1_ewp_inverted_output_up = self.conv_32_to_1(stage1_ewp_inverted_output_up)
