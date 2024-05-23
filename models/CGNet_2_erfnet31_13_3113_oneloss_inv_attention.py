@@ -393,7 +393,7 @@ class ContextGuidedBlock_Down(nn.Module):
         # self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 5)
         # self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 7)
 
-        self.relu = nn.ReLU()
+        self.in_relu = INReLU(2 * nOut)
         self.reduce = Conv(2 * nOut, 1, 1, 1)  # reduce dimension: 2*nOut--->nOut
         self.sigmoid = nn.Sigmoid()
 
@@ -415,7 +415,7 @@ class ContextGuidedBlock_Down(nn.Module):
         joi_feat = torch.cat([loc, sur], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
-        joi_feat = self.relu(joi_feat)
+        joi_feat = self.in_relu(joi_feat)
 
         joi_feat = self.reduce(joi_feat)  # channel= nOut
         joi_feat = self.sigmoid(joi_feat)
@@ -456,7 +456,7 @@ class ContextGuidedBlock(nn.Module):
         )  # surrounding context
         # self.F_sur_4 = ChannelWiseDilatedConv(n, n, 3, 1, 5)
         # self.F_sur_8 = ChannelWiseDilatedConv(n, n, 3, 1, 7)
-        self.relu = nn.ReLU()
+        self.in_relu = INReLU(2*n)
         self.reduce = Conv(2 * n, 1, 1, 1)  # 3x3 Conv is employed to fuse the joint feature
 
         self.sigmoid = nn.Sigmoid()
@@ -479,7 +479,7 @@ class ContextGuidedBlock(nn.Module):
         
         joi_feat = torch.cat([loc, sur], 1)
         # joi_feat = torch.cat([loc, sur, sur_4, sur_8], 1)  #  the joint feature
-        joi_feat = self.relu(joi_feat)
+        joi_feat = self.in_relu(joi_feat)
 
         joi_feat = self.reduce(joi_feat)
         joi_feat = self.sigmoid(joi_feat)
@@ -716,7 +716,7 @@ class Net(nn.Module):
             self.level2.append(
                 ContextGuidedBlock(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
-        # self.relu_stage2 = nn.ReLU()
+        self.in_relu_stage2 = INReLU(64)
         # self.bn_relu_2_2 = BNReLU(128 + 3)
 
 
@@ -729,7 +729,7 @@ class Net(nn.Module):
             self.level3.append(
                 ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
             )  # CG bloc
-        # self.relu_stage3 = nn.ReLU()
+        self.in_relu_stage3 = INReLU(128)
 
         self.conv3x3_in_rule = nn.Sequential(nn.Conv2d(128, 64, kernel_size=(3, 3), padding=1,groups=64), nn.InstanceNorm2d(64, affine=True), nn.ReLU())
         self.conv1x1_IN = nn.Sequential(nn.Conv2d(64, 1, kernel_size=(1, 1), padding=0), nn.InstanceNorm2d(1, affine=True))
@@ -843,7 +843,7 @@ class Net(nn.Module):
         final_stage2_output = initial_stage2_output + processed_stage2_output
         # final_stage2_output_attention = self.attention(final_stage2_output)
         # final_stage2_output_attention = final_stage2_output + final_stage2_output_attention
-        final_stage2_output = self.relu(final_stage2_output)
+        final_stage2_output = self.in_relu_stage2(final_stage2_output)
 
 
         # b, c, w, h = initial_stage2_output.size()
@@ -872,7 +872,7 @@ class Net(nn.Module):
         processed_stage3_output_aux = self.sigmoid(processed_stage3_output_aux)
 
         final_stage3_output = initial_stage3_output + processed_stage3_output
-        final_stage3_output = self.relu(final_stage3_output)
+        final_stage3_output = self.in_relu_stage3(final_stage3_output)
 
         # stage1_ewp_inverted_output_up = self.upsample(stage1_ewp_inverted_output)
         # stage1_ewp_inverted_output_up = self.conv_32_to_1(stage1_ewp_inverted_output_up)
