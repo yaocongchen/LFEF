@@ -181,7 +181,7 @@ class ChannelWiseConv(nn.Module):
             (kSize, kSize),
             stride=stride,
             padding=(padding, padding),
-            groups=nIn,
+            groups=nOut,
             bias=True,
         )
 
@@ -394,8 +394,8 @@ class ContextGuidedBlock_Down(nn.Module):
         # self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 7)
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
-        self.in_norm = nn.InstanceNorm2d(2 * nOut, affine=True)
-        self.act = nn.ReLU(2 * nOut)
+
+        self.in_relu = INReLU(2 * nOut)
         self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
         self.F_glo = FGlo(nOut, reduction)
@@ -416,9 +416,7 @@ class ContextGuidedBlock_Down(nn.Module):
         joi_feat = torch.cat([loc, sur], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
 
-        joi_feat = self.in_norm(joi_feat)
-        # joi_feat = F.layer_norm(joi_feat, joi_feat.size()[1:])
-        joi_feat = self.act(joi_feat)
+        joi_feat = self.in_relu(joi_feat)
         joi_feat = self.reduce(joi_feat)  # channel= nOut
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
@@ -694,7 +692,7 @@ class Net(nn.Module):
         super().__init__()
         self.brightness_adjustment = BrightnessAdjustment()
 
-        self.level1_0 = ConvINReLU(4, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
         self.level1_1 = non_bottleneck_1d(32, 1)
         self.level1_2 = non_bottleneck_1d(32, 2)
 
@@ -705,7 +703,7 @@ class Net(nn.Module):
         self.sample2 = InputInjection(2)  # down-sample for Input Injiection, factor=4
 
 
-        self.aux_net = AuxiliaryNetwork(4, 32, stride = 2)
+        self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
         # self.gru_cell = GRUCell(32, 32)
         self.attention_module = AttentionModule(32)
         self.in_relu_stage1 = INReLU(32)
@@ -722,7 +720,7 @@ class Net(nn.Module):
             )  # CG block
         self.in_relu_stage2 = INReLU(64)
         # self.bn_relu_2_2 = BNReLU(128 + 3)
-        self.conv_stage2 = nn.Conv2d(64, 1, kernel_size=1, stride=1, padding=0, bias=True)
+
 
         # stage 3
         self.level3_0 = ContextGuidedBlock_Down(
@@ -734,8 +732,6 @@ class Net(nn.Module):
                 ContextGuidedBlock(128, 128, dilation_rate=4, reduction=16)
             )  # CG bloc
         self.in_relu_stage3 = INReLU(128)
-
-        self.conv_stage3 = nn.Conv2d(128, 1, kernel_size=1, stride=1, padding=0, bias=True)
 
         self.conv3x3_in_rule = nn.Sequential(nn.Conv2d(128, 64, kernel_size=(3, 3), padding=1,groups=64), nn.InstanceNorm2d(64, affine=True), nn.ReLU())
         self.conv1x1_IN = nn.Sequential(nn.Conv2d(64, 1, kernel_size=(1, 1), padding=0), nn.InstanceNorm2d(1, affine=True))
@@ -812,8 +808,8 @@ class Net(nn.Module):
 
         # input = self.brightness_adjustment(input)
         # stage 1
-        input_gray = transforms.Grayscale(num_output_channels=1)(input)
-        input = torch.cat([input, input_gray], 1)
+        # input_gray = transforms.Grayscale(num_output_channels=1)(input)
+        # input = torch.cat([input, input_gray], 1)
         
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
@@ -850,9 +846,7 @@ class Net(nn.Module):
         # final_stage2_output_attention = self.attention(final_stage2_output)
         # final_stage2_output_attention = final_stage2_output + final_stage2_output_attention
         final_stage2_output = self.in_relu_stage2(final_stage2_output)
-        final_stage2_output = self.conv_stage2(final_stage2_output)
-        final_stage2_output = self.sigmoid(final_stage2_output)
-        final_stage2_output = final_stage2_output * processed_stage2_output
+
 
         # b, c, w, h = initial_stage2_output.size()
         # initial_stage2_output_3channel = initial_stage2_output.view(b, c, w * h).permute(0, 2, 1)
@@ -881,9 +875,6 @@ class Net(nn.Module):
 
         final_stage3_output = initial_stage3_output + processed_stage3_output
         final_stage3_output = self.in_relu_stage3(final_stage3_output)
-        final_stage3_output = self.conv_stage3(final_stage3_output)
-        final_stage3_output = self.sigmoid(final_stage3_output)
-        final_stage3_output = final_stage3_output * processed_stage3_output
 
         # stage1_ewp_inverted_output_up = self.upsample(stage1_ewp_inverted_output)
         # stage1_ewp_inverted_output_up = self.conv_32_to_1(stage1_ewp_inverted_output_up)
