@@ -692,9 +692,10 @@ class Net(nn.Module):
         super().__init__()
         self.brightness_adjustment = BrightnessAdjustment()
 
-        self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
-        self.level1_1 = non_bottleneck_1d(32, 1)
-        self.level1_2 = non_bottleneck_1d(32, 2)
+        # self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
+        # self.level1_1 = non_bottleneck_1d(32, 1)
+        # self.level1_2 = non_bottleneck_1d(32, 2)
+        self.main_net = AuxiliaryNetwork(3, 32, stride = 2)
 
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
@@ -811,9 +812,10 @@ class Net(nn.Module):
         # input_gray = transforms.Grayscale(num_output_channels=1)(input)
         # input = torch.cat([input, input_gray], 1)
         
-        stage1_output= self.level1_0(input)
-        stage1_output = self.level1_1(stage1_output)
-        stage1_output = self.level1_2(stage1_output)
+        # stage1_output= self.level1_0(input)
+        # stage1_output = self.level1_1(stage1_output)
+        # stage1_output = self.level1_2(stage1_output)
+        stage1_output = self.main_net(input)
 
         stage1_output = self.attention_module(stage1_output)
 
