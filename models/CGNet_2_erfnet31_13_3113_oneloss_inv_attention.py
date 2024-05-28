@@ -321,16 +321,15 @@ class ChannelWiseDilatedConv(nn.Module):
         return output
 
 
-class FGlo(nn.Module):
-    """
-    the FGlo class is employed to refine the joint feature of both local feature and surrounding context.
-    """
+import torch.nn.functional as F
 
+class MultiScaleFGlo(nn.Module):
     def __init__(self, channel, reduction=16):
-        super(FGlo, self).__init__()
+        super(MultiScaleFGlo, self).__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.max_pool = nn.AdaptiveMaxPool2d(1)
         self.fc = nn.Sequential(
-            nn.Linear(channel, channel // reduction),
+            nn.Linear(channel * 2, channel // reduction),
             nn.ReLU(inplace=True),
             nn.Linear(channel // reduction, channel),
             nn.Sigmoid(),
@@ -338,7 +337,9 @@ class FGlo(nn.Module):
 
     def forward(self, x):
         b, c, _, _ = x.size()
-        y = self.avg_pool(x).view(b, c)
+        avg_pooled = self.avg_pool(x).view(b, c)
+        max_pooled = self.max_pool(x).view(b, c)
+        y = torch.cat([avg_pooled, max_pooled], dim=1)
         y = self.fc(y).view(b, c, 1, 1)
         return x * y
 
@@ -398,7 +399,7 @@ class ContextGuidedBlock_Down(nn.Module):
         self.in_relu = INReLU(2 * nOut)
         self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
-        self.F_glo = FGlo(nOut, reduction)
+        self.F_glo = MultiScaleFGlo(nOut, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=True)
@@ -462,7 +463,7 @@ class ContextGuidedBlock(nn.Module):
         self.conv3113 = ChannelWiseConv(2 * n, 2 * n, 3, 1)  # 3x3 Conv is employed to fuse the joint feature
 
         self.add = add
-        self.F_glo = FGlo(2*n, reduction)
+        self.F_glo = MultiScaleFGlo(2*n, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=True)
@@ -692,10 +693,9 @@ class Net(nn.Module):
         super().__init__()
         self.brightness_adjustment = BrightnessAdjustment()
 
-        # self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
-        # self.level1_1 = non_bottleneck_1d(32, 1)
-        # self.level1_2 = non_bottleneck_1d(32, 2)
-        self.main_net = AuxiliaryNetwork(3, 32, stride = 2)
+        self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
+        self.level1_1 = non_bottleneck_1d(32, 1)
+        self.level1_2 = non_bottleneck_1d(32, 2)
 
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
@@ -812,10 +812,9 @@ class Net(nn.Module):
         # input_gray = transforms.Grayscale(num_output_channels=1)(input)
         # input = torch.cat([input, input_gray], 1)
         
-        # stage1_output= self.level1_0(input)
-        # stage1_output = self.level1_1(stage1_output)
-        # stage1_output = self.level1_2(stage1_output)
-        stage1_output = self.main_net(input)
+        stage1_output= self.level1_0(input)
+        stage1_output = self.level1_1(stage1_output)
+        stage1_output = self.level1_2(stage1_output)
 
         stage1_output = self.attention_module(stage1_output)
 
