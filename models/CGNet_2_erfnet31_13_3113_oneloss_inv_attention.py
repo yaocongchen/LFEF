@@ -323,25 +323,30 @@ class ChannelWiseDilatedConv(nn.Module):
 
 import torch.nn.functional as F
 
-class MultiScaleFGlo(nn.Module):
+class SpatialAttentionFGlo(nn.Module):
     def __init__(self, channel, reduction=16):
-        super(MultiScaleFGlo, self).__init__()
+        super(SpatialAttentionFGlo, self).__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.max_pool = nn.AdaptiveMaxPool2d(1)
         self.fc = nn.Sequential(
-            nn.Linear(channel * 2, channel // reduction),
+            nn.Linear(channel, channel // reduction),
             nn.ReLU(inplace=True),
             nn.Linear(channel // reduction, channel),
-            nn.Sigmoid(),
         )
+        self.sigmoid = nn.Sigmoid()
+        self.spatial_conv = nn.Conv2d(2, 1, kernel_size=7, padding=3)
 
     def forward(self, x):
         b, c, _, _ = x.size()
-        avg_pooled = self.avg_pool(x).view(b, c)
-        max_pooled = self.max_pool(x).view(b, c)
-        y = torch.cat([avg_pooled, max_pooled], dim=1)
+        y = self.avg_pool(x).view(b, c)
         y = self.fc(y).view(b, c, 1, 1)
-        return x * y
+        channel_att = x * self.sigmoid(y)
+
+        avg_out = torch.mean(channel_att, dim=1, keepdim=True)
+        max_out, _ = torch.max(channel_att, dim=1, keepdim=True)
+        spatial_att = torch.cat([avg_out, max_out], dim=1)
+        spatial_att = self.sigmoid(self.spatial_conv(spatial_att))
+
+        return channel_att * spatial_att
 
 # class ExternalAttention(nn.Module):
 
@@ -399,7 +404,7 @@ class ContextGuidedBlock_Down(nn.Module):
         self.in_relu = INReLU(2 * nOut)
         self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
-        self.F_glo = MultiScaleFGlo(nOut, reduction)
+        self.F_glo = SpatialAttentionFGlo(nOut, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=True)
@@ -463,7 +468,7 @@ class ContextGuidedBlock(nn.Module):
         self.conv3113 = ChannelWiseConv(2 * n, 2 * n, 3, 1)  # 3x3 Conv is employed to fuse the joint feature
 
         self.add = add
-        self.F_glo = MultiScaleFGlo(2*n, reduction)
+        self.F_glo = SpatialAttentionFGlo(2*n, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=True)
