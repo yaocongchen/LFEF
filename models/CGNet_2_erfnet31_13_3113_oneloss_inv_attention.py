@@ -321,32 +321,24 @@ class ChannelWiseDilatedConv(nn.Module):
         return output
 
 
-import torch.nn.functional as F
-
-class SpatialAttentionFGlo(nn.Module):
+class ComplexFCFGlo(nn.Module):
     def __init__(self, channel, reduction=16):
-        super(SpatialAttentionFGlo, self).__init__()
+        super(ComplexFCFGlo, self).__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Sequential(
             nn.Linear(channel, channel // reduction),
             nn.ReLU(inplace=True),
+            nn.Linear(channel // reduction, channel // reduction),
+            nn.ReLU(inplace=True),
             nn.Linear(channel // reduction, channel),
+            nn.Sigmoid(),
         )
-        self.sigmoid = nn.Sigmoid()
-        self.spatial_conv = nn.Conv2d(2, 1, kernel_size=7, padding=3)
 
     def forward(self, x):
         b, c, _, _ = x.size()
         y = self.avg_pool(x).view(b, c)
         y = self.fc(y).view(b, c, 1, 1)
-        channel_att = x * self.sigmoid(y)
-
-        avg_out = torch.mean(channel_att, dim=1, keepdim=True)
-        max_out, _ = torch.max(channel_att, dim=1, keepdim=True)
-        spatial_att = torch.cat([avg_out, max_out], dim=1)
-        spatial_att = self.sigmoid(self.spatial_conv(spatial_att))
-
-        return channel_att * spatial_att
+        return x * y
 
 # class ExternalAttention(nn.Module):
 
@@ -404,7 +396,7 @@ class ContextGuidedBlock_Down(nn.Module):
         self.in_relu = INReLU(2 * nOut)
         self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
-        self.F_glo = SpatialAttentionFGlo(nOut, reduction)
+        self.F_glo = ComplexFCFGlo(nOut, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=True)
@@ -468,7 +460,7 @@ class ContextGuidedBlock(nn.Module):
         self.conv3113 = ChannelWiseConv(2 * n, 2 * n, 3, 1)  # 3x3 Conv is employed to fuse the joint feature
 
         self.add = add
-        self.F_glo = SpatialAttentionFGlo(2*n, reduction)
+        self.F_glo = ComplexFCFGlo(2*n, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=True)
