@@ -321,14 +321,16 @@ class ChannelWiseDilatedConv(nn.Module):
         return output
 
 
-class ComplexFCFGlo(nn.Module):
+class FGlo(nn.Module):
+    """
+    the FGlo class is employed to refine the joint feature of both local feature and surrounding context.
+    """
+
     def __init__(self, channel, reduction=16):
-        super(ComplexFCFGlo, self).__init__()
+        super(FGlo, self).__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Sequential(
             nn.Linear(channel, channel // reduction),
-            nn.ReLU(inplace=True),
-            nn.Linear(channel // reduction, channel // reduction),
             nn.ReLU(inplace=True),
             nn.Linear(channel // reduction, channel),
             nn.Sigmoid(),
@@ -396,7 +398,7 @@ class ContextGuidedBlock_Down(nn.Module):
         self.in_relu = INReLU(2 * nOut)
         self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
 
-        self.F_glo = ComplexFCFGlo(nOut, reduction)
+        self.F_glo = FGlo(nOut, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=True)
@@ -460,7 +462,7 @@ class ContextGuidedBlock(nn.Module):
         self.conv3113 = ChannelWiseConv(2 * n, 2 * n, 3, 1)  # 3x3 Conv is employed to fuse the joint feature
 
         self.add = add
-        self.F_glo = ComplexFCFGlo(2*n, reduction)
+        self.F_glo = FGlo(2*n, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=True)
