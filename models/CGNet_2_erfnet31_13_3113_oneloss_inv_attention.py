@@ -570,7 +570,6 @@ class non_bottleneck_1d(nn.Module):
 
     def forward(self, input):
         output = self.conv3x1_1(input)
-        output = self.in_norm(output)
         output = self.relu(output)
         output = self.conv1x3_1(output)
         output = self.in_norm(output)
@@ -578,7 +577,6 @@ class non_bottleneck_1d(nn.Module):
         output = self.relu(output)
 
         output = self.conv3x1_2(output)
-        output = self.in_norm2(output)
         output = self.relu(output)
         output = self.conv1x3_2(output)
         output = self.in_norm2(output)
