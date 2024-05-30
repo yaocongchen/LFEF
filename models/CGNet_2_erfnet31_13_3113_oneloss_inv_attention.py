@@ -258,7 +258,7 @@ class ChannelWiseDilatedConv(nn.Module):
                 (1, kSize),
                 stride=stride,
                 padding=(0 , padding),
-                groups=nIn_ori,
+                groups=nOut_ori,
                 bias=True,
                 dilation=d,
             ),
@@ -379,7 +379,7 @@ class ContextGuidedBlock_Down(nn.Module):
     the size of feature map divided 2, (H,W,C)---->(H/2, W/2, 2C)
     """
 
-    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16):
+    def __init__(self, nIn, nOut, dilation_rate=2, reduction=16, add=True):
         """
         args:
            nIn: the channel of input feature map
@@ -387,18 +387,22 @@ class ContextGuidedBlock_Down(nn.Module):
         """
         super().__init__()
         self.conv1x1 = ConvINReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
-        
-        self.F_loc = ChannelWiseConv(nOut, nOut, 3, 1)
-        self.F_sur = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 3)
+        n = int(nOut / 2)
+        self.F_loc = ChannelWiseConv(nOut, n, 3, 1)
+        self.F_sur = ChannelWiseDilatedConv(nOut, n, 3, 1, 3)
         # self.F_sur_4 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 5)
         # self.F_sur_8 = ChannelWiseDilatedConv(nOut, nOut, 3, 1, 7)
 
         # self.bn = nn.BatchNorm2d(4 * nOut, eps=1e-3)
 
-        self.in_relu = INReLU(2 * nOut)
-        self.reduce = Conv(2 * nOut, nOut, 1, 1)  # reduce dimension: 2*nOut--->nOut
+        self.sigmoid = nn.Sigmoid()
 
-        self.F_glo = FGlo(nOut, reduction)
+        self.in_relu = INReLU(2*n)
+        
+        self.conv3113 = ChannelWiseConv(2 * n, 2 * n, 3, 1)  # 3x3 Conv is employed to fuse the joint feature
+
+        self.add = add
+        self.F_glo = FGlo(2*n, reduction)
 
         # self.ea = ExternalAttention(d_model=nIn)
         # self.add_conv = nn.Conv2d(nIn, nOut, kernel_size=1, stride=1, padding=0, bias=True)
@@ -407,29 +411,25 @@ class ContextGuidedBlock_Down(nn.Module):
         # self.max_pool = nn.MaxPool2d(3, stride=2, padding=1)
 
     def forward(self, input):
-        output = self.conv1x1(input)
-        loc = self.F_loc(output)
-        sur = self.F_sur(output)
+        output_init = self.conv1x1(input)
+        loc = self.F_loc(output_init)
+        sur = self.F_sur(output_init)
         # sur_4 = self.F_sur_4(output)
         # sur_8 = self.F_sur_8(output)
 
         joi_feat = torch.cat([loc, sur], 1)  #  the joint feature
         # joi_feat = torch.cat([sur_4, sur_8], 1)  #  the joint feature
+        output_init_sig = self.sigmoid(output_init)
+        joi_feat = joi_feat * output_init_sig
 
         joi_feat = self.in_relu(joi_feat)
-        joi_feat = self.reduce(joi_feat)  # channel= nOut
+
+        joi_feat = self.conv3113(joi_feat)
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature
-
-        # b, c, w, h = input.size()
-        # input_3c = input.view(b, c, w * h).permute(0, 2, 1)
-        
-        # ea_output = self.ea(input_3c)
-        # ea_output = ea_output.permute(0, 2, 1).view(b, c, w, h)
-        # ea_output = self.add_conv(ea_output)
-        # ea_output = self.avg_pool(ea_output) + self.max_pool(ea_output)
-
-        # output = output * ea_output
+        # if residual version
+        if self.add:
+            output = output_init_sig + output
         
         return output
 
