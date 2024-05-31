@@ -669,9 +669,10 @@ class AttentionModule(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        avg_out = self.avg_pool(x)
+        min_out = -self.avg_pool(-x)
+        # avg_out = self.avg_pool(x)
         max_out = self.max_pool(x)
-        out = torch.cat([avg_out, max_out], dim=1)
+        out = torch.cat([min_out, max_out], dim=1)
         out = self.conv(out)
         return self.sigmoid(out)
 
@@ -692,8 +693,8 @@ class Net(nn.Module):
         self.brightness_adjustment = BrightnessAdjustment()
 
         self.level1_0 = ConvINReLU(3, 32, 3, 2)  # feature map size divided 2, 1/2
-        self.level1_1 = non_bottleneck_1d(32, 2)
-        self.level1_2 = non_bottleneck_1d(32, 3)
+        self.level1_1 = non_bottleneck_1d(32, 1)
+        self.level1_2 = non_bottleneck_1d(32, 2)
 
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
