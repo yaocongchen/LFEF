@@ -564,10 +564,9 @@ class non_bottleneck_1d(nn.Module):
             bias=True,
             dilation=(1, dilated),
         )
-        self.in_norm2 = nn.InstanceNorm2d(chann, affine=True)
         self.relu = nn.ReLU(chann)
         # self.bn2 = nn.BatchNorm2d(chann, eps=1e-03)
-
+        self.in_norm2 = nn.InstanceNorm2d(chann, affine=True)
 
     def forward(self, input):
         output = self.conv3x1_1(input)
@@ -669,10 +668,9 @@ class AttentionModule(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        min_out = -self.avg_pool(-x)
-        # avg_out = self.avg_pool(x)
+        avg_out = self.avg_pool(x)
         max_out = self.max_pool(x)
-        out = torch.cat([min_out, max_out], dim=1)
+        out = torch.cat([avg_out, max_out], dim=1)
         out = self.conv(out)
         return self.sigmoid(out)
 
