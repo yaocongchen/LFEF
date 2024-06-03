@@ -8,6 +8,7 @@ import torch.nn as nn
 from models import base_blocks
 
 class conv3x1_1x3_dil(nn.Module):
+
     def __init__(self, chann, dilated):
         super().__init__()
 
@@ -58,6 +59,7 @@ class conv3x1_1x3_dil(nn.Module):
         return self.relu(output + input)  # +input = identity (residual connection)
     
 class AuxiliaryNetwork(nn.Module):
+
     def __init__(self, nIn, nOut, stride=1):
         super().__init__()
         # self.ea = ExternalAttention(d_model=nIn)
@@ -90,6 +92,10 @@ class AttentionModule(nn.Module):
         return self.sigmoid(out)   
     
 class module(nn.Module):
+    """
+    The proposed DAFAM model
+    """
+    
     def __init__(self):
 
         super().__init__()   
