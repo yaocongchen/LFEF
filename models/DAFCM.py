@@ -15,9 +15,9 @@ __all__ = ["Net"]
 
 class Net(nn.Module):
     """
-    This class defines the proposed Context Guided Network (CGNet) in this work.
+    The proposed DAFCM model
     """
-
+    
     def __init__(self, M=3, N=3):
         """
         args:

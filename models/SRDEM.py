@@ -9,14 +9,16 @@ from models import base_blocks
 
 class Block_Down(nn.Module):
     """
-    the size of feature map divided 2, (H,W,C)---->(H/2, W/2, 2C)
+    The down-sampling block in the SRDEM
     """
 
     def __init__(self, nIn, nOut, dilation_rate=3, reduction=16):
         """
         args:
-           nIn: the channel of input feature map
-           nOut: the channel of output feature map, and nOut=2*nIn
+            nIn: number of input channels
+            nOut: number of output channels
+            dilation_rate: the rate of dilated convolution
+            reduction: the reduction ratio in the F_glo
         """
         super().__init__()
         self.conv1x1 = base_blocks.ConvINReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
@@ -45,12 +47,18 @@ class Block_Down(nn.Module):
 
 
 class Block(nn.Module):
+    """
+    The basic block in the SRDEM
+    """
+    
     def __init__(self, nIn, nOut, dilation_rate=3, reduction=16, add=True):
         """
         args:
-           nIn: number of input channels
-           nOut: number of output channels,
-           add: if true, residual learning
+            nIn: number of input channels
+            nOut: number of output channels,
+            dilation_rate: the rate of dilated convolution
+            reduction: the reduction ratio in the F_glo
+            add: if true, residual learning
         """
         super().__init__()
         n = int(nOut / 2)
