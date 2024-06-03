@@ -6,10 +6,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from models import SRDEM, base_blocks, DAFAM
+from models import base_blocks, SRDEM, DAFAM
 from torchinfo import summary
-from torch.nn import init
-from torchvision import transforms
+
 
 __all__ = ["Net"]
 
@@ -17,7 +16,7 @@ class Net(nn.Module):
     """
     The proposed DAFCM model
     """
-    
+
     def __init__(self, M=3, N=3):
         """
         args:
@@ -27,7 +26,7 @@ class Net(nn.Module):
         super().__init__()
 
 
-        self.dafam = DAFAM.module()
+        self.dafam = DAFAM()
 
         # stage 2
         self.level2_0 = SRDEM.Block_Down(
