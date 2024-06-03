@@ -15,7 +15,7 @@ from typing import Dict, Any, Tuple
 from torch.nn import Module
 
 import utils
-import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model 
+import models.DAFCM as network_model 
 from utils.inference import smoke_semantic
 from utils.val_setup_utils import wandb_information, folders_and_files_name, parse_arguments
 from utils.metrics import report_fps_and_time

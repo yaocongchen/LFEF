@@ -6,3 +6,4 @@ results/
 trained_models/
 .*
 !.gitignore
+old_models/
