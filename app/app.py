@@ -14,7 +14,7 @@ import sys
 sys.path.append("..")
 
 import val
-import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
+import models.DAFCM as network_model  # import self-written models 引入自行寫的模型
 import utils
 from visualization_codes import inference_single_picture
 from utils.val_setup_utils import folders_and_files_name

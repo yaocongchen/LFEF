@@ -11,7 +11,7 @@ from visualization_codes import (
     inference_video_to_frames,
 )
 from utils.metrics import report_fps_and_time
-import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model  # import self-written models 引入自行寫的模型
+import models.DAFCM as network_model  # import self-written models 引入自行寫的模型
 
 
 def smoke_segmentation(args: Dict[str, Any], device: torch.device) -> None:

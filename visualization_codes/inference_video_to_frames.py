@@ -14,7 +14,7 @@ from typing import Dict, Union
 import sys
 sys.path.append("..")
 
-import models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention as network_model
+import models.DAFCM as network_model
 from utils.inference import smoke_semantic
 import visualization_codes.utils.image_process as image_process
 
