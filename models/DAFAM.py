@@ -91,11 +91,11 @@ class AttentionModule(nn.Module):
 
         return self.sigmoid(out)   
     
-class module(nn.Module):
+class DAFAM(nn.Module):
     """
     The proposed DAFAM model
     """
-    
+
     def __init__(self):
 
         super().__init__()   
