@@ -9,7 +9,7 @@ import segmentation_models_pytorch as smp
 from typing import Any, Dict, Union, Tuple
 from torch import Tensor
 
-alpha = 0
+alpha = 1
 
 S = nn.Sigmoid()
 L = nn.BCELoss(reduction="mean")
