@@ -9,7 +9,7 @@ import segmentation_models_pytorch as smp
 from typing import Any, Dict, Union, Tuple
 from torch import Tensor
 
-alpha = 1
+alpha = 0.5
 
 S = nn.Sigmoid()
 L = nn.BCELoss(reduction="mean")
@@ -74,7 +74,7 @@ def CustomLoss(*args: Tensor, **kwargs: Any) -> Tensor:
     elif len(args) == 3:  # model_output, aux, 和 mask
         aux = args[1]
         loss_2 = L(aux, mask)
-        total_loss = loss_1 * (1 - alpha) + loss_2 * alpha
+        total_loss = loss_1 + loss_2 * alpha
     else:
         raise ValueError("Unsupported number of arguments")
     
