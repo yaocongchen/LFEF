@@ -224,6 +224,37 @@ class ChannelWiseDilatedConv(nn.Module):
         output = self.conv_3113(input)
 
         return output
+class ChannelWiseDilatedConv_33(nn.Module):
+    def __init__(self, nIn, nOut, kSize, stride=1, d=1):
+        """
+        args:
+           nIn: number of input channels
+           nOut: number of output channels, default (nIn == nOut)
+           kSize: kernel size
+           stride: optional stride rate for down-sampling
+           d: dilation rate
+        """
+        super().__init__()
+        padding = int((kSize - 1) / 2) * d
+        self.conv = nn.Conv2d(
+            nIn,
+            nOut,
+            (kSize, kSize),
+            stride=stride,
+            padding=(padding, padding),
+            groups=nIn,
+            bias=False,
+            dilation=d,
+        )
+
+    def forward(self, input):
+        """
+        args:
+           input: input feature map
+           return: transformed feature map
+        """
+        output = self.conv(input)
+        return output
 
 class FGlo(nn.Module):
     """
