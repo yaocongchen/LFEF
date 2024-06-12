@@ -87,9 +87,9 @@ class AttentionModule(nn.Module):
         # avg_out = self.avg_pool(x)
         max_out = self.max_pool(x)
         # out = torch.cat([avg_out, max_out], dim=1)
-        out = self.conv(out)
+        out = self.conv(max_out)
 
-        return self.sigmoid(max_out)   
+        return self.sigmoid(out)   
     
 class DAFAM(nn.Module):
     """
