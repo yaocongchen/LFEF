@@ -124,6 +124,6 @@ class DAFAM(nn.Module):
         inverted_output = self.attention_module(inverted_output)
         
         attention_output = stage1_output + inverted_output
-        output = self.in_relu_stage1(stage1_output)
+        output = self.in_relu_stage1(attention_output)
 
         return output
