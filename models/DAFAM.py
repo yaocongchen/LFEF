@@ -107,7 +107,7 @@ class DAFAM(nn.Module):
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
 
 
-        # self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
+        self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
         self.attention_module = AttentionModule(32)
         self.in_relu_stage1 = base_blocks.INReLU(32)
 
@@ -118,12 +118,12 @@ class DAFAM(nn.Module):
 
         stage1_output = self.attention_module(stage1_output)
 
-        # input_inverted = 1 - input
+        input_inverted = 1 - input
 
-        # inverted_output = self.aux_net(input_inverted)
-        # inverted_output = self.attention_module(inverted_output)
+        inverted_output = self.aux_net(input_inverted)
+        inverted_output = self.attention_module(inverted_output)
         
-        # attention_output = stage1_output + inverted_output
+        attention_output = stage1_output + inverted_output
         output = self.in_relu_stage1(stage1_output)
 
         return output
