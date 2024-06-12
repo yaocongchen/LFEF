@@ -242,8 +242,8 @@ class ChannelWiseDilatedConv_33(nn.Module):
             (kSize, kSize),
             stride=stride,
             padding=(padding, padding),
-            groups=nIn,
-            bias=False,
+            groups=nOut,
+            bias=True,
             dilation=d,
         )
 
