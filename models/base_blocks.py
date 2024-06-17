@@ -246,6 +246,15 @@ class ChannelWiseDilatedConv_33(nn.Module):
             bias=True,
             dilation=d,
         )
+        self.conv_11 = nn.Conv2d(
+            nOut,
+            nOut,
+            (1, 1),
+            stride=1,
+            padding=(0, 0),
+            groups=nOut,
+            bias=True,
+        )
 
     def forward(self, input):
         """
@@ -254,6 +263,7 @@ class ChannelWiseDilatedConv_33(nn.Module):
            return: transformed feature map
         """
         output = self.conv(input)
+        output = self.conv_11(output)
         return output
 
 class FGlo(nn.Module):
