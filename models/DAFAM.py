@@ -81,7 +81,6 @@ class AttentionModule(nn.Module):
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
         self.conv = nn.Conv2d(in_channels*2, in_channels, 1, bias=True)
-        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         avg_out = self.avg_pool(x)
@@ -89,7 +88,7 @@ class AttentionModule(nn.Module):
         out = torch.cat([avg_out, max_out], dim=1)
         out = self.conv(out)
 
-        return self.sigmoid(out)   
+        return out   
     
 class DAFAM(nn.Module):
     """
@@ -107,17 +106,24 @@ class DAFAM(nn.Module):
         self.attention_module = AttentionModule(32)
         self.in_relu_stage1 = base_blocks.INReLU(32)
 
+        self.tanh = nn.Tanh()
+
     def forward(self, input):
         stage1_output= self.level1_0(input)
         stage1_output = self.level1_1(stage1_output)
         stage1_output = self.level1_2(stage1_output)
 
         stage1_output = self.attention_module(stage1_output)
+        stage1_output_sigmoid = self.tanh(stage1_output)
 
         input_inverted = 1 - input
 
         inverted_output = self.aux_net(input_inverted)
         inverted_output = self.attention_module(inverted_output)
+        inverted_output_sigmoid = self.tanh(inverted_output)
+
+        stage1_output = stage1_output * inverted_output_sigmoid
+        inverted_output = inverted_output * stage1_output_sigmoid
         
         attention_output = stage1_output + inverted_output
         output = self.in_relu_stage1(attention_output)
