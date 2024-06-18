@@ -5,6 +5,8 @@ sys.path.append(".")
 from utils.metrics import Calculate
 from models.DAFCM import Net
 
+torch.autograd.set_detect_anomaly(True)
+
 if __name__ == "__main__":
     model = Net()
     x = torch.randn(16, 3, 256, 256)

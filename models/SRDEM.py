@@ -91,8 +91,8 @@ class Block(nn.Module):
 
         joi_feat = self.in_relu(joi_feat)
 
-        input = self.conv33_group(input)
-        input_sig = self.sigmoid(input)
+        input_group = self.conv33_group(input)
+        input_sig = self.sigmoid(input_group)
 
         joi_feat = joi_feat * input_sig
 
