@@ -138,6 +138,7 @@ class ChannelWiseConv(nn.Module):
             groups=nOut,
             bias=True,
         )
+        self.relu = nn.ReLU()
 
     def forward(self, input):
         """
@@ -146,6 +147,8 @@ class ChannelWiseConv(nn.Module):
            return: transformed feature map
         """
         output = self.conv(input)
+        output = self.relu(output)
+        
         return output
 
 
@@ -198,7 +201,7 @@ class ChannelWiseDilatedConv(nn.Module):
                 nIn_ori,
                 (kSize, 1),
                 stride=stride,
-                padding=(padding , 0),
+                padding=(padding, 0),
                 groups=nIn_ori,
                 bias=True,
                 dilation=d,
@@ -208,12 +211,13 @@ class ChannelWiseDilatedConv(nn.Module):
                 nOut_ori,
                 (1, kSize),
                 stride=stride,
-                padding=(0 , padding),
+                padding=(0, padding),
                 groups=nIn_ori,
                 bias=True,
                 dilation=d,
             ),
         )
+        self.relu = nn.ReLU()
 
     def forward(self, input):
         """
@@ -222,6 +226,7 @@ class ChannelWiseDilatedConv(nn.Module):
            return: transformed feature map
         """
         output = self.conv_3113(input)
+        output = self.relu(output)
 
         return output
 class ChannelWiseDilatedConv_33(nn.Module):
