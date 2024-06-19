@@ -75,7 +75,8 @@ class Block(nn.Module):
         self.in_relu = base_blocks.INReLU(2*n)
         self.relu = nn.ReLU(inplace=True)
 
-        self.conv33_group = base_blocks.ChannelWiseConv(2 * n, 2 * n, 3, 1)
+        self.conv33_group_1 = base_blocks.ChannelWiseConv(2 * n, 2 * n, 3, 1)
+        self.conv33_group_2 = base_blocks.ChannelWiseConv(2 * n, 2 * n, 3, 1)
         self.sigmoid = nn.Sigmoid()
         
         self.add = add
@@ -91,12 +92,12 @@ class Block(nn.Module):
 
         joi_feat = self.in_relu(joi_feat)
 
-        input_group = self.conv33_group(input)
+        input_group = self.conv33_group_1(input)
         input_sig = self.sigmoid(input_group)
 
         joi_feat = joi_feat * input_sig
 
-        joi_feat = self.conv33_group(joi_feat)
+        joi_feat = self.conv33_group_2(joi_feat)
         joi_feat = self.relu(joi_feat)
 
         output = self.F_glo(joi_feat)  # F_glo is employed to refine the joint feature

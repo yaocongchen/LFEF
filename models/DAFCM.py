@@ -30,7 +30,7 @@ class Net(nn.Module):
 
         # stage 2
         self.level2_0 = SRDEM.Block_Down(
-            32, 64,dilation_rate=2, reduction=8
+            32, 64, dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
@@ -67,7 +67,6 @@ class Net(nn.Module):
         self.conv_32_to_1_IN = nn.InstanceNorm2d(1, affine=True)
         self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
 
-        self.relu = nn.ReLU()
 #================================================================================================#
         
         self.sigmoid = nn.Sigmoid()
