@@ -80,7 +80,7 @@ class AttentionModule(nn.Module):
         super().__init__()
         self.avg_pool = nn.AvgPool2d(3, stride=1, padding=1)
         self.max_pool = nn.MaxPool2d(3, stride=1, padding=1)
-        self.conv = nn.Conv2d(in_channels*2, in_channels, 1, bias=True)
+        # self.conv = nn.Conv2d(in_channels*2, in_channels, 1, bias=True)
 
     def forward(self, x):
         avg_out = self.avg_pool(x)
@@ -104,8 +104,8 @@ class DAFAM(nn.Module):
         self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
         self.attention_module = AttentionModule(32)
         # self.attention_module_inverted = AttentionModule(32)
-        self.conv11_0 = nn.Conv2d(64, 32, 1, bias=True)
-        self.conv11_1 = nn.Conv2d(64, 32, 1, bias=True)
+        self.conv11 = nn.Conv2d(64, 32, 1, bias=True)
+        # self.conv11_1 = nn.Conv2d(64, 32, 1, bias=True)
         # self.conv11_2 = nn.Conv2d(64, 32, 1, bias=True)
         # self.conv11_3 = nn.Conv2d(64, 32, 1, bias=True)
         # self.tanh = nn.Tanh()
@@ -117,7 +117,7 @@ class DAFAM(nn.Module):
         stage1_output = self.level1_2(stage1_output)
 
         stage1_output = self.attention_module(stage1_output)
-        stage1_output = self.conv11_0(stage1_output)
+        stage1_output = self.conv11(stage1_output)
         # stage1_output_ctrl = self.tanh(stage1_output_ctrl)
 
         # stage1_output_dataflow = self.conv11_1(stage1_output)
@@ -126,7 +126,7 @@ class DAFAM(nn.Module):
 
         inverted_output = self.aux_net(input_inverted)
         inverted_output = self.attention_module(inverted_output)
-        inverted_output = self.conv11_1(inverted_output)
+        inverted_output = self.conv11(inverted_output)
         # inverted_output_ctrl = self.tanh(inverted_output_ctrl)
 
         # inverted_output_dataflow = self.conv11_3(inverted_output)
