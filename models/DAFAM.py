@@ -102,8 +102,8 @@ class DAFAM(nn.Module):
         self.level1_2 = conv3x1_1x3_dil(32, 2)
 
         self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
-        self.attention_module_stage1 = AttentionModule(32)
-        self.attention_module_inverted = AttentionModule(32)
+        self.attention_module = AttentionModule(32)
+        # self.attention_module_inverted = AttentionModule(32)
         self.conv11_0 = nn.Conv2d(64, 32, 1, bias=True)
         self.conv11_1 = nn.Conv2d(64, 32, 1, bias=True)
         # self.conv11_2 = nn.Conv2d(64, 32, 1, bias=True)
@@ -116,7 +116,7 @@ class DAFAM(nn.Module):
         stage1_output = self.level1_1(stage1_output)
         stage1_output = self.level1_2(stage1_output)
 
-        stage1_output = self.attention_module_stage1(stage1_output)
+        stage1_output = self.attention_module(stage1_output)
         stage1_output = self.conv11_0(stage1_output)
         # stage1_output_ctrl = self.tanh(stage1_output_ctrl)
 
@@ -125,7 +125,7 @@ class DAFAM(nn.Module):
         input_inverted = 1 - input
 
         inverted_output = self.aux_net(input_inverted)
-        inverted_output = self.attention_module_inverted(inverted_output)
+        inverted_output = self.attention_module(inverted_output)
         inverted_output = self.conv11_1(inverted_output)
         # inverted_output_ctrl = self.tanh(inverted_output_ctrl)
 
