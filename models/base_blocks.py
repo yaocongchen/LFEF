@@ -204,7 +204,6 @@ class ChannelWiseDilatedConv(nn.Module):
                 bias=True,
                 dilation=d,
             ),
-            nn.ReLU(inplace=True),
             nn.Conv2d(
                 nIn_ori,
                 nOut_ori,
