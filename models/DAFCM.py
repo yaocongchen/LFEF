@@ -62,8 +62,9 @@ class Net(nn.Module):
         self.conv_64_to_32 = nn.Conv2d(64, 32, kernel_size=(1, 1), stride=1,padding=0)
         self.conv_64_to_32_IN = nn.InstanceNorm2d(32, affine=True)
         self.upsample_to_128x128 = nn.Upsample(size=(128, 128), mode="bilinear", align_corners=True)
-
-        self.conv_32_to_1 = nn.Conv2d(32, 1, kernel_size=(1, 1), stride=1,padding=0)
+        
+        self.conv3x3_in_rule_2 = nn.Sequential(nn.Conv2d(32, 16, kernel_size=(3, 3), padding=1,groups=16), nn.InstanceNorm2d(16, affine=True), nn.ReLU())
+        self.conv_32_to_1 = nn.Conv2d(16, 1, kernel_size=(1, 1), stride=1,padding=0)
         self.conv_32_to_1_IN = nn.InstanceNorm2d(1, affine=True)
         self.upsample_to_256x256 = nn.Upsample(size=(256, 256), mode="bilinear", align_corners=True)
 
@@ -138,6 +139,8 @@ class Net(nn.Module):
         convolved_stage2_output = self.conv_64_to_32_IN(convolved_stage2_output)
 
         stage2_add_stage1_output = convolved_stage2_output + dafam_output
+
+        stage2_add_stage1_output = self.conv3x3_in_rule_2(stage2_add_stage1_output)
         upsample_stage1_output = self.upsample_to_256x256(stage2_add_stage1_output)
         convolved_stage1_output = self.conv_32_to_1(upsample_stage1_output)
         convolved_stage1_output = self.conv_32_to_1_IN(convolved_stage1_output)
