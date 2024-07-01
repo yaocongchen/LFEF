@@ -83,8 +83,7 @@ def smoke_segmentation(
     video_FPS = cap.get(cv2.CAP_PROP_FPS)
     # print(cv2.getBuildInformation())
     # Define the codec and create VideoWriter object
-    counter = 0
-    start_time_avg = time.time()
+    time_list = []
     while cap.isOpened():
         start_time = time.time()
         ret, frame = cap.read()
@@ -138,7 +137,7 @@ def smoke_segmentation(
         print("FPS: ", 1 / (time.time() - start_time))
 
         i += 1
-    print("average FPS: ", counter / (time.time() - start_time_avg))
+    print("Average FPS: ", len(time_list[1:]) / sum(time_list[1:]))
     # ====================================================
     # Release everything if job is finished
     cap.release()
