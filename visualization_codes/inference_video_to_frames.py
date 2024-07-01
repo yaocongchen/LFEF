@@ -92,8 +92,6 @@ def smoke_segmentation(
             print("Can't receive frame (stream end?). Exiting ...")
             break
 
-        counter += 1
-
         cv2.imwrite(
             f'./results/video_to_frames/{names["video_RGB_original_dir_name"]}/{names["video_capture_image_name"]}_{i}.png',
             frame,
@@ -135,7 +133,8 @@ def smoke_segmentation(
         )
         print("process_time: ", time.time() - start_time)
         print("FPS: ", 1 / (time.time() - start_time))
-
+        time_list.append(time.time() - start_time)
+        
         i += 1
     print("Average FPS: ", len(time_list[1:]) / sum(time_list[1:]))
     # ====================================================
