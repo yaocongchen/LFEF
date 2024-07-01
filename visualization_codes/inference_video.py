@@ -50,9 +50,6 @@ def smoke_segmentation(
     print("save_video:", save_video)
     print("show_video:", show_video)
 
-    start_time = time.time()
-    counter = 0
-
     if video_path == "0":
         video_path = int(video_path)
     cap = cv2.VideoCapture(video_path)
@@ -68,7 +65,10 @@ def smoke_segmentation(
 
     idx = 0
     freq = 5
+    counter = 0
+    start_time_avg = time.time()
     while cap.isOpened():
+        start_time = time.time()
         ret, frame = cap.read()
         # if frame is read correctly ret is True
         if not ret:
@@ -103,9 +103,8 @@ def smoke_segmentation(
             )
 
         print("process_time: ", time.time() - start_time)
-        print("FPS: ", counter / (time.time() - start_time))
-        counter = 0
-        start_time = time.time()
+        print("FPS: ", 1 / (time.time() - start_time))
+
 
         if save_video:
             out.write(overlapImage)
@@ -117,7 +116,7 @@ def smoke_segmentation(
             if cv2.waitKey(1) == ord("q"):
                 break
         i += 1
-
+    print("Average FPS: ", counter / (time.time() - start_time_avg))
     # ====================================================
     # Release everything if job is finished
     cap.release()
