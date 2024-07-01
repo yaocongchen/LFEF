@@ -146,6 +146,7 @@ class ChannelWiseConv(nn.Module):
            return: transformed feature map
         """
         output = self.conv(input)
+
         return output
 
 
@@ -198,7 +199,7 @@ class ChannelWiseDilatedConv(nn.Module):
                 nIn_ori,
                 (kSize, 1),
                 stride=stride,
-                padding=(padding , 0),
+                padding=(padding, 0),
                 groups=nIn_ori,
                 bias=True,
                 dilation=d,
@@ -208,7 +209,7 @@ class ChannelWiseDilatedConv(nn.Module):
                 nOut_ori,
                 (1, kSize),
                 stride=stride,
-                padding=(0 , padding),
+                padding=(0, padding),
                 groups=nIn_ori,
                 bias=True,
                 dilation=d,
@@ -223,6 +224,47 @@ class ChannelWiseDilatedConv(nn.Module):
         """
         output = self.conv_3113(input)
 
+        return output
+class ChannelWiseDilatedConv_33(nn.Module):
+    def __init__(self, nIn, nOut, kSize, stride=1, d=1):
+        """
+        args:
+           nIn: number of input channels
+           nOut: number of output channels, default (nIn == nOut)
+           kSize: kernel size
+           stride: optional stride rate for down-sampling
+           d: dilation rate
+        """
+        super().__init__()
+        padding = int((kSize - 1) / 2) * d
+        self.conv = nn.Conv2d(
+            nIn,
+            nOut,
+            (kSize, kSize),
+            stride=stride,
+            padding=(padding, padding),
+            groups=nOut,
+            bias=True,
+            dilation=d,
+        )
+        self.conv_11 = nn.Conv2d(
+            nOut,
+            nOut,
+            (1, 1),
+            stride=1,
+            padding=(0, 0),
+            groups=nOut,
+            bias=True,
+        )
+
+    def forward(self, input):
+        """
+        args:
+           input: input feature map
+           return: transformed feature map
+        """
+        output = self.conv(input)
+        output = self.conv_11(output)
         return output
 
 class FGlo(nn.Module):
