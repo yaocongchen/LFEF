@@ -87,11 +87,10 @@ class AttentionModule(nn.Module):
         avg_out = self.avg_pool(x)
         max_out = self.max_pool(x)
         out = torch.cat([avg_out, max_out], dim=1)
-        out = self.conv(out)
 
-        return self.sigmoid(out)   
+        return out  
     
-class DAFAM(nn.Module):
+class FEM(nn.Module):
     """
     The proposed DAFAM model
     """
@@ -109,6 +108,8 @@ class DAFAM(nn.Module):
 
         self.aux_net = AuxiliaryNetwork(3, 32, stride = 2)
         self.attention_module = AttentionModule(32)
+        self.conv1x1 = nn.Conv2d(128, 64, kernel_size=(1, 1), stride=1,padding=0)
+        self.conv1x1_2 = nn.Conv2d(64, 32, kernel_size=(1, 1), stride=1,padding=0)
         self.in_relu_stage1 = base_blocks.INReLU(32)
 
     def forward(self, input):
@@ -122,8 +123,11 @@ class DAFAM(nn.Module):
 
         inverted_output = self.aux_net(input_inverted)
         inverted_output = self.attention_module(inverted_output)
+
+        output = torch.cat([stage1_output, inverted_output], dim=1)
+        output = self.conv1x1(output)
+        output = self.conv1x1_2(output)
         
-        attention_output = stage1_output + inverted_output
-        output = self.in_relu_stage1(attention_output)
+        output = self.in_relu_stage1(output)
 
         return output

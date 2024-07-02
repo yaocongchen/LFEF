@@ -14,7 +14,7 @@ from typing import Dict, Union
 import sys
 sys.path.append("..")
 
-import models.DAFCM as network_model
+import models.LFEF as network_model
 from utils.inference import smoke_semantic
 import visualization_codes.utils.image_process as image_process
 

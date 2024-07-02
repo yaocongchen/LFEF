@@ -6,7 +6,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from models import base_blocks, SRDEM, DAFAM
+from models import base_blocks, FEM, SRDEM
 from torchinfo import summary
 
 
@@ -26,7 +26,7 @@ class Net(nn.Module):
         super().__init__()
 
 
-        self.dafam = DAFAM()
+        self.dafam = FEM()
 
         # stage 2
         self.level2_0 = SRDEM.Block_Down(

@@ -13,7 +13,7 @@ import wandb
 import torch.onnx
 from typing import Dict, List, Any, Tuple
 
-import models.DAFCM as network_model  # import self-written models 引入自行寫的模型
+import models.LFEF as network_model  # import self-written models 引入自行寫的模型
 from utils.main_setup_utils import folders_and_files_name, set_model_save_dir_names, create_model_state_dict, time_processing, wandb_information, parse_arguments
 from utils.check_GPU import check_have_GPU, check_number_of_GPUs, set_seed
 from utils.metrics import Calculate

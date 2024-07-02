@@ -16,7 +16,7 @@ from torch.nn import Module
 from torchvision.transforms import Compose
 
 import utils
-import models.DAFCM as network_model  # import self-written models 引入自行寫的模型
+import models.LFEF as network_model  # import self-written models 引入自行寫的模型
 from utils.inference import smoke_semantic
 import visualization_codes.utils.image_process as image_process
 
