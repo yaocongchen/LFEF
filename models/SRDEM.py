@@ -23,7 +23,7 @@ class Block_Down(nn.Module):
         super().__init__()
         self.conv1x1 = base_blocks.ConvINReLU(nIn, nOut, 3, 2)  #  size/2, channel: nIn--->nOut
         
-        self.F_loc = base_blocks.ChannelWiseConv(nOut, nOut, 3, 1)
+        self.F_loc = base_blocks.ChannelWiseDilatedConv(nOut, nOut, 3, 1, 1)  # local feature
         self.F_sur = base_blocks.ChannelWiseDilatedConv(nOut, nOut, 3, 1, dilation_rate)
 
         self.in_relu =base_blocks.INReLU(2 * nOut)
@@ -65,7 +65,7 @@ class Block(nn.Module):
         self.conv1x1 = base_blocks.ConvINReLU(
             nIn, n, 1, 1
         )  # 1x1 Conv is employed to reduce the computation
-        self.F_loc = base_blocks.ChannelWiseConv(n, n, 3, 1)  # local feature
+        self.F_loc = base_blocks.ChannelWiseDilatedConv(n, n, 3, 1, 1)  # local feature
         self.F_sur = base_blocks.ChannelWiseDilatedConv(
             n, n, 3, 1, dilation_rate
         )  # surrounding context
