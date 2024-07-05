@@ -87,8 +87,8 @@ class Block(nn.Module):
         
         joi_feat = torch.cat([loc, sur], 1)
 
-        input_sig = self.sigmoid(input)
-        joi_feat = joi_feat * input_sig
+        joi_feat = self.sigmoid(joi_feat)
+        joi_feat = input * joi_feat
 
         joi_feat = self.in_relu(joi_feat)
 
