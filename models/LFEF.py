@@ -6,7 +6,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from models import base_blocks, FEM, SRDEM
+from models import base_blocks, FEM, SRDEB
 from torchinfo import summary
 
 
@@ -29,25 +29,25 @@ class Net(nn.Module):
         self.dafam = FEM()
 
         # stage 2
-        self.level2_0 = SRDEM.Block_Down(
+        self.level2_0 = SRDEB.DSEM(
             32, 64, dilation_rate=2, reduction=8
         )
         self.level2 = nn.ModuleList()
         for i in range(0, M - 1):
             self.level2.append(
-                SRDEM.Block(64, 64, dilation_rate=2, reduction=8)
+                SRDEB.DEM(64, 64, dilation_rate=2, reduction=8)
             )  # CG block
         self.in_relu_stage2 = base_blocks.INReLU(64)
 
 
         # stage 3
-        self.level3_0 = SRDEM.Block_Down(
+        self.level3_0 = SRDEB.DSEM(
             64, 128, dilation_rate=4, reduction=16
         )
         self.level3 = nn.ModuleList()
         for i in range(0, N - 1):
             self.level3.append(
-                SRDEM.Block(128, 128, dilation_rate=4, reduction=16)
+                SRDEB.DEM(128, 128, dilation_rate=4, reduction=16)
             )  # CG bloc
         self.in_relu_stage3 = base_blocks.INReLU(128)
 
