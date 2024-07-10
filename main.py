@@ -65,10 +65,7 @@ def main(args: Dict[str, Any], names: Dict[str, str]) -> None:
         if os.path.isfile(
             args["resume"]
         ):
-            if args["wandb_name"] != "no":
-                checkpoint = torch.load(wandb.restore(args["resume"]).name)
-            else:
-                checkpoint = torch.load(args["resume"])
+            checkpoint = torch.load(args["resume"])
             model.load_state_dict(checkpoint["model_state_dict"])
             optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
             start_epoch = checkpoint["epoch"]
