@@ -3,7 +3,7 @@ from torchinfo import summary
 import sys
 sys.path.append(".")
 from utils.metrics import Calculate
-from models.DAFCM import Net
+from models.LFEF import Net
 
 torch.autograd.set_detect_anomaly(True)
 

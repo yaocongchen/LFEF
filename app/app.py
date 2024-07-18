@@ -14,7 +14,7 @@ import sys
 sys.path.append("..")
 
 import val
-import models.DAFCM as network_model  # import self-written models 引入自行寫的模型
+import models.LFEF as network_model  # import self-written models 引入自行寫的模型
 import utils
 from visualization_codes import inference_single_picture
 from utils.val_setup_utils import folders_and_files_name
@@ -22,7 +22,7 @@ from utils.val_setup_utils import folders_and_files_name
 model_name = str(network_model)
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-Model_folder = "../trained_models/server/"
+Model_folder = "../trained_models/"
 MODEL_LOG = Model_folder + "log.txt"
 
 
