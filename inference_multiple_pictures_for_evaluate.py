@@ -223,8 +223,8 @@ if __name__ == "__main__":
     model_size = c.get_model_size()
     flops, params = c.get_params()
 
-    model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
-    torch.set_float32_matmul_precision('high')
+    # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
+    # torch.set_float32_matmul_precision('high')
     model.load_state_dict(torch.load(args["model_path"], map_location=device))
     model.eval()
 

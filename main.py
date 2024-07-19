@@ -53,8 +53,8 @@ def main(args: Dict[str, Any], names: Dict[str, str]) -> None:
         model.parameters(), lr=float(args["learning_rate"]), weight_decay=float(args["weight_decay"])
     )
 
-    model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
-    torch.set_float32_matmul_precision('high')
+    # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
+    # torch.set_float32_matmul_precision('high')
     
     start_epoch = 1
 

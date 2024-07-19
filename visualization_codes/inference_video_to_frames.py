@@ -175,8 +175,8 @@ if __name__ == "__main__":
     # save_video = True
 
     model = network_model.Net().to(device)
-    model = torch.compile(model)
-    torch.set_float32_matmul_precision('high')
+    # model = torch.compile(model)
+    # torch.set_float32_matmul_precision('high')
     model.load_state_dict(torch.load(args["model_path"], map_location=device))
 
     model.eval()
