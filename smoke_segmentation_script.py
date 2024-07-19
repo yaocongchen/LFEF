@@ -15,12 +15,8 @@ import models.LFEF as network_model  # import self-written models 引入自行�
 
 
 def smoke_segmentation(args: Dict[str, Any], device: torch.device) -> None:
-    model = network_model.Net().to(device)
-    # model = torch.compile(model)  #pytorch2.0編譯功能(舊GPU無法使用)
-    # torch.set_float32_matmul_precision('high')
-    model.load_state_dict(torch.load(args["model_path"], map_location=device))
-
-    model.eval()
+    model = torch.jit.load(args["model_path"])
+    model.to(device)
 
     source = args["source"]
 
@@ -102,6 +98,7 @@ if __name__ == "__main__":
     ap.add_argument(
         "-s",
         "--source",
+        default="/home/yaocong/Experimental/Dataset/smoke_video_dataset/Black_smoke_517.avi",
         type=str,
         required=True,
         help="Path to the image, video file, or directory to be tested.",
@@ -109,24 +106,28 @@ if __name__ == "__main__":
     ap.add_argument(
         "-m",
         "--model_path",
+        default="./results/torch_script/model.pt",
         required=True,
         help="Path to the trained model to be used for smoke segmentation.",
     )
     ap.add_argument(
         "-vtf",
         "--video_to_frames",
+        default=False,
         action='store_true',
         help="Convert the video to frames. Include this argument to enable this feature.",
     )
     ap.add_argument(
         "-save",
         "--save_video",
+        default=False,
         action='store_true',
         help="Save the output video. Include this argument to enable this feature.",
     )
     ap.add_argument(
         "-show",
         "--show_video",
+        default=True,
         action='store_true',
         help="Display the output video. Include this argument to enable this feature.",
     )
