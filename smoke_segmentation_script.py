@@ -11,8 +11,6 @@ from visualization_codes import (
     inference_video_to_frames,
 )
 from utils.metrics import report_fps_and_time
-import models.LFEF as network_model  # import self-written models 引入自行寫的模型
-
 
 def smoke_segmentation(args: Dict[str, Any], device: torch.device) -> None:
     model = torch.jit.load(args["model_path"])
