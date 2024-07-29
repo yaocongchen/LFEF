@@ -5,11 +5,8 @@ use std::fs;
 use std::path::Path;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-
-    ort::init()
-        .with_execution_providers([CUDAExecutionProvider::default().build()])
-        .commit()?;
-
+    tracing_subscriber::fmt::init();
+    
     // 定義資料夾路徑
     let input_folder = "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/images";
     let output_folder = "./results/processed_images";

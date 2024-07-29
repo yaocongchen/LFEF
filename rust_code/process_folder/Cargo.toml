@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 image = "0.25.2"
 ndarray = "0.15.6"
-ort = { version = "2.0.0-rc.4", feature = [ "cuda" ] }
+ort = { version = "2.0.0-rc.4", features = ["cuda"] }
+tracing-subscriber = "0.3.18"
