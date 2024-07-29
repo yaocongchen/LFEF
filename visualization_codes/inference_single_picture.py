@@ -86,6 +86,7 @@ def smoke_segmentation(
     smoke_input_image = (smoke_input_image) / 255.0
     smoke_input_image = smoke_input_image.unsqueeze(0).to(device)
     output, aux = smoke_semantic(smoke_input_image, model, device, time_train, i)
+    torchvision.utils.save_image(output, f'{names["smoke_semantic_image_name"]}_ori_output.jpg')
     output = (output > 0.5).float()
     torchvision.utils.save_image(output, f'{names["smoke_semantic_image_name"]}.jpg')
 
