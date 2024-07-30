@@ -6,7 +6,7 @@ use std::path::Path;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
-    
+
     // 定義資料夾路徑
     let input_folder = "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/images";
     let output_folder = "./results/processed_images";
@@ -63,7 +63,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             // 輸出文件名
             let file_name = path.file_name().unwrap().to_str().unwrap();
             let output_path = Path::new(output_folder).join(file_name);
-            let output_threshold_path = Path::new(output_folder).join(format!("threshold_{}", file_name));
+            let output_threshold_path =
+                Path::new(output_folder).join(format!("threshold_{}", file_name));
 
             // 保存輸出圖像
             output.save(output_path)?;

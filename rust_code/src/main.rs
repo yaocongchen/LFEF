@@ -4,6 +4,7 @@ use ort::{CUDAExecutionProvider, GraphOptimizationLevel, Session};
 use std::env;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    tracing_subscriber::fmt::init();
 
     let use_cuda = env::var("USE_CUDA").unwrap_or_else(|_| "false".to_string()) == "true";
     print!("use_cuda: {}", use_cuda);
@@ -28,12 +29,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         input[[0, 2, x, y]] = b as f32 / 255.0;
     }
 
-    // print!("{:?}", &input_img);
-    input_img.save("output.png")?;
+
     let model = Session::builder()?
+        .with_execution_providers([CUDAExecutionProvider::default().build()])?
         .with_optimization_level(GraphOptimizationLevel::Level3)?
         .with_intra_threads(4)?
-        .commit_from_file("../trained_models/best.onnx")?;
+        .commit_from_file("../../trained_models/best.onnx")?;
+
 
     let outputs = model.run(ort::inputs!["input" => input.view()]?)?;
     let predictions = outputs["output"].try_extract_tensor::<f32>()?;
