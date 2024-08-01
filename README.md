@@ -1,4 +1,4 @@
-# LEFE
+# LFEF
 
 <!-- Implementation of paper - [YOLOv9: Learning What You Want to Learn Using Programmable Gradient Information](https://arxiv.org/abs/2402.13616) -->
 
@@ -15,7 +15,7 @@ SYN70K ( $256 \times 256$ )
 
 | Model | Size | Param. | FLOPs | DS01 | DS02 | DS03 |
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| **My** | **1.35MB** | **0.353M** | **0.873G** | **72.23%** | **71.95%** | **72.95%** |
+| **My** | **0.853** | **0.223M** | **0.985** | **73.07%** | **73.04%** | **73.42%** |
 
 ## Installation
 
