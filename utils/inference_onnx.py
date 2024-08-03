@@ -1,24 +1,21 @@
 from typing import List, Tuple
 from torch import Tensor
-from torch.nn import Module
 import torch
 import torchvision
 import torch.optim
 from torchvision.io import read_image
 from zmq import device
-from torchvision import transforms
 import time
 import onnxruntime as ort
+import numpy as np
 
 
-def smoke_semantic(input_image: Tensor, model: Module, device: torch.device, time_train: List[float], i: int) -> Tuple[Tensor, Tensor]:
+def smoke_semantic(input_image: np.ndarray , ort_session:ort.InferenceSession, time_train: List[float], i: int) -> Tuple[np.ndarray, np.ndarray]:
     start_time = time.time()
 
-    with torch.no_grad():
-        output, aux = model(input_image)  # Import model 導進模型
-
-    if device == torch.device("cuda"):
-        torch.cuda.synchronize()  # wait for cuda to finish (cuda is asynchronous!)
+    ort_inputs = {ort_session.get_inputs()[0].name: input_image}
+    ort_outputs = ort_session.run(None, ort_inputs)
+    output = ort_outputs[0]
 
     if i != 0:
         fwt = time.time() - start_time
@@ -36,7 +33,7 @@ def smoke_semantic(input_image: Tensor, model: Module, device: torch.device, tim
     # #Calculate FPS
     # print("Model_FPS: {:.1f}".format(1/(time_end-start_time)))
 
-    return output, aux
+    return output
 
 def smoke_semantic_onnx(input_tensor: torch.Tensor, model_path: str) -> torch.Tensor:
     session = ort.InferenceSession(model_path)
@@ -52,19 +49,3 @@ def smoke_semantic_onnx(input_tensor: torch.Tensor, model_path: str) -> torch.Te
     aux_tensor = torch.tensor(aux[0])
     return output_tensor, aux_tensor
 
-if __name__ == "__main__":
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    print(f"Inference on device {device}.")
-
-    smoke_input_image = read_image(
-        "/home/yaocong/Experimental/speed_smoke_segmentation/test_files/123.jpg"
-    )
-    model_path = "/home/yaocong/Experimental/speed_smoke_segmentation/checkpoint/bs8e150/final.pth"
-    transform = transforms.Resize([256, 256])
-    smoke_input_image = transform(smoke_input_image)
-    smoke_input_image = (smoke_input_image) / 255.0
-    smoke_input_image = smoke_input_image.unsqueeze(0).to(device)
-
-    output = smoke_semantic(smoke_input_image, model_path, device)
-    print("output:", output.shape)
-    torchvision.utils.save_image(output, "inference" + ".jpg")
