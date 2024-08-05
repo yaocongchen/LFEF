@@ -1,4 +1,4 @@
-use image::{imageops::FilterType, GenericImageView};
+use image::{imageops::FilterType, GenericImageView, DynamicImage, RgbaImage, ImageBuffer, Rgb};
 use ndarray::Array;
 use ort::{CUDAExecutionProvider, GraphOptimizationLevel, Session};
 use std::fs;
@@ -8,7 +8,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
 
     // 定義資料夾路徑
-    let input_folder = "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/images";
+    let input_folder = "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS02/images";
     let output_folder = "./results/processed_images";
 
     // 創建輸出資料夾如果不存在
@@ -50,25 +50,47 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     let value = predictions[idx];
                     let value = (value * 255.0) as u8;
                     // value > 127 = 255; value <= 127 = 0
-                    output.put_pixel(x as _, y as _, image::Rgb([value, value, value]));
+                    output.put_pixel(x as _, y as _, image::Rgba([value, value, value, 255]));
                     let value_threshold: u8 = if value > 127 { 255 } else { 0 };
                     output_threshold.put_pixel(
                         x as _,
                         y as _,
-                        image::Rgb([value_threshold, value_threshold, value_threshold]),
+                        image::Rgba([value_threshold, value_threshold, value_threshold, 255]),
                     );
                 }
             }
+            
+            // input image and output_threshold image overlap
+            let resized_input_img = input_img.resize_exact(256, 256, FilterType::CatmullRom);
+
+            let mut concat_img = RgbaImage::new(resized_input_img.width() + output.width() + output_threshold.width(), resized_input_img.height());
+
+            image::imageops::overlay(&mut concat_img, &resized_input_img, 0, 0);
+            image::imageops::overlay(&mut concat_img, &output, resized_input_img.width() as i64, 0);
+            image::imageops::overlay(
+                &mut concat_img,
+                &output_threshold,
+                (resized_input_img.width() + output.width()) as i64,
+                0,
+            );
 
             // 輸出文件名
             let file_name = path.file_name().unwrap().to_str().unwrap();
-            let output_path = Path::new(output_folder).join(file_name);
-            let output_threshold_path =
-                Path::new(output_folder).join(format!("threshold_{}", file_name));
+            let output_path = Path::new(output_folder).join(format!("concat_{}", file_name));
 
-            // 保存輸出圖像
-            output.save(output_path)?;
-            output_threshold.save(output_threshold_path)?;
+            // 保存拼接後的圖像
+            concat_img.save(output_path)?;
+        
+
+            // // 輸出文件名
+            // let file_name = path.file_name().unwrap().to_str().unwrap();
+            // let output_path = Path::new(output_folder).join(file_name);
+            // let output_threshold_path =
+            //     Path::new(output_folder).join(format!("threshold_{}", file_name));
+
+            // // 保存輸出圖像
+            // output.save(output_path)?;
+            // output_threshold.save(output_threshold_path)?;
         }
     }
 

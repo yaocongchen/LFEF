@@ -35,17 +35,4 @@ def smoke_semantic(input_image: np.ndarray , ort_session:ort.InferenceSession, t
 
     return output
 
-def smoke_semantic_onnx(input_tensor: torch.Tensor, model_path: str) -> torch.Tensor:
-    session = ort.InferenceSession(model_path)
-    input_name = session.get_inputs()[0].name
-    output_name = session.get_outputs()[0].name
-
-    # Convert to numpy array for ONNX
-    input_tensor = input_tensor.cpu().numpy()
-    output, aux= session.run([output_name], {input_name: input_tensor})
-    
-    # Convert back to torch tensor
-    output_tensor = torch.tensor(output[0])
-    aux_tensor = torch.tensor(aux[0])
-    return output_tensor, aux_tensor
 
