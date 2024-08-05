@@ -4,7 +4,7 @@
 
 <div align="center">
     <a href="./">
-        <img src="./model_structure_diagram/smoke_segment_structure-main.drawio.png" width="79%"/>
+        <img src="./model_structure_diagram/LFEF.png" width="100%"/>
     </a>
 </div>
 
@@ -46,7 +46,7 @@ cd /yolov9
 
 ``` shell
 # Example
-python val.py -ti /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/images/ -tm /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/masks/ -m /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/best.pth
+python val.py -ti /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/images/ -tm /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/masks/ -m /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/best.pth
 
 ```
 
@@ -54,19 +54,19 @@ python val.py -ti /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data
 You will get the results:
 
 ```
-model_name: <module 'models.CGNet_2_erfnet31_13_3113_oneloss_inv_attention' from '/home/yaocong/Experimental/speed_smoke_segmentation/models/CGNet_2_erfnet31_13_3113_oneloss_inv_attention.py'>
+model_name: <module 'models.LFEF' from '/home/yaocong/Experimental/speed_smoke_segmentation/models/LFEF.py'>
 Testing on device cuda.
-model size:                     1.347 MB
-Computational complexity(FLOPs):   873.04 MMac
-Number of parameters:           353.07 k
-model path: /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/best.pth
-test_data: /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/images/
+model size:                     0.850 MB
+Computational complexity(FLOPs):   983.66 MMac
+Number of parameters:           222.89 k
+model path: ./trained_models/best.pth
+test_data: /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/images/
 Number of test Images: 1000
-100%|████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:25<00:00, 39.63it/s, test_hd=12.6, test_loss=0.35, test_mSSIM=81.6, test_miou=72]
-FPS:39.6
-totally cost: 0m 25s
-loss: 0.3498
-mIoU: 72.00%
+100%|█| 1000/1000 [00:07<00:00, 135.11it/s, test_hd=12.3, test_loss=0.328, test_
+FPS:135.1
+totally cost: 0m 7s
+loss: 0.3280
+mIoU: 73.14%
 ```
 
 
@@ -78,13 +78,13 @@ Single GPU training
 
 ``` shell
 # Example
-python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_downsample
+python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base
 ```
 Multiple GPU training
 
 ``` shell
 # Example
-python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_downsample -gpus 0,1
+python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base -gpus 0,1
 ```
 
 | Parameter | Description | Default Value |
@@ -117,7 +117,7 @@ python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_
 
 <div align="center">
     <a href="./">
-        <img src="./figure/horses_prediction.jpg" width="49%"/>
+        <img src="./model_structure_diagram/image_stitching_9.jpg" width="100%"/>
     </a>
 </div>
 
@@ -125,7 +125,7 @@ python main.py -bs 32 -train_dataset Host_SYN70K -e 500 -wn base_use_ConvINReLU_
 
 ``` shell
 # Example
-python val.py -ti /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/images/ -tm /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS03/masks/ -m /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last.pth
+python val.py -ti /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/images/ -tm /home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/masks/ -m /home/yaocong/Experimental/speed_smoke_segmentation/trained_models/last.pth
 ```
 
 | Parameter | Description | Default Value |
