@@ -8,3 +8,4 @@ trained_models/
 !.gitignore
 old_models/
 target/
+*.bkp
