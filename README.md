@@ -17,7 +17,7 @@ SYN70K ( $256 \times 256$ )
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | **LFEF** | **0.853MB** | **0.223M** | **0.985G** | **73.07%** | **73.04%** | **73.42%** |
 
-## Installation
+<!-- ## Installation
 
 Docker environment (recommended)
 <details><summary> <b>Expand</b> </summary>
@@ -42,7 +42,7 @@ cd /yolov9
 
 ## Evaluation
 
-[`best.pt`](https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-c-converted.pt)
+[`best.pt`](https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-c-converted.pt) -->
 
 ``` shell
 # Example
