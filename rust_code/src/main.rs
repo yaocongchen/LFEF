@@ -1,14 +1,19 @@
-use std::process::Command;
+// mod process_folder;
+// mod process_single_image;
+mod process_video;
+mod utils;
 
-fn main() {
-    // 呼叫 process_single_image 二進位檔案
-    let output = Command::new("cargo")
-        .args(&["run", "--bin", "process_single_image"])
-        .output()
-        .expect("Failed to execute process_single_image");
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    tracing_subscriber::fmt::init();
 
-    // 打印輸出
-    println!("Status: {}", output.status);
-    println!("Output: {}", String::from_utf8_lossy(&output.stdout));
-    println!("Error: {}", String::from_utf8_lossy(&output.stderr));
+    // // 調用 process_single_image 模組的函數
+    // process_single_image::process_single_image()?;
+
+    // // 調用 process_folder 模組的函數
+    // process_folder::process_folder()?;
+
+    // 調用 process_video 模組的函數
+    process_video::process_video()?;
+
+    Ok(())
 }

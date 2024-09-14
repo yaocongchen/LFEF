@@ -1,25 +1,24 @@
-use std::fs;
+use crate::utils::{image_processing, model};
 use image::imageops::FilterType;
+use ort::Tensor;
+use std::fs;
 
-use rust_code::utils::{model, image_processing};
+pub fn process_single_image() -> Result<(), Box<dyn std::error::Error>> {
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt::init();
-
-    let input_img = image::open(
-        "/home/yaocong/Experimental/Dataset/SYN70K_dataset/testing_data/DS01/images/2.png",
-    )
-    .unwrap();
+    let input_img =
+        image::open("/home/yaocong/Dataset/SYN70K_dataset/testing_data/DS01/images/2.png").unwrap();
     let output_folder = "./results/processed_single_images";
     fs::create_dir_all(output_folder)?;
 
-    input_img.save("input.png")?;
+    // input_img.save("input.png")?;
 
     let model = model::create_model_session()?;
 
-    let input = image_processing::process_image(&input_img);
+    let input_vec = image_processing::process_image(&input_img);
+    let input_tensor = Tensor::from_array(([1, 3, 256, 256], input_vec.into_boxed_slice()))?;
+    print!("input_tensor: {:?}", input_tensor);
 
-    let outputs = model.run(ort::inputs!["input" => input.view()]?)?;
+    let outputs = model.run(ort::inputs!["input" => input_tensor]?)?;
     let predictions = outputs["output"].try_extract_tensor::<f32>()?;
     let predictions = predictions.as_slice().unwrap();
 
