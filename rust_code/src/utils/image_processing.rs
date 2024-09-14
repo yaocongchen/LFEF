@@ -1,7 +1,7 @@
-use image::{imageops::FilterType, DynamicImage, GenericImageView, RgbaImage};
+use image::{imageops::FilterType, DynamicImage, GenericImageView, ImageBuffer, Rgba, RgbaImage};
 use ndarray::Array;
 
-pub fn process_image(input_img: &DynamicImage) -> Array<f32, ndarray::Dim<[usize; 4]>> {
+pub fn process_image(input_img: &DynamicImage) -> Vec<f32> {
     let img = input_img.resize_exact(256, 256, FilterType::CatmullRom);
     let mut input = Array::zeros((1, 3, 256, 256));
     for pixel in img.pixels() {
@@ -12,10 +12,8 @@ pub fn process_image(input_img: &DynamicImage) -> Array<f32, ndarray::Dim<[usize
         input[[0, 1, x, y]] = g as f32 / 255.0;
         input[[0, 2, x, y]] = b as f32 / 255.0;
     }
-    input
+    input.into_raw_vec()
 }
-
-use image::{ImageBuffer, Rgba};
 
 pub fn process_predictions(
     predictions: &[f32],
