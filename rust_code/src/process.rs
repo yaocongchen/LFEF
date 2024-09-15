@@ -129,10 +129,10 @@ pub fn folder() -> Result<(), Box<dyn std::error::Error>> {
 pub fn video() -> Result<(), Box<dyn std::error::Error>> {
     // 設置影片來源和目的地
     let video_path = "/home/yaocong/Dataset/smoke_video_dataset/Black_smoke_517.avi";
-    let output_video_path = "output_video.mp4";
-
+    let output_video_name = "output_video.mp4";
     let output_folder = "./results/processed_videos";
     fs::create_dir_all(output_folder)?;
+    let output_video_path = format!("{}/{}", output_folder, output_video_name);
 
     let model = model::create_model_session()?;
 
@@ -150,7 +150,7 @@ pub fn video() -> Result<(), Box<dyn std::error::Error>> {
     // 設置影片寫入器
     let fourcc = VideoWriter::fourcc('m', 'p', '4', 'v')?;
     let mut writer = VideoWriter::new(
-        output_video_path,
+        &output_video_path,
         fourcc,
         fps,
         core::Size::new(frame_width, frame_height),
