@@ -1,5 +1,11 @@
-use image::{imageops::FilterType, DynamicImage, GenericImageView, ImageBuffer, Rgba, RgbaImage};
+use image::{imageops::FilterType, DynamicImage, GenericImageView, ImageBuffer, Rgb, Rgba, RgbaImage};
 use ndarray::Array;
+use opencv::core::{Mat, CV_8UC3};
+use opencv::{
+    prelude::*,
+    Result,
+};
+
 
 pub fn process_image(input_img: &DynamicImage) -> Vec<f32> {
     let img = input_img.resize_exact(256, 256, FilterType::CatmullRom);
@@ -108,4 +114,37 @@ pub fn concatenate_images(
     );
 
     concat_img
+}
+
+pub fn mat_to_imagebuffer(mat: &Mat) -> Result<DynamicImage, Box<dyn std::error::Error>> {
+    // 檢查 Mat 是否為 8 位 3 通道的圖像
+    if mat.typ() != CV_8UC3 {
+        return Err("Mat 必須是 CV_8UC3 格式".into());
+    }
+
+    // 獲取 Mat 的尺寸
+    let size = mat.size()?;
+    let width = size.width as u32;
+    let height = size.height as u32;
+
+    // 獲取 Mat 的數據
+    let data = mat.data_bytes()?;
+
+    // 創建 ImageBuffer
+    let buffer = ImageBuffer::<Rgb<u8>, _>::from_raw(width, height, data.to_vec())
+        .ok_or("無法從 Mat 數據創建 ImageBuffer")?;
+
+    let dynamic_image = DynamicImage::ImageRgb8(buffer);
+
+    Ok(dynamic_image)
+}
+
+
+pub fn imagebuffer_to_mat(buffer: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> Result<Mat, Box<dyn std::error::Error>> {
+    let (_width, height) = buffer.dimensions();
+    let data = buffer.as_raw();
+    let mat = Mat::from_slice(data)?;
+    let mat = mat.reshape(4, height as i32)?;
+    let mat_clane: Mat = mat.try_clone()?;
+    Ok(mat_clane)
 }
