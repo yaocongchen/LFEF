@@ -13,10 +13,10 @@ use opencv::{
 
 
 
-pub fn single_image(model:&Session, file_path:&str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn single_image(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Error>> {
 
     let input_img =
-        image::open(file_path).unwrap();
+        image::open(source).unwrap();
     let output_folder = "./results/processed_single_images";
     fs::create_dir_all(output_folder)?;
 
@@ -52,10 +52,10 @@ pub fn single_image(model:&Session, file_path:&str) -> Result<(), Box<dyn std::e
     Ok(())
 }
 
-pub fn folder(model:&Session, file_path:&str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn folder(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Error>> {
 
     // 定義資料夾路徑
-    let input_folder = file_path;
+    let input_folder = source;
     let output_folder = "./results/processed_images";
 
     // 創建輸出資料夾如果不存在
@@ -121,9 +121,9 @@ pub fn folder(model:&Session, file_path:&str) -> Result<(), Box<dyn std::error::
     Ok(())
 }
 
-pub fn video(model:&Session, file_path:&str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn video(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Error>> {
     // 設置影片來源和目的地
-    let video_path = file_path;
+    let video_path = source;
     let output_video_name = "output_video.mp4";
     let output_folder = "./results/processed_videos";
     fs::create_dir_all(output_folder)?;
@@ -218,6 +218,111 @@ pub fn video(model:&Session, file_path:&str) -> Result<(), Box<dyn std::error::E
 
     // 釋放資源
     cap.release()?;
+    writer.release()?;
+    highgui::destroy_all_windows()?;
+    Ok(())
+}
+
+pub fn camera(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Error>> {
+    // 設置影片來源和目的地
+    //camera_index to i32
+    let camera_index = source.parse::<i32>().unwrap();
+    let output_video_name = "output_video.mp4";
+    let output_folder = "./results/processed_videos";
+    fs::create_dir_all(output_folder)?;
+    let output_video_path = format!("{}/{}", output_folder, output_video_name);
+
+    // 打開影片檔案
+    let mut camera: videoio::VideoCapture = videoio::VideoCapture::new(camera_index, videoio::CAP_ANY)?;
+    if !camera.is_opened()? {
+        panic!("Failed to open camera");
+    }
+
+    highgui::named_window("Camera Feed", highgui::WINDOW_AUTOSIZE)?;
+
+    // 取得影片的幀寬和幀高
+    let frame_width = camera.get(videoio::CAP_PROP_FRAME_WIDTH)? as i32;
+    let frame_height = camera.get(videoio::CAP_PROP_FRAME_HEIGHT)? as i32;
+    let fps = camera.get(videoio::CAP_PROP_FPS)?;
+
+    // 設置影片寫入器
+    let fourcc = VideoWriter::fourcc('m', 'p', '4', 'v')?;
+    let mut writer = VideoWriter::new(
+        &output_video_path,
+        fourcc,
+        fps,
+        core::Size::new(frame_width, frame_height),
+        true,
+    )?;
+
+    // 讀取影片幀並寫入新影片檔案
+    let mut frame = Mat::default();
+    while camera.read(&mut frame)? {
+        if frame.empty() {
+            break;
+        }
+
+        let mut resized_frame = Mat::default();
+        imgproc::resize(
+            &frame,
+            &mut resized_frame,
+            opencv::core::Size::new(256, 256),
+            0.0,
+            0.0,
+            imgproc::INTER_LINEAR,
+        )?;
+
+        let dynamic_image = image_processing::mat_to_imagebuffer(&resized_frame)?;
+        // print!("dynamic_image_type: {:?}", dynamic_image.color());
+        let input_vec = image_processing::process_image(&dynamic_image);
+        let input_tensor = Tensor::from_array(([1, 3, 256, 256], input_vec.into_boxed_slice()))?;
+    
+        let outputs = model.run(ort::inputs!["input" => input_tensor]?)?;
+        let predictions = outputs["output"].try_extract_tensor::<f32>()?;
+        let predictions = predictions.as_slice().unwrap();
+
+        let (_output, _output_threshold, output_threshold_red) =
+            image_processing::process_predictions(
+                predictions,
+                dynamic_image.width(),
+                dynamic_image.height(),
+            );
+
+        let resized_input_img = dynamic_image.resize_exact(256, 256, FilterType::CatmullRom);
+        let overlap_image = image_processing::create_overlap_image(
+            &resized_input_img,
+            &output_threshold_red,
+            256,
+            256,
+        );
+        
+        frame = image_processing::imagebuffer_to_mat(&overlap_image)?;
+
+        // 顯示影片幀
+        highgui::imshow("Camera Feed", &frame)?;
+        if highgui::wait_key(10)? == 27 {
+            // 按下 'ESC' 鍵退出
+            break;
+        }
+
+        // 將 4 通道的幀轉換為 3 通道的幀
+        let mut bgr_frame = Mat::default();
+        imgproc::cvt_color(&frame, &mut bgr_frame, imgproc::COLOR_BGRA2BGR, 0)?;
+        let mut restore_frame = Mat::default();
+        imgproc::resize(
+            &bgr_frame,
+            &mut restore_frame,
+            opencv::core::Size::new(frame_width, frame_height),
+            0.0,
+            0.0,
+            imgproc::INTER_LINEAR,
+        )?;
+        // bgr_frame = restore_frame;
+        writer.write(&restore_frame)?;
+    }
+
+    // 釋放資源
+    camera.release()?;
     writer.release()?;
     highgui::destroy_all_windows()?;
     Ok(())
