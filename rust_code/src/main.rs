@@ -1,17 +1,30 @@
 mod process;
 mod utils;
+use utils::model;
+
+use std::env;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
+    let args: Vec<String> = env::args().collect();
 
-    // 調用 process_single_image 模組的函數
-    process::single_image()?;
+    if args.len() != 3 {
+        eprintln!("Usage: {} <model_path>", args[0]);
+        std::process::exit(1);
+    }
 
-    // 調用 process_folder 模組的函數
-    process::folder()?;
+    let model_path = &args[1];
+    let file_path = &args[2];
 
-    // 調用 process_video 模組的函數
-    process::video()?;
+    let model = model::create_model_session(model_path)?;
+
+    if file_path.ends_with(".png") || file_path.ends_with(".jpg") {
+        process::single_image(&model, file_path)?;
+    } else if file_path.ends_with(".mp4") || file_path.ends_with(".avi") {
+        process::video(&model, file_path)?;
+    } else {
+        process::folder(&model, file_path)?;
+    }
 
     Ok(())
 }

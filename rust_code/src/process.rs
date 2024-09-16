@@ -1,5 +1,5 @@
-use crate::utils::{image_processing, model};
-use ort::Tensor;
+use crate::utils::image_processing;
+use ort::{Session, Tensor};
 use std::fs;
 use image::imageops::FilterType;
 use std::path::Path;
@@ -13,20 +13,17 @@ use opencv::{
 
 
 
-pub fn single_image() -> Result<(), Box<dyn std::error::Error>> {
+pub fn single_image(model:&Session, file_path:&str) -> Result<(), Box<dyn std::error::Error>> {
 
     let input_img =
-        image::open("/home/yaocong/Dataset/SYN70K_dataset/testing_data/DS01/images/2.png").unwrap();
+        image::open(file_path).unwrap();
     let output_folder = "./results/processed_single_images";
     fs::create_dir_all(output_folder)?;
 
     // input_img.save("input.png")?;
 
-    let model = model::create_model_session()?;
-
     let input_vec = image_processing::process_image(&input_img);
     let input_tensor = Tensor::from_array(([1, 3, 256, 256], input_vec.into_boxed_slice()))?;
-    print!("input_tensor: {:?}", input_tensor);
 
     let outputs = model.run(ort::inputs!["input" => input_tensor]?)?;
     let predictions = outputs["output"].try_extract_tensor::<f32>()?;
@@ -55,16 +52,14 @@ pub fn single_image() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn folder() -> Result<(), Box<dyn std::error::Error>> {
+pub fn folder(model:&Session, file_path:&str) -> Result<(), Box<dyn std::error::Error>> {
 
     // 定義資料夾路徑
-    let input_folder = "/home/yaocong/Dataset/SYN70K_dataset/testing_data/DS02/images";
+    let input_folder = file_path;
     let output_folder = "./results/processed_images";
 
     // 創建輸出資料夾如果不存在
     fs::create_dir_all(output_folder)?;
-
-    let model = model::create_model_session()?;
 
     // 遍歷資料夾中的所有圖像文件
     for entry in fs::read_dir(input_folder)? {
@@ -126,15 +121,13 @@ pub fn folder() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn video() -> Result<(), Box<dyn std::error::Error>> {
+pub fn video(model:&Session, file_path:&str) -> Result<(), Box<dyn std::error::Error>> {
     // 設置影片來源和目的地
-    let video_path = "/home/yaocong/Dataset/smoke_video_dataset/Black_smoke_517.avi";
+    let video_path = file_path;
     let output_video_name = "output_video.mp4";
     let output_folder = "./results/processed_videos";
     fs::create_dir_all(output_folder)?;
     let output_video_path = format!("{}/{}", output_folder, output_video_name);
-
-    let model = model::create_model_session()?;
 
     // 打開影片檔案
     let mut cap = VideoCapture::from_file(video_path, CAP_ANY)?;
@@ -163,6 +156,7 @@ pub fn video() -> Result<(), Box<dyn std::error::Error>> {
         if frame.empty() {
             break;
         }
+
         let mut resized_frame = Mat::default();
         imgproc::resize(
             &frame,
@@ -172,10 +166,8 @@ pub fn video() -> Result<(), Box<dyn std::error::Error>> {
             0.0,
             imgproc::INTER_LINEAR,
         )?;
-        frame = resized_frame;
 
-        // 將幀轉換為模型的輸入
-        let dynamic_image = image_processing::mat_to_imagebuffer(&frame)?;
+        let dynamic_image = image_processing::mat_to_imagebuffer(&resized_frame)?;
         // print!("dynamic_image_type: {:?}", dynamic_image.color());
         let input_vec = image_processing::process_image(&dynamic_image);
         let input_tensor = Tensor::from_array(([1, 3, 256, 256], input_vec.into_boxed_slice()))?;
@@ -198,7 +190,7 @@ pub fn video() -> Result<(), Box<dyn std::error::Error>> {
             256,
             256,
         );
-
+        
         frame = image_processing::imagebuffer_to_mat(&overlap_image)?;
 
         // 顯示影片幀
@@ -208,7 +200,20 @@ pub fn video() -> Result<(), Box<dyn std::error::Error>> {
             break;
         }
 
-        writer.write(&frame)?;
+        // 將 4 通道的幀轉換為 3 通道的幀
+        let mut bgr_frame = Mat::default();
+        imgproc::cvt_color(&frame, &mut bgr_frame, imgproc::COLOR_BGRA2BGR, 0)?;
+        let mut restore_frame = Mat::default();
+        imgproc::resize(
+            &bgr_frame,
+            &mut restore_frame,
+            opencv::core::Size::new(frame_width, frame_height),
+            0.0,
+            0.0,
+            imgproc::INTER_LINEAR,
+        )?;
+        // bgr_frame = restore_frame;
+        writer.write(&restore_frame)?;
     }
 
     // 釋放資源
