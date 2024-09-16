@@ -156,42 +156,8 @@ pub fn video(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Erro
         if frame.empty() {
             break;
         }
-
-        let mut resized_frame = Mat::default();
-        imgproc::resize(
-            &frame,
-            &mut resized_frame,
-            opencv::core::Size::new(256, 256),
-            0.0,
-            0.0,
-            imgproc::INTER_LINEAR,
-        )?;
-
-        let dynamic_image = image_processing::mat_to_imagebuffer(&resized_frame)?;
-        // print!("dynamic_image_type: {:?}", dynamic_image.color());
-        let input_vec = image_processing::process_image(&dynamic_image);
-        let input_tensor = Tensor::from_array(([1, 3, 256, 256], input_vec.into_boxed_slice()))?;
-    
-        let outputs = model.run(ort::inputs!["input" => input_tensor]?)?;
-        let predictions = outputs["output"].try_extract_tensor::<f32>()?;
-        let predictions = predictions.as_slice().unwrap();
-
-        let (_output, _output_threshold, output_threshold_red) =
-            image_processing::process_predictions(
-                predictions,
-                dynamic_image.width(),
-                dynamic_image.height(),
-            );
-
-        let resized_input_img = dynamic_image.resize_exact(256, 256, FilterType::CatmullRom);
-        let overlap_image = image_processing::create_overlap_image(
-            &resized_input_img,
-            &output_threshold_red,
-            256,
-            256,
-        );
         
-        frame = image_processing::imagebuffer_to_mat(&overlap_image)?;
+        frame = process_frame(&model, &frame)?;
 
         // 顯示影片幀
         highgui::imshow("Video", &frame)?;
@@ -261,42 +227,8 @@ pub fn camera(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Err
         if frame.empty() {
             break;
         }
-
-        let mut resized_frame = Mat::default();
-        imgproc::resize(
-            &frame,
-            &mut resized_frame,
-            opencv::core::Size::new(256, 256),
-            0.0,
-            0.0,
-            imgproc::INTER_LINEAR,
-        )?;
-
-        let dynamic_image = image_processing::mat_to_imagebuffer(&resized_frame)?;
-        // print!("dynamic_image_type: {:?}", dynamic_image.color());
-        let input_vec = image_processing::process_image(&dynamic_image);
-        let input_tensor = Tensor::from_array(([1, 3, 256, 256], input_vec.into_boxed_slice()))?;
-    
-        let outputs = model.run(ort::inputs!["input" => input_tensor]?)?;
-        let predictions = outputs["output"].try_extract_tensor::<f32>()?;
-        let predictions = predictions.as_slice().unwrap();
-
-        let (_output, _output_threshold, output_threshold_red) =
-            image_processing::process_predictions(
-                predictions,
-                dynamic_image.width(),
-                dynamic_image.height(),
-            );
-
-        let resized_input_img = dynamic_image.resize_exact(256, 256, FilterType::CatmullRom);
-        let overlap_image = image_processing::create_overlap_image(
-            &resized_input_img,
-            &output_threshold_red,
-            256,
-            256,
-        );
         
-        frame = image_processing::imagebuffer_to_mat(&overlap_image)?;
+        frame = process_frame(&model, &frame)?;
 
         // 顯示影片幀
         highgui::imshow("Camera Feed", &frame)?;
@@ -326,4 +258,41 @@ pub fn camera(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Err
     writer.release()?;
     highgui::destroy_all_windows()?;
     Ok(())
+}
+
+fn process_frame(model:&Session, frame:&Mat) -> Result<Mat, Box<dyn std::error::Error>> {
+    let mut resized_frame = Mat::default();
+    imgproc::resize(
+        &frame,
+        &mut resized_frame,
+        opencv::core::Size::new(256, 256),
+        0.0,
+        0.0,
+        imgproc::INTER_LINEAR,
+    )?;
+
+    let dynamic_image = image_processing::mat_to_imagebuffer(&resized_frame)?;
+    let input_vec = image_processing::process_image(&dynamic_image);
+    let input_tensor = Tensor::from_array(([1, 3, 256, 256], input_vec.into_boxed_slice()))?;
+    let outputs = model.run(ort::inputs!["input" => input_tensor]?)?;
+    let predictions = outputs["output"].try_extract_tensor::<f32>()?;
+    let predictions = predictions.as_slice().unwrap();
+
+    let (_output, _output_threshold, output_threshold_red) =
+        image_processing::process_predictions(
+            predictions,
+            dynamic_image.width(),
+            dynamic_image.height(),
+        );
+
+    let resized_input_img = dynamic_image.resize_exact(256, 256, FilterType::CatmullRom);
+    let overlap_image = image_processing::create_overlap_image(
+        &resized_input_img,
+        &output_threshold_red,
+        256,
+        256,
+    );
+
+    let frame = image_processing::imagebuffer_to_mat(&overlap_image)?;
+    Ok(frame)
 }
