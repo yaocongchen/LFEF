@@ -14,16 +14,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let model_path = &args[1];
-    let file_path = &args[2];
+    let source = &args[2];
 
     let model = model::create_model_session(model_path)?;
 
-    if file_path.ends_with(".png") || file_path.ends_with(".jpg") {
-        process::single_image(&model, file_path)?;
-    } else if file_path.ends_with(".mp4") || file_path.ends_with(".avi") {
-        process::video(&model, file_path)?;
+    if source.ends_with(".png") || source.ends_with(".jpg") {
+        process::single_image(&model, source)?;
+    } else if source.ends_with(".mp4") || source.ends_with(".avi") {
+        process::video(&model, source)?;
+    } else if source.ends_with("0") {
+        process::camera(&model, source)?;
     } else {
-        process::folder(&model, file_path)?;
+        process::folder(&model, source)?;
     }
 
     Ok(())

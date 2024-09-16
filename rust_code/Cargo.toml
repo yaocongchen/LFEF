@@ -2,6 +2,7 @@
 name = "rust_code"
 version = "0.1.0"
 edition = "2021"
+default-run = "rust_code"
 
 [dependencies]
 image = "0.25.2"
@@ -9,3 +10,7 @@ ndarray = "0.15.6"
 opencv = "0.92.3"
 ort = { version = "2.0.0-rc.6", features = ["cuda"] }
 tracing-subscriber = "0.3.18"
+
+[[bin]]
+name = "open_camera"
+path = "bin/camera.rs"
