@@ -2,9 +2,11 @@ use image::{imageops::FilterType, DynamicImage, GenericImageView, ImageBuffer, R
 use ndarray::Array;
 use opencv::core::{Mat, CV_8UC3};
 use opencv::{
+    imgproc,
     prelude::*,
     Result,
 };
+use ort::{Session, Tensor};
 
 
 pub fn process_image(input_img: &DynamicImage) -> Vec<f32> {
@@ -147,4 +149,41 @@ pub fn imagebuffer_to_mat(buffer: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> Result<Mat
     let mat = mat.reshape(4, height as i32)?;
     let mat_clane: Mat = mat.try_clone()?;
     Ok(mat_clane)
+}
+
+pub fn process_frame(model:&Session, frame:&Mat) -> Result<Mat, Box<dyn std::error::Error>> {
+    let mut resized_frame = Mat::default();
+    imgproc::resize(
+        &frame,
+        &mut resized_frame,
+        opencv::core::Size::new(256, 256),
+        0.0,
+        0.0,
+        imgproc::INTER_LINEAR,
+    )?;
+
+    let dynamic_image = mat_to_imagebuffer(&resized_frame)?;
+    let input_vec = process_image(&dynamic_image);
+    let input_tensor = Tensor::from_array(([1, 3, 256, 256], input_vec.into_boxed_slice()))?;
+    let outputs = model.run(ort::inputs!["input" => input_tensor]?)?;
+    let predictions = outputs["output"].try_extract_tensor::<f32>()?;
+    let predictions = predictions.as_slice().unwrap();
+
+    let (_output, _output_threshold, output_threshold_red) =
+        process_predictions(
+            predictions,
+            dynamic_image.width(),
+            dynamic_image.height(),
+        );
+
+    let resized_input_img = dynamic_image.resize_exact(256, 256, FilterType::CatmullRom);
+    let overlap_image = create_overlap_image(
+        &resized_input_img,
+        &output_threshold_red,
+        256,
+        256,
+    );
+
+    let frame = imagebuffer_to_mat(&overlap_image)?;
+    Ok(frame)
 }
