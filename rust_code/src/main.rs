@@ -9,7 +9,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
 
     if args.len() != 3 {
-        eprintln!("Usage: {} <model_path>", args[0]);
+        eprintln!("Usage: {} <model_path> <source>", args[0]);
+        eprintln!("Example: {} model.onnx image.png", args[0]);
         std::process::exit(1);
     }
 
