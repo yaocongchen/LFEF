@@ -1,5 +1,5 @@
 use crate::utils::image_processing;
-use ort::{Session, Tensor};
+use ort::{session::Session, value::Tensor};
 use std::fs;
 use image::imageops::FilterType;
 use std::path::Path;

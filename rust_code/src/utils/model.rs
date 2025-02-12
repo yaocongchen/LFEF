@@ -1,4 +1,4 @@
-use ort::{CPUExecutionProvider, CUDAExecutionProvider, GraphOptimizationLevel, Session};
+use ort::{execution_providers::{CPUExecutionProvider, CUDAExecutionProvider}, session::builder::GraphOptimizationLevel, session::Session};
 use std::process::Command;
 use std::str;
 

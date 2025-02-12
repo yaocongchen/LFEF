@@ -6,7 +6,7 @@ use opencv::{
     prelude::*,
     Result,
 };
-use ort::{Session, Tensor};
+use ort::{session::Session, value::Tensor};
 
 
 pub fn process_image(input_img: &DynamicImage) -> Vec<f32> {
@@ -20,7 +20,7 @@ pub fn process_image(input_img: &DynamicImage) -> Vec<f32> {
         input[[0, 1, x, y]] = g as f32 / 255.0;
         input[[0, 2, x, y]] = b as f32 / 255.0;
     }
-    input.into_raw_vec()
+    input.into_raw_vec_and_offset().0
 }
 
 pub fn process_predictions(
