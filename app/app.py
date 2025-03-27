@@ -5,9 +5,7 @@ import torch
 import time
 import os
 import PIL.Image as Image
-import numpy as np
 from typing import Any, Dict, Tuple, Union, Optional
-import torch
 
 #定位到主目錄
 import sys
