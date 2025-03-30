@@ -1,21 +1,17 @@
 use crate::utils::image_processing;
-use ort::{session::Session, value::Tensor};
-use std::fs;
 use image::imageops::FilterType;
-use std::path::Path;
 use opencv::{
     core, highgui, imgproc,
     prelude::*,
     videoio::{self, VideoCapture, VideoWriter, CAP_ANY},
     Result,
 };
+use ort::{session::Session, value::Tensor};
+use std::fs;
+use std::path::Path;
 
-
-
-pub fn single_image(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Error>> {
-
-    let input_img =
-        image::open(source).unwrap();
+pub fn single_image(model: &Session, source: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let input_img = image::open(source).unwrap();
     let output_folder = "./results/processed_single_images";
     fs::create_dir_all(output_folder)?;
 
@@ -23,7 +19,6 @@ pub fn single_image(model:&Session, source:&str) -> Result<(), Box<dyn std::erro
 
     let input_vec = image_processing::process_image(&input_img);
     let input_tensor = Tensor::from_array(([1, 3, 256, 256], input_vec.into_boxed_slice()))?;
-
     let outputs = model.run(ort::inputs!["input" => input_tensor]?)?;
     let predictions = outputs["output"].try_extract_tensor::<f32>()?;
     let predictions = predictions.as_slice().unwrap();
@@ -51,8 +46,7 @@ pub fn single_image(model:&Session, source:&str) -> Result<(), Box<dyn std::erro
     Ok(())
 }
 
-pub fn folder(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Error>> {
-
+pub fn folder(model: &Session, source: &str) -> Result<(), Box<dyn std::error::Error>> {
     // 定義資料夾路徑
     let input_folder = source;
     let output_folder = "./results/processed_images";
@@ -67,8 +61,9 @@ pub fn folder(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Err
         if path.is_file() && path.extension().map_or(false, |ext| ext == "png") {
             let input_img = image::open(&path)?;
             let input_vec = image_processing::process_image(&input_img);
-            let input_tensor = Tensor::from_array(([1, 3, 256, 256], input_vec.into_boxed_slice()))?;
-        
+            let input_tensor =
+                Tensor::from_array(([1, 3, 256, 256], input_vec.into_boxed_slice()))?;
+
             let outputs = model.run(ort::inputs!["input" => input_tensor]?)?;
 
             let predictions = outputs["output"].try_extract_tensor::<f32>()?;
@@ -120,7 +115,7 @@ pub fn folder(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Err
     Ok(())
 }
 
-pub fn video(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn video(model: &Session, source: &str) -> Result<(), Box<dyn std::error::Error>> {
     // 設置影片來源和目的地
     let video_path = source;
     let output_video_name = "output_video.mp4";
@@ -155,7 +150,7 @@ pub fn video(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Erro
         if frame.empty() {
             break;
         }
-        
+
         frame = image_processing::process_frame(&model, &frame)?;
 
         // 顯示影片幀
@@ -188,7 +183,7 @@ pub fn video(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Erro
     Ok(())
 }
 
-pub fn camera(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn camera(model: &Session, source: &str) -> Result<(), Box<dyn std::error::Error>> {
     // 設置影片來源和目的地
     //camera_index to i32
     let camera_index = source.parse::<i32>().unwrap();
@@ -198,7 +193,8 @@ pub fn camera(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Err
     let output_video_path = format!("{}/{}", output_folder, output_video_name);
 
     // 打開影片檔案
-    let mut camera: videoio::VideoCapture = videoio::VideoCapture::new(camera_index, videoio::CAP_ANY)?;
+    let mut camera: videoio::VideoCapture =
+        videoio::VideoCapture::new(camera_index, videoio::CAP_ANY)?;
     if !camera.is_opened()? {
         panic!("Failed to open camera");
     }
@@ -226,7 +222,7 @@ pub fn camera(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Err
         if frame.empty() {
             break;
         }
-        
+
         frame = image_processing::process_frame(&model, &frame)?;
 
         // 顯示影片幀
@@ -258,4 +254,3 @@ pub fn camera(model:&Session, source:&str) -> Result<(), Box<dyn std::error::Err
     highgui::destroy_all_windows()?;
     Ok(())
 }
-

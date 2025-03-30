@@ -20,6 +20,14 @@ class _LfefSegmentaion extends State<LFEF_App> {
   Future<ort.OrtSession> loadModel() async {
     // 載入模型
     final sessionOptions = ort.OrtSessionOptions();
+    // 啟用 NNAPI
+    try {
+      sessionOptions.appendNnapiProvider(ort.NnapiFlags.cpuOnly);
+      print("NNAPI 已啟用");
+    } catch (e) {
+      print("NNAPI 無法啟用，回退到默認 CPU 提供者: $e");
+    }
+
     final assetFileName = 'assets/models/best.onnx'; // 模型文件名稱
     final rawAssetFile = await DefaultAssetBundle.of(
       context,
@@ -54,42 +62,75 @@ class _LfefSegmentaion extends State<LFEF_App> {
     }
 
     // 步驟 2: 調整圖片大小為模型所需尺寸 (例如 256x256)
-    final resizedImage = img.copyResize(originalImage, width: 256, height: 256);
+    final resizedImage = img.copyResize(
+      originalImage,
+      width: 256,
+      height: 256,
+      interpolation: img.Interpolation.cubic,
+    );
 
     // 步驟 3: 準備模型輸入張量
-    final inputData = Float32List(256 * 256 * 3); // 假設模型需要 RGB 格式
-    int pixelIndex = 0;
+    // final inputData = Float32List(256 * 256 * 3); // 假設模型需要 RGB 格式
+    // int pixelIndex = 0;
 
+    // for (int y = 0; y < resizedImage.height; y++) {
+    //   for (int x = 0; x < resizedImage.width; x++) {
+    //     final pixel = resizedImage.getPixel(x, y);
+    //     // 提取 RGB 值並正規化到 0-1
+    //     inputData[pixelIndex] = pixel.r / 255.0;
+    //     inputData[pixelIndex + 1] = pixel.g / 255.0;
+    //     inputData[pixelIndex + 2] = pixel.b / 255.0;
+    //     pixelIndex += 3;
+    //   }
+    // }
+    // 初始化一個三維數組來存儲通道
+
+    List<List<List<double>>> inputData = List.generate(
+      3,
+      (_) => List.generate(256, (_) => List.filled(256, 0.0)),
+    );
+
+    // 填充每個通道
     for (int y = 0; y < resizedImage.height; y++) {
       for (int x = 0; x < resizedImage.width; x++) {
         final pixel = resizedImage.getPixel(x, y);
-        // 提取 RGB 值並正規化到 0-1
-        inputData[pixelIndex] = pixel.r / 255.0;
-        inputData[pixelIndex + 1] = pixel.g / 255.0;
-        inputData[pixelIndex + 2] = pixel.b / 255.0;
-        pixelIndex += 3;
+        inputData[0][x][y] = pixel.r / 255.0;
+        inputData[1][x][y] = pixel.g / 255.0;
+        inputData[2][x][y] = pixel.b / 255.0;
       }
     }
+
+    // 將三維數組展平為一維數組
+    final flatInputData = inputData.expand((e) => e).expand((e) => e).toList();
+    // 將一維數組轉換為 Float32List
+    final inputDataFloat32 = Float32List.fromList(flatInputData);
+    // print("輸入數據類型: ${inputDataFloat32.runtimeType}");
+    print(inputDataFloat32.sublist(0, 10)); // 打印前 10 個數據
 
     // 步驟 4: 建立 ONNX 輸入張量
     final inputShape = [1, 3, 256, 256]; // 批次大小, 通道數, 高度, 寬度
     final inputTensor = ort.OrtValueTensor.createTensorWithDataList(
-      inputData,
+      inputDataFloat32,
       inputShape,
     );
+
     // 步驟 5: 執行推論
     final inputs = {'input': inputTensor}; // 假設模型輸入名稱為 'input'
     final OrtRunOptions = ort.OrtRunOptions();
     final outputs = await session.run(OrtRunOptions, inputs);
 
+    inputTensor.release(); // 釋放輸入張量
+    OrtRunOptions.release(); // 釋放運行選項
+
     // 步驟 6: 處理輸出
     final outputTensor = outputs.first; // 獲取第一個輸出張量
-    print("輸出張量: $outputTensor");
     if (outputTensor == null) {
       throw Exception("輸出張量為 null");
     }
 
     final outputData = outputTensor.value;
+    // print("輸出數據: $outputData");
+    // print("輸出數據: $outputData");
     print("輸出數據類型: ${outputData.runtimeType}");
     if (outputData is List) {
       final batchSize = outputData.length;
@@ -119,7 +160,7 @@ class _LfefSegmentaion extends State<LFEF_App> {
           );
 
           // 閥值處理：將灰度直設置為 0 或 255
-          final threshold = 127;
+          final threshold = 127; // 閥值
           final binaryGray = gray > threshold ? 255 : 0;
 
           outputImage.setPixelRgba(
@@ -234,6 +275,9 @@ class _LfefSegmentaion extends State<LFEF_App> {
       try {
         final session = await loadModel();
         final result = await runInference(session, _image!);
+        session.release(); // 釋放模型會話
+        ort.OrtEnv.instance.release(); // 釋放環境
+        print("釋放模型會話和環境");
         final overlap_result = await image_processing(_image!, result); // 負片圖片
 
         setState(() {
@@ -279,7 +323,7 @@ class _LfefSegmentaion extends State<LFEF_App> {
     }
   }
 
-  // // 讀取影片並播放
+  // // // 讀取影片並播放
   // Future<void> pickVideo() async {
   //   final pickedFile = await _picker.pickVideo(
   //     source: ImageSource.gallery, // 使用相簿

@@ -1,4 +1,9 @@
-use ort::{execution_providers::{CPUExecutionProvider, CUDAExecutionProvider}, session::builder::GraphOptimizationLevel, session::Session};
+use num_cpus;
+use ort::{
+    execution_providers::{CPUExecutionProvider, CUDAExecutionProvider},
+    session::builder::GraphOptimizationLevel,
+    session::Session,
+};
 use std::process::Command;
 use std::str;
 
@@ -18,10 +23,10 @@ fn is_cuda_available() -> bool {
 
 pub fn create_model_session(model_path: &str) -> Result<Session, Box<dyn std::error::Error>> {
     let session_builder = Session::builder()?;
-    
+
     // 根據是否有 CUDA GPU 來決定使用 GPU 或 CPU
     let use_cuda = is_cuda_available();
-    
+
     let session_builder = if use_cuda {
         println!("CUDA provider is available.");
         session_builder.with_execution_providers([CUDAExecutionProvider::default().build()])?
@@ -30,9 +35,11 @@ pub fn create_model_session(model_path: &str) -> Result<Session, Box<dyn std::er
         session_builder.with_execution_providers([CPUExecutionProvider::default().build()])?
     };
 
+    let num_threads = num_cpus::get(); // 動態獲取可用 CPU 核心數
+
     let model = session_builder
         .with_optimization_level(GraphOptimizationLevel::Level3)?
-        .with_intra_threads(4)?
+        .with_intra_threads(num_threads)?
         .commit_from_file(model_path)?;
 
     Ok(model)

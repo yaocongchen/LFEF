@@ -8,6 +8,7 @@ default-run = "rust_code"
 cargo-update = "16.1.0"
 image = "0.25.5"
 ndarray = "0.16.1"
+num_cpus = "1.16.0"
 opencv = "0.94.2"
 # opencv = { version = "0.94.2", features = ["clang-runtime"] }
 ort = { version = "2.0.0-rc.9", features = ["cuda"] }
